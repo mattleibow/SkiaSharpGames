@@ -58,6 +58,16 @@ src/
     wwwroot/
       index.html               # App entry point
 
+tests/
+  GameEngine.Tests/            # xUnit tests for the game engine (111 tests)
+    EasingTests.cs             # All 6 easing functions, all branches including BounceOut segments
+    AnimatedFloatTests.cs      # Initial value, AnimateTo, SetImmediate, Update lifecycle
+    LoopedAnimationTests.cs    # Start/Stop, period/active/complete phases, RepeatCount
+    PhysicsBodyTests.cs        # 100% branch coverage — Step, BoundingBox, Overlaps (all 4 pairs),
+                               #   Reflect (guards + minV/minH axis), ReflectOff (all branches incl. len=0)
+    TransitionTests.cs         # FadeTransition, SlideTransition (all 4 dirs), GameScreenBase transitions
+    SpriteTests.cs             # RectSprite (visible/invisible/alpha/shine/shimmer), CircleSprite (glow)
+
 docs/screenshots/              # Per-game screenshot assets
   breakout/
     desktop-loading.png
@@ -244,6 +254,32 @@ DrawHelper.MeasureText(text, size);
    | `desktop-gameplay.png` | Desktop — mid-game |
    | `mobile-loading.png` | Mobile (≤ 430 px wide) — start/loading screen |
    | `mobile-gameplay.png` | Mobile — mid-game |
+
+## Testing
+
+The game engine is tested with xUnit (111 tests). Coverage is measured with coverlet — the thresholds enforced in CI are **≥ 80% line** and **≥ 80% branch**; `PhysicsBody` achieves **100% line and branch coverage**.
+
+```bash
+dotnet test tests/GameEngine.Tests/
+```
+
+To run with full coverage report:
+
+```bash
+dotnet test tests/GameEngine.Tests/ \
+  /p:CollectCoverage=true \
+  /p:CoverletOutputFormat=cobertura \
+  /p:CoverletOutput=coverage/coverage.cobertura.xml
+```
+
+| Area | Tests | Coverage focus |
+|------|-------|----------------|
+| `Easing` | 22 | All 6 functions; BounceOut all 4 segments; ElasticOut boundaries |
+| `AnimatedFloat` | 13 | AnimateTo (positive/zero/negative duration), SetImmediate, Update lifecycle |
+| `LoopedAnimation` | 14 | Start/Stop, period/active/complete phases, RepeatCount (finite/infinite/zero) |
+| `PhysicsBody` | 30 | **100% branch coverage** — Step, BoundingBox, Overlaps (all 4 shape pairs), Reflect (guards + minV≤minH + minH<minV), ReflectOff (no overlap, circle-circle len=0, circle-circle len>0, circle-rect, rect-circle, rect-rect) |
+| Transitions | 19 | FadeTransition (0/0.5/1 coverage), SlideTransition (all 4 directions), GameScreenBase Out/In phases |
+| Sprites | 13 | RectSprite (visible/invisible/alpha-zero/shine/shimmer), CircleSprite (glow/no-glow) |
 
 ## Getting Started
 

@@ -66,9 +66,11 @@ public sealed class LoopedAnimation
     /// Enables the animation.
     /// </summary>
     /// <param name="initialDelay">
-    /// How long to wait before the first run, in seconds.
-    /// Defaults to 0 (fires after one full <see cref="Period"/>).
-    /// Pass a fraction of <see cref="Period"/> to stagger multiple instances.
+    /// How much of the first period has already elapsed, in seconds.
+    /// Use <c>0</c> (default) to fire on the very next <see cref="Update"/> tick.
+    /// Use <see cref="Period"/> to wait a full period before the first run.
+    /// Pass a random fraction of <see cref="Period"/> to stagger multiple instances:
+    /// <code>shimmer.Start(Random.Shared.NextSingle() * shimmer.Period);</code>
     /// </param>
     public void Start(float initialDelay = 0f)
     {

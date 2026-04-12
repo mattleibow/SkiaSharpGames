@@ -37,6 +37,17 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
+      - name: Run tests with coverage
+        run: |
+          dotnet test tests/GameEngine.Tests/ \
+            --configuration Release \
+            --no-build \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutput=../../coverage/coverage.cobertura.xml \
+            /p:Threshold=80 \
+            /p:ThresholdType=line,branch
+
       - name: Publish Blazor app
         run: dotnet publish src/BlazorApp/SkiaSharpGames.BlazorApp.csproj --configuration Release --output dist
 

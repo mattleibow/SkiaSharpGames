@@ -66,14 +66,16 @@ public sealed class PhysicsBody
         : new SKRect(X, Y, X + Width, Y + Height);
 
     /// <summary>Returns <see langword="true"/> when this body's area overlaps <paramref name="other"/>.</summary>
-    public bool Overlaps(PhysicsBody other) => (Shape, other.Shape) switch
+    public bool Overlaps(PhysicsBody other)
     {
-        (PhysicsShape.Circle, PhysicsShape.Circle) => CircleCircle(this, other),
-        (PhysicsShape.Circle, PhysicsShape.Rect)   => CircleRect(this, other),
-        (PhysicsShape.Rect,   PhysicsShape.Circle) => CircleRect(other, this),
-        (PhysicsShape.Rect,   PhysicsShape.Rect)   => RectRect(this, other),
-        _                                           => false
-    };
+        if (Shape == PhysicsShape.Circle && other.Shape == PhysicsShape.Circle)
+            return CircleCircle(this, other);
+        if (Shape == PhysicsShape.Circle && other.Shape == PhysicsShape.Rect)
+            return CircleRect(this, other);
+        if (Shape == PhysicsShape.Rect && other.Shape == PhysicsShape.Circle)
+            return CircleRect(other, this);
+        return RectRect(this, other); // Rect vs Rect
+    }
 
     /// <summary>
     /// Reflects this body's velocity off <paramref name="other"/> using the smallest-overlap axis.

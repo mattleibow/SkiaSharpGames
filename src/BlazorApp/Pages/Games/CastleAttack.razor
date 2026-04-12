@@ -1,0 +1,11 @@
+@page "/games/castle-attack"
+@layout GameLayout
+@using SkiaSharpGames.BlazorApp.Games.CastleAttack
+
+<PageTitle>Castle Attack – SkiaSharp Games</PageTitle>
+
+<GameView Game="_game" />
+
+@code {
+    private readonly CastleAttackGame _game = new();
+}

@@ -3,12 +3,16 @@
 
 <div @ref="_container"
      class="game-view"
+     tabindex="0"
      @onmousemove="OnMouseMove"
      @onclick="OnClick"
      @ontouchmove="OnTouchMove"
      @ontouchstart="OnTouchStart"
      @ontouchmove:preventDefault
-     @ontouchstart:preventDefault>
+     @ontouchstart:preventDefault
+     @onkeydown="OnKeyDown"
+     @onkeyup="OnKeyUp"
+     @onkeydown:preventDefault>
     <SKGLView @ref="_glView"
               OnPaintSurface="OnPaintSurface"
               EnableRenderLoop="true"
@@ -33,7 +37,10 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
+        {
             await UpdateLayoutAsync();
+            await JS.InvokeVoidAsync("eval", "document.querySelector('.game-view')?.focus()");
+        }
     }
 
     private async Task UpdateLayoutAsync()
@@ -104,4 +111,16 @@
     }
 
     private record ElementRect(float Left, float Top, float Width, float Height);
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (Game is null) return;
+        Game.OnKeyDown(e.Key);
+    }
+
+    private void OnKeyUp(KeyboardEventArgs e)
+    {
+        if (Game is null) return;
+        Game.OnKeyUp(e.Key);
+    }
 }

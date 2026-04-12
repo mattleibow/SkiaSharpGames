@@ -6,6 +6,11 @@ namespace SkiaSharpGames.GameEngine;
 /// A rectangular sprite with rounded corners and an optional shine highlight on the top half.
 /// Suitable for bricks, paddles, panels, buttons, and similar shapes.
 /// </summary>
+/// <remarks>
+/// The sprite exposes a <see cref="Shimmer"/> <see cref="LoopedAnimation"/> that sweeps a bright
+/// gradient stripe across the rectangle periodically. Call <see cref="Shimmer"/>.Start() to enable it,
+/// and <see cref="Update"/> every game tick to advance the animation.
+/// </remarks>
 public class RectSprite : Sprite
 {
     /// <summary>Width of the rectangle in game-space units.</summary>
@@ -25,6 +30,17 @@ public class RectSprite : Sprite
     /// to give a subtle bevel/glossy look.
     /// </summary>
     public bool ShowShine { get; set; } = true;
+
+    /// <summary>
+    /// A looping shimmer animation that sweeps a white gradient stripe across the rectangle.
+    /// By default the period is 8 s and each run lasts 0.8 s.
+    /// Call <see cref="LoopedAnimation.Start"/> to enable, and <see cref="Update"/> every tick
+    /// to advance it.
+    /// </summary>
+    public LoopedAnimation Shimmer { get; } = new LoopedAnimation(period: 8f, duration: 0.8f);
+
+    /// <inheritdoc />
+    public override void Update(float deltaTime) => Shimmer.Update(deltaTime);
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas)
@@ -47,6 +63,33 @@ public class RectSprite : Sprite
                 IsAntialias = true
             };
             canvas.DrawRoundRect(shineRect, cr, cr, shine);
+        }
+
+        // Shimmer — a white gradient stripe sweeping left→right
+        if (Shimmer.IsActive && Width > 0f && Height > 0f)
+        {
+            float stripeW = Width * 0.5f;
+            // Centre of the stripe travels from X-stripeW/2 to X+Width+stripeW/2
+            float sweepX = X - stripeW / 2f + Shimmer.Progress * (Width + stripeW);
+
+            canvas.Save();
+            canvas.ClipRoundRect(new SKRoundRect(rect, CornerRadius));
+
+            using var shader = SKShader.CreateLinearGradient(
+                new SKPoint(sweepX, Y),
+                new SKPoint(sweepX + stripeW, Y),
+                [
+                    SKColors.Transparent,
+                    SKColors.White.WithAlpha((byte)(90 * Alpha)),
+                    SKColors.Transparent
+                ],
+                [0f, 0.5f, 1f],
+                SKShaderTileMode.Clamp);
+
+            using var shimmerPaint = new SKPaint { Shader = shader, IsAntialias = true };
+            canvas.DrawRect(SKRect.Create(sweepX, Y, stripeW, Height), shimmerPaint);
+
+            canvas.Restore();
         }
     }
 }

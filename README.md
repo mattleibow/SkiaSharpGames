@@ -14,12 +14,13 @@ A SkiaSharp game gallery built with .NET 10 Blazor WebAssembly. Games are render
 
 | Desktop | Mobile |
 |---------|--------|
-| ![Desktop – Start screen](https://github.com/user-attachments/assets/763914f7-b1c2-48d2-a85f-3801b4da0b83) | ![Mobile – Start screen](https://github.com/user-attachments/assets/d9ba932b-6200-421a-881a-0891d2392c5c) |
-| ![Desktop – Gameplay](https://github.com/user-attachments/assets/c5eb9538-9124-46c1-9177-1db559cf1970) | ![Mobile – Gameplay](https://github.com/user-attachments/assets/bd8134f6-911c-471c-a361-c3c5bb4c5489) |
+| ![Desktop – Start screen](https://github.com/user-attachments/assets/7386849c-f6fc-4e18-8647-12d33c7239e9) | ![Mobile – Start screen](https://github.com/user-attachments/assets/d9ba932b-6200-421a-881a-0891d2392c5c) |
+| ![Desktop – Gameplay](https://github.com/user-attachments/assets/f2f22d8c-1fd1-4b35-a5fc-10e34e15e127) | ![Mobile – Gameplay](https://github.com/user-attachments/assets/bd8134f6-911c-471c-a361-c3c5bb4c5489) |
 
 **Features:** 5×10 colour-coded bricks (top rows = more points), 3 lives, mouse & touch input, powerup drops:
-- **STRONG BALL** (15% chance) — ball pierces through all bricks for 5 s
-- **BIG PADDLE** (15% chance) — paddle grows 1.8× wider for 8 s
+- **STRONG BALL** (15% chance) — ball pierces through all bricks for 5 s (ball turns orange)
+- **BIG PADDLE** (15% chance) — paddle springs to 1.8× wider for 8 s (animated via `AnimatedFloat`)
+- Bricks have a periodic shimmer sweep powered by `LoopedAnimation`
 
 ## Project Structure
 
@@ -32,10 +33,14 @@ src/
     IScreenTransition.cs       # Swappable transition interface
     FadeTransition.cs          # Fade-to-colour transition
     SlideTransition.cs         # Wipe/slide transition
-    Sprite.cs                  # Abstract sprite base
-    RectSprite.cs              # Rounded-rect sprite (bricks, paddle)
-    CircleSprite.cs            # Circle sprite with glow (ball)
+    Sprite.cs                  # Abstract sprite base with Update(dt)
+    RectSprite.cs              # Rounded-rect sprite + shimmer LoopedAnimation
+    CircleSprite.cs            # Circle sprite with glow
     DrawHelper.cs              # Static drawing utilities
+    Easing.cs                  # Easing functions (Linear, EaseIn/Out, BounceOut, BackOut, ElasticOut)
+    AnimatedFloat.cs           # One-shot lerped float with easing + duration
+    LoopedAnimation.cs         # Periodic repeating animation (period, duration, progress 0→1)
+    PhysicsBody.cs             # Rect/circle body with Step, Overlaps, Reflect, ReflectOff
 
   BlazorApp/                   # Blazor WebAssembly host (net10.0)
     Games/
@@ -105,14 +110,91 @@ BeginTransition(new FadeTransition(), halfDuration: 0.35f, StartGame);
 BeginTransition(new SlideTransition { Direction = SlideDirection.Up }, 0.3f, StartGame);
 ```
 
+### Animated Values
+
+`AnimatedFloat` lerps a float from its current value to a target over a duration using a configurable easing function. Call `Update(dt)` every tick.
+
+```csharp
+var paddleWidth = new AnimatedFloat(100f);
+
+// Spring-expand the paddle when powerup activates
+paddleWidth.AnimateTo(180f, duration: 0.3f, Easing.BackOut);
+
+// Smoothly shrink it back when the powerup expires
+paddleWidth.AnimateTo(100f, duration: 0.4f, Easing.EaseIn);
+
+// In Update():
+paddleWidth.Update(deltaTime);
+float w = paddleWidth.Value;
+```
+
+Available easing functions in `Easing`:
+
+| Name | Effect |
+|------|--------|
+| `Linear` | Constant rate |
+| `EaseIn` | Accelerates from rest |
+| `EaseOut` | Decelerates to rest |
+| `EaseInOut` | Smooth-step (accelerate then decelerate) |
+| `BounceOut` | Bounces at the end |
+| `BackOut` | Overshoots slightly then settles |
+| `ElasticOut` | Elastic snap past the target |
+
+### Looping Animations
+
+`LoopedAnimation` fires a normalised `Progress` (0 → 1) animation on a configurable period. Use it for repeating effects like shimmer, pulse, or idle animations.
+
+```csharp
+// 0.8 s shimmer every 8 s, staggered across instances
+var shimmer = new LoopedAnimation(period: 8f, duration: 0.8f);
+shimmer.Start(initialDelay: Random.Shared.NextSingle() * 8f);
+
+// In Update():
+shimmer.Update(deltaTime);
+
+// In Draw():
+if (shimmer.IsActive)
+    DrawShimmerStripe(shimmer.Progress);
+```
+
+`RectSprite` already has a built-in `Shimmer` property (a `LoopedAnimation` with period=8s, duration=0.8s). Call `Sprite.Update(dt)` to advance it.
+
+### Physics
+
+`PhysicsBody` is a simple circle-or-rect body. Use `Step(dt)` to advance position, `Overlaps` to test collision, and `Reflect`/`ReflectOff` to bounce.
+
+```csharp
+var ball   = new PhysicsBody(PhysicsShape.Circle) { Radius = 8f };
+var brick  = new PhysicsBody(PhysicsShape.Rect)   { Width = 72f, Height = 22f, IsStatic = true };
+
+ball.Step(deltaTime);
+
+if (!piercing && ball.Overlaps(brick))
+{
+    ball.Reflect(brick);  // reflect velocity off brick; already know they overlap
+    brick.Active = false;
+}
+
+// Or use the combined check + reflect:
+ball.ReflectOff(paddle);  // returns true if overlap was detected
+```
+
 ### Sprites
 
-Engine sprites encapsulate their own draw logic. Update their properties and call `Draw(canvas)`:
+Engine sprites encapsulate their own draw logic. Update their properties and call `Draw(canvas)`. Call `Update(dt)` to advance animations (e.g. shimmer on `RectSprite`):
 
 | Type | Properties | Use for |
 |------|-----------|---------|
-| `RectSprite` | X, Y, Width, Height, Color, CornerRadius, ShowShine, Alpha | Bricks, paddle, panels |
+| `RectSprite` | X, Y, Width, Height, Color, CornerRadius, ShowShine, Alpha, Shimmer | Bricks, paddle, panels |
 | `CircleSprite` | X, Y, Radius, Color, GlowRadius, GlowColor, Alpha | Ball, particles |
+
+```csharp
+// Enable staggered shimmer on a brick
+brick.Sprite.Shimmer.Start(Random.Shared.NextSingle() * brick.Sprite.Shimmer.Period);
+
+// Advance in Update():
+brick.Sprite.Update(deltaTime);
+```
 
 ### Drawing Utilities
 

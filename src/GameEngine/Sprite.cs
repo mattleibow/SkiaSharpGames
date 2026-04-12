@@ -22,4 +22,11 @@ public abstract class Sprite
 
     /// <summary>Renders the sprite onto <paramref name="canvas"/>.</summary>
     public abstract void Draw(SKCanvas canvas);
+
+    /// <summary>
+    /// Advances any animated properties by <paramref name="deltaTime"/> seconds.
+    /// Override in subclasses to drive per-sprite animations (e.g. shimmer, fade-in).
+    /// Call this once per game update tick for any sprites that use animation.
+    /// </summary>
+    public virtual void Update(float deltaTime) { }
 }

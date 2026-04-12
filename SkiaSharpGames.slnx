@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/BlazorApp/">
+    <Project Path="src/BlazorApp/SkiaSharpGames.BlazorApp.csproj" />
+  </Folder>
+  <Folder Name="/src/GameEngine/">
+    <Project Path="src/GameEngine/SkiaSharpGames.GameEngine.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,99 @@
+@page "/"
+@layout GameLayout
+@using SkiaSharp
+@using SkiaSharp.Views.Blazor
+@using SkiaSharpGames.BlazorApp.Games.Breakout
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>SkiaSharp Games – Breakout</PageTitle>
+
+<div class="game-container"
+     @onmousemove="OnMouseMove"
+     @onclick="OnClick"
+     @ontouchmove="OnTouchMove"
+     @ontouchstart="OnTouchStart"
+     @ontouchmove:preventDefault
+     @ontouchstart:preventDefault>
+    <SKCanvasView @ref="_canvasView"
+                  OnPaintSurface="OnPaintSurface"
+                  EnableRenderLoop="false"
+                  style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private SKCanvasView? _canvasView;
+    private readonly BreakoutGameEngine _game = new();
+    private CancellationTokenSource _cts = new();
+    private float _cssWidth;
+    private float _cssHeight;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _cssWidth  = await JS.InvokeAsync<float>("getViewportWidth");
+            _cssHeight = await JS.InvokeAsync<float>("getViewportHeight");
+            _ = RunGameLoopAsync(_cts.Token);
+        }
+    }
+
+    private async Task RunGameLoopAsync(CancellationToken ct)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(16));
+        var lastTime = DateTime.UtcNow;
+
+        while (!ct.IsCancellationRequested && await timer.WaitForNextTickAsync(ct))
+        {
+            var now = DateTime.UtcNow;
+            var deltaTime = Math.Min((float)(now - lastTime).TotalSeconds, 0.05f);
+            lastTime = now;
+
+            _game.Update(deltaTime);
+            _canvasView?.Invalidate();
+        }
+    }
+
+    private void OnPaintSurface(SKPaintSurfaceEventArgs e)
+    {
+        _game.Draw(e.Surface.Canvas, e.Info.Width, e.Info.Height);
+    }
+
+    private void OnMouseMove(MouseEventArgs e)
+    {
+        var (gx, gy) = _game.CanvasToGame((float)e.OffsetX, (float)e.OffsetY, _cssWidth, _cssHeight);
+        _game.OnPointerMove(gx, gy);
+    }
+
+    private void OnClick(MouseEventArgs e)
+    {
+        var (gx, gy) = _game.CanvasToGame((float)e.OffsetX, (float)e.OffsetY, _cssWidth, _cssHeight);
+        _game.OnPointerDown(gx, gy);
+    }
+
+    private void OnTouchMove(TouchEventArgs e)
+    {
+        if (e.Touches.Length > 0)
+        {
+            var t = e.Touches[0];
+            var (gx, gy) = _game.CanvasToGame((float)t.ClientX, (float)t.ClientY, _cssWidth, _cssHeight);
+            _game.OnPointerMove(gx, gy);
+        }
+    }
+
+    private void OnTouchStart(TouchEventArgs e)
+    {
+        if (e.Touches.Length > 0)
+        {
+            var t = e.Touches[0];
+            var (gx, gy) = _game.CanvasToGame((float)t.ClientX, (float)t.ClientY, _cssWidth, _cssHeight);
+            _game.OnPointerDown(gx, gy);
+        }
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}

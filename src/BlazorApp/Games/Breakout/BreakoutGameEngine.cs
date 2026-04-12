@@ -67,11 +67,11 @@ public class BreakoutGameEngine : GameScreenBase
     // ── Physics ───────────────────────────────────────────────────────────
     private float _paddleX;
 
-    // Ball as a PhysicsBody (circle) — position, velocity, and collision all in one place
-    private readonly PhysicsBody _ball = new(PhysicsShape.Circle) { Radius = BallRadius };
+    // Ball as a CircleBody — position, velocity, and collision all in one place
+    private readonly CircleBody _ball = new() { Radius = BallRadius };
 
     // Paddle physics body — updated each frame before collision checks
-    private readonly PhysicsBody _paddleBody = new(PhysicsShape.Rect)
+    private readonly RectBody _paddleBody = new()
         { Height = PaddleHeight, IsStatic = true };
 
     // ── Animated paddle width ─────────────────────────────────────────────
@@ -100,8 +100,8 @@ public class BreakoutGameEngine : GameScreenBase
     {
         public readonly int Row, Col;
         public bool Active = true;
-        public readonly RectSprite  Sprite;
-        public readonly PhysicsBody Body;
+        public readonly RectSprite Sprite;
+        public readonly RectBody Body;
 
         public Brick(int row, int col, float x, float y)
         {
@@ -111,7 +111,7 @@ public class BreakoutGameEngine : GameScreenBase
                 X = x, Y = y, Width = BrickWidth, Height = BrickHeight,
                 CornerRadius = 3f, ShowShine = true
             };
-            Body = new PhysicsBody(PhysicsShape.Rect)
+            Body = new RectBody
             {
                 X = x, Y = y, Width = BrickWidth, Height = BrickHeight, IsStatic = true
             };

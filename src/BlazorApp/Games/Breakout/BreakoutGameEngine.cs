@@ -4,210 +4,320 @@ using SkiaSharpGames.GameEngine;
 namespace SkiaSharpGames.BlazorApp.Games.Breakout;
 
 public enum GamePhase { Start, Playing, GameOver, Victory }
+public enum PowerUpType { StrongBall, BigPaddle }
 
 public class BreakoutGameEngine : GameScreenBase
 {
-    // Game dimensions (logical/virtual coordinates)
-    public const int GameWidth = 800;
+    // ── Game dimensions ───────────────────────────────────────────────────
+    public const int GameWidth  = 800;
     public const int GameHeight = 600;
 
-    // Paddle
-    private const float PaddleWidth = 100f;
-    private const float PaddleHeight = 14f;
-    private const float PaddleY = 558f;
+    // ── Paddle ────────────────────────────────────────────────────────────
+    private const float DefaultPaddleWidth  = 100f;
+    private const float PaddleHeight        = 14f;
+    private const float PaddleY             = 558f;
+    private const float BigPaddleMultiplier = 1.8f;
+    private const float BigPaddleDuration   = 8f;
 
-    // Ball
-    private const float BallRadius = 8f;
-    private const float BallSpeed = 350f;
+    // ── Ball ──────────────────────────────────────────────────────────────
+    private const float BallRadius        = 8f;
+    private const float BallSpeed         = 350f;
+    private const float StrongBallDuration = 5f;
 
-    // Bricks
-    private const int BrickCols = 10;
-    private const int BrickRows = 5;
-    private const float BrickWidth = 72f;
+    // ── Bricks ────────────────────────────────────────────────────────────
+    private const int   BrickCols   = 10;
+    private const int   BrickRows   = 5;
+    private const float BrickWidth  = 72f;
     private const float BrickHeight = 22f;
-    private const float BrickGap = 4f;
-    private static readonly float BricksStartX = (GameWidth - (BrickCols * (BrickWidth + BrickGap) - BrickGap)) / 2f;
+    private const float BrickGap    = 4f;
+    private static readonly float BricksStartX =
+        (GameWidth - (BrickCols * (BrickWidth + BrickGap) - BrickGap)) / 2f;
     private const float BricksStartY = 60f;
 
-    public override (int width, int height) GameDimensions => (GameWidth, GameHeight);
+    // ── Power-ups ─────────────────────────────────────────────────────────
+    private const float PowerUpChance = 0.15f;   // 15 % per brick destroyed
+    private const float PowerUpSpeed  = 130f;    // falling px/s
+    private const float PowerUpW      = 34f;
+    private const float PowerUpH      = 18f;
 
-    // State
-    public GamePhase Phase { get; private set; } = GamePhase.Start;
-    public int Score { get; private set; }
-    public int Lives { get; private set; } = 3;
+    // ── Colours ───────────────────────────────────────────────────────────
+    private static readonly SKColor BackgroundColor = new(0x0D, 0x1B, 0x2A);
+    private static readonly SKColor PaddleColor     = new(0x00, 0xD4, 0xFF);
+    private static readonly SKColor AccentColor     = new(0x00, 0xD4, 0xFF);
+    private static readonly SKColor DimColor        = new(0xAA, 0xAA, 0xAA);
+    private static readonly SKColor StrongBallColor = new(0xFF, 0x6B, 0x00);
+    private static readonly SKColor BigPaddleColor  = new(0x00, 0xE5, 0x76);
 
-    private float _paddleX = (GameWidth - PaddleWidth) / 2f;
-    private float _ballX = GameWidth / 2f;
-    private float _ballY = GameHeight / 2f;
-    private float _ballVX = 0f;
-    private float _ballVY = 0f;
-    private bool[,] _bricks = new bool[BrickRows, BrickCols];
-
-    // Colors for brick rows
     private static readonly SKColor[] BrickColors =
     [
-        new SKColor(0xFF, 0x2D, 0x55), // Red   (row 0 – top, highest score)
+        new SKColor(0xFF, 0x2D, 0x55), // Red    (row 0 – top, highest score)
         new SKColor(0xFF, 0x9F, 0x0A), // Orange
         new SKColor(0xFF, 0xD6, 0x0A), // Yellow
         new SKColor(0x30, 0xD1, 0x58), // Green
-        new SKColor(0x0A, 0x84, 0xFF), // Blue  (row 4 – bottom)
+        new SKColor(0x0A, 0x84, 0xFF), // Blue   (row 4 – bottom)
     ];
 
-    private static readonly SKColor BackgroundColor = new(0x0D, 0x1B, 0x2A);
-    private static readonly SKColor PaddleColor = new(0x00, 0xD4, 0xFF);
-    private static readonly SKColor AccentColor = new(0x00, 0xD4, 0xFF);
-    private static readonly SKColor DimColor = new(0xAA, 0xAA, 0xAA);
+    public override (int width, int height) GameDimensions => (GameWidth, GameHeight);
+
+    // ── Public state ──────────────────────────────────────────────────────
+    public GamePhase Phase { get; private set; } = GamePhase.Start;
+    public int       Score { get; private set; }
+    public int       Lives { get; private set; } = 3;
+
+    // ── Physics ───────────────────────────────────────────────────────────
+    private float _paddleX;
+    private float _ballX, _ballY, _ballVX, _ballVY;
+
+    // ── Power-up timers ───────────────────────────────────────────────────
+    private float _strongBallTimer;
+    private float _bigPaddleTimer;
+
+    private float CurrentPaddleWidth =>
+        _bigPaddleTimer > 0f ? DefaultPaddleWidth * BigPaddleMultiplier : DefaultPaddleWidth;
+
+    // ── Sprites ───────────────────────────────────────────────────────────
+    private readonly CircleSprite _ballSprite = new()
+    {
+        Radius = BallRadius, Color = SKColors.White, GlowRadius = 4f, GlowColor = SKColors.White
+    };
+
+    private readonly RectSprite _paddleSprite = new()
+    {
+        Height = PaddleHeight, Color = PaddleColor, CornerRadius = 6f, ShowShine = false
+    };
+
+    // ── Nested data types ─────────────────────────────────────────────────
+
+    private sealed class Brick
+    {
+        public int Row, Col;
+        public bool Active = true;
+        public readonly RectSprite Sprite = new()
+        {
+            Width = BrickWidth, Height = BrickHeight, CornerRadius = 3f, ShowShine = true
+        };
+    }
+
+    private sealed class FallingPowerUp
+    {
+        public float X, Y;   // centre
+        public PowerUpType Type;
+        public readonly RectSprite Sprite = new()
+        {
+            Width = PowerUpW, Height = PowerUpH, CornerRadius = 5f, ShowShine = false
+        };
+    }
+
+    private readonly List<Brick>         _bricks       = [];
+    private readonly List<FallingPowerUp> _powerUps    = [];
+
+    public BreakoutGameEngine()
+    {
+        // Pre-populate bricks so the start screen can show the decorative grid
+        InitBricks();
+    }
+
+    // ── Initialisation ────────────────────────────────────────────────────
 
     public void StartGame()
     {
-        Phase = GamePhase.Playing;
-        Score = 0;
-        Lives = 3;
-        InitializeBricks();
-        _paddleX = (GameWidth - PaddleWidth) / 2f;
+        Phase           = GamePhase.Playing;
+        Score           = 0;
+        Lives           = 3;
+        _strongBallTimer = 0f;
+        _bigPaddleTimer  = 0f;
+        _powerUps.Clear();
+        InitBricks();
+        _paddleX = (GameWidth - DefaultPaddleWidth) / 2f;
         ResetBall();
     }
 
-    private void InitializeBricks()
+    private void InitBricks()
     {
+        _bricks.Clear();
         for (int r = 0; r < BrickRows; r++)
+        {
             for (int c = 0; c < BrickCols; c++)
-                _bricks[r, c] = true;
+            {
+                var brick = new Brick { Row = r, Col = c };
+                brick.Sprite.X     = BricksStartX + c * (BrickWidth + BrickGap);
+                brick.Sprite.Y     = BricksStartY + r * (BrickHeight + BrickGap);
+                brick.Sprite.Color = BrickColors[r];
+                _bricks.Add(brick);
+            }
+        }
     }
 
     private void ResetBall()
     {
-        _ballX = _paddleX + PaddleWidth / 2f;
+        _ballX = _paddleX + CurrentPaddleWidth / 2f;
         _ballY = PaddleY - BallRadius - 10f;
-
-        // Launch at a random upward angle between 35° and 145°
         double angle = (35.0 + Random.Shared.NextDouble() * 110.0) * Math.PI / 180.0;
         _ballVX = (float)(BallSpeed * Math.Cos(angle));
         _ballVY = -(float)(BallSpeed * Math.Sin(angle));
     }
 
+    // ── Input ─────────────────────────────────────────────────────────────
+
     public override void OnPointerMove(float x, float y)
     {
         if (Phase == GamePhase.Playing)
-            _paddleX = Math.Clamp(x - PaddleWidth / 2f, 0f, GameWidth - PaddleWidth);
+        {
+            float pw = CurrentPaddleWidth;
+            _paddleX = Math.Clamp(x - pw / 2f, 0f, GameWidth - pw);
+        }
     }
 
     public override void OnPointerDown(float x, float y)
     {
+        if (IsTransitioning) return;
         if (Phase is GamePhase.Start or GamePhase.GameOver or GamePhase.Victory)
-            StartGame();
+            BeginTransition(new FadeTransition(), 0.35f, StartGame);
     }
+
+    // ── Update ────────────────────────────────────────────────────────────
 
     public override void Update(float deltaTime)
     {
-        if (Phase != GamePhase.Playing)
-            return;
+        UpdateTransition(deltaTime);
+
+        if (Phase != GamePhase.Playing) return;
+
+        // Power-up timers
+        _strongBallTimer = Math.Max(0f, _strongBallTimer - deltaTime);
+
+        float prevBigPaddleTimer = _bigPaddleTimer;
+        _bigPaddleTimer = Math.Max(0f, _bigPaddleTimer - deltaTime);
+        if (prevBigPaddleTimer > 0f && _bigPaddleTimer <= 0f)
+            _paddleX = Math.Clamp(_paddleX, 0f, GameWidth - DefaultPaddleWidth);
 
         // Move ball
         _ballX += _ballVX * deltaTime;
         _ballY += _ballVY * deltaTime;
 
-        // Left / right wall
-        if (_ballX - BallRadius < 0f)
-        {
-            _ballX = BallRadius;
-            _ballVX = MathF.Abs(_ballVX);
-        }
-        else if (_ballX + BallRadius > GameWidth)
-        {
-            _ballX = GameWidth - BallRadius;
-            _ballVX = -MathF.Abs(_ballVX);
-        }
+        // Wall collisions
+        if      (_ballX - BallRadius < 0f)        { _ballX = BallRadius;             _ballVX =  MathF.Abs(_ballVX); }
+        else if (_ballX + BallRadius > GameWidth)  { _ballX = GameWidth - BallRadius; _ballVX = -MathF.Abs(_ballVX); }
+        if      (_ballY - BallRadius < 0f)         { _ballY = BallRadius;             _ballVY =  MathF.Abs(_ballVY); }
 
-        // Top wall
-        if (_ballY - BallRadius < 0f)
-        {
-            _ballY = BallRadius;
-            _ballVY = MathF.Abs(_ballVY);
-        }
-
-        // Ball lost below the screen
+        // Ball lost
         if (_ballY > GameHeight + BallRadius * 2)
         {
             Lives--;
-            if (Lives <= 0)
-                Phase = GamePhase.GameOver;
-            else
+            if (Lives <= 0 && !IsTransitioning)
+                BeginTransition(new FadeTransition(), 0.4f, () => Phase = GamePhase.GameOver);
+            else if (Lives > 0)
                 ResetBall();
             return;
         }
 
         // Paddle collision
+        float pw = CurrentPaddleWidth;
         if (_ballVY > 0f &&
-            _ballX >= _paddleX && _ballX <= _paddleX + PaddleWidth &&
+            _ballX >= _paddleX && _ballX <= _paddleX + pw &&
             _ballY + BallRadius >= PaddleY && _ballY + BallRadius <= PaddleY + PaddleHeight + 6f)
         {
-            _ballVY = -MathF.Abs(_ballVY);
-
-            // Angle based on hit position along paddle (-1 … +1)
-            float hitPos = (_ballX - (_paddleX + PaddleWidth / 2f)) / (PaddleWidth / 2f);
-            float maxAngle = 65f * MathF.PI / 180f;
-            float angle = hitPos * maxAngle;
+            float hitPos   = (_ballX - (_paddleX + pw / 2f)) / (pw / 2f);
+            float angle    = hitPos * (65f * MathF.PI / 180f);
             _ballVX = BallSpeed * MathF.Sin(angle);
             _ballVY = -BallSpeed * MathF.Cos(angle);
         }
 
-        // Brick collisions
         CheckBrickCollisions();
+        UpdateFallingPowerUps(deltaTime);
 
-        // Victory check
-        bool anyBrick = false;
-        for (int r = 0; r < BrickRows && !anyBrick; r++)
-            for (int c = 0; c < BrickCols && !anyBrick; c++)
-                if (_bricks[r, c]) anyBrick = true;
-
-        if (!anyBrick)
-            Phase = GamePhase.Victory;
+        // Victory
+        if (!IsTransitioning && !_bricks.Any(b => b.Active))
+            BeginTransition(new FadeTransition(), 0.4f, () => Phase = GamePhase.Victory);
     }
 
     private void CheckBrickCollisions()
     {
-        for (int r = 0; r < BrickRows; r++)
+        bool piercing = _strongBallTimer > 0f;
+
+        for (int i = 0; i < _bricks.Count; i++)
         {
-            for (int c = 0; c < BrickCols; c++)
+            var brick = _bricks[i];
+            if (!brick.Active) continue;
+
+            float bx = brick.Sprite.X, by = brick.Sprite.Y;
+
+            if (_ballX + BallRadius < bx || _ballX - BallRadius > bx + BrickWidth ||
+                _ballY + BallRadius < by || _ballY - BallRadius > by + BrickHeight)
+                continue;
+
+            brick.Active = false;
+            Score += 10 * (BrickRows - brick.Row);
+            TrySpawnPowerUp(bx + BrickWidth / 2f, by + BrickHeight / 2f);
+
+            if (!piercing)
             {
-                if (!_bricks[r, c])
-                    continue;
-
-                float bx = BricksStartX + c * (BrickWidth + BrickGap);
-                float by = BricksStartY + r * (BrickHeight + BrickGap);
-
-                if (_ballX + BallRadius < bx || _ballX - BallRadius > bx + BrickWidth ||
-                    _ballY + BallRadius < by || _ballY - BallRadius > by + BrickHeight)
-                    continue;
-
-                _bricks[r, c] = false;
-                Score += 10 * (BrickRows - r); // top rows worth more
-
-                // Pick bounce axis with smallest overlap
                 float overlapLeft   = (_ballX + BallRadius) - bx;
-                float overlapRight  = (bx + BrickWidth) - (_ballX - BallRadius);
+                float overlapRight  = (bx + BrickWidth)  - (_ballX - BallRadius);
                 float overlapTop    = (_ballY + BallRadius) - by;
                 float overlapBottom = (by + BrickHeight) - (_ballY - BallRadius);
                 float minH = MathF.Min(overlapLeft, overlapRight);
-                float minV = MathF.Min(overlapTop, overlapBottom);
+                float minV = MathF.Min(overlapTop,  overlapBottom);
+                if (minV <= minH) _ballVY = -_ballVY; else _ballVX = -_ballVX;
+                return; // one brick per frame in normal mode
+            }
+            // Piercing mode: keep checking — ball passes through all hit bricks this frame
+        }
+    }
 
-                if (minV <= minH)
-                    _ballVY = -_ballVY;
-                else
-                    _ballVX = -_ballVX;
+    private void TrySpawnPowerUp(float cx, float cy)
+    {
+        if (Random.Shared.NextDouble() >= PowerUpChance) return;
+        var type = Random.Shared.NextDouble() < 0.5 ? PowerUpType.StrongBall : PowerUpType.BigPaddle;
+        var pu = new FallingPowerUp { X = cx, Y = cy, Type = type };
+        pu.Sprite.X     = cx - PowerUpW / 2f;
+        pu.Sprite.Y     = cy - PowerUpH / 2f;
+        pu.Sprite.Color = type == PowerUpType.StrongBall ? StrongBallColor : BigPaddleColor;
+        _powerUps.Add(pu);
+    }
 
-                return; // only break one brick per frame
+    private void UpdateFallingPowerUps(float deltaTime)
+    {
+        float pw = CurrentPaddleWidth;
+
+        for (int i = _powerUps.Count - 1; i >= 0; i--)
+        {
+            var pu = _powerUps[i];
+
+            pu.Y       += PowerUpSpeed * deltaTime;
+            pu.Sprite.Y = pu.Y - PowerUpH / 2f;
+
+            // Caught by paddle?
+            if (pu.Y + PowerUpH / 2f >= PaddleY &&
+                pu.Y - PowerUpH / 2f <= PaddleY + PaddleHeight &&
+                pu.X >= _paddleX && pu.X <= _paddleX + pw)
+            {
+                ApplyPowerUp(pu.Type);
+                _powerUps.RemoveAt(i);
+            }
+            else if (pu.Y > GameHeight + 30f)
+            {
+                _powerUps.RemoveAt(i);
             }
         }
     }
+
+    private void ApplyPowerUp(PowerUpType type)
+    {
+        switch (type)
+        {
+            case PowerUpType.StrongBall: _strongBallTimer = StrongBallDuration; break;
+            case PowerUpType.BigPaddle:  _bigPaddleTimer  = BigPaddleDuration;  break;
+        }
+    }
+
+    // ── Draw ──────────────────────────────────────────────────────────────
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {
         canvas.Clear(BackgroundColor);
 
-        // Scale game coordinates → canvas coordinates, maintaining aspect ratio
-        float scale = MathF.Min(width / (float)GameWidth, height / (float)GameHeight);
+        float scale   = MathF.Min(width / (float)GameWidth, height / (float)GameHeight);
         float offsetX = (width  - GameWidth  * scale) / 2f;
         float offsetY = (height - GameHeight * scale) / 2f;
 
@@ -217,122 +327,91 @@ public class BreakoutGameEngine : GameScreenBase
 
         switch (Phase)
         {
-            case GamePhase.Start:    DrawStartScreen(canvas);   break;
-            case GamePhase.Playing:  DrawGameScreen(canvas);    break;
-            case GamePhase.GameOver: DrawGameOverScreen(canvas); break;
-            case GamePhase.Victory:  DrawVictoryScreen(canvas);  break;
+            case GamePhase.Start:   DrawStartScreen(canvas); break;
+            case GamePhase.Playing: DrawGameScreen(canvas);  break;
+            case GamePhase.GameOver:
+                DrawGameScreen(canvas);
+                DrawHelper.DrawOverlay(canvas, GameWidth, GameHeight);
+                DrawHelper.DrawCenteredText(canvas, "GAME OVER", 64f, new SKColor(0xFF, 0x2D, 0x55), GameWidth / 2f, 270f);
+                DrawHelper.DrawCenteredText(canvas, $"Score: {Score}", 32f, SKColors.White, GameWidth / 2f, 335f);
+                DrawHelper.DrawCenteredText(canvas, "Click or Tap to Play Again", 24f, AccentColor, GameWidth / 2f, 395f);
+                break;
+            case GamePhase.Victory:
+                DrawGameScreen(canvas);
+                DrawHelper.DrawOverlay(canvas, GameWidth, GameHeight);
+                DrawHelper.DrawCenteredText(canvas, "YOU WIN!", 64f, new SKColor(0xFF, 0xD6, 0x0A), GameWidth / 2f, 270f);
+                DrawHelper.DrawCenteredText(canvas, $"Final Score: {Score}", 32f, SKColors.White, GameWidth / 2f, 335f);
+                DrawHelper.DrawCenteredText(canvas, "Click or Tap to Play Again", 24f, AccentColor, GameWidth / 2f, 395f);
+                break;
         }
 
+        DrawTransitionOverlay(canvas);
         canvas.Restore();
     }
 
-    // ── Screen Renderers ───────────────────────────────────────────────────
-
     private void DrawStartScreen(SKCanvas canvas)
     {
-        // Decorative faded bricks
-        for (int r = 0; r < BrickRows; r++)
-            for (int c = 0; c < BrickCols; c++)
-                DrawBrick(canvas,
-                    BricksStartX + c * (BrickWidth + BrickGap),
-                    BricksStartY + r * (BrickHeight + BrickGap),
-                    BrickColors[r], 0.25f);
-
-        DrawCenteredText(canvas, "BREAKOUT",      72f, SKColors.White,  290f);
-        DrawCenteredText(canvas, "Click or Tap to Start", 28f, AccentColor, 360f);
-        DrawCenteredText(canvas, "Move mouse / finger to control the paddle", 18f, DimColor, 415f);
+        foreach (var brick in _bricks)
+        {
+            brick.Sprite.Alpha = 0.25f;
+            brick.Sprite.Draw(canvas);
+        }
+        DrawHelper.DrawCenteredText(canvas, "BREAKOUT", 72f, SKColors.White, GameWidth / 2f, 290f);
+        DrawHelper.DrawCenteredText(canvas, "Click or Tap to Start", 28f, AccentColor, GameWidth / 2f, 360f);
+        DrawHelper.DrawCenteredText(canvas, "Move mouse / finger to control the paddle", 18f, DimColor, GameWidth / 2f, 415f);
     }
 
     private void DrawGameScreen(SKCanvas canvas)
     {
-        DrawBricks(canvas);
-        DrawPaddle(canvas);
-        DrawBall(canvas);
-        DrawHUD(canvas);
-    }
+        // Bricks
+        foreach (var brick in _bricks)
+        {
+            if (!brick.Active) continue;
+            brick.Sprite.Alpha = 1f;
+            brick.Sprite.Draw(canvas);
+        }
 
-    private void DrawGameOverScreen(SKCanvas canvas)
-    {
-        DrawGameScreen(canvas);
-        DrawOverlay(canvas);
-        DrawCenteredText(canvas, "GAME OVER", 64f, new SKColor(0xFF, 0x2D, 0x55), 270f);
-        DrawCenteredText(canvas, $"Score: {Score}", 32f, SKColors.White, 335f);
-        DrawCenteredText(canvas, "Click or Tap to Play Again", 24f, AccentColor, 395f);
-    }
+        // Falling power-ups
+        foreach (var pu in _powerUps)
+        {
+            pu.Sprite.Draw(canvas);
+            string label = pu.Type == PowerUpType.StrongBall ? "S" : "B";
+            DrawHelper.DrawCenteredText(canvas, label, 11f, SKColors.White, pu.X, pu.Y + 4f);
+        }
 
-    private void DrawVictoryScreen(SKCanvas canvas)
-    {
-        DrawGameScreen(canvas);
-        DrawOverlay(canvas);
-        DrawCenteredText(canvas, "YOU WIN!",    64f, new SKColor(0xFF, 0xD6, 0x0A), 270f);
-        DrawCenteredText(canvas, $"Final Score: {Score}", 32f, SKColors.White, 335f);
-        DrawCenteredText(canvas, "Click or Tap to Play Again", 24f, AccentColor, 395f);
-    }
+        // Paddle
+        float pw = CurrentPaddleWidth;
+        _paddleSprite.X     = _paddleX;
+        _paddleSprite.Y     = PaddleY;
+        _paddleSprite.Width = pw;
+        _paddleSprite.Color = _bigPaddleTimer > 0f ? BigPaddleColor : PaddleColor;
+        _paddleSprite.Draw(canvas);
 
-    // ── Drawing Helpers ────────────────────────────────────────────────────
+        // Ball
+        _ballSprite.X         = _ballX;
+        _ballSprite.Y         = _ballY;
+        _ballSprite.Color     = _strongBallTimer > 0f ? StrongBallColor : SKColors.White;
+        _ballSprite.GlowColor = _strongBallTimer > 0f ? StrongBallColor : SKColors.White;
+        _ballSprite.Draw(canvas);
 
-    private void DrawBricks(SKCanvas canvas)
-    {
-        for (int r = 0; r < BrickRows; r++)
-            for (int c = 0; c < BrickCols; c++)
-                if (_bricks[r, c])
-                    DrawBrick(canvas,
-                        BricksStartX + c * (BrickWidth + BrickGap),
-                        BricksStartY + r * (BrickHeight + BrickGap),
-                        BrickColors[r], 1f);
-    }
-
-    private static void DrawBrick(SKCanvas canvas, float x, float y, SKColor color, float opacity)
-    {
-        byte a = (byte)(255 * opacity);
-        var rect = SKRect.Create(x, y, BrickWidth, BrickHeight);
-
-        using var fill = new SKPaint { Color = color.WithAlpha(a), IsAntialias = true };
-        canvas.DrawRoundRect(rect, 3f, 3f, fill);
-
-        using var shine = new SKPaint { Color = SKColors.White.WithAlpha((byte)(55 * opacity)), IsAntialias = true };
-        canvas.DrawRoundRect(SKRect.Create(x + 2f, y + 2f, BrickWidth - 4f, (BrickHeight - 4f) / 2f), 2f, 2f, shine);
-    }
-
-    private void DrawPaddle(SKCanvas canvas)
-    {
-        using var paint = new SKPaint { Color = PaddleColor, IsAntialias = true };
-        canvas.DrawRoundRect(SKRect.Create(_paddleX, PaddleY, PaddleWidth, PaddleHeight), 6f, 6f, paint);
-    }
-
-    private void DrawBall(SKCanvas canvas)
-    {
-        using var glow = new SKPaint { Color = SKColors.White.WithAlpha(60), IsAntialias = true, MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 4f) };
-        canvas.DrawCircle(_ballX, _ballY, BallRadius + 2f, glow);
-
-        using var ball = new SKPaint { Color = SKColors.White, IsAntialias = true };
-        canvas.DrawCircle(_ballX, _ballY, BallRadius, ball);
-    }
-
-    private void DrawHUD(SKCanvas canvas)
-    {
-        using var font  = new SKFont(SKTypeface.Default, 20f);
-        using var paint = new SKPaint { Color = SKColors.White, IsAntialias = true };
-
-        canvas.DrawText($"Score: {Score}", 20f, 30f, font, paint);
-
+        // HUD
+        DrawHelper.DrawText(canvas, $"Score: {Score}", 20f, SKColors.White, 20f, 30f);
         string livesText = $"Lives: {Lives}";
-        float livesW = font.MeasureText(livesText);
-        canvas.DrawText(livesText, GameWidth - livesW - 20f, 30f, font, paint);
-    }
+        float  livesW    = DrawHelper.MeasureText(livesText, 20f);
+        DrawHelper.DrawText(canvas, livesText, 20f, SKColors.White, GameWidth - livesW - 20f, 30f);
 
-    private static void DrawOverlay(SKCanvas canvas)
-    {
-        using var overlay = new SKPaint { Color = new SKColor(0, 0, 0, 185) };
-        canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), overlay);
+        // Active power-up timers
+        float hudY = 52f;
+        if (_strongBallTimer > 0f)
+        {
+            DrawHelper.DrawCenteredText(canvas, $"STRONG BALL {_strongBallTimer:F1}s",
+                14f, StrongBallColor, GameWidth / 2f, hudY);
+            hudY += 18f;
+        }
+        if (_bigPaddleTimer > 0f)
+        {
+            DrawHelper.DrawCenteredText(canvas, $"BIG PADDLE {_bigPaddleTimer:F1}s",
+                14f, BigPaddleColor, GameWidth / 2f, hudY);
+        }
     }
-
-    private static void DrawCenteredText(SKCanvas canvas, string text, float size, SKColor color, float y)
-    {
-        using var font  = new SKFont(SKTypeface.Default, size) { Edging = SKFontEdging.Antialias };
-        using var paint = new SKPaint { Color = color, IsAntialias = true };
-        float w = font.MeasureText(text);
-        canvas.DrawText(text, (GameWidth - w) / 2f, y, font, paint);
-    }
-
 }

@@ -20,6 +20,8 @@ src/BlazorApp/
   Layout/
     GameLayout.razor          # Full-screen layout for game pages
     MainLayout.razor          # Gallery layout with header
+
+docs/screenshots/<slug>/      # 4 PNG screenshots per game
 ```
 
 ## Architecture
@@ -41,8 +43,8 @@ src/BlazorApp/
    @code { private readonly <ClassName> _game = new(); }
    ```
 5. Add a game card to the grid in `src/BlazorApp/Pages/Home.razor`.
-6. **Update `README.md`** — add the game to the Games table.
-7. **Add screenshots** — see the Screenshots section below.
+6. **Update `README.md`** — see Documentation rules below.
+7. **Add 4 screenshots** — see Screenshots section below.
 
 ### `GameScreenBase`
 
@@ -56,26 +58,64 @@ public abstract class GameScreenBase
     public abstract void Draw(SKCanvas canvas, int width, int height);
     public virtual void OnPointerMove(float x, float y) { }
     public virtual void OnPointerDown(float x, float y) { }
+
+    // Transition system — call in Update() and at end of Draw():
+    public bool IsTransitioning { get; }
+    protected void BeginTransition(IScreenTransition t, float halfDuration, Action midpoint);
+    protected void UpdateTransition(float deltaTime);
+    protected void DrawTransitionOverlay(SKCanvas canvas);
 }
 ```
 
-- `Update` and `Draw` are called on every frame (tied to display refresh rate via `SKGLView`).
-- `OnPointerMove`/`OnPointerDown` receive **game-space** coordinates (scaled from CSS pixels by `GameView`).
+### Screen Transitions
+
+Use `BeginTransition` to animate between game states:
+
+```csharp
+// Fade-out, invoke StartGame(), fade-in
+BeginTransition(new FadeTransition(), 0.35f, StartGame);
+
+// Directional wipe:
+BeginTransition(new SlideTransition { Direction = SlideDirection.Up }, 0.3f, StartGame);
+```
+
+Call `UpdateTransition(deltaTime)` at the top of `Update()`.
+Call `DrawTransitionOverlay(canvas)` at the end of `Draw()` inside the game-space transform.
+
+### Sprites
+
+Use engine sprites to reduce drawing boilerplate:
+
+| Class | Use for |
+|-------|---------|
+| `RectSprite` | Bricks, paddle, panels. Properties: X, Y, Width, Height, Color, CornerRadius, ShowShine, Alpha |
+| `CircleSprite` | Ball, particles. Properties: X, Y, Radius, Color, GlowRadius, GlowColor, Alpha |
+
+```csharp
+var brick = new RectSprite { X = bx, Y = by, Width = 72f, Height = 22f, Color = color, ShowShine = true };
+brick.Draw(canvas);
+```
+
+### Drawing utilities
+
+```csharp
+DrawHelper.FillRect(canvas, x, y, w, h, color);
+DrawHelper.DrawOverlay(canvas, gameWidth, gameHeight, alpha: 0.73f);
+DrawHelper.DrawCenteredText(canvas, text, size, color, cx, y);
+DrawHelper.DrawText(canvas, text, size, color, x, y);
+float w = DrawHelper.MeasureText(text, size);
+```
 
 ### `GameView` component
 
 `src/BlazorApp/Shared/GameView.razor` is the standard host for any game. It:
 
-- Renders via `SKGLView` with `EnableRenderLoop="true"` — the render loop is driven by `requestAnimationFrame`, synced to the display refresh rate. No `PeriodicTimer` is needed.
+- Renders via `SKGLView` with `EnableRenderLoop="true"` — driven by `requestAnimationFrame`.
 - Computes `deltaTime` in the paint callback.
-- Handles **mouse** (`OffsetX/OffsetY`) and **touch** (`ClientX/ClientY` minus element offset) events on both desktop and mobile.
+- Handles **mouse** (`OffsetX/OffsetY`) and **touch** (`ClientX/ClientY` minus element offset) events.
 - Converts CSS-pixel coordinates to game-space via `Game.GameDimensions`.
 
-Usage:
-
-```razor
-<GameView Game="_game" />
-```
+Usage: `<GameView Game="_game" />`
 
 ### Routing
 
@@ -84,15 +124,21 @@ Usage:
 | `/` | `Pages/Home.razor` | `MainLayout` (gallery + header) |
 | `/games/<slug>` | `Pages/Games/<Name>.razor` | `GameLayout` (full-screen) |
 
+**Always use relative hrefs** (no leading `/`) in game cards and links to ensure GitHub Pages compatibility:
+```html
+<a href="games/breakout">  ✅
+<a href="/games/breakout"> ✗ breaks on GitHub Pages
+```
+
 ## Screenshots requirement
 
-**Every game must include 4 screenshots** checked into the repository at `docs/screenshots/<game-slug>/`:
+**Every game must include 4 screenshots** in `docs/screenshots/<game-slug>/`:
 
 | File | Description |
 |------|-------------|
-| `desktop-loading.png` | Desktop (≥1280 px wide) — loading/start screen |
+| `desktop-loading.png` | Desktop (≥ 1280 px wide) — loading/start screen |
 | `desktop-gameplay.png` | Desktop — mid-game |
-| `mobile-loading.png` | Mobile (≤430 px wide) — loading/start screen |
+| `mobile-loading.png` | Mobile (≤ 430 px wide) — loading/start screen |
 | `mobile-gameplay.png` | Mobile — mid-game |
 
 These screenshots must be linked from the game's entry in `README.md`.
@@ -101,11 +147,11 @@ These screenshots must be linked from the game's entry in `README.md`.
 
 **Always update `README.md` when you change the code.** Specifically:
 
-- If you add a new game, add it to the "Games" table in `README.md` with screenshot links.
-- If you change the `GameScreenBase` API, update the "Game Engine" section in `README.md`.
-- If you change the CI/CD workflow, update the "CI/CD" section in `README.md`.
-- If you add or remove projects, update the "Project Structure" section in `README.md`.
-- If you change routing, update the "Routing" section in `README.md`.
+- If you add a new game, add it to the "Games" table and add a Screenshots section with all 4 images.
+- If you change the `GameScreenBase` API, update the "Game Engine" section.
+- If you change the CI/CD workflow, update the "CI/CD" section.
+- If you add or remove projects, update the "Project Structure" section.
+- **README.md must always include up-to-date screenshots for every game.**
 
 ## Building & running
 

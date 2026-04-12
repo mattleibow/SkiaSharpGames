@@ -41,4 +41,77 @@ public abstract class GameScreenBase
     /// <param name="x">Horizontal position in game-space units.</param>
     /// <param name="y">Vertical position in game-space units.</param>
     public virtual void OnPointerDown(float x, float y) { }
+
+    // ── Transition system ─────────────────────────────────────────────────
+
+    private enum TransitionPhase { None, Out, In }
+
+    private TransitionPhase _transitionPhase = TransitionPhase.None;
+    private float _transitionProgress;
+    private float _transitionHalfDuration;
+    private IScreenTransition? _activeTransition;
+    private Action? _transitionMidpoint;
+
+    /// <summary>True while a transition animation is running.</summary>
+    public bool IsTransitioning => _transitionPhase != TransitionPhase.None;
+
+    /// <summary>
+    /// Begins an animated transition. The <paramref name="midpointAction"/> fires once the
+    /// transition overlay fully covers the screen; use it to change game state. The overlay
+    /// then retreats to reveal the new state.
+    /// </summary>
+    /// <param name="transition">The transition style to use (e.g. <see cref="FadeTransition"/>).</param>
+    /// <param name="halfDuration">Duration (seconds) for each half of the transition.</param>
+    /// <param name="midpointAction">State-change callback invoked at peak coverage.</param>
+    protected void BeginTransition(IScreenTransition transition, float halfDuration, Action midpointAction)
+    {
+        _activeTransition = transition;
+        _transitionHalfDuration = halfDuration;
+        _transitionProgress = 0f;
+        _transitionPhase = TransitionPhase.Out;
+        _transitionMidpoint = midpointAction;
+    }
+
+    /// <summary>
+    /// Advances the active transition. Call this at the top of your <see cref="Update"/> implementation.
+    /// </summary>
+    protected void UpdateTransition(float deltaTime)
+    {
+        if (_transitionPhase == TransitionPhase.None) return;
+
+        _transitionProgress += deltaTime / _transitionHalfDuration;
+
+        if (_transitionProgress >= 1f)
+        {
+            if (_transitionPhase == TransitionPhase.Out)
+            {
+                _transitionMidpoint?.Invoke();
+                _transitionMidpoint = null;
+                _transitionProgress = 0f;
+                _transitionPhase = TransitionPhase.In;
+            }
+            else
+            {
+                _transitionProgress = 1f;
+                _transitionPhase = TransitionPhase.None;
+                _activeTransition = null;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Renders the transition overlay. Call this at the end of your <see cref="Draw"/> implementation,
+    /// inside any active canvas transforms (i.e. in game-space coordinates).
+    /// </summary>
+    protected void DrawTransitionOverlay(SKCanvas canvas)
+    {
+        if (_transitionPhase == TransitionPhase.None || _activeTransition == null) return;
+
+        float coverage = _transitionPhase == TransitionPhase.Out
+            ? _transitionProgress
+            : 1f - _transitionProgress;
+
+        _activeTransition.Draw(canvas, coverage, GameDimensions);
+    }
 }
+

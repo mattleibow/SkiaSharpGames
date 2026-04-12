@@ -8,7 +8,18 @@ A SkiaSharp game gallery built with .NET 10 Blazor WebAssembly. Games are render
 
 | Game | URL | Description |
 |------|-----|-------------|
-| [Breakout](src/BlazorApp/Games/Breakout/) | `/games/breakout` | Classic brick-breaker. Move the paddle with mouse or touch to clear all the bricks. |
+| [Breakout](src/BlazorApp/Games/Breakout/) | `/games/breakout` | Classic brick-breaker with powerups. Move the paddle with mouse or touch to clear all the bricks. |
+
+### Breakout
+
+| Desktop | Mobile |
+|---------|--------|
+| ![Desktop – Start screen](https://github.com/user-attachments/assets/763914f7-b1c2-48d2-a85f-3801b4da0b83) | ![Mobile – Start screen](https://github.com/user-attachments/assets/d9ba932b-6200-421a-881a-0891d2392c5c) |
+| ![Desktop – Gameplay](https://github.com/user-attachments/assets/c5eb9538-9124-46c1-9177-1db559cf1970) | ![Mobile – Gameplay](https://github.com/user-attachments/assets/bd8134f6-911c-471c-a361-c3c5bb4c5489) |
+
+**Features:** 5×10 colour-coded bricks (top rows = more points), 3 lives, mouse & touch input, powerup drops:
+- **STRONG BALL** (15% chance) — ball pierces through all bricks for 5 s
+- **BIG PADDLE** (15% chance) — paddle grows 1.8× wider for 8 s
 
 ## Project Structure
 
@@ -17,7 +28,14 @@ SkiaSharpGames.slnx            # .NET 10 solution
 
 src/
   GameEngine/                  # Shared game engine class library (SkiaSharp only)
-    GameScreenBase.cs          # Abstract base class for all games
+    GameScreenBase.cs          # Abstract base class + transition system
+    IScreenTransition.cs       # Swappable transition interface
+    FadeTransition.cs          # Fade-to-colour transition
+    SlideTransition.cs         # Wipe/slide transition
+    Sprite.cs                  # Abstract sprite base
+    RectSprite.cs              # Rounded-rect sprite (bricks, paddle)
+    CircleSprite.cs            # Circle sprite with glow (ball)
+    DrawHelper.cs              # Static drawing utilities
 
   BlazorApp/                   # Blazor WebAssembly host (net10.0)
     Games/
@@ -34,6 +52,13 @@ src/
       MainLayout.razor         # Gallery layout with sticky header
     wwwroot/
       index.html               # App entry point
+
+docs/screenshots/              # Per-game screenshot assets
+  breakout/
+    desktop-loading.png
+    desktop-gameplay.png
+    mobile-loading.png
+    mobile-gameplay.png
 ```
 
 ## Game Engine
@@ -55,12 +80,51 @@ public abstract class GameScreenBase
     // Optional pointer input — coordinates are in game-space units.
     public virtual void OnPointerMove(float x, float y) { }
     public virtual void OnPointerDown(float x, float y) { }
+
+    // ── Transition system ──────────────────────────────────────────
+    public bool IsTransitioning { get; }
+    protected void BeginTransition(IScreenTransition transition, float halfDuration, Action midpointAction);
+    protected void UpdateTransition(float deltaTime);   // call at top of Update()
+    protected void DrawTransitionOverlay(SKCanvas canvas); // call at end of Draw()
 }
 ```
 
 ### Rendering
 
 The `GameView` component wraps `SKGLView` with `EnableRenderLoop="true"`. The render loop is driven by `requestAnimationFrame` (synced to the display refresh rate). `Update` and `Draw` are called on every frame inside the paint callback — no `PeriodicTimer` or `Invalidate()` needed.
+
+### Screen Transitions
+
+Use `BeginTransition` to animate between game states (e.g. from start screen to gameplay):
+
+```csharp
+// Fade to black, call StartGame(), then fade back in
+BeginTransition(new FadeTransition(), halfDuration: 0.35f, StartGame);
+
+// Or use a directional wipe:
+BeginTransition(new SlideTransition { Direction = SlideDirection.Up }, 0.3f, StartGame);
+```
+
+### Sprites
+
+Engine sprites encapsulate their own draw logic. Update their properties and call `Draw(canvas)`:
+
+| Type | Properties | Use for |
+|------|-----------|---------|
+| `RectSprite` | X, Y, Width, Height, Color, CornerRadius, ShowShine, Alpha | Bricks, paddle, panels |
+| `CircleSprite` | X, Y, Radius, Color, GlowRadius, GlowColor, Alpha | Ball, particles |
+
+### Drawing Utilities
+
+`DrawHelper` provides stateless convenience methods:
+
+```csharp
+DrawHelper.FillRect(canvas, x, y, w, h, color);
+DrawHelper.DrawOverlay(canvas, width, height, alpha: 0.73f);
+DrawHelper.DrawCenteredText(canvas, text, size, color, cx, y);
+DrawHelper.DrawText(canvas, text, size, color, x, y);
+DrawHelper.MeasureText(text, size);
+```
 
 ### Input
 
@@ -90,12 +154,14 @@ The `GameView` component wraps `SKGLView` with `EnableRenderLoop="true"`. The re
    @code { private readonly <ClassName> _game = new(); }
    ```
 5. Add a game card to the grid in `src/BlazorApp/Pages/Home.razor`.
-6. Update the Games table in this README.
+6. **Update `README.md`** — add the game to the Games table and add a Screenshots section with all 4 images.
 7. Add 4 screenshots to `docs/screenshots/<slug>/`:
-   - `desktop-loading.png` — desktop start/loading screen
-   - `desktop-gameplay.png` — desktop mid-game
-   - `mobile-loading.png` — mobile start/loading screen
-   - `mobile-gameplay.png` — mobile mid-game
+   | File | Description |
+   |------|-------------|
+   | `desktop-loading.png` | Desktop (≥ 1280 px wide) — start/loading screen |
+   | `desktop-gameplay.png` | Desktop — mid-game |
+   | `mobile-loading.png` | Mobile (≤ 430 px wide) — start/loading screen |
+   | `mobile-gameplay.png` | Mobile — mid-game |
 
 ## Getting Started
 

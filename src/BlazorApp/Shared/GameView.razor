@@ -39,7 +39,7 @@
         if (firstRender)
         {
             await UpdateLayoutAsync();
-            await JS.InvokeVoidAsync("eval", "document.querySelector('.game-view')?.focus()");
+            await JS.InvokeVoidAsync("focusGameView");
         }
     }
 

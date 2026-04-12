@@ -330,9 +330,7 @@ public class CastleAttackGame : GameScreenBase
 
     private void ConvertArcherToWorker()
     {
-        if (_workerCount >= _archerCount + _workerCount - 1)
-            return; // must always have at least 1 worker — so need ≥2 total
-
+        if (_workerCount <= 1) return; // must always keep at least 1 worker — need ≥2 to convert one
         if (_archerCount <= 0) return;
 
         // Remove archer from the outermost (rightmost) wall that has one
@@ -1457,8 +1455,8 @@ public class CastleAttackGame : GameScreenBase
         // Spots
         using var spot = new SKPaint { Color = new SKColor(0x88, 0x88, 0x77), IsAntialias = true };
         canvas.DrawCircle(e.X, ey + 8f, 3f, spot);
-        // Label
-        DrawHelper.DrawCenteredText(canvas, "🐄", 14f, SKColors.Black, e.X, ey - 2f);
+        // Cow label
+        DrawHelper.DrawCenteredText(canvas, "MOO", 10f, new SKColor(0x55, 0x44, 0x22), e.X, ey);
     }
 
     // ── Arrows ────────────────────────────────────────────────────────────────

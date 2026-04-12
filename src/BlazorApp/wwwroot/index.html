@@ -49,6 +49,11 @@
             const r = el.getBoundingClientRect();
             return { left: r.left, top: r.top, width: r.width, height: r.height };
         };
+
+        // Focuses the first .game-view element on the page (called after a game page first renders).
+        window.focusGameView = () => {
+            document.querySelector('.game-view')?.focus();
+        };
     </script>
 </body>
 

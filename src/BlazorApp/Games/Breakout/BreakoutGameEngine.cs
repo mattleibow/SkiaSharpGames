@@ -29,6 +29,8 @@ public class BreakoutGameEngine : GameScreenBase
     private static readonly float BricksStartX = (GameWidth - (BrickCols * (BrickWidth + BrickGap) - BrickGap)) / 2f;
     private const float BricksStartY = 60f;
 
+    public override (int width, int height) GameDimensions => (GameWidth, GameHeight);
+
     // State
     public GamePhase Phase { get; private set; } = GamePhase.Start;
     public int Score { get; private set; }
@@ -333,16 +335,4 @@ public class BreakoutGameEngine : GameScreenBase
         canvas.DrawText(text, (GameWidth - w) / 2f, y, font, paint);
     }
 
-    // ── Coordinate Conversion ──────────────────────────────────────────────
-
-    /// <summary>
-    /// Converts canvas CSS coordinates to game-space coordinates.
-    /// </summary>
-    public (float gameX, float gameY) CanvasToGame(float cssPx, float cssPy, float cssWidth, float cssHeight)
-    {
-        float scale   = MathF.Min(cssWidth / GameWidth, cssHeight / GameHeight);
-        float offsetX = (cssWidth  - GameWidth  * scale) / 2f;
-        float offsetY = (cssHeight - GameHeight * scale) / 2f;
-        return ((cssPx - offsetX) / scale, (cssPy - offsetY) / scale);
-    }
 }

@@ -1,16 +1,11 @@
-﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@inherits LayoutComponentBase
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
+<div class="main-layout">
+    <header class="site-header">
+        <a class="site-logo" href="/">🎮 SkiaSharp Games</a>
+        <a class="site-link" href="https://github.com/mattleibow/SkiaSharpGames" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+    </header>
+    <main class="site-content">
+        @Body
     </main>
 </div>

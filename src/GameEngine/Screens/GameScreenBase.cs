@@ -14,12 +14,6 @@ namespace SkiaSharpGames.GameEngine;
 public abstract class GameScreenBase
 {
     /// <summary>
-    /// Gets the logical (virtual) dimensions of the game canvas in game-space units.
-    /// The default is 800 × 600. Override in subclasses to change.
-    /// </summary>
-    public virtual (int width, int height) GameDimensions => (800, 600);
-
-    /// <summary>
     /// True while this screen has an overlay on top of it and is therefore not being updated.
     /// The screen is still drawn as the base layer while paused.
     /// </summary>

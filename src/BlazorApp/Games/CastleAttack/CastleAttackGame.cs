@@ -8,6 +8,7 @@ internal static class CastleAttackGame
     {
         var builder = GameBuilder.CreateDefault();
 
+        builder.GameDimensions = (CastleAttackConstants.GameWidth, CastleAttackConstants.GameHeight);
         builder.Services.AddSingleton<CastleAttackGameState>();
 
         builder.Screens

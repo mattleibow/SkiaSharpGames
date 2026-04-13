@@ -98,7 +98,7 @@ public class GameTests
     }
 
     [Fact]
-    public void GameDimensions_DelegatesToCurrentScreen()
+    public void GameDimensions_ReturnsBuilderValue()
     {
         var (game, _) = TestGameFactory.Create();
         Assert.Equal((800, 600), game.GameDimensions);
@@ -216,6 +216,23 @@ public class GameTests
 
 public class GameBuilderTests
 {
+    [Fact]
+    public void GameDimensions_DefaultIs800x600()
+    {
+        var builder = GameBuilder.CreateDefault();
+        Assert.Equal((800, 600), builder.GameDimensions);
+    }
+
+    [Fact]
+    public void GameDimensions_CustomValue_PropagatestoGame()
+    {
+        var builder = GameBuilder.CreateDefault();
+        builder.GameDimensions = (1200, 600);
+        builder.Screens.Add<OverlayScreen>();
+        var game = builder.Build();
+        Assert.Equal((1200, 600), game.GameDimensions);
+    }
+
     [Fact]
     public void Build_NoScreens_Throws()
     {

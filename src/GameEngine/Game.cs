@@ -44,10 +44,11 @@ public sealed class Game
         public float             Progress   { get; set; }
     }
 
-    internal Game(IServiceProvider services, Type initialScreenType)
+    internal Game(IServiceProvider services, Type initialScreenType, (int width, int height) gameDimensions)
     {
-        _services = services;
-        _current  = (GameScreenBase)services.GetRequiredService(initialScreenType);
+        _services      = services;
+        GameDimensions = gameDimensions;
+        _current       = (GameScreenBase)services.GetRequiredService(initialScreenType);
         _current.SetGame(this);
         _current.OnActivated();
     }
@@ -128,9 +129,12 @@ public sealed class Game
 
     // ── Host API (called by GameView or any rendering host) ───────────────
 
-    /// <summary>Logical (virtual) dimensions of the game canvas in game-space units.</summary>
-    public (int width, int height) GameDimensions =>
-        _activeTransition?.Incoming.GameDimensions ?? _current.GameDimensions;
+    /// <summary>
+    /// Logical (virtual) dimensions of the game canvas in game-space units.
+    /// Set once via <see cref="GameBuilder.GameDimensions"/> before calling
+    /// <see cref="GameBuilder.Build"/>. All screens in the game share this value.
+    /// </summary>
+    public (int width, int height) GameDimensions { get; }
 
     /// <summary>Advances the game by <paramref name="deltaTime"/> seconds.</summary>
     public void Update(float deltaTime)

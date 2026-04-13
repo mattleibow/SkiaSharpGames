@@ -9,8 +9,6 @@ internal sealed class BreakoutStartScreen : GameScreenBase
 {
     private readonly List<Brick> _bricks = [];
 
-    public override (int width, int height) GameDimensions => (GameWidth, GameHeight);
-
     public override void OnActivated()
     {
         _bricks.Clear();

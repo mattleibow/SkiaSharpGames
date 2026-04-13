@@ -37,8 +37,6 @@ internal sealed class BreakoutPlayScreen : GameScreenBase
 
     public BreakoutPlayScreen(BreakoutGameState state) => _state = state;
 
-    public override (int width, int height) GameDimensions => (GameWidth, GameHeight);
-
     public override void OnActivated()
     {
         _state.Score = 0;

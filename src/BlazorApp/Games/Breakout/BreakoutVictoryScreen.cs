@@ -14,8 +14,6 @@ internal sealed class BreakoutVictoryScreen : GameScreenBase
 
     public BreakoutVictoryScreen(BreakoutGameState state) => _state = state;
 
-    public override (int width, int height) GameDimensions => (GameWidth, GameHeight);
-
     public override void Update(float deltaTime) { }
 
     public override void Draw(SKCanvas canvas, int width, int height)

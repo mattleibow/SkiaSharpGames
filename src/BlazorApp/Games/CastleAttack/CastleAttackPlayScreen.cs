@@ -48,8 +48,6 @@ internal sealed class CastleAttackPlayScreen : GameScreenBase
 
     public CastleAttackPlayScreen(CastleAttackGameState state) => _state = state;
 
-    public override (int width, int height) GameDimensions => (GameWidth, GameHeight);
-
     // ── Lifecycle ─────────────────────────────────────────────────────────
 
     public override void OnActivated()

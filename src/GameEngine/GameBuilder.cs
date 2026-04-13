@@ -72,6 +72,13 @@ public sealed class GameBuilder
     /// </summary>
     public IConfigurationBuilder Configuration { get; } = new ConfigurationBuilder();
 
+    /// <summary>
+    /// Logical (virtual) size of the game canvas in game-space units.
+    /// This single value is shared across all screens in the game.
+    /// Defaults to 800 × 600.
+    /// </summary>
+    public (int width, int height) GameDimensions { get; set; } = (800, 600);
+
     // ── Factory ───────────────────────────────────────────────────────────
 
     /// <summary>
@@ -97,6 +104,6 @@ public sealed class GameBuilder
         _serviceCollection.AddSingleton<IConfiguration>(config);
 
         var provider = _serviceCollection.BuildServiceProvider();
-        return new Game(provider, Screens.InitialScreenType);
+        return new Game(provider, Screens.InitialScreenType, GameDimensions);
     }
 }

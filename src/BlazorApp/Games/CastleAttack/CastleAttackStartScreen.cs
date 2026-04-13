@@ -7,8 +7,6 @@ namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
 /// <summary>Start/title screen for Castle Attack. Shows the background and instructions.</summary>
 internal sealed class CastleAttackStartScreen : GameScreenBase
 {
-    public override (int width, int height) GameDimensions => (GameWidth, GameHeight);
-
     public override void Update(float deltaTime) { }
 
     public override void Draw(SKCanvas canvas, int width, int height)

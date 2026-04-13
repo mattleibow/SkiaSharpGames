@@ -34,10 +34,15 @@ public abstract class GameScreenBase
     /// <param name="deltaTime">Seconds elapsed since the last update.</param>
     public abstract void Update(float deltaTime);
 
-    /// <summary>Called each frame to render the current state to <paramref name="canvas"/>.</summary>
-    /// <param name="canvas">The SkiaSharp canvas to draw on.</param>
-    /// <param name="width">Render-target width in pixels.</param>
-    /// <param name="height">Render-target height in pixels.</param>
+    /// <summary>
+    /// Called each frame to render the current state to <paramref name="canvas"/>.
+    /// The canvas is already transformed to game-space: the origin is at the top-left of the
+    /// game area, one unit equals one game-space pixel, and the visible rectangle runs from
+    /// (0, 0) to (<paramref name="width"/>, <paramref name="height"/>).
+    /// </summary>
+    /// <param name="canvas">The SkiaSharp canvas to draw on. Already in game-space coordinates.</param>
+    /// <param name="width">Game-space width (equals <see cref="GameEngine.Game.GameDimensions"/>.width).</param>
+    /// <param name="height">Game-space height (equals <see cref="GameEngine.Game.GameDimensions"/>.height).</param>
     public abstract void Draw(SKCanvas canvas, int width, int height);
 
     // ── Input ─────────────────────────────────────────────────────────────

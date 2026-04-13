@@ -17,6 +17,8 @@ internal static class CastleAttackGame
                .Add<CastleAttackGameOverScreen>()
                .Add<CastleAttackVictoryScreen>();
 
+        builder.SetInitialScreen<CastleAttackStartScreen>();
+
         return builder.Build();
     }
 }

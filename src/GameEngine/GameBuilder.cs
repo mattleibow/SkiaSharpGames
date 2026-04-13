@@ -22,10 +22,12 @@ namespace SkiaSharpGames.GameEngine;
 /// builder.Services.AddSingleton&lt;BreakoutGameState&gt;();
 ///
 /// builder.Screens
-///        .Add&lt;BreakoutStartScreen&gt;()   // first = initial screen
+///        .Add&lt;BreakoutStartScreen&gt;()
 ///        .Add&lt;BreakoutPlayScreen&gt;()
 ///        .Add&lt;BreakoutGameOverScreen&gt;()
 ///        .Add&lt;BreakoutVictoryScreen&gt;();
+///
+/// builder.SetInitialScreen&lt;BreakoutStartScreen&gt;();
 ///
 /// return builder.Build();
 /// </code>
@@ -34,6 +36,7 @@ namespace SkiaSharpGames.GameEngine;
 public sealed class GameBuilder
 {
     private readonly ServiceCollection _serviceCollection = new();
+    private Type? _initialScreenType;
 
     private GameBuilder()
     {
@@ -88,6 +91,26 @@ public sealed class GameBuilder
     /// </summary>
     public static GameBuilder CreateDefault() => new();
 
+    // ── Initial screen ────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Designates <typeparamref name="TScreen"/> as the screen that is activated when the game
+    /// starts. The screen must also be registered via <see cref="ScreenCollection.Add{TScreen}"/>.
+    /// This must be called exactly once before <see cref="Build"/>.
+    /// </summary>
+    /// <remarks>
+    /// Separating registration (<see cref="ScreenCollection.Add{TScreen}"/>) from initial-screen
+    /// selection allows the caller to choose the starting point based on runtime logic —
+    /// for example, showing a tutorial for first-time players or jumping straight to the menu
+    /// for returning ones.
+    /// </remarks>
+    /// <returns>This builder, for method chaining.</returns>
+    public GameBuilder SetInitialScreen<TScreen>() where TScreen : GameScreenBase
+    {
+        _initialScreenType = typeof(TScreen);
+        return this;
+    }
+
     // ── Build ─────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -95,15 +118,19 @@ public sealed class GameBuilder
     /// and returns a ready-to-run <see cref="Game"/>.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when no screens have been registered via <see cref="Screens"/>.
+    /// Thrown when <see cref="SetInitialScreen{TScreen}"/> has not been called.
     /// </exception>
     public Game Build()
     {
+        if (_initialScreenType is null)
+            throw new InvalidOperationException(
+                "No initial screen set. Call SetInitialScreen<T>() before calling Build().");
+
         // Build the IConfiguration and make it injectable inside screens.
         var config = Configuration.Build();
         _serviceCollection.AddSingleton<IConfiguration>(config);
 
         var provider = _serviceCollection.BuildServiceProvider();
-        return new Game(provider, Screens.InitialScreenType, GameDimensions);
+        return new Game(provider, _initialScreenType, GameDimensions);
     }
 }

@@ -11,14 +11,7 @@ internal sealed class CastleAttackStartScreen : GameScreenBase
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {
-        float scale   = MathF.Min(width / (float)GameWidth, height / (float)GameHeight);
-        float offsetX = (width  - GameWidth  * scale) / 2f;
-        float offsetY = (height - GameHeight * scale) / 2f;
-
         canvas.Clear(ColSky);
-        canvas.Save();
-        canvas.Translate(offsetX, offsetY);
-        canvas.Scale(scale, scale);
 
         DrawBackground(canvas);
 
@@ -34,8 +27,6 @@ internal sealed class CastleAttackStartScreen : GameScreenBase
         DrawHelper.DrawCenteredText(canvas, "Keyboard: ← → aim  |  SPACE fire  |  ↑↓ convert  |  Z X C weapons", 14f, ColDim, GameWidth / 2f, y);
 
         DrawHelper.DrawCenteredText(canvas, "Tap or Click to Start", 24f, ColAccent, GameWidth / 2f, 420f);
-
-        canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y)

@@ -58,9 +58,10 @@ file static class TestGameFactory
         var builder = GameBuilder.CreateDefault();
         builder.Services.AddSingleton(tracker);
         builder.Screens
-               .Add<ScreenA>()      // first = initial
+               .Add<ScreenA>()
                .Add<ScreenB>()
                .Add<OverlayScreen>();
+        builder.SetInitialScreen<ScreenA>();
 
         return (builder.Build(), tracker);
     }
@@ -229,12 +230,13 @@ public class GameBuilderTests
         var builder = GameBuilder.CreateDefault();
         builder.GameDimensions = (1200, 600);
         builder.Screens.Add<OverlayScreen>();
+        builder.SetInitialScreen<OverlayScreen>();
         var game = builder.Build();
         Assert.Equal((1200, 600), game.GameDimensions);
     }
 
     [Fact]
-    public void Build_NoScreens_Throws()
+    public void Build_NoInitialScreen_Throws()
     {
         var builder = GameBuilder.CreateDefault();
         var ex = Record.Exception(() => builder.Build());
@@ -246,6 +248,7 @@ public class GameBuilderTests
     {
         var builder = GameBuilder.CreateDefault();
         builder.Screens.Add<OverlayScreen>();
+        builder.SetInitialScreen<OverlayScreen>();
         var game = builder.Build();
         Assert.NotNull(game);
     }
@@ -286,8 +289,9 @@ public class GameBuilderTests
         var builder = GameBuilder.CreateDefault();
         builder.Services.AddSingleton(tracker);
         builder.Screens
-               .Add<ScreenA>()  // first = initial
+               .Add<ScreenA>()
                .Add<ScreenB>();
+        builder.SetInitialScreen<ScreenA>();
         builder.Build();
         Assert.True(tracker.AActivated);
         Assert.False(tracker.BActivated);
@@ -300,9 +304,25 @@ public class GameBuilderTests
         var builder = GameBuilder.CreateDefault();
         builder.Services.AddSingleton(tracker);
         builder.Screens.Add<ScreenA>();
+        builder.SetInitialScreen<ScreenA>();
         var game = builder.Build();
         // ScreenA's constructor took the tracker singleton — it was able to call OnActivated
         Assert.True(tracker.AActivated);
+    }
+
+    [Fact]
+    public void SetInitialScreen_CanChooseLaterScreen()
+    {
+        var tracker = new ScreenTracker();
+        var builder = GameBuilder.CreateDefault();
+        builder.Services.AddSingleton(tracker);
+        builder.Screens
+               .Add<ScreenA>()
+               .Add<ScreenB>();
+        builder.SetInitialScreen<ScreenB>();   // explicitly choose a non-first screen
+        builder.Build();
+        Assert.False(tracker.AActivated);
+        Assert.True(tracker.BActivated);
     }
 
     private sealed class OverlayScreen : GameScreenBase

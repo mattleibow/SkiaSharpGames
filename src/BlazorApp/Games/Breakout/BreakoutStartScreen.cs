@@ -36,14 +36,6 @@ internal sealed class BreakoutStartScreen : GameScreenBase
     {
         canvas.Clear(BackgroundColor);
 
-        float scale   = MathF.Min(width / (float)GameWidth, height / (float)GameHeight);
-        float offsetX = (width  - GameWidth  * scale) / 2f;
-        float offsetY = (height - GameHeight * scale) / 2f;
-
-        canvas.Save();
-        canvas.Translate(offsetX, offsetY);
-        canvas.Scale(scale, scale);
-
         foreach (var brick in _bricks)
         {
             brick.Sprite.Alpha = 0.3f;
@@ -53,8 +45,6 @@ internal sealed class BreakoutStartScreen : GameScreenBase
         DrawHelper.DrawCenteredText(canvas, "BREAKOUT", 72f, SKColors.White, GameWidth / 2f, 290f);
         DrawHelper.DrawCenteredText(canvas, "Click or Tap to Start", 28f, AccentColor, GameWidth / 2f, 360f);
         DrawHelper.DrawCenteredText(canvas, "Move mouse / finger to control the paddle", 18f, DimColor, GameWidth / 2f, 415f);
-
-        canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y)

@@ -17,6 +17,8 @@ internal static class BreakoutGame
                .Add<BreakoutGameOverScreen>()
                .Add<BreakoutVictoryScreen>();
 
+        builder.SetInitialScreen<BreakoutStartScreen>();
+
         return builder.Build();
     }
 }

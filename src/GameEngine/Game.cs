@@ -18,10 +18,11 @@ namespace SkiaSharpGames.GameEngine;
 /// var builder = GameBuilder.CreateDefault();
 /// builder.Services.AddSingleton&lt;BreakoutGameState&gt;();
 /// builder.Screens
-///        .Add&lt;BreakoutStartScreen&gt;()   // first = initial screen
+///        .Add&lt;BreakoutStartScreen&gt;()
 ///        .Add&lt;BreakoutPlayScreen&gt;()
 ///        .Add&lt;BreakoutGameOverScreen&gt;()
 ///        .Add&lt;BreakoutVictoryScreen&gt;();
+/// builder.SetInitialScreen&lt;BreakoutStartScreen&gt;();
 /// var game = builder.Build();
 /// </code>
 /// </example>
@@ -162,22 +163,40 @@ public sealed class Game
     }
 
     /// <summary>Draws the current frame to <paramref name="canvas"/>.</summary>
+    /// <remarks>
+    /// Computes the fit-and-centre transform from pixel space to game space once, then
+    /// calls each screen's <see cref="GameScreenBase.Draw"/> with a pre-transformed canvas.
+    /// Screens always receive a canvas in game-space coordinates — they never need to
+    /// compute or apply their own scale/offset.
+    /// </remarks>
     public void Draw(SKCanvas canvas, int width, int height)
     {
+        var (gw, gh) = GameDimensions;
+        float scale   = MathF.Min(width / (float)gw, height / (float)gh);
+        float offsetX = (width  - gw * scale) / 2f;
+        float offsetY = (height - gh * scale) / 2f;
+
+        canvas.Save();
+        canvas.Translate(offsetX, offsetY);
+        canvas.Scale(scale, scale);
+
         if (_activeTransition is not null)
         {
             float progress = Math.Clamp(_activeTransition.Progress, 0f, 1f);
             _activeTransition.Transition.Draw(
                 canvas, progress,
-                c => _activeTransition.Outgoing.Draw(c, width, height),
-                c => _activeTransition.Incoming.Draw(c, width, height),
-                width, height);
-            return;
+                c => _activeTransition.Outgoing.Draw(c, gw, gh),
+                c => _activeTransition.Incoming.Draw(c, gw, gh),
+                gw, gh);
+        }
+        else
+        {
+            _current.Draw(canvas, gw, gh);
+            foreach (var overlay in _overlays)
+                overlay.Draw(canvas, gw, gh);
         }
 
-        _current.Draw(canvas, width, height);
-        foreach (var overlay in _overlays)
-            overlay.Draw(canvas, width, height);
+        canvas.Restore();
     }
 
     /// <summary>Called when the pointer/mouse moves over the canvas.</summary>

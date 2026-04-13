@@ -1,0 +1,337 @@
+name: "Pages - Staging - Build and Deploy"
+
+on:
+  # Deploy when code lands on main
+  push:
+    branches: [ main ]
+  # Build and deploy a staging preview for every PR
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize, reopened ]
+  # Allow manual re-deploy; optionally target a specific PR number
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to deploy as staging (leave blank to deploy to root)'
+        required: false
+        default: ''
+        type: string
+      dry_run:
+        description: 'Dry run — build everything but do not deploy'
+        required: false
+        default: false
+        type: boolean
+
+# Prevent duplicate builds for the same branch; cancel older PR runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# Default to no permissions — each job declares only what it needs.
+permissions: {}
+
+env:
+  # Name of the branch used to serve the assembled site
+  PAGES_BRANCH: gh-pages
+  # Subdirectory in the pages branch where PR previews are stored
+  STAGING_PATH: staging
+  # Base path for the site — derived from the repo name automatically
+  SITE_BASE_PATH: /${{ github.event.repository.name }}
+  # Full base URL for the site — derived from the repo owner and name
+  SITE_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+  # Git identity used for automated commits to the pages branch
+  GIT_COMMIT_EMAIL: action@github.com
+  GIT_COMMIT_NAME: GitHub Action
+
+jobs:
+  # ══════════════════════════════════════════════════════════════════════════
+  # BUILD — Build and assemble the Blazor WASM app
+  # ══════════════════════════════════════════════════════════════════════════
+  build:
+    name: Build Site
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      artifact_name: ${{ steps.vars.outputs.artifact_name }}
+      is_staging: ${{ steps.vars.outputs.is_staging }}
+      pr_number: ${{ steps.vars.outputs.pr_number }}
+    steps:
+      # Determine whether this is a main deploy or a staging deploy,
+      # and compute the correct base href for each case.
+      - name: Setup build variables
+        id: vars
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER_EVENT: ${{ github.event.number }}
+          PR_NUMBER_INPUT: ${{ inputs.pr_number }}
+        shell: bash
+        run: |
+          if [ "$EVENT_NAME" == "pull_request" ]; then
+            PR_NUMBER="$PR_NUMBER_EVENT"
+          elif [ "$EVENT_NAME" == "workflow_dispatch" ] && [ -n "$PR_NUMBER_INPUT" ]; then
+            PR_NUMBER="$PR_NUMBER_INPUT"
+          else
+            PR_NUMBER=""
+          fi
+
+          if [ -n "$PR_NUMBER" ]; then
+            # Validate PR_NUMBER is a positive integer
+            if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+              echo "Invalid PR number: $PR_NUMBER"
+              exit 1
+            fi
+            echo "artifact_name=staging-site-${PR_NUMBER}" >> $GITHUB_OUTPUT
+            echo "app_base_href=${SITE_BASE_PATH}/${STAGING_PATH}/${PR_NUMBER}/" >> $GITHUB_OUTPUT
+            echo "is_staging=true" >> $GITHUB_OUTPUT
+            echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
+          else
+            echo "artifact_name=main-site" >> $GITHUB_OUTPUT
+            echo "app_base_href=${SITE_BASE_PATH}/" >> $GITHUB_OUTPUT
+            echo "is_staging=false" >> $GITHUB_OUTPUT
+            echo "pr_number=" >> $GITHUB_OUTPUT
+          fi
+
+      # Check out the source code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Required for building the Blazor WebAssembly app
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install wasm-tools workload
+        run: dotnet workload install wasm-tools
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run tests
+        run: |
+          dotnet test tests/GameEngine.Tests/ \
+            --configuration Release \
+            --no-build \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutput=../../coverage/coverage.cobertura.xml \
+            /p:Threshold=80 \
+            /p:ThresholdType=line
+          dotnet test tests/GameEngine.Tests/ \
+            --configuration Release \
+            --no-build \
+            /p:CollectCoverage=true \
+            /p:Threshold=80 \
+            /p:ThresholdType=branch
+
+      # Publish the Blazor WASM app to a folder
+      - name: Publish Blazor app
+        run: dotnet publish src/BlazorApp/SkiaSharpGames.BlazorApp.csproj --configuration Release --output dist
+
+      # Assemble the final site directory
+      - name: Assemble site
+        env:
+          APP_BASE_HREF: ${{ steps.vars.outputs.app_base_href }}
+        shell: bash
+        run: |
+          mkdir -p site-out
+          cp -r dist/wwwroot/. site-out/
+
+          # Tells GitHub Pages not to run Jekyll on the deployed branch
+          # (needed so directories like _framework/ are served correctly)
+          touch site-out/.nojekyll
+
+          # Rewrite the Blazor <base href> for the correct deployment path
+          sed -i "s|<base href=\"/\" />|<base href=\"$APP_BASE_HREF\" />|g" site-out/index.html
+
+          # Copy index.html to 404.html for SPA client-side routing
+          cp site-out/index.html site-out/404.html
+
+          echo "=== Site layout ==="
+          find site-out -maxdepth 2 -type f | head -30
+          echo "..."
+          echo "Total files: $(find site-out -type f | wc -l)"
+
+      # Upload the assembled site so the deploy job can use it
+      - name: Upload site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.vars.outputs.artifact_name }}
+          path: site-out
+          retention-days: 1
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # DEPLOY — Push the built site to the pages branch
+  # ══════════════════════════════════════════════════════════════════════════
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    # Serialize deploys: main deploys serialize together, each PR gets its own
+    # group. cancel-in-progress ensures newer commits win over older ones.
+    concurrency:
+      group: "pages-deploy-${{ needs.build.outputs.is_staging == 'true' && format('pr-{0}', needs.build.outputs.pr_number) || 'main' }}"
+      cancel-in-progress: true
+    # Skip deploy on dry runs and fork PRs (forks can't push to this repo)
+    if: |
+      !inputs.dry_run &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    permissions:
+      contents: write
+    steps:
+      # Check out the pages branch (or create it if this is the first deploy)
+      - name: Checkout pages branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REMOTE_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+          git init .
+          git remote add origin "$REMOTE_URL"
+          git config user.email "$GIT_COMMIT_EMAIL"
+          git config user.name "$GIT_COMMIT_NAME"
+
+          # Fetch pages branch if it exists; otherwise create an orphan branch
+          if git fetch origin "$PAGES_BRANCH" 2>/dev/null; then
+            git checkout -b "$PAGES_BRANCH" "origin/$PAGES_BRANCH"
+          else
+            echo "$PAGES_BRANCH branch does not exist, creating orphan branch"
+            git checkout --orphan "$PAGES_BRANCH"
+            git rm -rf . 2>/dev/null || true
+            touch .nojekyll
+            git add .nojekyll
+            git commit -m "Initialize $PAGES_BRANCH branch"
+            git push origin "$PAGES_BRANCH"
+          fi
+
+      # Download the assembled site artifact from the build job
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.artifact_name }}
+          path: /tmp/site-temp
+
+      # Deploy to the root of the pages branch (runs on pushes to main).
+      # Replaces all root content while preserving the staging/ directory so
+      # existing PR previews are not destroyed.
+      - name: Deploy main site content
+        if: needs.build.outputs.is_staging == 'false'
+        run: |
+          # Remove everything except staging directory and .git/
+          find . -maxdepth 1 \
+              -not -name "$STAGING_PATH" \
+              -not -name '.git' \
+              -not -name '.' \
+              -not -name '..' \
+            -exec rm -rf {} \;
+          cp -r /tmp/site-temp/. .
+          rm -rf /tmp/site-temp
+
+          # Ensure .nojekyll exists so _framework/ directories are served
+          touch .nojekyll
+
+          git add .
+          if ! git diff --cached --quiet; then
+            git commit -m "Deploy main site from commit ${{ github.sha }}"
+            git push origin "$PAGES_BRANCH"
+          else
+            echo "No changes to commit"
+          fi
+
+      # Deploy to staging/{pr-number}/ for PR previews.
+      - name: Deploy staging site content
+        if: needs.build.outputs.is_staging == 'true'
+        env:
+          PR_NUMBER: ${{ needs.build.outputs.pr_number }}
+        run: |
+          # Validate PR_NUMBER is a positive integer before using in paths
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Invalid PR number: $PR_NUMBER"
+            exit 1
+          fi
+
+          # Recreate the staging directory to ensure no stale files
+          rm -rf "$STAGING_PATH/$PR_NUMBER"
+          mkdir -p "$STAGING_PATH/$PR_NUMBER"
+          cp -r /tmp/site-temp/. "$STAGING_PATH/$PR_NUMBER/"
+          rm -rf /tmp/site-temp
+
+          # Ensure .nojekyll exists at root so _framework is served
+          touch .nojekyll
+
+          git add .nojekyll "$STAGING_PATH/$PR_NUMBER"
+          if ! git diff --cached --quiet; then
+            git commit -m "Deploy staging site for PR #$PR_NUMBER"
+            git push origin "$PAGES_BRANCH"
+          else
+            echo "No changes to commit"
+          fi
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # PR COMMENT — Post staging preview link on the pull request
+  # ══════════════════════════════════════════════════════════════════════════
+  comment:
+    name: Comment on PR
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    if: |
+      needs.build.outputs.is_staging == 'true' &&
+      github.event_name == 'pull_request' &&
+      (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize')
+    permissions:
+      pull-requests: write
+    steps:
+      # Create or update the bot comment with the staging preview link.
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ needs.build.outputs.pr_number }};
+            const stagingUrl = `${process.env.SITE_BASE_URL}/${process.env.STAGING_PATH}/${prNumber}/`;
+
+            // Hidden marker to uniquely identify this workflow's comment
+            const marker = '<!-- skiasharpgames-staging-preview -->';
+
+            const commentBody = [
+              marker,
+              '🚀 **Staging Preview**',
+              '',
+              'This PR has been deployed to a staging environment:',
+              '',
+              `🔗 **[View Staging Site](${stagingUrl})**`,
+              '',
+              'This preview is updated automatically when you push new commits.',
+              '',
+              '---',
+              '*Automatically posted by the site deployment workflow.*'
+            ].join('\n');
+
+            // Find and update existing bot comment, or create a new one
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              per_page: 100
+            });
+            const botComment = comments.find(c =>
+              c.user.login === 'github-actions[bot]' &&
+              c.body.includes(marker)
+            );
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: commentBody
+              });
+            }

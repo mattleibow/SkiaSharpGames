@@ -1,0 +1,66 @@
+name: "Pages - Go Live"
+
+on:
+  # Auto-triggered when build/deploy or cleanup workflows finish.
+  workflow_run:
+    workflows:
+      - "Pages - Staging - Build and Deploy"
+      - "Pages - Staging - Cleanup"
+    types:
+      - completed
+  # Allow manual re-deploy from the Actions tab
+  workflow_dispatch:
+
+# Default to no permissions — each job declares only what it needs.
+permissions: {}
+
+env:
+  # Must match the PAGES_BRANCH in pages-staging-deploy.yml
+  PAGES_BRANCH: gh-pages
+
+# Ensure go-live runs one at a time (latest wins)
+concurrency:
+  group: "pages-go-live"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    # Only deploy on manual trigger, or when the upstream workflow succeeded
+    # and came from this repository (not a fork).
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the pages branch containing the assembled site
+      - name: Checkout pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PAGES_BRANCH }}
+
+      # Remove .git so only site content is uploaded
+      - name: Remove .git directory
+        run: rm -rf .git
+
+      # Configure GitHub Pages settings
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      # Package the site content as a Pages artifact
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      # Deploy the artifact to GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

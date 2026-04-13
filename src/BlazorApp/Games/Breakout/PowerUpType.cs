@@ -1,3 +1,3 @@
 namespace SkiaSharpGames.BlazorApp.Games.Breakout;
 
-public enum PowerUpType { StrongBall, BigPaddle }
+internal enum PowerUpType { StrongBall, BigPaddle }

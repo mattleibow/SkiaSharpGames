@@ -1,78 +1,20 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using static SkiaSharpGames.BlazorApp.Games.Breakout.BreakoutConstants;
 
 namespace SkiaSharpGames.BlazorApp.Games.Breakout;
 
-public class BreakoutGameEngine : GameScreenBase
+/// <summary>Active gameplay screen: ball, paddle, bricks, power-ups, HUD.</summary>
+internal sealed class BreakoutPlayScreen : GameScreenBase
 {
-    // ── Game dimensions ───────────────────────────────────────────────────
-    public const int GameWidth  = 800;
-    public const int GameHeight = 600;
-
-    // ── Paddle ────────────────────────────────────────────────────────────
-    private const float DefaultPaddleWidth  = 100f;
-    private const float PaddleHeight        = 14f;
-    private const float PaddleY             = 558f;
-    private const float BigPaddleMultiplier = 1.8f;
-    private const float BigPaddleDuration   = 8f;
-
-    // ── Ball ──────────────────────────────────────────────────────────────
-    private const float BallRadius         = 8f;
-    private const float BallSpeed          = 350f;
-    private const float StrongBallDuration = 5f;
-
-    // ── Bricks ────────────────────────────────────────────────────────────
-    private const int   BrickCols   = 10;
-    private const int   BrickRows   = 5;
-    internal const float BrickWidth  = 72f;
-    internal const float BrickHeight = 22f;
-    private const float BrickGap    = 4f;
-    private static readonly float BricksStartX =
-        (GameWidth - (BrickCols * (BrickWidth + BrickGap) - BrickGap)) / 2f;
-    private const float BricksStartY = 60f;
-
-    // ── Power-ups ─────────────────────────────────────────────────────────
-    private const float PowerUpChance = 0.15f;
-    private const float PowerUpSpeed  = 130f;
-    internal const float PowerUpW      = 34f;
-    internal const float PowerUpH      = 18f;
-
-    // ── Colours ───────────────────────────────────────────────────────────
-    private static readonly SKColor BackgroundColor = new(0x0D, 0x1B, 0x2A);
-    private static readonly SKColor PaddleColor     = new(0x00, 0xD4, 0xFF);
-    private static readonly SKColor AccentColor     = new(0x00, 0xD4, 0xFF);
-    private static readonly SKColor DimColor        = new(0xAA, 0xAA, 0xAA);
-    private static readonly SKColor StrongBallColor = new(0xFF, 0x6B, 0x00);
-    private static readonly SKColor BigPaddleColor  = new(0x00, 0xE5, 0x76);
-
-    private static readonly SKColor[] BrickColors =
-    [
-        new SKColor(0xFF, 0x2D, 0x55), // Red    (row 0 – top, highest score)
-        new SKColor(0xFF, 0x9F, 0x0A), // Orange
-        new SKColor(0xFF, 0xD6, 0x0A), // Yellow
-        new SKColor(0x30, 0xD1, 0x58), // Green
-        new SKColor(0x0A, 0x84, 0xFF), // Blue   (row 4 – bottom)
-    ];
-
-    public override (int width, int height) GameDimensions => (GameWidth, GameHeight);
-
-    // ── Public state ──────────────────────────────────────────────────────
-    public GamePhase Phase { get; private set; } = GamePhase.Start;
-    public int       Score { get; private set; }
-    public int       Lives { get; private set; } = 3;
+    private readonly BreakoutGameState _state;
 
     // ── Physics ───────────────────────────────────────────────────────────
     private float _paddleX;
-
-    // Ball as a CircleBody — position, velocity, and collision all in one place
     private readonly CircleBody _ball = new() { Radius = BallRadius };
-
-    // Paddle physics body — updated each frame before collision checks
-    private readonly RectBody _paddleBody = new()
-        { Height = PaddleHeight, IsStatic = true };
+    private readonly RectBody   _paddleBody = new() { Height = PaddleHeight, IsStatic = true };
 
     // ── Animated paddle width ─────────────────────────────────────────────
-    // Smoothly transitions between DefaultPaddleWidth and BigPaddle size using BackOut/EaseIn.
     private readonly AnimatedFloat _paddleWidth = new(DefaultPaddleWidth);
     private float CurrentPaddleWidth => _paddleWidth.Value;
 
@@ -81,33 +23,26 @@ public class BreakoutGameEngine : GameScreenBase
     private float _bigPaddleTimer;
 
     // ── Sprites ───────────────────────────────────────────────────────────
-
     private readonly CircleSprite _ballSprite = new()
     {
         Radius = BallRadius, Color = SKColors.White, GlowRadius = 4f, GlowColor = SKColors.White
     };
-
     private readonly RectSprite _paddleSprite = new()
     {
         Height = PaddleHeight, Color = PaddleColor, CornerRadius = 6f, ShowShine = false
     };
 
-    private readonly List<Brick>          _bricks  = [];
+    private readonly List<Brick>          _bricks   = [];
     private readonly List<FallingPowerUp> _powerUps = [];
 
-    public BreakoutGameEngine()
-    {
-        // Pre-populate bricks so the start screen can show the decorative grid
-        InitBricks();
-    }
+    public BreakoutPlayScreen(BreakoutGameState state) => _state = state;
 
-    // ── Initialisation ────────────────────────────────────────────────────
+    public override (int width, int height) GameDimensions => (GameWidth, GameHeight);
 
-    public void StartGame()
+    public override void OnActivated()
     {
-        Phase           = GamePhase.Playing;
-        Score           = 0;
-        Lives           = 3;
+        _state.Score = 0;
+        _state.Lives = 3;
         _strongBallTimer = 0f;
         _bigPaddleTimer  = 0f;
         _powerUps.Clear();
@@ -116,6 +51,8 @@ public class BreakoutGameEngine : GameScreenBase
         _paddleWidth.SetImmediate(DefaultPaddleWidth);
         ResetBall();
     }
+
+    // ── Initialisation ────────────────────────────────────────────────────
 
     private void InitBricks()
     {
@@ -128,7 +65,6 @@ public class BreakoutGameEngine : GameScreenBase
                 float by = BricksStartY + r * (BrickHeight + BrickGap);
                 var brick = new Brick(r, c, bx, by);
                 brick.Sprite.Color = BrickColors[r];
-                // Stagger shimmer so bricks don't all flash at once
                 brick.Sprite.Shimmer.Start(Random.Shared.NextSingle() * brick.Sprite.Shimmer.Period);
                 _bricks.Add(brick);
             }
@@ -140,7 +76,7 @@ public class BreakoutGameEngine : GameScreenBase
         _ball.X = _paddleX + CurrentPaddleWidth / 2f;
         _ball.Y = PaddleY - BallRadius - 10f;
         double angle = (35.0 + Random.Shared.NextDouble() * 110.0) * Math.PI / 180.0;
-        _ball.VelocityX = (float)(BallSpeed * Math.Cos(angle));
+        _ball.VelocityX =  (float)(BallSpeed * Math.Cos(angle));
         _ball.VelocityY = -(float)(BallSpeed * Math.Sin(angle));
     }
 
@@ -148,34 +84,18 @@ public class BreakoutGameEngine : GameScreenBase
 
     public override void OnPointerMove(float x, float y)
     {
-        if (Phase == GamePhase.Playing)
-        {
-            float pw = CurrentPaddleWidth;
-            _paddleX = Math.Clamp(x - pw / 2f, 0f, GameWidth - pw);
-        }
-    }
-
-    public override void OnPointerDown(float x, float y)
-    {
-        if (IsTransitioning) return;
-        if (Phase is GamePhase.Start or GamePhase.GameOver or GamePhase.Victory)
-            BeginTransition(new FadeTransition(), 0.35f, StartGame);
+        float pw = CurrentPaddleWidth;
+        _paddleX = Math.Clamp(x - pw / 2f, 0f, GameWidth - pw);
     }
 
     // ── Update ────────────────────────────────────────────────────────────
 
     public override void Update(float deltaTime)
     {
-        UpdateTransition(deltaTime);
+        _paddleWidth.Update(deltaTime);
 
-        // Always advance brick shimmer (visible on start screen too)
         foreach (var brick in _bricks)
             brick.Sprite.Update(deltaTime);
-
-        if (Phase != GamePhase.Playing) return;
-
-        // Advance animated paddle width
-        _paddleWidth.Update(deltaTime);
 
         // Power-up timers
         _strongBallTimer = Math.Max(0f, _strongBallTimer - deltaTime);
@@ -188,7 +108,6 @@ public class BreakoutGameEngine : GameScreenBase
             _paddleX = Math.Clamp(_paddleX, 0f, GameWidth - DefaultPaddleWidth);
         }
 
-        // Step ball using PhysicsBody
         _ball.Step(deltaTime);
 
         // Wall collisions
@@ -199,15 +118,15 @@ public class BreakoutGameEngine : GameScreenBase
         // Ball lost
         if (_ball.Y > GameHeight + BallRadius * 2)
         {
-            Lives--;
-            if (Lives <= 0 && !IsTransitioning)
-                BeginTransition(new FadeTransition(), 0.4f, () => Phase = GamePhase.GameOver);
-            else if (Lives > 0)
+            _state.Lives--;
+            if (_state.Lives <= 0)
+                Coordinator?.PushOverlay<BreakoutGameOverScreen>();
+            else
                 ResetBall();
             return;
         }
 
-        // Paddle collision — use PhysicsBody for bounds, keep angled-bounce logic
+        // Paddle collision
         float pw = CurrentPaddleWidth;
         _paddleBody.X     = _paddleX;
         _paddleBody.Y     = PaddleY;
@@ -223,9 +142,8 @@ public class BreakoutGameEngine : GameScreenBase
         CheckBrickCollisions();
         UpdateFallingPowerUps(deltaTime);
 
-        // Victory
-        if (!IsTransitioning && !_bricks.Any(b => b.Active))
-            BeginTransition(new FadeTransition(), 0.4f, () => Phase = GamePhase.Victory);
+        if (!_bricks.Any(b => b.Active))
+            Coordinator?.PushOverlay<BreakoutVictoryScreen>();
     }
 
     private void CheckBrickCollisions()
@@ -237,15 +155,14 @@ public class BreakoutGameEngine : GameScreenBase
             if (!brick.Active || !_ball.Overlaps(brick.Body)) continue;
 
             brick.Active = false;
-            Score += 10 * (BrickRows - brick.Row);
+            _state.Score += 10 * (BrickRows - brick.Row);
             TrySpawnPowerUp(brick.Body.X + BrickWidth / 2f, brick.Body.Y + BrickHeight / 2f);
 
             if (!piercing)
             {
                 _ball.Reflect(brick.Body);
-                return; // one brick per frame in normal mode
+                return;
             }
-            // Piercing: mark brick as hit but don't reflect — keep going
         }
     }
 
@@ -294,7 +211,6 @@ public class BreakoutGameEngine : GameScreenBase
                 break;
             case PowerUpType.BigPaddle:
                 _bigPaddleTimer = BigPaddleDuration;
-                // Animate paddle expansion with a springy BackOut overshoot
                 _paddleWidth.AnimateTo(DefaultPaddleWidth * BigPaddleMultiplier, 0.3f, Easing.BackOut);
                 break;
         }
@@ -314,43 +230,12 @@ public class BreakoutGameEngine : GameScreenBase
         canvas.Translate(offsetX, offsetY);
         canvas.Scale(scale, scale);
 
-        switch (Phase)
-        {
-            case GamePhase.Start:   DrawStartScreen(canvas); break;
-            case GamePhase.Playing: DrawGameScreen(canvas);  break;
-            case GamePhase.GameOver:
-                DrawGameScreen(canvas);
-                DrawHelper.DrawOverlay(canvas, GameWidth, GameHeight);
-                DrawHelper.DrawCenteredText(canvas, "GAME OVER", 64f, new SKColor(0xFF, 0x2D, 0x55), GameWidth / 2f, 270f);
-                DrawHelper.DrawCenteredText(canvas, $"Score: {Score}", 32f, SKColors.White, GameWidth / 2f, 335f);
-                DrawHelper.DrawCenteredText(canvas, "Click or Tap to Play Again", 24f, AccentColor, GameWidth / 2f, 395f);
-                break;
-            case GamePhase.Victory:
-                DrawGameScreen(canvas);
-                DrawHelper.DrawOverlay(canvas, GameWidth, GameHeight);
-                DrawHelper.DrawCenteredText(canvas, "YOU WIN!", 64f, new SKColor(0xFF, 0xD6, 0x0A), GameWidth / 2f, 270f);
-                DrawHelper.DrawCenteredText(canvas, $"Final Score: {Score}", 32f, SKColors.White, GameWidth / 2f, 335f);
-                DrawHelper.DrawCenteredText(canvas, "Click or Tap to Play Again", 24f, AccentColor, GameWidth / 2f, 395f);
-                break;
-        }
+        DrawGameContent(canvas);
 
-        DrawTransitionOverlay(canvas);
         canvas.Restore();
     }
 
-    private void DrawStartScreen(SKCanvas canvas)
-    {
-        foreach (var brick in _bricks)
-        {
-            brick.Sprite.Alpha = 0.3f;
-            brick.Sprite.Draw(canvas);
-        }
-        DrawHelper.DrawCenteredText(canvas, "BREAKOUT", 72f, SKColors.White, GameWidth / 2f, 290f);
-        DrawHelper.DrawCenteredText(canvas, "Click or Tap to Start", 28f, AccentColor, GameWidth / 2f, 360f);
-        DrawHelper.DrawCenteredText(canvas, "Move mouse / finger to control the paddle", 18f, DimColor, GameWidth / 2f, 415f);
-    }
-
-    private void DrawGameScreen(SKCanvas canvas)
+    internal void DrawGameContent(SKCanvas canvas)
     {
         // Bricks
         foreach (var brick in _bricks)
@@ -368,7 +253,7 @@ public class BreakoutGameEngine : GameScreenBase
             DrawHelper.DrawCenteredText(canvas, label, 11f, SKColors.White, pu.X, pu.Y + 4f);
         }
 
-        // Paddle — width from AnimatedFloat, colour reflects active powerup
+        // Paddle
         float pw = CurrentPaddleWidth;
         _paddleSprite.X     = _paddleX;
         _paddleSprite.Y     = PaddleY;
@@ -377,7 +262,7 @@ public class BreakoutGameEngine : GameScreenBase
             ? BigPaddleColor : PaddleColor;
         _paddleSprite.Draw(canvas);
 
-        // Ball — colour reflects StrongBall powerup
+        // Ball
         _ballSprite.X         = _ball.X;
         _ballSprite.Y         = _ball.Y;
         _ballSprite.Color     = _strongBallTimer > 0f ? StrongBallColor : SKColors.White;
@@ -385,12 +270,11 @@ public class BreakoutGameEngine : GameScreenBase
         _ballSprite.Draw(canvas);
 
         // HUD
-        DrawHelper.DrawText(canvas, $"Score: {Score}", 20f, SKColors.White, 20f, 30f);
-        string livesText = $"Lives: {Lives}";
+        DrawHelper.DrawText(canvas, $"Score: {_state.Score}", 20f, SKColors.White, 20f, 30f);
+        string livesText = $"Lives: {_state.Lives}";
         float  livesW    = DrawHelper.MeasureText(livesText, 20f);
         DrawHelper.DrawText(canvas, livesText, 20f, SKColors.White, GameWidth - livesW - 20f, 30f);
 
-        // Active power-up timers
         float hudY = 52f;
         if (_strongBallTimer > 0f)
         {

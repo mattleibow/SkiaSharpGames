@@ -1,191 +1,267 @@
+using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
 using Xunit;
 
 namespace SkiaSharpGames.GameEngine.Tests;
 
-// ── Minimal concrete subclass for testing GameScreenBase ──────────────────
+// ── Minimal concrete screen implementations ───────────────────────────────
 
-file sealed class TestGame : GameScreenBase
+file sealed class ScreenA : GameScreenBase
 {
     public bool UpdateCalled { get; private set; }
-    public bool DrawCalled   { get; private set; }
+    public bool Activated    { get; private set; }
+    public bool Deactivated  { get; private set; }
+    public bool Paused       { get; private set; }
+    public bool Resumed      { get; private set; }
 
-    public override void Update(float deltaTime)
-    {
-        UpdateCalled = true;
-        UpdateTransition(deltaTime);
-    }
-
-    public override void Draw(SKCanvas canvas, int width, int height)
-    {
-        DrawCalled = true;
-        DrawTransitionOverlay(canvas);
-    }
-
-    // Expose protected helpers for testing
-    public void StartFade(float halfDuration, Action midpoint)
-        => BeginTransition(new FadeTransition(), halfDuration, midpoint);
-
-    public void StartSlide(SlideDirection dir, float halfDuration, Action midpoint)
-        => BeginTransition(new SlideTransition { Direction = dir }, halfDuration, midpoint);
+    public override void Update(float deltaTime) => UpdateCalled = true;
+    public override void Draw(SKCanvas canvas, int w, int h) { }
+    public override void OnActivated()   => Activated   = true;
+    public override void OnDeactivated() => Deactivated = true;
+    public override void OnPaused()      => Paused      = true;
+    public override void OnResumed()     => Resumed     = true;
 }
 
-public class GameScreenBaseTests
+file sealed class ScreenB : GameScreenBase
 {
-    // ── Default dimensions ─────────────────────────────────────────────────
+    public bool Activated   { get; private set; }
+    public bool Deactivated { get; private set; }
 
-    [Fact]
-    public void DefaultDimensions_Are800x600()
+    public override void Update(float deltaTime) { }
+    public override void Draw(SKCanvas canvas, int w, int h) { }
+    public override void OnActivated()   => Activated   = true;
+    public override void OnDeactivated() => Deactivated = true;
+}
+
+file sealed class OverlayScreen : GameScreenBase
+{
+    public override void Update(float deltaTime) { }
+    public override void Draw(SKCanvas canvas, int w, int h) { }
+}
+
+// Builds a coordinator with ScreenA as initial, ScreenB and OverlayScreen available.
+file static class CoordFactory
+{
+    public static (ScreenCoordinator coord, ScreenA initial) Create()
     {
-        var g = new TestGame();
-        var (w, h) = g.GameDimensions;
-        Assert.Equal(800, w);
-        Assert.Equal(600, h);
-    }
-
-    // ── No transition ──────────────────────────────────────────────────────
-
-    [Fact]
-    public void IsTransitioning_Initially_IsFalse()
-        => Assert.False(new TestGame().IsTransitioning);
-
-    // ── BeginTransition + IsTransitioning ─────────────────────────────────
-
-    [Fact]
-    public void BeginTransition_SetsIsTransitioning()
-    {
-        var g = new TestGame();
-        g.StartFade(0.3f, () => { });
-        Assert.True(g.IsTransitioning);
-    }
-
-    // ── UpdateTransition — Out phase ──────────────────────────────────────
-
-    [Fact]
-    public void UpdateTransition_OutPhase_MidpointNotCalledYet()
-    {
-        var g = new TestGame();
-        bool midpointCalled = false;
-        g.StartFade(0.5f, () => midpointCalled = true);
-
-        g.Update(0.4f); // not yet at midpoint (progress 0.8 < 1)
-        Assert.False(midpointCalled);
-        Assert.True(g.IsTransitioning);
-    }
-
-    [Fact]
-    public void UpdateTransition_OutPhaseComplete_CallsMidpoint()
-    {
-        var g = new TestGame();
-        bool midpointCalled = false;
-        g.StartFade(0.3f, () => midpointCalled = true);
-
-        g.Update(0.3f); // progress = 1 → midpoint fires, switches to In
-        Assert.True(midpointCalled);
-        Assert.True(g.IsTransitioning); // still transitioning (now In phase)
-    }
-
-    // ── UpdateTransition — In phase ────────────────────────────────────────
-
-    [Fact]
-    public void UpdateTransition_InPhaseComplete_ClearsTransition()
-    {
-        var g = new TestGame();
-        g.StartFade(0.1f, () => { });
-
-        g.Update(0.1f); // completes Out phase → enters In
-        Assert.True(g.IsTransitioning);
-
-        g.Update(0.1f); // completes In phase
-        Assert.False(g.IsTransitioning);
-    }
-
-    // ── UpdateTransition — no-op when not transitioning ───────────────────
-
-    [Fact]
-    public void UpdateTransition_WhenNotTransitioning_DoesNothing()
-    {
-        var g = new TestGame();
-        g.Update(1f); // should not throw or change IsTransitioning
-        Assert.False(g.IsTransitioning);
-    }
-
-    // ── DrawTransitionOverlay ─────────────────────────────────────────────
-
-    [Fact]
-    public void DrawTransitionOverlay_WhenNotTransitioning_DoesNotThrow()
-    {
-        var g = new TestGame();
-        using var bitmap = new SKBitmap(800, 600);
-        using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => g.Draw(canvas, 800, 600));
-        Assert.Null(ex);
-    }
-
-    [Fact]
-    public void DrawTransitionOverlay_DuringTransition_DoesNotThrow()
-    {
-        var g = new TestGame();
-        g.StartFade(1f, () => { });
-
-        using var bitmap = new SKBitmap(800, 600);
-        using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => g.Draw(canvas, 800, 600));
-        Assert.Null(ex);
+        var services = new ServiceCollection();
+        services.AddTransient<ScreenA>();
+        services.AddTransient<ScreenB>();
+        services.AddTransient<OverlayScreen>();
+        var provider = services.BuildServiceProvider();
+        var initial  = provider.GetRequiredService<ScreenA>();
+        var coord    = new ScreenCoordinator(provider, initial);
+        return (coord, initial);
     }
 }
 
-// ── FadeTransition tests ──────────────────────────────────────────────────
+// ── ScreenCoordinator tests ────────────────────────────────────────────────
 
-public class FadeTransitionTests
+public class ScreenCoordinatorTests
 {
     [Fact]
-    public void Draw_ZeroCoverage_DoesNotThrow()
+    public void InitialScreen_IsActivated()
     {
-        var t = new FadeTransition();
-        using var bitmap = new SKBitmap(100, 100);
-        using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => t.Draw(canvas, 0f, (100, 100)));
+        var (_, initial) = CoordFactory.Create();
+        Assert.True(initial.Activated);
+    }
+
+    [Fact]
+    public void InitialScreen_Update_IsCalled()
+    {
+        var (coord, initial) = CoordFactory.Create();
+        coord.Update(0.016f);
+        Assert.True(initial.UpdateCalled);
+    }
+
+    [Fact]
+    public void InitialScreen_Draw_DoesNotThrow()
+    {
+        var (coord, _) = CoordFactory.Create();
+        using var bmp    = new SKBitmap(800, 600);
+        using var canvas = new SKCanvas(bmp);
+        var ex = Record.Exception(() => coord.Draw(canvas, 800, 600));
         Assert.Null(ex);
     }
 
     [Fact]
-    public void Draw_FullCoverage_DoesNotThrow()
+    public void GameDimensions_DelegatesToCurrentScreen()
     {
-        var t = new FadeTransition();
-        using var bitmap = new SKBitmap(100, 100);
-        using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => t.Draw(canvas, 1f, (100, 100)));
+        var (coord, _) = CoordFactory.Create();
+        Assert.Equal((800, 600), coord.GameDimensions);
+    }
+
+    [Fact]
+    public void TransitionTo_NoTransition_DeactivatesOldScreen()
+    {
+        var (coord, initial) = CoordFactory.Create();
+        coord.TransitionTo<ScreenB>();
+        Assert.True(initial.Deactivated);
+    }
+
+    [Fact]
+    public void TransitionTo_NoTransition_NewScreenReceivesUpdate()
+    {
+        var (coord, _) = CoordFactory.Create();
+        coord.TransitionTo<ScreenB>();
+        var ex = Record.Exception(() => coord.Update(0.016f));
         Assert.Null(ex);
     }
 
     [Fact]
-    public void Draw_HalfCoverage_DoesNotThrow()
+    public void TransitionTo_WithTransition_OldScreenNotDeactivatedYet()
     {
-        var t = new FadeTransition();
-        using var bitmap = new SKBitmap(100, 100);
-        using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => t.Draw(canvas, 0.5f, (100, 100)));
+        var (coord, initial) = CoordFactory.Create();
+        coord.TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
+        Assert.False(initial.Deactivated);
+    }
+
+    [Fact]
+    public void TransitionTo_WithTransition_CompletesAfterDuration()
+    {
+        var (coord, initial) = CoordFactory.Create();
+        coord.TransitionTo<ScreenB>(new DissolveTransition { Duration = 0.5f });
+        coord.Update(0.5f);
+        Assert.True(initial.Deactivated);
+    }
+
+    [Fact]
+    public void TransitionTo_WithTransition_DrawDoesNotThrow()
+    {
+        var (coord, _) = CoordFactory.Create();
+        coord.TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
+        using var bmp    = new SKBitmap(800, 600);
+        using var canvas = new SKCanvas(bmp);
+        coord.Update(0.25f);
+        var ex = Record.Exception(() => coord.Draw(canvas, 800, 600));
         Assert.Null(ex);
     }
 
     [Fact]
-    public void Draw_CustomColor_DoesNotThrow()
+    public void PushOverlay_PausesBaseScreen()
     {
-        var t = new FadeTransition { Color = SKColors.Red };
-        using var bitmap = new SKBitmap(100, 100);
-        using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => t.Draw(canvas, 0.5f, (100, 100)));
+        var (coord, initial) = CoordFactory.Create();
+        coord.PushOverlay<OverlayScreen>();
+        Assert.True(initial.IsPaused);
+        Assert.True(initial.Paused);
+    }
+
+    [Fact]
+    public void PushOverlay_BaseScreenNotUpdated()
+    {
+        var (coord, initial) = CoordFactory.Create();
+        coord.PushOverlay<OverlayScreen>();
+        coord.Update(0.016f);
+        Assert.False(initial.UpdateCalled);
+    }
+
+    [Fact]
+    public void PopOverlay_ResumesBaseScreen()
+    {
+        var (coord, initial) = CoordFactory.Create();
+        coord.PushOverlay<OverlayScreen>();
+        coord.PopOverlay();
+        Assert.False(initial.IsPaused);
+        Assert.True(initial.Resumed);
+    }
+
+    [Fact]
+    public void PopOverlay_WhenEmpty_DoesNothing()
+    {
+        var (coord, _) = CoordFactory.Create();
+        var ex = Record.Exception(() => coord.PopOverlay());
         Assert.Null(ex);
+    }
+
+    [Fact]
+    public void TransitionTo_ClearsOverlayStack_DeactivatesBase()
+    {
+        var (coord, initial) = CoordFactory.Create();
+        coord.PushOverlay<OverlayScreen>();
+        coord.TransitionTo<ScreenB>();
+        Assert.True(initial.Deactivated);
     }
 }
 
-// ── SlideTransition tests ─────────────────────────────────────────────────
+// ── DissolveTransition tests ───────────────────────────────────────────────
+
+public class DissolveTransitionTests
+{
+    private static SKCanvas MakeCanvas() => new(new SKBitmap(800, 600));
+
+    [Fact]
+    public void Draw_AtProgress0_DoesNotThrow()
+    {
+        var t  = new DissolveTransition();
+        var ex = Record.Exception(() => t.Draw(MakeCanvas(), 0f, _ => { }, _ => { }, 800, 600));
+        Assert.Null(ex);
+    }
+
+    [Fact]
+    public void Draw_AtProgress1_DoesNotThrow()
+    {
+        var t  = new DissolveTransition();
+        var ex = Record.Exception(() => t.Draw(MakeCanvas(), 1f, _ => { }, _ => { }, 800, 600));
+        Assert.Null(ex);
+    }
+
+    [Fact]
+    public void Draw_AtProgress05_DoesNotThrow()
+    {
+        var t  = new DissolveTransition();
+        var ex = Record.Exception(() => t.Draw(MakeCanvas(), 0.5f, _ => { }, _ => { }, 800, 600));
+        Assert.Null(ex);
+    }
+
+    [Fact]
+    public void DefaultDuration_Is04()
+        => Assert.Equal(0.4f, new DissolveTransition().Duration);
+}
+
+// ── FadeToBlackTransition tests ────────────────────────────────────────────
+
+public class FadeToBlackTransitionTests
+{
+    private static SKCanvas MakeCanvas() => new(new SKBitmap(800, 600));
+
+    [Theory]
+    [InlineData(0f)]
+    [InlineData(0.25f)]
+    [InlineData(0.5f)]
+    [InlineData(0.75f)]
+    [InlineData(1f)]
+    public void Draw_DoesNotThrow_AtVariousProgress(float progress)
+    {
+        var t  = new FadeToBlackTransition();
+        var ex = Record.Exception(() => t.Draw(MakeCanvas(), progress, _ => { }, _ => { }, 800, 600));
+        Assert.Null(ex);
+    }
+
+    [Fact]
+    public void Draw_FirstHalf_CallsOutgoingCallback()
+    {
+        bool outCalled = false;
+        var t = new FadeToBlackTransition();
+        t.Draw(MakeCanvas(), 0.2f, _ => outCalled = true, _ => { }, 800, 600);
+        Assert.True(outCalled);
+    }
+
+    [Fact]
+    public void Draw_SecondHalf_CallsIncomingCallback()
+    {
+        bool inCalled = false;
+        var t = new FadeToBlackTransition();
+        t.Draw(MakeCanvas(), 0.8f, _ => { }, _ => inCalled = true, 800, 600);
+        Assert.True(inCalled);
+    }
+}
+
+// ── SlideTransition tests ──────────────────────────────────────────────────
 
 public class SlideTransitionTests
 {
-    private static SKCanvas MakeCanvas() => new SKCanvas(new SKBitmap(800, 600));
+    private static SKCanvas MakeCanvas() => new(new SKBitmap(800, 600));
 
     [Theory]
     [InlineData(SlideDirection.Up)]
@@ -194,27 +270,18 @@ public class SlideTransitionTests
     [InlineData(SlideDirection.Right)]
     public void Draw_AllDirections_DoNotThrow(SlideDirection dir)
     {
-        var t = new SlideTransition { Direction = dir };
-        using var canvas = MakeCanvas();
-        var ex = Record.Exception(() => t.Draw(canvas, 0.5f, (800, 600)));
+        var t  = new SlideTransition { Direction = dir };
+        var ex = Record.Exception(() => t.Draw(MakeCanvas(), 0.5f, _ => { }, _ => { }, 800, 600));
         Assert.Null(ex);
     }
 
     [Fact]
-    public void Draw_ZeroCoverage_DoesNotThrow()
+    public void Draw_CallsBothScreenCallbacks()
     {
+        bool outCalled = false, inCalled = false;
         var t = new SlideTransition();
-        using var canvas = MakeCanvas();
-        var ex = Record.Exception(() => t.Draw(canvas, 0f, (800, 600)));
-        Assert.Null(ex);
-    }
-
-    [Fact]
-    public void Draw_FullCoverage_DoesNotThrow()
-    {
-        var t = new SlideTransition { Direction = SlideDirection.Right };
-        using var canvas = MakeCanvas();
-        var ex = Record.Exception(() => t.Draw(canvas, 1f, (800, 600)));
-        Assert.Null(ex);
+        t.Draw(MakeCanvas(), 0.5f, _ => outCalled = true, _ => inCalled = true, 800, 600);
+        Assert.True(outCalled);
+        Assert.True(inCalled);
     }
 }

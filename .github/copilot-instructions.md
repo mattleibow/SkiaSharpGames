@@ -56,6 +56,9 @@ public abstract class GameScreenBase
     public abstract void Draw(SKCanvas canvas, int width, int height);
     public virtual void OnPointerMove(float x, float y) { }
     public virtual void OnPointerDown(float x, float y) { }
+    public virtual void OnPointerUp(float x, float y) { }
+    public virtual void OnKeyDown(string key) { }
+    public virtual void OnKeyUp(string key) { }
 
     // Transition system — call in Update() and at end of Draw():
     public bool IsTransitioning { get; }

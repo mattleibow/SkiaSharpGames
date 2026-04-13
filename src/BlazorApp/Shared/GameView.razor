@@ -3,12 +3,19 @@
 
 <div @ref="_container"
      class="game-view"
+     tabindex="0"
      @onmousemove="OnMouseMove"
      @onclick="OnClick"
+     @onmouseup="OnMouseUp"
      @ontouchmove="OnTouchMove"
      @ontouchstart="OnTouchStart"
+     @ontouchend="OnTouchEnd"
      @ontouchmove:preventDefault
-     @ontouchstart:preventDefault>
+     @ontouchstart:preventDefault
+     @ontouchend:preventDefault
+     @onkeydown="OnKeyDown"
+     @onkeyup="OnKeyUp"
+     @onkeydown:preventDefault>
     <SKGLView @ref="_glView"
               OnPaintSurface="OnPaintSurface"
               EnableRenderLoop="true"
@@ -33,7 +40,10 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
+        {
             await UpdateLayoutAsync();
+            await JS.InvokeVoidAsync("focusGameView");
+        }
     }
 
     private async Task UpdateLayoutAsync()
@@ -86,6 +96,13 @@
         Game.OnPointerDown(gx, gy);
     }
 
+    private void OnMouseUp(MouseEventArgs e)
+    {
+        if (Game is null) return;
+        var (gx, gy) = ToGameCoords((float)e.OffsetX, (float)e.OffsetY);
+        Game.OnPointerUp(gx, gy);
+    }
+
     // Touch – ClientX/Y are viewport-relative; subtract container offset.
     private void OnTouchMove(TouchEventArgs e)
     {
@@ -103,5 +120,25 @@
         Game.OnPointerDown(gx, gy);
     }
 
+    private void OnTouchEnd(TouchEventArgs e)
+    {
+        if (Game is null || e.ChangedTouches.Length == 0) return;
+        var t = e.ChangedTouches[0];
+        var (gx, gy) = ToGameCoords((float)(t.ClientX - _containerLeft), (float)(t.ClientY - _containerTop));
+        Game.OnPointerUp(gx, gy);
+    }
+
     private record ElementRect(float Left, float Top, float Width, float Height);
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (Game is null) return;
+        Game.OnKeyDown(e.Key);
+    }
+
+    private void OnKeyUp(KeyboardEventArgs e)
+    {
+        if (Game is null) return;
+        Game.OnKeyUp(e.Key);
+    }
 }

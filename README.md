@@ -9,6 +9,7 @@ A SkiaSharp game gallery built with .NET 10 Blazor WebAssembly. Games are render
 | Game | URL | Description |
 |------|-----|-------------|
 | [Breakout](src/BlazorApp/Games/Breakout/) | `/games/breakout` | Classic brick-breaker with powerups. Move the paddle with mouse or touch to clear all the bricks. |
+| [Castle Attack](src/BlazorApp/Games/CastleAttack/) | `/games/castle-attack` | Tower-defence shooter. Command archers and workers to defend three walls while building the keep. |
 
 ### Breakout
 
@@ -21,6 +22,25 @@ A SkiaSharp game gallery built with .NET 10 Blazor WebAssembly. Games are render
 - **STRONG BALL** (15% chance) — ball pierces through all bricks for 5 s (ball turns orange)
 - **BIG PADDLE** (15% chance) — paddle springs to 1.8× wider for 8 s (animated via `AnimatedFloat`)
 - Bricks have a periodic shimmer sweep powered by `LoopedAnimation`
+
+### Castle Attack
+
+| Desktop | Mobile |
+|---------|--------|
+| ![Desktop – Start screen](docs/screenshots/castle-attack/desktop-loading.png) | ![Mobile – Start screen](docs/screenshots/castle-attack/mobile-loading.png) |
+| ![Desktop – Gameplay](docs/screenshots/castle-attack/desktop-gameplay.png) | ![Mobile – Gameplay](docs/screenshots/castle-attack/mobile-gameplay.png) |
+
+**Features:** Tower-defence shooter set in a medieval siege. Defend three concentric walls (2, 4, 6 blocks tall) while workers build the keep:
+- **Three walls** — outer (2 blocks), middle (4 blocks), inner (6 blocks), each taking independent damage
+- **Archers + Workers** — start with 3 of each; convert freely with `↑/↓` or on-screen buttons (always keep ≥ 1 worker)
+- **Parabolic arrow fire** — `SPACE` or FIRE button; dotted arc preview shows trajectory and landing point
+- **Aim sweep** — hold `← →` or hold aim buttons; step on tap
+- **Seven enemy types** — Spearman, Swordsman, Berserker, Crossbowman, Catapult, Ram, and the secret Cow 🐄
+- **Special weapons** (one-use each) — Boiling Oil (near-wall area clear), Mangonel (long-range salvo), Flaming Logs (full-screen wipe)
+- **Lord defender** — golden champion activates and fights back when all walls fall
+- **Victory** — keep reaches 100% construction; **Defeat** — Lord's HP drops to zero
+- **Accuracy multiplier** — consecutive hits with a single archer build a ×8 scoring streak
+- **Full mobile support** — on-screen button bar + tap-to-aim-and-fire anywhere in the battlefield
 
 ## Project Structure
 
@@ -46,10 +66,13 @@ src/
     Games/
       Breakout/                # Breakout game logic
         BreakoutGameEngine.cs
+      CastleAttack/            # Castle Attack game logic
+        CastleAttackGame.cs
     Pages/
       Home.razor               # Gallery home page  (/)
       Games/
         Breakout.razor         # Breakout game page (/games/breakout)
+        CastleAttack.razor     # Castle Attack page (/games/castle-attack)
     Shared/
       GameView.razor           # Reusable SKGLView component (game loop + input)
     Layout/
@@ -70,6 +93,11 @@ tests/
 
 docs/screenshots/              # Per-game screenshot assets
   breakout/
+    desktop-loading.png
+    desktop-gameplay.png
+    mobile-loading.png
+    mobile-gameplay.png
+  castle-attack/
     desktop-loading.png
     desktop-gameplay.png
     mobile-loading.png
@@ -95,6 +123,11 @@ public abstract class GameScreenBase
     // Optional pointer input — coordinates are in game-space units.
     public virtual void OnPointerMove(float x, float y) { }
     public virtual void OnPointerDown(float x, float y) { }
+    public virtual void OnPointerUp(float x, float y) { }
+
+    // Optional keyboard input — key is the browser key value string (e.g. "ArrowLeft", " ", "z").
+    public virtual void OnKeyDown(string key) { }
+    public virtual void OnKeyUp(string key) { }
 
     // ── Transition system ──────────────────────────────────────────
     public bool IsTransitioning { get; }
@@ -233,7 +266,7 @@ DrawHelper.MeasureText(text, size);
 
 1. Create `src/BlazorApp/Games/<Name>/<ClassName>.cs` extending `GameScreenBase`.
 2. Override `GameDimensions` if your game uses dimensions other than 800 × 600.
-3. Implement `Update` and `Draw`. Optionally override `OnPointerMove`/`OnPointerDown`.
+3. Implement `Update` and `Draw`. Optionally override `OnPointerMove`/`OnPointerDown`/`OnPointerUp` and `OnKeyDown`/`OnKeyUp`.
 4. Create `src/BlazorApp/Pages/Games/<Name>.razor`:
    ```razor
    @page "/games/<slug>"

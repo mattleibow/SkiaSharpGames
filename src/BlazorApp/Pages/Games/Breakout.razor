@@ -1,8 +1,15 @@
 @page "/games/breakout"
 @layout GameLayout
-@using SkiaSharpGames.BlazorApp.Games.Breakout
-@inject BreakoutGame _game
 
 <PageTitle>Breakout – SkiaSharp Games</PageTitle>
 
 <GameView Game="_game" />
+
+@code {
+    private readonly Game _game;
+
+    public Breakout([FromKeyedServices("breakout")] Game game)
+    {
+        _game = game;
+    }
+}

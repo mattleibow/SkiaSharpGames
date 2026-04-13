@@ -4,38 +4,34 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
-/// The root of a game. Subclass this, override <see cref="Configure"/>, and the game manages
-/// its own isolated DI container, screen stack, and transition engine.
+/// The root of a running game. Produced by <see cref="GameBuilder.Build"/>; cannot be
+/// subclassed or instantiated directly.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Concrete games have a parameterless constructor so they can be registered directly in any
-/// DI system (e.g. Blazor's <c>builder.Services.AddTransient&lt;BreakoutGame&gt;()</c>)
-/// without exposing any game-internal details.
+/// Assign the instance returned by <see cref="GameBuilder.Build"/> to a view component
+/// (e.g. <c>GameView.razor</c>). The game owns its own isolated DI container, screen stack,
+/// and transition engine.
 /// </para>
 /// <example>
 /// <code>
-/// public sealed class BreakoutGame : Game
-/// {
-///     protected override void Configure(GameBuilder builder)
-///     {
-///         builder.Services.AddSingleton&lt;BreakoutGameState&gt;();
-///         builder.AddScreen&lt;BreakoutStartScreen&gt;()  // first = initial screen
-///                .AddScreen&lt;BreakoutPlayScreen&gt;()
-///                .AddScreen&lt;BreakoutGameOverScreen&gt;()
-///                .AddScreen&lt;BreakoutVictoryScreen&gt;();
-///     }
-/// }
+/// var builder = GameBuilder.CreateDefault();
+/// builder.Services.AddSingleton&lt;BreakoutGameState&gt;();
+/// builder.Screens
+///        .Add&lt;BreakoutStartScreen&gt;()   // first = initial screen
+///        .Add&lt;BreakoutPlayScreen&gt;()
+///        .Add&lt;BreakoutGameOverScreen&gt;()
+///        .Add&lt;BreakoutVictoryScreen&gt;();
+/// var game = builder.Build();
 /// </code>
 /// </example>
 /// </remarks>
-public abstract class Game
+public sealed class Game
 {
-    private IServiceProvider? _services;
-    private GameScreenBase? _current;
+    private readonly IServiceProvider _services;
+    private GameScreenBase _current;
     private readonly List<GameScreenBase> _overlays = [];
     private ActiveTransition? _activeTransition;
-    private bool _initialized;
 
     private sealed class ActiveTransition(
         GameScreenBase outgoing,
@@ -48,28 +44,10 @@ public abstract class Game
         public float             Progress   { get; set; }
     }
 
-    // ── Configuration (override in each concrete game) ────────────────────
-
-    /// <summary>
-    /// Override to register screens and game-scoped services.
-    /// The first screen registered via <see cref="GameBuilder.AddScreen{TScreen}"/> becomes
-    /// the initial screen.
-    /// </summary>
-    protected abstract void Configure(GameBuilder builder);
-
-    // ── Lazy initialisation ───────────────────────────────────────────────
-
-    private void EnsureInitialized()
+    internal Game(IServiceProvider services, Type initialScreenType)
     {
-        if (_initialized) return;
-        _initialized = true;
-
-        var builder = new GameBuilder();
-        Configure(builder);
-
-        _services = builder.BuildServiceProvider();
-
-        _current = (GameScreenBase)_services.GetRequiredService(builder.InitialScreenType);
+        _services = services;
+        _current  = (GameScreenBase)services.GetRequiredService(initialScreenType);
         _current.SetGame(this);
         _current.OnActivated();
     }
@@ -83,8 +61,6 @@ public abstract class Game
     public void TransitionTo<TScreen>(IScreenTransition? transition = null)
         where TScreen : GameScreenBase
     {
-        EnsureInitialized();
-
         // Cancel any running transition
         if (_activeTransition != null)
         {
@@ -101,14 +77,14 @@ public abstract class Game
 
         if (transition is null)
         {
-            _current!.OnDeactivated();
+            _current.OnDeactivated();
             _current          = incoming;
             _current.IsPaused = false;
             _current.OnActivated();
         }
         else
         {
-            _current!.IsPaused = true;
+            _current.IsPaused = true;
             incoming.OnActivated();
             _activeTransition = new ActiveTransition(_current, incoming, transition);
         }
@@ -120,11 +96,9 @@ public abstract class Game
     /// </summary>
     public void PushOverlay<TOverlay>() where TOverlay : GameScreenBase
     {
-        EnsureInitialized();
-
         if (_overlays.Count == 0)
         {
-            _current!.IsPaused = true;
+            _current.IsPaused = true;
             _current.OnPaused();
         }
 
@@ -147,7 +121,7 @@ public abstract class Game
 
         if (_overlays.Count == 0)
         {
-            _current!.IsPaused = false;
+            _current.IsPaused = false;
             _current.OnResumed();
         }
     }
@@ -155,20 +129,12 @@ public abstract class Game
     // ── Host API (called by GameView or any rendering host) ───────────────
 
     /// <summary>Logical (virtual) dimensions of the game canvas in game-space units.</summary>
-    public (int width, int height) GameDimensions
-    {
-        get
-        {
-            EnsureInitialized();
-            return _activeTransition?.Incoming.GameDimensions ?? _current!.GameDimensions;
-        }
-    }
+    public (int width, int height) GameDimensions =>
+        _activeTransition?.Incoming.GameDimensions ?? _current.GameDimensions;
 
     /// <summary>Advances the game by <paramref name="deltaTime"/> seconds.</summary>
     public void Update(float deltaTime)
     {
-        EnsureInitialized();
-
         if (_activeTransition is not null)
         {
             _activeTransition.Progress +=
@@ -188,14 +154,12 @@ public abstract class Game
         if (_overlays.Count > 0)
             _overlays[^1].Update(deltaTime);
         else
-            _current!.Update(deltaTime);
+            _current.Update(deltaTime);
     }
 
     /// <summary>Draws the current frame to <paramref name="canvas"/>.</summary>
     public void Draw(SKCanvas canvas, int width, int height)
     {
-        EnsureInitialized();
-
         if (_activeTransition is not null)
         {
             float progress = Math.Clamp(_activeTransition.Progress, 0f, 1f);
@@ -207,7 +171,7 @@ public abstract class Game
             return;
         }
 
-        _current!.Draw(canvas, width, height);
+        _current.Draw(canvas, width, height);
         foreach (var overlay in _overlays)
             overlay.Draw(canvas, width, height);
     }
@@ -229,20 +193,14 @@ public abstract class Game
 
     // ── Private helpers ───────────────────────────────────────────────────
 
-    private GameScreenBase ActiveInputScreen
-    {
-        get
-        {
-            EnsureInitialized();
-            return _activeTransition is not null ? _activeTransition.Incoming :
-                   _overlays.Count   > 0         ? _overlays[^1]              :
-                                                   _current!;
-        }
-    }
+    private GameScreenBase ActiveInputScreen =>
+        _activeTransition is not null ? _activeTransition.Incoming :
+        _overlays.Count   > 0         ? _overlays[^1]              :
+                                        _current;
 
     private TScreen ResolveScreen<TScreen>() where TScreen : GameScreenBase
     {
-        var screen = _services!.GetRequiredService<TScreen>();
+        var screen = _services.GetRequiredService<TScreen>();
         screen.SetGame(this);
         return screen;
     }

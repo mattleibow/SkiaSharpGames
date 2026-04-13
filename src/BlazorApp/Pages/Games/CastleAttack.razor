@@ -1,8 +1,15 @@
 @page "/games/castle-attack"
 @layout GameLayout
-@using SkiaSharpGames.BlazorApp.Games.CastleAttack
-@inject CastleAttackGame _game
 
 <PageTitle>Castle Attack – SkiaSharp Games</PageTitle>
 
 <GameView Game="_game" />
+
+@code {
+    private readonly Game _game;
+
+    public CastleAttack([FromKeyedServices("castle-attack")] Game game)
+    {
+        _game = game;
+    }
+}

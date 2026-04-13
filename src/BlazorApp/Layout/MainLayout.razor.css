@@ -1,0 +1,60 @@
+.main-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 2rem;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.12);
+    background: rgba(13, 27, 42, 0.95);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.site-logo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #00d4ff;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+}
+
+.site-logo:hover {
+    color: #fff;
+}
+
+.site-link {
+    font-size: 0.875rem;
+    color: #8bacc4;
+    text-decoration: none;
+}
+
+.site-link:hover {
+    color: #00d4ff;
+}
+
+.site-content {
+    flex: 1;
+    padding: 0 2rem;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+    .site-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .site-content {
+        padding: 0 1rem;
+    }
+}
+

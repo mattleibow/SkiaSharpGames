@@ -3,12 +3,6 @@ using SkiaSharpGames.GameEngine;
 
 namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
 
-// ── Enums ────────────────────────────────────────────────────────────────────
-
-public enum CastlePhase { Start, Playing, GameOver, Victory }
-
-public enum EnemyType { Spearman, Swordsman, Berserker, Crossbowman, Catapult, Ram, Cow }
-
 // ── Main game engine ─────────────────────────────────────────────────────────
 
 public class CastleAttackGame : GameScreenBase
@@ -19,9 +13,9 @@ public class CastleAttackGame : GameScreenBase
     public override (int width, int height) GameDimensions => (GameWidth, GameHeight);
 
     // ── Layout constants ──────────────────────────────────────────────────────
-    const float GroundY = 548f;      // top of the ground strip
-    const float BlockW  = 40f;       // each wall block width
-    const float BlockH  = 28f;       // each wall block height
+    internal const float GroundY = 548f;      // top of the ground strip
+    internal const float BlockW  = 40f;       // each wall block width
+    internal const float BlockH  = 28f;       // each wall block height
 
     // Wall left-edge X positions (outer = rightmost, first wall enemies hit)
     const float OuterWallX  = 430f;  // 2 blocks tall
@@ -89,102 +83,6 @@ public class CastleAttackGame : GameScreenBase
         EnemyType.Cow         => new(0xF5, 0xF5, 0xDC),
         _                     => SKColors.Gray
     };
-
-    // ── Nested data types ─────────────────────────────────────────────────────
-
-    private sealed class WallBlock
-    {
-        public float HP    { get; set; }
-        public float MaxHP { get; } = 100f;
-        public bool  Active => HP > 0f;
-        public WallBlock() { HP = MaxHP; }
-    }
-
-    private sealed class Wall
-    {
-        public float CenterX    { get; }
-        public float LeftX      => CenterX - BlockW / 2f;
-        public List<WallBlock> Blocks { get; } = [];
-        public bool  HasArcher  { get; set; }
-        public int   TotalBlocks { get; }
-
-        public int   ActiveBlocks   => Blocks.Count(b => b.Active);
-        public bool  IsDestroyed    => Blocks.All(b => !b.Active);
-
-        // Top Y of the current wall surface (where archer stands)
-        public float TopY => IsDestroyed ? GroundY : GroundY - ActiveBlocks * BlockH;
-        public float ArcherCenterX => CenterX;
-        public float ArcherBaseY   => TopY;   // archer feet
-
-        public Wall(float cx, int blocks, bool hasArcher)
-        {
-            CenterX     = cx;
-            TotalBlocks = blocks;
-            HasArcher   = hasArcher;
-            for (int i = 0; i < blocks; i++)
-                Blocks.Add(new WallBlock());
-        }
-
-        // Damage the bottom-most active block
-        public void TakeDamage(float dmg)
-        {
-            var block = Blocks.LastOrDefault(b => b.Active);
-            if (block != null) block.HP = Math.Max(0f, block.HP - dmg);
-        }
-
-        // Instantly destroy every block (ram hit)
-        public void Demolish()
-        {
-            foreach (var b in Blocks) b.HP = 0f;
-            HasArcher = false;
-        }
-    }
-
-    private enum EnemyState { Walking, AttackingWall, AttackingLord, Shooting, Idle }
-
-    private sealed class Enemy
-    {
-        public EnemyType  Type;
-        public float      X;
-        public float      HP, MaxHP;
-        public float      Speed;
-        public EnemyState State   = EnemyState.Walking;
-        public float      AttackTimer;
-        public float      AttackInterval;
-        public float      AttackDamage;
-        public float      AttackRange;  // how far from wall to stop and attack
-        public bool       Active  = true;
-        public float      W, H;         // visual size
-        public int        TargetWallIdx = -1; // cached target wall index
-        // Crossbowman
-        public float      FireCooldown;
-        public float      FireInterval = 2.5f;
-    }
-
-    private sealed class Arrow
-    {
-        public float X, Y;
-        public float VX, VY;
-        public bool  Active   = true;
-        public bool  IsEnemy  = false;   // crossbowman bolt
-        public int   EnemyTargetWall;    // which archer it aims at
-    }
-
-    private sealed class Boulder
-    {
-        public float X, Y;
-        public float VX, VY;
-        public bool  Active = true;
-        public int   TargetWallIdx;
-    }
-
-    private sealed class FloatText
-    {
-        public float    X, Y;
-        public float    Life;
-        public string   Text  = "";
-        public SKColor  Color = SKColors.White;
-    }
 
     // ── State fields ──────────────────────────────────────────────────────────
 

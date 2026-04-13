@@ -3,9 +3,6 @@ using SkiaSharpGames.GameEngine;
 
 namespace SkiaSharpGames.BlazorApp.Games.Breakout;
 
-public enum GamePhase { Start, Playing, GameOver, Victory }
-public enum PowerUpType { StrongBall, BigPaddle }
-
 public class BreakoutGameEngine : GameScreenBase
 {
     // ── Game dimensions ───────────────────────────────────────────────────
@@ -27,8 +24,8 @@ public class BreakoutGameEngine : GameScreenBase
     // ── Bricks ────────────────────────────────────────────────────────────
     private const int   BrickCols   = 10;
     private const int   BrickRows   = 5;
-    private const float BrickWidth  = 72f;
-    private const float BrickHeight = 22f;
+    internal const float BrickWidth  = 72f;
+    internal const float BrickHeight = 22f;
     private const float BrickGap    = 4f;
     private static readonly float BricksStartX =
         (GameWidth - (BrickCols * (BrickWidth + BrickGap) - BrickGap)) / 2f;
@@ -37,8 +34,8 @@ public class BreakoutGameEngine : GameScreenBase
     // ── Power-ups ─────────────────────────────────────────────────────────
     private const float PowerUpChance = 0.15f;
     private const float PowerUpSpeed  = 130f;
-    private const float PowerUpW      = 34f;
-    private const float PowerUpH      = 18f;
+    internal const float PowerUpW      = 34f;
+    internal const float PowerUpH      = 18f;
 
     // ── Colours ───────────────────────────────────────────────────────────
     private static readonly SKColor BackgroundColor = new(0x0D, 0x1B, 0x2A);
@@ -84,6 +81,7 @@ public class BreakoutGameEngine : GameScreenBase
     private float _bigPaddleTimer;
 
     // ── Sprites ───────────────────────────────────────────────────────────
+
     private readonly CircleSprite _ballSprite = new()
     {
         Radius = BallRadius, Color = SKColors.White, GlowRadius = 4f, GlowColor = SKColors.White
@@ -93,40 +91,6 @@ public class BreakoutGameEngine : GameScreenBase
     {
         Height = PaddleHeight, Color = PaddleColor, CornerRadius = 6f, ShowShine = false
     };
-
-    // ── Nested data types ─────────────────────────────────────────────────
-
-    private sealed class Brick
-    {
-        public readonly int Row, Col;
-        public bool Active = true;
-        public readonly RectSprite Sprite;
-        public readonly RectBody Body;
-
-        public Brick(int row, int col, float x, float y)
-        {
-            Row = row; Col = col;
-            Sprite = new RectSprite
-            {
-                X = x, Y = y, Width = BrickWidth, Height = BrickHeight,
-                CornerRadius = 3f, ShowShine = true
-            };
-            Body = new RectBody
-            {
-                X = x, Y = y, Width = BrickWidth, Height = BrickHeight, IsStatic = true
-            };
-        }
-    }
-
-    private sealed class FallingPowerUp
-    {
-        public float X, Y;   // centre
-        public PowerUpType Type;
-        public readonly RectSprite Sprite = new()
-        {
-            Width = PowerUpW, Height = PowerUpH, CornerRadius = 5f, ShowShine = false
-        };
-    }
 
     private readonly List<Brick>          _bricks  = [];
     private readonly List<FallingPowerUp> _powerUps = [];

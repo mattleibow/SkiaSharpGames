@@ -5,10 +5,8 @@ using static SkiaSharpGames.BlazorApp.Games.CastleAttack.CastleAttackConstants;
 namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
 
 /// <summary>Start/title screen for Castle Attack. Shows the background and instructions.</summary>
-internal sealed class CastleAttackStartScreen : GameScreenBase
+internal sealed class CastleAttackStartScreen : GameScreen
 {
-    public override void Update(float deltaTime) { }
-
     public override void Draw(SKCanvas canvas, int width, int height)
     {
         canvas.Clear(ColSky);

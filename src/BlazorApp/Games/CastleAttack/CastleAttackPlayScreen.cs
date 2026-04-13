@@ -5,10 +5,8 @@ using static SkiaSharpGames.BlazorApp.Games.CastleAttack.CastleAttackConstants;
 namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
 
 /// <summary>Active gameplay screen for Castle Attack.</summary>
-internal sealed class CastleAttackPlayScreen : GameScreenBase
+internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : GameScreen
 {
-    private readonly CastleAttackGameState _state;
-
     // ── State ─────────────────────────────────────────────────────────────
     private readonly List<Wall>      _walls    = [];
     private readonly List<Enemy>     _enemies  = [];
@@ -46,14 +44,12 @@ internal sealed class CastleAttackPlayScreen : GameScreenBase
 
     private float[] _wallFlash = new float[3];
 
-    public CastleAttackPlayScreen(CastleAttackGameState state) => _state = state;
-
     // ── Lifecycle ─────────────────────────────────────────────────────────
 
     public override void OnActivated()
     {
-        _state.Score       = 0;
-        _state.Level       = 1;
+        state.Score       = 0;
+        state.Level       = 1;
         _archerCount       = 3;
         _workerCount       = 3;
         _keepProgress      = 0f;
@@ -676,7 +672,7 @@ internal sealed class CastleAttackPlayScreen : GameScreenBase
         if (!e.Active) return;
         e.Active = false;
         int pts = PointsForEnemy(e.Type);
-        _state.Score += pts;
+        state.Score += pts;
         SpawnText($"+{pts}", x > 0 ? x : e.X, GroundY - e.H - 10f,
             e.Type == EnemyType.Cow ? ColGold : ColAccent);
     }
@@ -1073,8 +1069,8 @@ internal sealed class CastleAttackPlayScreen : GameScreenBase
 
     private void DrawHud(SKCanvas canvas)
     {
-        DrawHelper.DrawText(canvas, $"Score: {_state.Score}", 20f, ColHud, 8f, 26f);
-        string levelStr = $"Level {_state.Level}";
+        DrawHelper.DrawText(canvas, $"Score: {state.Score}", 20f, ColHud, 8f, 26f);
+        string levelStr = $"Level {state.Level}";
         float  levelW   = DrawHelper.MeasureText(levelStr, 20f);
         DrawHelper.DrawText(canvas, levelStr, 20f, ColHud, GameWidth - levelW - 8f, 26f);
 

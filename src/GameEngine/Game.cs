@@ -23,6 +23,7 @@ namespace SkiaSharpGames.GameEngine;
 ///        .Add&lt;BreakoutGameOverScreen&gt;()
 ///        .Add&lt;BreakoutVictoryScreen&gt;();
 /// builder.SetInitialScreen&lt;BreakoutStartScreen&gt;();
+/// builder.SetGameDimensions(new SKSize(800, 600));
 /// var game = builder.Build();
 /// </code>
 /// </example>
@@ -30,26 +31,26 @@ namespace SkiaSharpGames.GameEngine;
 public sealed class Game
 {
     private readonly IServiceProvider _services;
-    private GameScreenBase _current;
-    private readonly List<GameScreenBase> _overlays = [];
+    private GameScreen _current;
+    private readonly List<GameScreen> _overlays = [];
     private ActiveTransition? _activeTransition;
 
     private sealed class ActiveTransition(
-        GameScreenBase outgoing,
-        GameScreenBase incoming,
+        GameScreen outgoing,
+        GameScreen incoming,
         IScreenTransition transition)
     {
-        public GameScreenBase    Outgoing   { get; } = outgoing;
-        public GameScreenBase    Incoming   { get; } = incoming;
+        public GameScreen        Outgoing   { get; } = outgoing;
+        public GameScreen        Incoming   { get; } = incoming;
         public IScreenTransition Transition { get; } = transition;
         public float             Progress   { get; set; }
     }
 
-    internal Game(IServiceProvider services, Type initialScreenType, (int width, int height) gameDimensions)
+    internal Game(IServiceProvider services, Type initialScreenType, SKSize gameDimensions)
     {
         _services      = services;
         GameDimensions = gameDimensions;
-        _current       = (GameScreenBase)services.GetRequiredService(initialScreenType);
+        _current       = (GameScreen)services.GetRequiredService(initialScreenType);
         _current.SetGame(this);
         _current.OnActivated();
     }
@@ -61,7 +62,7 @@ public sealed class Game
     /// optionally playing a cross-screen transition. Clears any open overlays first.
     /// </summary>
     public void TransitionTo<TScreen>(IScreenTransition? transition = null)
-        where TScreen : GameScreenBase
+        where TScreen : GameScreen
     {
         // Cancel any running transition
         if (_activeTransition != null)
@@ -96,7 +97,7 @@ public sealed class Game
     /// Pushes an overlay screen on top of the current screen.
     /// The current screen is paused (still drawn, not updated) while any overlay is active.
     /// </summary>
-    public void PushOverlay<TOverlay>() where TOverlay : GameScreenBase
+    public void PushOverlay<TOverlay>() where TOverlay : GameScreen
     {
         if (_overlays.Count == 0)
         {
@@ -132,10 +133,10 @@ public sealed class Game
 
     /// <summary>
     /// Logical (virtual) dimensions of the game canvas in game-space units.
-    /// Set once via <see cref="GameBuilder.GameDimensions"/> before calling
+    /// Set via <see cref="GameBuilder.SetGameDimensions"/> before calling
     /// <see cref="GameBuilder.Build"/>. All screens in the game share this value.
     /// </summary>
-    public (int width, int height) GameDimensions { get; }
+    public SKSize GameDimensions { get; }
 
     /// <summary>Advances the game by <paramref name="deltaTime"/> seconds.</summary>
     public void Update(float deltaTime)
@@ -165,14 +166,15 @@ public sealed class Game
     /// <summary>Draws the current frame to <paramref name="canvas"/>.</summary>
     /// <remarks>
     /// Computes the fit-and-centre transform from pixel space to game space once, then
-    /// calls each screen's <see cref="GameScreenBase.Draw"/> with a pre-transformed canvas.
+    /// calls each screen's <see cref="GameScreen.Draw"/> with a pre-transformed canvas.
     /// Screens always receive a canvas in game-space coordinates — they never need to
     /// compute or apply their own scale/offset.
     /// </remarks>
     public void Draw(SKCanvas canvas, int width, int height)
     {
-        var (gw, gh) = GameDimensions;
-        float scale   = MathF.Min(width / (float)gw, height / (float)gh);
+        float gw    = GameDimensions.Width;
+        float gh    = GameDimensions.Height;
+        float scale   = MathF.Min(width / gw, height / gh);
         float offsetX = (width  - gw * scale) / 2f;
         float offsetY = (height - gh * scale) / 2f;
 
@@ -180,20 +182,23 @@ public sealed class Game
         canvas.Translate(offsetX, offsetY);
         canvas.Scale(scale, scale);
 
+        int igw = (int)gw;
+        int igh = (int)gh;
+
         if (_activeTransition is not null)
         {
             float progress = Math.Clamp(_activeTransition.Progress, 0f, 1f);
             _activeTransition.Transition.Draw(
                 canvas, progress,
-                c => _activeTransition.Outgoing.Draw(c, gw, gh),
-                c => _activeTransition.Incoming.Draw(c, gw, gh),
-                gw, gh);
+                c => _activeTransition.Outgoing.Draw(c, igw, igh),
+                c => _activeTransition.Incoming.Draw(c, igw, igh),
+                igw, igh);
         }
         else
         {
-            _current.Draw(canvas, gw, gh);
+            _current.Draw(canvas, igw, igh);
             foreach (var overlay in _overlays)
-                overlay.Draw(canvas, gw, gh);
+                overlay.Draw(canvas, igw, igh);
         }
 
         canvas.Restore();
@@ -216,12 +221,12 @@ public sealed class Game
 
     // ── Private helpers ───────────────────────────────────────────────────
 
-    private GameScreenBase ActiveInputScreen =>
+    private GameScreen ActiveInputScreen =>
         _activeTransition is not null ? _activeTransition.Incoming :
         _overlays.Count   > 0         ? _overlays[^1]              :
                                         _current;
 
-    private TScreen ResolveScreen<TScreen>() where TScreen : GameScreenBase
+    private TScreen ResolveScreen<TScreen>() where TScreen : GameScreen
     {
         var screen = _services.GetRequiredService<TScreen>();
         screen.SetGame(this);

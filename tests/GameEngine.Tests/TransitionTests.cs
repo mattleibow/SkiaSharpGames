@@ -22,7 +22,7 @@ file sealed class ScreenTracker
 
 // ── Minimal concrete screen implementations ───────────────────────────────
 
-file sealed class ScreenA(ScreenTracker t) : GameScreenBase
+file sealed class ScreenA(ScreenTracker t) : GameScreen
 {
     public override void Update(float dt) => t.AUpdateCalled = true;
     public override void Draw(SKCanvas c, int w, int h) { }
@@ -32,7 +32,7 @@ file sealed class ScreenA(ScreenTracker t) : GameScreenBase
     public override void OnResumed()     => t.AResumed = true;
 }
 
-file sealed class ScreenB(ScreenTracker t) : GameScreenBase
+file sealed class ScreenB(ScreenTracker t) : GameScreen
 {
     public override void Update(float dt) { }
     public override void Draw(SKCanvas c, int w, int h) { }
@@ -40,7 +40,7 @@ file sealed class ScreenB(ScreenTracker t) : GameScreenBase
     public override void OnDeactivated() => t.BDeactivated = true;
 }
 
-file sealed class OverlayScreen : GameScreenBase
+file sealed class OverlayScreen : GameScreen
 {
     public override void Update(float dt) { }
     public override void Draw(SKCanvas c, int w, int h) { }
@@ -102,7 +102,7 @@ public class GameTests
     public void GameDimensions_ReturnsBuilderValue()
     {
         var (game, _) = TestGameFactory.Create();
-        Assert.Equal((800, 600), game.GameDimensions);
+        Assert.Equal(new SKSize(800, 600), game.GameDimensions);
     }
 
     // ── TransitionTo (immediate) ───────────────────────────────────────────
@@ -221,18 +221,21 @@ public class GameBuilderTests
     public void GameDimensions_DefaultIs800x600()
     {
         var builder = GameBuilder.CreateDefault();
-        Assert.Equal((800, 600), builder.GameDimensions);
+        builder.Screens.Add<OverlayScreen>();
+        builder.SetInitialScreen<OverlayScreen>();
+        var game = builder.Build();
+        Assert.Equal(new SKSize(800, 600), game.GameDimensions);
     }
 
     [Fact]
     public void GameDimensions_CustomValue_PropagatestoGame()
     {
         var builder = GameBuilder.CreateDefault();
-        builder.GameDimensions = (1200, 600);
+        builder.SetGameDimensions(new SKSize(1200, 600));
         builder.Screens.Add<OverlayScreen>();
         builder.SetInitialScreen<OverlayScreen>();
         var game = builder.Build();
-        Assert.Equal((1200, 600), game.GameDimensions);
+        Assert.Equal(new SKSize(1200, 600), game.GameDimensions);
     }
 
     [Fact]
@@ -325,20 +328,20 @@ public class GameBuilderTests
         Assert.True(tracker.BActivated);
     }
 
-    private sealed class OverlayScreen : GameScreenBase
+    private sealed class OverlayScreen : GameScreen
     {
         public override void Update(float dt) { }
         public override void Draw(SKCanvas c, int w, int h) { }
     }
 
-    private sealed class ScreenA(ScreenTracker t) : GameScreenBase
+    private sealed class ScreenA(ScreenTracker t) : GameScreen
     {
         public override void Update(float dt) { }
         public override void Draw(SKCanvas c, int w, int h) { }
         public override void OnActivated() => t.AActivated = true;
     }
 
-    private sealed class ScreenB(ScreenTracker t) : GameScreenBase
+    private sealed class ScreenB(ScreenTracker t) : GameScreen
     {
         public override void Update(float dt) { }
         public override void Draw(SKCanvas c, int w, int h) { }
@@ -387,9 +390,9 @@ public class DissolveTransitionTests
         => Assert.Equal(0.4f, new DissolveTransition().Duration);
 }
 
-// ── FadeToBlackTransition tests ────────────────────────────────────────────
+// ── FadeToColorTransition tests ────────────────────────────────────────────
 
-public class FadeToBlackTransitionTests
+public class FadeToColorTransitionTests
 {
     private static SKCanvas MakeCanvas() => new(new SKBitmap(800, 600));
 
@@ -401,7 +404,7 @@ public class FadeToBlackTransitionTests
     [InlineData(1f)]
     public void Draw_DoesNotThrow_AtVariousProgress(float progress)
     {
-        var t  = new FadeToBlackTransition();
+        var t  = new FadeToColorTransition();
         var ex = Record.Exception(() => t.Draw(MakeCanvas(), progress, _ => { }, _ => { }, 800, 600));
         Assert.Null(ex);
     }
@@ -410,7 +413,7 @@ public class FadeToBlackTransitionTests
     public void Draw_FirstHalf_CallsOutgoingCallback()
     {
         bool outCalled = false;
-        var t = new FadeToBlackTransition();
+        var t = new FadeToColorTransition();
         t.Draw(MakeCanvas(), 0.2f, _ => outCalled = true, _ => { }, 800, 600);
         Assert.True(outCalled);
     }
@@ -419,7 +422,7 @@ public class FadeToBlackTransitionTests
     public void Draw_SecondHalf_CallsIncomingCallback()
     {
         bool inCalled = false;
-        var t = new FadeToBlackTransition();
+        var t = new FadeToColorTransition();
         t.Draw(MakeCanvas(), 0.8f, _ => { }, _ => inCalled = true, 800, 600);
         Assert.True(inCalled);
     }

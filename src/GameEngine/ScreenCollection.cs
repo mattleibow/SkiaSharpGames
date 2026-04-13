@@ -26,7 +26,7 @@ public sealed class ScreenCollection
     /// Registers <typeparamref name="TScreen"/> as a transient in the game's DI container.
     /// Returns <see langword="this"/> for fluent chaining.
     /// </summary>
-    public ScreenCollection Add<TScreen>() where TScreen : GameScreenBase
+    public ScreenCollection Add<TScreen>() where TScreen : GameScreen
     {
         _services.AddTransient<TScreen>();
         return this;

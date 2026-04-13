@@ -11,7 +11,7 @@ namespace SkiaSharpGames.GameEngine;
 /// calling <see cref="OnActivated"/>. Use the protected <see cref="Game"/> property to trigger
 /// screen transitions from within a screen implementation.
 /// </remarks>
-public abstract class GameScreenBase
+public abstract class GameScreen
 {
     /// <summary>
     /// True while this screen has an overlay on top of it and is therefore not being updated.
@@ -28,11 +28,14 @@ public abstract class GameScreenBase
     /// <summary>Called by <see cref="GameEngine.Game"/> to inject itself before activation.</summary>
     internal void SetGame(Game game) => Game = game;
 
-    // ── Abstract contract ─────────────────────────────────────────────────
+    // ── Virtual update and abstract draw ──────────────────────────────────
 
-    /// <summary>Called each game tick to update the game state. Not called while <see cref="IsPaused"/>.</summary>
+    /// <summary>
+    /// Called each game tick to advance the game state. Not called while <see cref="IsPaused"/>.
+    /// Override to implement per-frame logic. The default implementation does nothing.
+    /// </summary>
     /// <param name="deltaTime">Seconds elapsed since the last update.</param>
-    public abstract void Update(float deltaTime);
+    public virtual void Update(float deltaTime) { }
 
     /// <summary>
     /// Called each frame to render the current state to <paramref name="canvas"/>.
@@ -41,8 +44,8 @@ public abstract class GameScreenBase
     /// (0, 0) to (<paramref name="width"/>, <paramref name="height"/>).
     /// </summary>
     /// <param name="canvas">The SkiaSharp canvas to draw on. Already in game-space coordinates.</param>
-    /// <param name="width">Game-space width (equals <see cref="GameEngine.Game.GameDimensions"/>.width).</param>
-    /// <param name="height">Game-space height (equals <see cref="GameEngine.Game.GameDimensions"/>.height).</param>
+    /// <param name="width">Game-space width (equals <see cref="GameEngine.Game.GameDimensions"/>.Width).</param>
+    /// <param name="height">Game-space height (equals <see cref="GameEngine.Game.GameDimensions"/>.Height).</param>
     public abstract void Draw(SKCanvas canvas, int width, int height);
 
     // ── Input ─────────────────────────────────────────────────────────────

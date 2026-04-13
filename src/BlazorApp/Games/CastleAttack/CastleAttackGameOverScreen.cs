@@ -8,19 +8,13 @@ namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
 /// Defeat overlay drawn on top of the frozen play screen.
 /// Does not clear the canvas — relies on the base play screen being drawn first.
 /// </summary>
-internal sealed class CastleAttackGameOverScreen : GameScreenBase
+internal sealed class CastleAttackGameOverScreen(CastleAttackGameState state) : GameScreen
 {
-    private readonly CastleAttackGameState _state;
-
-    public CastleAttackGameOverScreen(CastleAttackGameState state) => _state = state;
-
-    public override void Update(float deltaTime) { }
-
     public override void Draw(SKCanvas canvas, int width, int height)
     {
         DrawHelper.DrawOverlay(canvas, GameWidth, GameHeight, 0.75f);
         DrawHelper.DrawCenteredText(canvas, "DEFEAT", 72f, ColRed, GameWidth / 2f, 250f);
-        DrawHelper.DrawCenteredText(canvas, $"Score: {_state.Score}", 32f, ColHud, GameWidth / 2f, 315f);
+        DrawHelper.DrawCenteredText(canvas, $"Score: {state.Score}", 32f, ColHud, GameWidth / 2f, 315f);
         DrawHelper.DrawCenteredText(canvas, "Click or Tap to Try Again", 22f, ColAccent, GameWidth / 2f, 370f);
     }
 

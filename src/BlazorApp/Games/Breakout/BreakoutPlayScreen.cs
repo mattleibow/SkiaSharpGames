@@ -5,10 +5,8 @@ using static SkiaSharpGames.BlazorApp.Games.Breakout.BreakoutConstants;
 namespace SkiaSharpGames.BlazorApp.Games.Breakout;
 
 /// <summary>Active gameplay screen: ball, paddle, bricks, power-ups, HUD.</summary>
-internal sealed class BreakoutPlayScreen : GameScreenBase
+internal sealed class BreakoutPlayScreen(BreakoutGameState state) : GameScreen
 {
-    private readonly BreakoutGameState _state;
-
     // ── Physics ───────────────────────────────────────────────────────────
     private float _paddleX;
     private readonly CircleBody _ball = new() { Radius = BallRadius };
@@ -35,12 +33,10 @@ internal sealed class BreakoutPlayScreen : GameScreenBase
     private readonly List<Brick>          _bricks   = [];
     private readonly List<FallingPowerUp> _powerUps = [];
 
-    public BreakoutPlayScreen(BreakoutGameState state) => _state = state;
-
     public override void OnActivated()
     {
-        _state.Score = 0;
-        _state.Lives = 3;
+        state.Score = 0;
+        state.Lives = 3;
         _strongBallTimer = 0f;
         _bigPaddleTimer  = 0f;
         _powerUps.Clear();
@@ -116,8 +112,8 @@ internal sealed class BreakoutPlayScreen : GameScreenBase
         // Ball lost
         if (_ball.Y > GameHeight + BallRadius * 2)
         {
-            _state.Lives--;
-            if (_state.Lives <= 0)
+            state.Lives--;
+            if (state.Lives <= 0)
                 Game?.PushOverlay<BreakoutGameOverScreen>();
             else
                 ResetBall();
@@ -153,7 +149,7 @@ internal sealed class BreakoutPlayScreen : GameScreenBase
             if (!brick.Active || !_ball.Overlaps(brick.Body)) continue;
 
             brick.Active = false;
-            _state.Score += 10 * (BrickRows - brick.Row);
+            state.Score += 10 * (BrickRows - brick.Row);
             TrySpawnPowerUp(brick.Body.X + BrickWidth / 2f, brick.Body.Y + BrickHeight / 2f);
 
             if (!piercing)
@@ -257,8 +253,8 @@ internal sealed class BreakoutPlayScreen : GameScreenBase
         _ballSprite.Draw(canvas);
 
         // HUD
-        DrawHelper.DrawText(canvas, $"Score: {_state.Score}", 20f, SKColors.White, 20f, 30f);
-        string livesText = $"Lives: {_state.Lives}";
+        DrawHelper.DrawText(canvas, $"Score: {state.Score}", 20f, SKColors.White, 20f, 30f);
+        string livesText = $"Lives: {state.Lives}";
         float  livesW    = DrawHelper.MeasureText(livesText, 20f);
         DrawHelper.DrawText(canvas, livesText, 20f, SKColors.White, GameWidth - livesW - 20f, 30f);
 

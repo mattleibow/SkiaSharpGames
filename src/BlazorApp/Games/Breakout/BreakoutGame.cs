@@ -1,3 +1,4 @@
+using SkiaSharp;
 using SkiaSharpGames.GameEngine;
 
 namespace SkiaSharpGames.BlazorApp.Games.Breakout;
@@ -8,7 +9,7 @@ internal static class BreakoutGame
     {
         var builder = GameBuilder.CreateDefault();
 
-        builder.GameDimensions = (BreakoutConstants.GameWidth, BreakoutConstants.GameHeight);
+        builder.SetGameDimensions(new SKSize(BreakoutConstants.GameWidth, BreakoutConstants.GameHeight));
         builder.Services.AddSingleton<BreakoutGameState>();
 
         builder.Screens

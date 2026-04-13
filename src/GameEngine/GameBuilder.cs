@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SkiaSharp;
 
 namespace SkiaSharpGames.GameEngine;
 
@@ -27,7 +28,9 @@ namespace SkiaSharpGames.GameEngine;
 ///        .Add&lt;BreakoutGameOverScreen&gt;()
 ///        .Add&lt;BreakoutVictoryScreen&gt;();
 ///
-/// builder.SetInitialScreen&lt;BreakoutStartScreen&gt;();
+/// builder
+///        .SetGameDimensions(new SKSize(800, 600))
+///        .SetInitialScreen&lt;BreakoutStartScreen&gt;();
 ///
 /// return builder.Build();
 /// </code>
@@ -36,7 +39,8 @@ namespace SkiaSharpGames.GameEngine;
 public sealed class GameBuilder
 {
     private readonly ServiceCollection _serviceCollection = new();
-    private Type? _initialScreenType;
+    private Type?   _initialScreenType;
+    private SKSize  _gameDimensions = new(800, 600);
 
     private GameBuilder()
     {
@@ -56,8 +60,6 @@ public sealed class GameBuilder
 
     /// <summary>
     /// Typed collection for registering game screens.
-    /// The first screen added via <see cref="ScreenCollection.Add{TScreen}"/> becomes the
-    /// initial screen shown when the game starts.
     /// Internally backed by <see cref="Services"/>.
     /// </summary>
     public ScreenCollection Screens { get; }
@@ -75,13 +77,6 @@ public sealed class GameBuilder
     /// </summary>
     public IConfigurationBuilder Configuration { get; } = new ConfigurationBuilder();
 
-    /// <summary>
-    /// Logical (virtual) size of the game canvas in game-space units.
-    /// This single value is shared across all screens in the game.
-    /// Defaults to 800 × 600.
-    /// </summary>
-    public (int width, int height) GameDimensions { get; set; } = (800, 600);
-
     // ── Factory ───────────────────────────────────────────────────────────
 
     /// <summary>
@@ -90,6 +85,20 @@ public sealed class GameBuilder
     /// <c>WebApplicationBuilder.CreateDefault()</c>.
     /// </summary>
     public static GameBuilder CreateDefault() => new();
+
+    // ── Game dimensions ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// Sets the logical (virtual) size of the game canvas in game-space units.
+    /// This single value is shared across all screens in the game.
+    /// If not called, the default is 800 × 600.
+    /// </summary>
+    /// <returns>This builder, for method chaining.</returns>
+    public GameBuilder SetGameDimensions(SKSize dimensions)
+    {
+        _gameDimensions = dimensions;
+        return this;
+    }
 
     // ── Initial screen ────────────────────────────────────────────────────
 
@@ -105,7 +114,7 @@ public sealed class GameBuilder
     /// for returning ones.
     /// </remarks>
     /// <returns>This builder, for method chaining.</returns>
-    public GameBuilder SetInitialScreen<TScreen>() where TScreen : GameScreenBase
+    public GameBuilder SetInitialScreen<TScreen>() where TScreen : GameScreen
     {
         _initialScreenType = typeof(TScreen);
         return this;
@@ -131,6 +140,6 @@ public sealed class GameBuilder
         _serviceCollection.AddSingleton<IConfiguration>(config);
 
         var provider = _serviceCollection.BuildServiceProvider();
-        return new Game(provider, _initialScreenType, GameDimensions);
+        return new Game(provider, _initialScreenType, _gameDimensions);
     }
 }

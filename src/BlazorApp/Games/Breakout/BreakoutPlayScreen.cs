@@ -114,7 +114,7 @@ internal sealed class BreakoutPlayScreen(BreakoutGameState state) : GameScreen
         {
             state.Lives--;
             if (state.Lives <= 0)
-                Game?.PushOverlay<BreakoutGameOverScreen>();
+                Coordinator?.PushOverlay<BreakoutGameOverScreen>();
             else
                 ResetBall();
             return;
@@ -137,7 +137,7 @@ internal sealed class BreakoutPlayScreen(BreakoutGameState state) : GameScreen
         UpdateFallingPowerUps(deltaTime);
 
         if (!_bricks.Any(b => b.Active))
-            Game?.PushOverlay<BreakoutVictoryScreen>();
+            Coordinator?.PushOverlay<BreakoutVictoryScreen>();
     }
 
     private void CheckBrickCollisions()

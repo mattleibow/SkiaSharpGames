@@ -19,5 +19,5 @@ internal sealed class BreakoutVictoryScreen(BreakoutGameState state) : GameScree
     }
 
     public override void OnPointerDown(float x, float y)
-        => Game?.TransitionTo<BreakoutStartScreen>(new DissolveTransition());
+        => Coordinator?.TransitionTo<BreakoutStartScreen>(new DissolveTransition());
 }

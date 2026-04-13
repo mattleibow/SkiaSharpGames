@@ -276,7 +276,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         {
             _keepProgress = Math.Min(1f, _keepProgress + _workerCount * WorkerBuildRate * deltaTime);
             if (_keepProgress >= 1f)
-                Game?.PushOverlay<CastleAttackVictoryScreen>();
+                Coordinator?.PushOverlay<CastleAttackVictoryScreen>();
         }
 
         if (!_cowSpawned && _levelTime >= _cowSpawnTime)
@@ -407,7 +407,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
                 {
                     e.AttackTimer = 0f;
                     _lordHP -= e.AttackDamage * 0.5f;
-                    if (_lordHP <= 0f) Game?.PushOverlay<CastleAttackGameOverScreen>();
+                    if (_lordHP <= 0f) Coordinator?.PushOverlay<CastleAttackGameOverScreen>();
                 }
             }
             return;
@@ -448,7 +448,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
             else
             {
                 _lordHP -= 5f * dt;
-                if (_lordHP <= 0f) Game?.PushOverlay<CastleAttackGameOverScreen>();
+                if (_lordHP <= 0f) Coordinator?.PushOverlay<CastleAttackGameOverScreen>();
             }
             return;
         }

@@ -7,9 +7,9 @@ namespace SkiaSharpGames.GameEngine;
 /// Each screen is responsible for updating its own state and drawing itself.
 /// </summary>
 /// <remarks>
-/// The owning <see cref="GameEngine.Game"/> injects itself via <see cref="SetGame"/> before
-/// calling <see cref="OnActivated"/>. Use the protected <see cref="Game"/> property to trigger
-/// screen transitions from within a screen implementation.
+/// The owning <see cref="ScreenCoordinator"/> injects itself via <see cref="SetCoordinator"/>
+/// before calling <see cref="OnActivated"/>. Use the protected <see cref="Coordinator"/>
+/// property to trigger screen transitions from within a screen implementation.
 /// </remarks>
 public abstract class GameScreen
 {
@@ -20,13 +20,14 @@ public abstract class GameScreen
     public bool IsPaused { get; internal set; }
 
     /// <summary>
-    /// The owning <see cref="GameEngine.Game"/>. Available after <see cref="OnActivated"/> is called.
+    /// The <see cref="IScreenCoordinator"/> that manages this screen's lifecycle.
+    /// Available after <see cref="OnActivated"/> is called.
     /// Use this to trigger transitions, push overlays, and pop overlays.
     /// </summary>
-    protected Game? Game { get; private set; }
+    protected IScreenCoordinator? Coordinator { get; private set; }
 
-    /// <summary>Called by <see cref="GameEngine.Game"/> to inject itself before activation.</summary>
-    internal void SetGame(Game game) => Game = game;
+    /// <summary>Called by <see cref="ScreenCoordinator"/> to inject itself before activation.</summary>
+    internal void SetCoordinator(IScreenCoordinator coordinator) => Coordinator = coordinator;
 
     // ── Virtual update and abstract draw ──────────────────────────────────
 

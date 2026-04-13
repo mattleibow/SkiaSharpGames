@@ -1,0 +1,86 @@
+name: "Pages - Staging - Cleanup"
+
+on:
+  # Trigger cleanup when a PR is closed (merged or abandoned)
+  pull_request:
+    branches: [ main ]
+    types: [ closed ]
+  # Allow manual cleanup of a specific PR number
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to clean up'
+        required: true
+        type: string
+
+# Default to no permissions — each job declares only what it needs.
+permissions: {}
+
+env:
+  # Must match the PAGES_BRANCH in pages-staging-deploy.yml
+  PAGES_BRANCH: gh-pages
+  # Must match the STAGING_PATH in pages-staging-deploy.yml
+  STAGING_PATH: staging
+  # Git identity used for automated commits
+  GIT_COMMIT_EMAIL: action@github.com
+  GIT_COMMIT_NAME: GitHub Action
+
+# Each PR cleanup gets its own concurrency group, matching the deploy group
+# for the same PR so cleanup waits for any in-progress deploy.
+concurrency:
+  group: "pages-deploy-pr-${{ github.event.number }}"
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    # Skip cleanup for fork PRs (they don't have staging deploys)
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # Check out the repo so we can switch to the pages branch
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Remove the staging directory for this PR from the pages branch and
+      # push. The pages-go-live.yml workflow will then re-deploy.
+      - name: Remove staging directory from pages branch
+        env:
+          PR_NUMBER: ${{ github.event.number || inputs.pr_number }}
+        run: |
+          # Validate PR_NUMBER is a positive integer before using in paths
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Invalid PR number: $PR_NUMBER"
+            exit 1
+          fi
+
+          # Switch to pages branch; exit cleanly if it doesn't exist yet
+          if ! git fetch origin "$PAGES_BRANCH:$PAGES_BRANCH" 2>/dev/null; then
+            echo "$PAGES_BRANCH branch does not exist, nothing to clean up"
+            exit 0
+          fi
+          if ! git checkout "$PAGES_BRANCH" 2>/dev/null; then
+            echo "Failed to checkout $PAGES_BRANCH, nothing to clean up"
+            exit 0
+          fi
+
+          if [ -d "$STAGING_PATH/$PR_NUMBER" ]; then
+            rm -rf "$STAGING_PATH/$PR_NUMBER"
+            git config --local user.email "$GIT_COMMIT_EMAIL"
+            git config --local user.name "$GIT_COMMIT_NAME"
+            git add -A
+            if ! git diff --cached --quiet; then
+              git commit -m "Remove staging site for PR #$PR_NUMBER"
+              git push origin "$PAGES_BRANCH"
+              echo "Removed $STAGING_PATH directory for PR #$PR_NUMBER"
+            else
+              echo "No changes to commit for PR #$PR_NUMBER"
+            fi
+          else
+            echo "No $STAGING_PATH directory found for PR #$PR_NUMBER"
+          fi

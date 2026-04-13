@@ -43,6 +43,13 @@ public abstract class GameScreenBase
     public virtual void OnPointerDown(float x, float y) { }
 
     /// <summary>
+    /// Called when the user releases a click or touch on the canvas.
+    /// </summary>
+    /// <param name="x">Horizontal position in game-space units.</param>
+    /// <param name="y">Vertical position in game-space units.</param>
+    public virtual void OnPointerUp(float x, float y) { }
+
+    /// <summary>
     /// Called when a key is pressed while the game canvas has focus.
     /// </summary>
     /// <param name="key">The key value string (e.g. "ArrowLeft", " ", "z").</param>

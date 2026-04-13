@@ -215,6 +215,30 @@ public class CastleAttackGame : GameScreenBase
     private const float AimMin   = -8f;
     private const float AimMax   = 62f;
     private const float AimSpeed = 50f;
+    private const float AimStep  = 10f;  // degrees per tap on aim buttons
+
+    // ── On-screen button layout (in game-space, bottom strip Y: 560–596) ──────
+    private const float BtnY  = 560f;
+    private const float BtnH  = 36f;
+    private const float BtnR  = 6f;   // corner radius
+
+    // Left group — aim + conversion
+    private static readonly SKRect BtnAimLeft   = SKRect.Create(  8f, BtnY,  98f, BtnH);
+    private static readonly SKRect BtnAimRight  = SKRect.Create(112f, BtnY,  98f, BtnH);
+    private static readonly SKRect BtnA2W       = SKRect.Create(216f, BtnY, 116f, BtnH);
+    private static readonly SKRect BtnW2A       = SKRect.Create(338f, BtnY, 116f, BtnH);
+
+    // Centre — fire
+    private static readonly SKRect BtnFire      = SKRect.Create(470f, BtnY, 260f, BtnH);
+
+    // Right group — special weapons
+    private static readonly SKRect BtnOil       = SKRect.Create(750f,  BtnY, 140f, BtnH);
+    private static readonly SKRect BtnCannon    = SKRect.Create(898f,  BtnY, 148f, BtnH);
+    private static readonly SKRect BtnLogs      = SKRect.Create(1054f, BtnY, 140f, BtnH);
+
+    // Held-touch state for aim buttons (set on pointer-down, cleared on pointer-up)
+    private bool _touchAimLeft;
+    private bool _touchAimRight;
 
     // Arrow volley cooldown
     private float _arrowCooldown;
@@ -271,8 +295,10 @@ public class CastleAttackGame : GameScreenBase
         _oilAvail     = true;
         _mangonelAvail = true;
         _logsAvail    = true;
-        _leftHeld     = false;
-        _rightHeld    = false;
+        _leftHeld      = false;
+        _rightHeld     = false;
+        _touchAimLeft  = false;
+        _touchAimRight = false;
         _arrowCooldown = 0f;
         _aimAngle     = 18f;
         _spawnTimer   = 3.5f;
@@ -297,7 +323,58 @@ public class CastleAttackGame : GameScreenBase
     {
         if (IsTransitioning) return;
         if (Phase is CastlePhase.Start or CastlePhase.GameOver or CastlePhase.Victory)
+        {
             BeginTransition(new FadeTransition(), 0.35f, StartGame);
+            return;
+        }
+
+        if (Phase != CastlePhase.Playing) return;
+
+        // ── On-screen button bar ──────────────────────────────────────────────
+        if (BtnAimLeft.Contains(x, y))   { _touchAimLeft  = true; _aimAngle = Math.Max(AimMin, _aimAngle - AimStep); return; }
+        if (BtnAimRight.Contains(x, y))  { _touchAimRight = true; _aimAngle = Math.Min(AimMax, _aimAngle + AimStep); return; }
+        if (BtnA2W.Contains(x, y))       { ConvertArcherToWorker(); return; }
+        if (BtnW2A.Contains(x, y))       { ConvertWorkerToArcher(); return; }
+        if (BtnFire.Contains(x, y))      { FireVolley(); return; }
+        if (BtnOil.Contains(x, y))       { UseOil();     return; }
+        if (BtnCannon.Contains(x, y))    { UseMangonel(); return; }
+        if (BtnLogs.Contains(x, y))      { UseLogs();    return; }
+
+        // ── Touch-to-aim + fire anywhere in the game field ────────────────────
+        // Tap in the battlefield (above the button bar and past the keep/HUD area)
+        if (y < BtnY && x > KeepRight + 20f)
+        {
+            AimAtPoint(x, y);
+            FireVolley();
+        }
+    }
+
+    public override void OnPointerUp(float x, float y)
+    {
+        _touchAimLeft  = false;
+        _touchAimRight = false;
+    }
+
+    // Sets the aim angle so arrows arc toward the game-space point (tx, ty).
+    private void AimAtPoint(float tx, float ty)
+    {
+        // Find outermost active archer as launch origin
+        Wall? refWall = null;
+        for (int i = _walls.Count - 1; i >= 0; i--)
+        {
+            if (!_walls[i].IsDestroyed && _walls[i].HasArcher)
+            { refWall = _walls[i]; break; }
+        }
+        float ax = refWall?.ArcherCenterX ?? (InnerWallX + BlockW / 2f);
+        float ay = refWall != null ? refWall.ArcherBaseY - ArcherH / 2f : GroundY - ArcherH;
+
+        float dx = tx - ax;
+        float dy = ay - ty; // positive = tap is above archer
+
+        // Compute a direct pointing angle (line-of-sight) and clamp it.
+        // This is an approximation; the parabola preview gives exact feedback.
+        float angle = dx > 0 ? MathF.Atan2(dy, dx) * 180f / MathF.PI : AimMin;
+        _aimAngle = Math.Clamp(angle, AimMin, AimMax);
     }
 
     public override void OnKeyDown(string key)
@@ -447,9 +524,9 @@ public class CastleAttackGame : GameScreenBase
         _levelTime    += deltaTime;
         _arrowCooldown = Math.Max(0f, _arrowCooldown - deltaTime);
 
-        // Aim angle from held keys
-        if (_leftHeld)  _aimAngle = Math.Max(AimMin, _aimAngle - AimSpeed * deltaTime);
-        if (_rightHeld) _aimAngle = Math.Min(AimMax, _aimAngle + AimSpeed * deltaTime);
+        // Aim angle from held keys or held touch aim buttons
+        if (_leftHeld  || _touchAimLeft)  _aimAngle = Math.Max(AimMin, _aimAngle - AimSpeed * deltaTime);
+        if (_rightHeld || _touchAimRight) _aimAngle = Math.Min(AimMax, _aimAngle + AimSpeed * deltaTime);
 
         // Accuracy multiplier reset timer
         if (_accuracyResetTimer > 0f)
@@ -1593,9 +1670,6 @@ public class CastleAttackGame : GameScreenBase
         string aimStr = $"Aim: {_aimAngle:F0}°";
         DrawHelper.DrawCenteredText(canvas, aimStr, 15f, ColDim, GameWidth / 2f, 20f);
 
-        // Special weapon icons (top-center)
-        DrawSpecialWeaponIcons(canvas);
-
         // Arrow cooldown indicator
         if (_arrowCooldown > 0f)
         {
@@ -1604,10 +1678,6 @@ public class CastleAttackGame : GameScreenBase
                 new SKColor(0xFF, 0xFF, 0xFF, (byte)(r * 200)),
                 GameWidth / 2f, 38f);
         }
-
-        // Controls hint (small, bottom-right)
-        DrawHelper.DrawText(canvas, "← → aim  |  SPACE fire  |  ↑↓ convert  |  Z oil  X cannon  C logs",
-            11f, ColDim, 10f, GameHeight - 12f);
 
         // Lord HP if active
         if (_lordActive)
@@ -1624,23 +1694,69 @@ public class CastleAttackGame : GameScreenBase
             DrawHelper.DrawCenteredText(canvas, $"Accuracy ×{_accuracyMult}", 15f, ColGold,
                 GameWidth / 2f, 60f);
         }
+
+        // On-screen touch/click button bar
+        DrawTouchButtons(canvas);
     }
 
-    private void DrawSpecialWeaponIcons(SKCanvas canvas)
-    {
-        float cy = 48f;
-        float spacing = 70f;
-        float startX  = GameWidth / 2f - spacing;
+    // ── On-screen buttons ─────────────────────────────────────────────────────
 
-        DrawWeaponIcon(canvas, "Z Oil",    startX,           cy, _oilAvail,      ColOil);
-        DrawWeaponIcon(canvas, "X Cannon", startX + spacing, cy, _mangonelAvail, ColBoulder);
-        DrawWeaponIcon(canvas, "C Logs",   startX + spacing * 2f, cy, _logsAvail, ColFire);
+    private void DrawTouchButtons(SKCanvas canvas)
+    {
+        // Dim background strip for buttons
+        using var stripPaint = new SKPaint { Color = new SKColor(0x00, 0x00, 0x00, 140) };
+        canvas.DrawRect(SKRect.Create(0, BtnY - 4f, GameWidth, BtnH + 8f), stripPaint);
+
+        bool canA2W = _workerCount > 1 && _archerCount > 0;
+        bool canW2A = _workerCount > 1 && _archerCount < _walls.Count;
+        bool ready  = _arrowCooldown <= 0f && _archerCount > 0;
+
+        // Left group
+        DrawButton(canvas, BtnAimLeft,  "← Aim",  true,          ColDim,     _touchAimLeft);
+        DrawButton(canvas, BtnAimRight, "Aim →",  true,          ColDim,     _touchAimRight);
+        DrawButton(canvas, BtnA2W,      "↓ A→W",  canA2W,        ColWorker,  false);
+        DrawButton(canvas, BtnW2A,      "↑ W→A",  canW2A,        ColArcher,  false);
+
+        // Fire (centre, more prominent)
+        DrawButton(canvas, BtnFire,     "FIRE",   ready,         SKColors.White, false, large: true);
+
+        // Right group — special weapons
+        DrawButton(canvas, BtnOil,    "Oil (Z)",    _oilAvail,      ColOil,     false);
+        DrawButton(canvas, BtnCannon, "Cannon (X)", _mangonelAvail, ColBoulder, false);
+        DrawButton(canvas, BtnLogs,   "Logs (C)",   _logsAvail,     ColFire,    false);
     }
 
-    private static void DrawWeaponIcon(SKCanvas canvas, string label, float cx, float cy, bool avail, SKColor col)
+    private static void DrawButton(SKCanvas canvas, SKRect rect, string label,
+        bool enabled, SKColor labelCol, bool pressed, bool large = false)
     {
-        float alpha = avail ? 1f : 0.35f;
-        DrawHelper.DrawCenteredText(canvas, label, 14f, avail ? col : ColDim, cx, cy, alpha);
+        float alpha = enabled ? 1f : 0.4f;
+
+        // Background
+        byte bgA  = pressed ? (byte)180 : (byte)110;
+        SKColor bg = pressed ? new SKColor(0xFF, 0xFF, 0xFF, bgA)
+                             : new SKColor(0x22, 0x22, 0x33, bgA);
+        using var bgPaint = new SKPaint { Color = bg, IsAntialias = true };
+        canvas.DrawRoundRect(rect, BtnR, BtnR, bgPaint);
+
+        // Border
+        SKColor border = enabled
+            ? (pressed ? SKColors.White : new SKColor(0x88, 0x88, 0xAA))
+            : new SKColor(0x44, 0x44, 0x55);
+        using var borderPaint = new SKPaint
+        {
+            Color = border.WithAlpha((byte)(200 * alpha)),
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = 1.5f,
+            IsAntialias = true
+        };
+        canvas.DrawRoundRect(rect, BtnR, BtnR, borderPaint);
+
+        // Label
+        float fontSize = large ? 16f : 13f;
+        SKColor col    = pressed ? SKColors.Black : labelCol;
+        float cx       = rect.MidX;
+        float cy       = rect.MidY + fontSize * 0.38f; // vertical centre
+        DrawHelper.DrawCenteredText(canvas, label, fontSize, col, cx, cy, alpha);
     }
 
     // ── Float texts ───────────────────────────────────────────────────────────
@@ -1663,13 +1779,13 @@ public class CastleAttackGame : GameScreenBase
         DrawHelper.DrawCenteredText(canvas, "CASTLE ATTACK", 68f, ColGold, GameWidth / 2f, 190f);
         DrawHelper.DrawCenteredText(canvas, "Defend the castle until the keep is complete!", 22f, ColHud, GameWidth / 2f, 258f);
 
-        float y = 310f;
-        DrawHelper.DrawCenteredText(canvas, "← → Adjust aim   SPACE Fire volley", 17f, ColDim, GameWidth / 2f, y);
-        y += 24f;
-        DrawHelper.DrawCenteredText(canvas, "↓ Archer → Worker     ↑ Worker → Archer", 17f, ColDim, GameWidth / 2f, y);
-        y += 24f;
-        DrawHelper.DrawCenteredText(canvas, "Z Boiling Oil   X Mangonel   C Flaming Logs", 17f, ColDim, GameWidth / 2f, y);
+        float y = 308f;
+        DrawHelper.DrawCenteredText(canvas, "Tap the battlefield to aim & fire", 17f, ColAccent, GameWidth / 2f, y);
+        y += 26f;
+        DrawHelper.DrawCenteredText(canvas, "Use the on-screen buttons at the bottom for all actions", 16f, ColDim, GameWidth / 2f, y);
+        y += 26f;
+        DrawHelper.DrawCenteredText(canvas, "Keyboard: ← → aim  |  SPACE fire  |  ↑↓ convert  |  Z X C weapons", 14f, ColDim, GameWidth / 2f, y);
 
-        DrawHelper.DrawCenteredText(canvas, "Click or Tap to Start", 24f, ColAccent, GameWidth / 2f, 420f);
+        DrawHelper.DrawCenteredText(canvas, "Tap or Click to Start", 24f, ColAccent, GameWidth / 2f, 420f);
     }
 }

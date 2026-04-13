@@ -1,4 +1,3 @@
-using SkiaSharp;
 using SkiaSharpGames.GameEngine;
 
 namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
@@ -9,7 +8,7 @@ internal static class CastleAttackGame
     {
         var builder = GameBuilder.CreateDefault();
 
-        builder.SetGameDimensions(new SKSize(CastleAttackConstants.GameWidth, CastleAttackConstants.GameHeight));
+        builder.SetGameDimensions(CastleAttackConstants.GameWidth, CastleAttackConstants.GameHeight);
         builder.Services.AddSingleton<CastleAttackGameState>();
 
         builder.Screens

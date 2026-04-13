@@ -100,6 +100,17 @@ public sealed class GameBuilder
         return this;
     }
 
+    /// <summary>
+    /// Sets the logical (virtual) size of the game canvas in game-space units.
+    /// This single value is shared across all screens in the game.
+    /// If not called, the default is 800 × 600.
+    /// </summary>
+    /// <param name="width">Game-space width in pixels.</param>
+    /// <param name="height">Game-space height in pixels.</param>
+    /// <returns>This builder, for method chaining.</returns>
+    public GameBuilder SetGameDimensions(float width, float height)
+        => SetGameDimensions(new SKSize(width, height));
+
     // ── Initial screen ────────────────────────────────────────────────────
 
     /// <summary>

@@ -231,7 +231,7 @@ public class GameBuilderTests
     public void GameDimensions_CustomValue_PropagatestoGame()
     {
         var builder = GameBuilder.CreateDefault();
-        builder.SetGameDimensions(new SKSize(1200, 600));
+        builder.SetGameDimensions(1200, 600);
         builder.Screens.Add<OverlayScreen>();
         builder.SetInitialScreen<OverlayScreen>();
         var game = builder.Build();

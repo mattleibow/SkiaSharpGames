@@ -5,182 +5,258 @@ using Xunit;
 
 namespace SkiaSharpGames.GameEngine.Tests;
 
-// ── Minimal concrete screen implementations ───────────────────────────────
+// ── Observable state shared between screens via DI ────────────────────────
 
-file sealed class ScreenA : GameScreenBase
+file sealed class ScreenTracker
 {
-    public bool UpdateCalled { get; private set; }
-    public bool Activated    { get; private set; }
-    public bool Deactivated  { get; private set; }
-    public bool Paused       { get; private set; }
-    public bool Resumed      { get; private set; }
+    public bool AActivated          { get; set; }
+    public bool ADeactivated        { get; set; }
+    public bool AUpdateCalled       { get; set; }
+    public bool APaused             { get; set; }
+    public bool AResumed            { get; set; }
+    public bool AIsPausedWhenPaused { get; set; }
 
-    public override void Update(float deltaTime) => UpdateCalled = true;
-    public override void Draw(SKCanvas canvas, int w, int h) { }
-    public override void OnActivated()   => Activated   = true;
-    public override void OnDeactivated() => Deactivated = true;
-    public override void OnPaused()      => Paused      = true;
-    public override void OnResumed()     => Resumed     = true;
+    public bool BActivated  { get; set; }
+    public bool BDeactivated{ get; set; }
 }
 
-file sealed class ScreenB : GameScreenBase
-{
-    public bool Activated   { get; private set; }
-    public bool Deactivated { get; private set; }
+// ── Minimal concrete screen implementations ───────────────────────────────
 
-    public override void Update(float deltaTime) { }
-    public override void Draw(SKCanvas canvas, int w, int h) { }
-    public override void OnActivated()   => Activated   = true;
-    public override void OnDeactivated() => Deactivated = true;
+file sealed class ScreenA(ScreenTracker t) : GameScreenBase
+{
+    public override void Update(float dt) => t.AUpdateCalled = true;
+    public override void Draw(SKCanvas c, int w, int h) { }
+    public override void OnActivated()   => t.AActivated   = true;
+    public override void OnDeactivated() => t.ADeactivated = true;
+    public override void OnPaused()      { t.APaused = true; t.AIsPausedWhenPaused = IsPaused; }
+    public override void OnResumed()     => t.AResumed = true;
+}
+
+file sealed class ScreenB(ScreenTracker t) : GameScreenBase
+{
+    public override void Update(float dt) { }
+    public override void Draw(SKCanvas c, int w, int h) { }
+    public override void OnActivated()   => t.BActivated   = true;
+    public override void OnDeactivated() => t.BDeactivated = true;
 }
 
 file sealed class OverlayScreen : GameScreenBase
 {
-    public override void Update(float deltaTime) { }
-    public override void Draw(SKCanvas canvas, int w, int h) { }
+    public override void Update(float dt) { }
+    public override void Draw(SKCanvas c, int w, int h) { }
 }
 
-// Builds a coordinator with ScreenA as initial, ScreenB and OverlayScreen available.
-file static class CoordFactory
+// ── Concrete test Game ────────────────────────────────────────────────────
+
+file sealed class TestGame : Game
 {
-    public static (ScreenCoordinator coord, ScreenA initial) Create()
+    // Fully initialized before Configure() is ever called (lazy init)
+    public readonly ScreenTracker Tracker = new();
+
+    protected override void Configure(GameBuilder builder)
     {
-        var services = new ServiceCollection();
-        services.AddTransient<ScreenA>();
-        services.AddTransient<ScreenB>();
-        services.AddTransient<OverlayScreen>();
-        var provider = services.BuildServiceProvider();
-        var initial  = provider.GetRequiredService<ScreenA>();
-        var coord    = new ScreenCoordinator(provider, initial);
-        return (coord, initial);
+        builder.Services.AddSingleton(Tracker);
+        builder.AddScreen<ScreenA>()
+               .AddScreen<ScreenB>()
+               .AddScreen<OverlayScreen>();
     }
 }
 
-// ── ScreenCoordinator tests ────────────────────────────────────────────────
-
-public class ScreenCoordinatorTests
+file sealed class ConfigureCallTrackingGame : Game
 {
+    public bool ConfigureCalled { get; private set; }
+
+    protected override void Configure(GameBuilder builder)
+    {
+        ConfigureCalled = true;
+        builder.AddScreen<OverlayScreen>();
+    }
+}
+
+// ── Game tests ────────────────────────────────────────────────────────────
+
+public class GameTests
+{
+    // ── Initial state ──────────────────────────────────────────────────────
+
     [Fact]
     public void InitialScreen_IsActivated()
     {
-        var (_, initial) = CoordFactory.Create();
-        Assert.True(initial.Activated);
+        var game = new TestGame();
+        game.Update(0f); // trigger lazy init
+        Assert.True(game.Tracker.AActivated);
     }
 
     [Fact]
     public void InitialScreen_Update_IsCalled()
     {
-        var (coord, initial) = CoordFactory.Create();
-        coord.Update(0.016f);
-        Assert.True(initial.UpdateCalled);
+        var game = new TestGame();
+        game.Update(0.016f);
+        Assert.True(game.Tracker.AUpdateCalled);
     }
 
     [Fact]
     public void InitialScreen_Draw_DoesNotThrow()
     {
-        var (coord, _) = CoordFactory.Create();
+        var game = new TestGame();
+        game.Update(0f);
         using var bmp    = new SKBitmap(800, 600);
         using var canvas = new SKCanvas(bmp);
-        var ex = Record.Exception(() => coord.Draw(canvas, 800, 600));
+        var ex = Record.Exception(() => game.Draw(canvas, 800, 600));
         Assert.Null(ex);
     }
 
     [Fact]
     public void GameDimensions_DelegatesToCurrentScreen()
     {
-        var (coord, _) = CoordFactory.Create();
-        Assert.Equal((800, 600), coord.GameDimensions);
+        var game = new TestGame();
+        Assert.Equal((800, 600), game.GameDimensions); // also triggers init
     }
+
+    // ── TransitionTo (immediate) ───────────────────────────────────────────
 
     [Fact]
     public void TransitionTo_NoTransition_DeactivatesOldScreen()
     {
-        var (coord, initial) = CoordFactory.Create();
-        coord.TransitionTo<ScreenB>();
-        Assert.True(initial.Deactivated);
+        var game = new TestGame();
+        game.Update(0f);
+        game.TransitionTo<ScreenB>();
+        Assert.True(game.Tracker.ADeactivated);
+    }
+
+    [Fact]
+    public void TransitionTo_NoTransition_ActivatesNewScreen()
+    {
+        var game = new TestGame();
+        game.Update(0f);
+        game.TransitionTo<ScreenB>();
+        Assert.True(game.Tracker.BActivated);
     }
 
     [Fact]
     public void TransitionTo_NoTransition_NewScreenReceivesUpdate()
     {
-        var (coord, _) = CoordFactory.Create();
-        coord.TransitionTo<ScreenB>();
-        var ex = Record.Exception(() => coord.Update(0.016f));
+        var game = new TestGame();
+        game.Update(0f);
+        game.TransitionTo<ScreenB>();
+        var ex = Record.Exception(() => game.Update(0.016f));
         Assert.Null(ex);
     }
+
+    // ── TransitionTo (with transition) ────────────────────────────────────
 
     [Fact]
     public void TransitionTo_WithTransition_OldScreenNotDeactivatedYet()
     {
-        var (coord, initial) = CoordFactory.Create();
-        coord.TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
-        Assert.False(initial.Deactivated);
+        var game = new TestGame();
+        game.Update(0f);
+        game.TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
+        Assert.False(game.Tracker.ADeactivated);
     }
 
     [Fact]
     public void TransitionTo_WithTransition_CompletesAfterDuration()
     {
-        var (coord, initial) = CoordFactory.Create();
-        coord.TransitionTo<ScreenB>(new DissolveTransition { Duration = 0.5f });
-        coord.Update(0.5f);
-        Assert.True(initial.Deactivated);
+        var game = new TestGame();
+        game.Update(0f);
+        game.TransitionTo<ScreenB>(new DissolveTransition { Duration = 0.5f });
+        game.Update(0.5f);
+        Assert.True(game.Tracker.ADeactivated);
     }
 
     [Fact]
     public void TransitionTo_WithTransition_DrawDoesNotThrow()
     {
-        var (coord, _) = CoordFactory.Create();
-        coord.TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
+        var game = new TestGame();
+        game.Update(0f);
+        game.TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
         using var bmp    = new SKBitmap(800, 600);
         using var canvas = new SKCanvas(bmp);
-        coord.Update(0.25f);
-        var ex = Record.Exception(() => coord.Draw(canvas, 800, 600));
+        game.Update(0.25f);
+        var ex = Record.Exception(() => game.Draw(canvas, 800, 600));
         Assert.Null(ex);
     }
+
+    // ── PushOverlay / PopOverlay ───────────────────────────────────────────
 
     [Fact]
     public void PushOverlay_PausesBaseScreen()
     {
-        var (coord, initial) = CoordFactory.Create();
-        coord.PushOverlay<OverlayScreen>();
-        Assert.True(initial.IsPaused);
-        Assert.True(initial.Paused);
+        var game = new TestGame();
+        game.Update(0f);
+        game.PushOverlay<OverlayScreen>();
+        Assert.True(game.Tracker.APaused);
+        Assert.True(game.Tracker.AIsPausedWhenPaused);
     }
 
     [Fact]
     public void PushOverlay_BaseScreenNotUpdated()
     {
-        var (coord, initial) = CoordFactory.Create();
-        coord.PushOverlay<OverlayScreen>();
-        coord.Update(0.016f);
-        Assert.False(initial.UpdateCalled);
+        var game = new TestGame();
+        game.Update(0f);
+        game.PushOverlay<OverlayScreen>();
+        game.Tracker.AUpdateCalled = false; // reset after init tick
+        game.Update(0.016f);
+        Assert.False(game.Tracker.AUpdateCalled);
     }
 
     [Fact]
     public void PopOverlay_ResumesBaseScreen()
     {
-        var (coord, initial) = CoordFactory.Create();
-        coord.PushOverlay<OverlayScreen>();
-        coord.PopOverlay();
-        Assert.False(initial.IsPaused);
-        Assert.True(initial.Resumed);
+        var game = new TestGame();
+        game.Update(0f);
+        game.PushOverlay<OverlayScreen>();
+        game.PopOverlay();
+        Assert.True(game.Tracker.AResumed);
     }
 
     [Fact]
     public void PopOverlay_WhenEmpty_DoesNothing()
     {
-        var (coord, _) = CoordFactory.Create();
-        var ex = Record.Exception(() => coord.PopOverlay());
+        var game = new TestGame();
+        game.Update(0f);
+        var ex = Record.Exception(() => game.PopOverlay());
         Assert.Null(ex);
     }
+
+    // ── TransitionTo clears overlay stack ─────────────────────────────────
 
     [Fact]
     public void TransitionTo_ClearsOverlayStack_DeactivatesBase()
     {
-        var (coord, initial) = CoordFactory.Create();
-        coord.PushOverlay<OverlayScreen>();
-        coord.TransitionTo<ScreenB>();
-        Assert.True(initial.Deactivated);
+        var game = new TestGame();
+        game.Update(0f);
+        game.PushOverlay<OverlayScreen>();
+        game.TransitionTo<ScreenB>();
+        Assert.True(game.Tracker.ADeactivated);
+    }
+}
+
+// ── GameBuilder / lazy-init tests ─────────────────────────────────────────
+
+public class GameBuilderTests
+{
+    [Fact]
+    public void Configure_IsNotCalledOnConstruction()
+    {
+        var game = new ConfigureCallTrackingGame();
+        Assert.False(game.ConfigureCalled);
+    }
+
+    [Fact]
+    public void Configure_IsCalledOnFirstUpdate()
+    {
+        var game = new ConfigureCallTrackingGame();
+        game.Update(0f);
+        Assert.True(game.ConfigureCalled);
+    }
+
+    [Fact]
+    public void Configure_IsCalledOnFirstGameDimensionsAccess()
+    {
+        var game = new ConfigureCallTrackingGame();
+        _ = game.GameDimensions;
+        Assert.True(game.ConfigureCalled);
     }
 }
 

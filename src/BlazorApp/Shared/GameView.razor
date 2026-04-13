@@ -24,7 +24,7 @@
 
 @code {
     /// <summary>The game to render and receive input.</summary>
-    [Parameter, EditorRequired] public GameScreenBase? Game { get; set; }
+    [Parameter, EditorRequired] public SkiaSharpGames.GameEngine.Game? Game { get; set; }
 
     private SKGLView? _glView;
     private ElementReference _container;

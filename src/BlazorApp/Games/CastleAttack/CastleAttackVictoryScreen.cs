@@ -38,5 +38,5 @@ internal sealed class CastleAttackVictoryScreen : GameScreenBase
     }
 
     public override void OnPointerDown(float x, float y)
-        => Coordinator?.TransitionTo<CastleAttackStartScreen>(new DissolveTransition());
+        => Game?.TransitionTo<CastleAttackStartScreen>(new DissolveTransition());
 }

@@ -41,7 +41,7 @@ internal sealed class CastleAttackStartScreen : GameScreenBase
     }
 
     public override void OnPointerDown(float x, float y)
-        => Coordinator?.TransitionTo<CastleAttackPlayScreen>(new DissolveTransition());
+        => Game?.TransitionTo<CastleAttackPlayScreen>(new DissolveTransition());
 
     private static void DrawBackground(SKCanvas canvas)
     {

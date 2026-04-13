@@ -1,33 +1,20 @@
-using Microsoft.Extensions.DependencyInjection;
 using SkiaSharpGames.GameEngine;
 
 namespace SkiaSharpGames.BlazorApp.Games.Breakout;
 
 /// <summary>
-/// Factory that builds the self-contained DI container for the Breakout game
-/// and returns a ready-to-run <see cref="ScreenCoordinator"/>.
+/// The Breakout game. Register as a transient service and inject into the game page:
+/// <code>builder.Services.AddTransient&lt;BreakoutGame&gt;();</code>
 /// </summary>
-public static class BreakoutGame
+public sealed class BreakoutGame : Game
 {
-    /// <summary>
-    /// Creates a fully wired Breakout <see cref="ScreenCoordinator"/>, starting on the title screen.
-    /// </summary>
-    public static ScreenCoordinator Create()
+    protected override void Configure(GameBuilder builder)
     {
-        var services = new ServiceCollection();
+        builder.Services.AddSingleton<BreakoutGameState>();
 
-        // Shared state threaded through all screens via DI
-        services.AddSingleton<BreakoutGameState>();
-
-        // Screens
-        services.AddTransient<BreakoutStartScreen>();
-        services.AddTransient<BreakoutPlayScreen>();
-        services.AddTransient<BreakoutGameOverScreen>();
-        services.AddTransient<BreakoutVictoryScreen>();
-
-        var provider = services.BuildServiceProvider();
-
-        var initialScreen = provider.GetRequiredService<BreakoutStartScreen>();
-        return new ScreenCoordinator(provider, initialScreen);
+        builder.AddScreen<BreakoutStartScreen>()
+               .AddScreen<BreakoutPlayScreen>()
+               .AddScreen<BreakoutGameOverScreen>()
+               .AddScreen<BreakoutVictoryScreen>();
     }
 }

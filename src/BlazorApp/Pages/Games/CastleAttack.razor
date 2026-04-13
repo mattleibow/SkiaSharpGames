@@ -1,11 +1,8 @@
 @page "/games/castle-attack"
 @layout GameLayout
 @using SkiaSharpGames.BlazorApp.Games.CastleAttack
+@inject CastleAttackGame _game
 
 <PageTitle>Castle Attack – SkiaSharp Games</PageTitle>
 
 <GameView Game="_game" />
-
-@code {
-    private readonly SkiaSharpGames.GameEngine.ScreenCoordinator _game = CastleAttackGame.Create();
-}

@@ -38,5 +38,5 @@ internal sealed class BreakoutGameOverScreen : GameScreenBase
     }
 
     public override void OnPointerDown(float x, float y)
-        => Coordinator?.TransitionTo<BreakoutStartScreen>(new DissolveTransition());
+        => Game?.TransitionTo<BreakoutStartScreen>(new DissolveTransition());
 }

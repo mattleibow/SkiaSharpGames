@@ -152,7 +152,8 @@ jobs:
           cp site-out/index.html site-out/404.html
 
           echo "=== Site layout ==="
-          find site-out -maxdepth 2 -type f | head -30
+          # Avoid a broken-pipe failure under bash pipefail when truncating output.
+          find site-out -maxdepth 2 -type f | sed -n '1,30p'
           echo "..."
           echo "Total files: $(find site-out -type f | wc -l)"
 

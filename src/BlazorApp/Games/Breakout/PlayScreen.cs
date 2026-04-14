@@ -56,8 +56,9 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         _ball.X = _paddle.X;
         _ball.Y = PaddleY - BallRadius - 10f;
         double angle = (35.0 + Random.Shared.NextDouble() * 110.0) * Math.PI / 180.0;
-        _ball.Rigidbody.VelocityX = (float)(BallSpeed * Math.Cos(angle));
-        _ball.Rigidbody.VelocityY = -(float)(BallSpeed * Math.Sin(angle));
+        _ball.Rigidbody.SetVelocity(
+            (float)(BallSpeed * Math.Cos(angle)),
+            -(float)(BallSpeed * Math.Sin(angle)));
     }
 
     // ── Input ─────────────────────────────────────────────────────────────
@@ -91,7 +92,12 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         _ball.Rigidbody.Step(_ball, deltaTime);
 
         // Wall collisions
-        CollisionResolver.ResolveWalls(_ball, _ball.Collider, _ball.Rigidbody, GameWidth);
+        CollisionResolver.ResolveBounds(
+            _ball,
+            _ball.Collider,
+            _ball.Rigidbody,
+            GameBounds.FromSize(GameWidth, GameHeight),
+            bounceBottom: false);
 
         // Ball lost
         if (_ball.Y > GameHeight + _ball.Collider.Radius * 2)
@@ -120,12 +126,13 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     private void ResolvePaddleCollision()
     {
         if (_ball.Rigidbody.VelocityY > 0f &&
-            CollisionResolver.Overlaps(_ball, _ball.Collider, _paddle, _paddle.Collider))
+            CollisionResolver.TryGetHit(_ball, _ball.Collider, _paddle, _paddle.Collider, out _))
         {
             float hitPos = (_ball.X - _paddle.X) / (_paddle.Width / 2f);
             float angle = hitPos * (65f * MathF.PI / 180f);
-            _ball.Rigidbody.VelocityX = BallSpeed * MathF.Sin(angle);
-            _ball.Rigidbody.VelocityY = -BallSpeed * MathF.Cos(angle);
+            _ball.Rigidbody.SetVelocity(
+                BallSpeed * MathF.Sin(angle),
+                -BallSpeed * MathF.Cos(angle));
         }
     }
 
@@ -135,7 +142,9 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
 
         foreach (var brick in _bricks)
         {
-            if (!brick.Active || !CollisionResolver.Overlaps(_ball, _ball.Collider, brick, brick.Collider)) continue;
+            if (!brick.Active ||
+                !CollisionResolver.TryGetHit(_ball, _ball.Collider, brick, brick.Collider, out var hit))
+                continue;
 
             brick.Active = false;
             state.Score += 10 * (BrickRows - brick.Row);
@@ -143,7 +152,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
 
             if (!piercing)
             {
-                CollisionResolver.Reflect(_ball, _ball.Collider, _ball.Rigidbody, brick, brick.Collider);
+                _ball.Rigidbody.Bounce(hit);
                 return;
             }
         }

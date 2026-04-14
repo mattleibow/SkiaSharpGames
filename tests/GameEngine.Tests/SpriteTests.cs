@@ -11,10 +11,10 @@ public class SpriteTests
     [Fact]
     public void RectSprite_Draw_Visible_DoesNotThrow()
     {
-        var s = new RectSprite { X = 10f, Y = 10f, Width = 50f, Height = 20f, Color = SKColors.Red };
+        var s = new RectSprite { Width = 50f, Height = 20f, Color = SKColors.Red };
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 10f, 10f));
         Assert.Null(ex);
     }
 
@@ -24,7 +24,7 @@ public class SpriteTests
         var s = new RectSprite { Visible = false, Width = 50f, Height = 20f, Color = SKColors.Red };
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 0f, 0f));
         Assert.Null(ex);
     }
 
@@ -34,7 +34,7 @@ public class SpriteTests
         var s = new RectSprite { Alpha = 0f, Width = 50f, Height = 20f, Color = SKColors.Red };
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 0f, 0f));
         Assert.Null(ex);
     }
 
@@ -44,7 +44,7 @@ public class SpriteTests
         var s = new RectSprite { Width = 50f, Height = 20f, Color = SKColors.Blue, ShowShine = true };
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 100f, 100f));
         Assert.Null(ex);
     }
 
@@ -54,7 +54,7 @@ public class SpriteTests
         var s = new RectSprite { Width = 50f, Height = 20f, Color = SKColors.Blue, ShowShine = false };
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 100f, 100f));
         Assert.Null(ex);
     }
 
@@ -65,7 +65,7 @@ public class SpriteTests
         var s = new RectSprite { Width = 3f, Height = 3f, Color = SKColors.Blue, ShowShine = true };
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 100f, 100f));
         Assert.Null(ex);
     }
 
@@ -88,7 +88,7 @@ public class SpriteTests
     [Fact]
     public void RectSprite_Draw_WithActiveShimmer_DoesNotThrow()
     {
-        var s = new RectSprite { X = 10f, Y = 10f, Width = 50f, Height = 20f, Color = SKColors.Blue };
+        var s = new RectSprite { Width = 50f, Height = 20f, Color = SKColors.Blue };
         s.Shimmer.Start(initialDelay: s.Shimmer.Period);
 
         // advance until shimmer fires
@@ -100,7 +100,7 @@ public class SpriteTests
 
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 100f, 100f));
         Assert.Null(ex);
     }
 
@@ -109,10 +109,10 @@ public class SpriteTests
     [Fact]
     public void CircleSprite_Draw_Visible_DoesNotThrow()
     {
-        var s = new CircleSprite { X = 50f, Y = 50f, Radius = 10f, Color = SKColors.White };
+        var s = new CircleSprite { Radius = 10f, Color = SKColors.White };
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 50f, 50f));
         Assert.Null(ex);
     }
 
@@ -122,7 +122,7 @@ public class SpriteTests
         var s = new CircleSprite { Visible = false, Radius = 10f, Color = SKColors.White };
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 0f, 0f));
         Assert.Null(ex);
     }
 
@@ -132,31 +132,27 @@ public class SpriteTests
         var s = new CircleSprite { Alpha = 0f, Radius = 10f, Color = SKColors.White };
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 0f, 0f));
         Assert.Null(ex);
     }
 
     [Fact]
     public void CircleSprite_Draw_WithGlow_DoesNotThrow()
     {
-        var s = new CircleSprite
-        {
-            X = 50f, Y = 50f, Radius = 10f, Color = SKColors.Orange,
-            GlowRadius = 5f, GlowColor = SKColors.Orange
-        };
+        var s = new CircleSprite { Radius = 10f, Color = SKColors.Orange, GlowRadius = 5f, GlowColor = SKColors.Orange };
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 50f, 50f));
         Assert.Null(ex);
     }
 
     [Fact]
     public void CircleSprite_Draw_WithNoGlow_DoesNotThrow()
     {
-        var s = new CircleSprite { X = 50f, Y = 50f, Radius = 10f, Color = SKColors.Orange, GlowRadius = 0f };
+        var s = new CircleSprite { Radius = 10f, Color = SKColors.Orange, GlowRadius = 0f };
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
-        var ex = Record.Exception(() => s.Draw(canvas));
+        var ex = Record.Exception(() => s.Draw(canvas, 50f, 50f));
         Assert.Null(ex);
     }
 

@@ -16,9 +16,9 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
         {
             for (int c = 0; c < BrickCols; c++)
             {
-                float bx = BricksStartX + c * (BrickWidth + BrickGap);
-                float by = BricksStartY + r * (BrickHeight + BrickGap);
-                var brick = new Brick(r, c, bx, by);
+                float cx = BricksStartX + c * (BrickWidth + BrickGap) + BrickWidth / 2f;
+                float cy = BricksStartY + r * (BrickHeight + BrickGap) + BrickHeight / 2f;
+                var brick = new Brick(r, c, cx, cy);
                 brick.Sprite.Color = BrickColors[r];
                 brick.Sprite.Shimmer.Start(Random.Shared.NextSingle() * brick.Sprite.Shimmer.Period);
                 _bricks.Add(brick);
@@ -39,7 +39,7 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
         foreach (var brick in _bricks)
         {
             brick.Sprite.Alpha = 0.3f;
-            brick.Sprite.Draw(canvas);
+            brick.Sprite.Draw(canvas, brick.X, brick.Y);
         }
 
         DrawHelper.DrawCenteredText(canvas, "BREAKOUT", 72f, SKColors.White, GameWidth / 2f, 290f);

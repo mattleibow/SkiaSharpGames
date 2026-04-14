@@ -230,7 +230,10 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             if (!wall.HasArcher || wall.IsDestroyed) continue;
             float ax = wall.ArcherCenterX;
             float ay = wall.ArcherBaseY - ArcherH / 2f;
-            _arrows.Add(new Arrow { X = ax, Y = ay, VX = vx, VY = vy });
+            var arrow = new Arrow { X = ax, Y = ay };
+            arrow.Rigidbody.VelocityX = vx;
+            arrow.Rigidbody.VelocityY = vy;
+            _arrows.Add(arrow);
         }
     }
 
@@ -305,7 +308,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         for (int i = _texts.Count - 1; i >= 0; i--)
         {
             _texts[i].Life -= deltaTime;
-            _texts[i].Y -= 28f * deltaTime;
+            _texts[i].Rigidbody.Step(_texts[i], deltaTime);
             if (_texts[i].Life <= 0f) _texts.RemoveAt(i);
         }
     }
@@ -345,17 +348,22 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private void SpawnCow() => _enemies.Add(CreateEnemy(EnemyType.Cow));
 
-    private static Enemy CreateEnemy(EnemyType type) => type switch
+    private static Enemy CreateEnemy(EnemyType type)
     {
-        EnemyType.Spearman => new Enemy { Type = type, X = SpawnX, HP = 1f, MaxHP = 1f, Speed = 95f, W = 12f, H = 26f, AttackInterval = 0.5f, AttackDamage = 8f, AttackRange = BlockW + 2f },
-        EnemyType.Swordsman => new Enemy { Type = type, X = SpawnX, HP = 4f, MaxHP = 4f, Speed = 45f, W = 14f, H = 28f, AttackInterval = 1.0f, AttackDamage = 12f, AttackRange = BlockW + 2f },
-        EnemyType.Berserker => new Enemy { Type = type, X = SpawnX, HP = 2f, MaxHP = 2f, Speed = 110f, W = 13f, H = 24f, AttackInterval = 0.4f, AttackDamage = 10f, AttackRange = BlockW + 2f },
-        EnemyType.Crossbowman => new Enemy { Type = type, X = SpawnX, HP = 1f, MaxHP = 1f, Speed = 65f, W = 12f, H = 26f, AttackInterval = 0f, AttackDamage = 0f, AttackRange = 250f, FireInterval = 3f },
-        EnemyType.Catapult => new Enemy { Type = type, X = SpawnX, HP = 5f, MaxHP = 5f, Speed = 35f, W = 36f, H = 26f, AttackInterval = 4f, AttackDamage = 0f, AttackRange = 180f },
-        EnemyType.Ram => new Enemy { Type = type, X = SpawnX, HP = 10f, MaxHP = 10f, Speed = 28f, W = 40f, H = 22f },
-        EnemyType.Cow => new Enemy { Type = type, X = SpawnX, HP = 1f, MaxHP = 1f, Speed = 55f, W = 28f, H = 20f },
-        _ => new Enemy { Type = type, X = SpawnX, HP = 1f, MaxHP = 1f, Speed = 50f, W = 12f, H = 24f }
-    };
+        var e = type switch
+        {
+            EnemyType.Spearman   => new Enemy { Type = type, X = SpawnX, HP = 1f,  MaxHP = 1f,  Speed = 95f,  Collider = new() { Width = 12f, Height = 26f }, AttackInterval = 0.5f, AttackDamage = 8f,  AttackRange = BlockW + 2f },
+            EnemyType.Swordsman  => new Enemy { Type = type, X = SpawnX, HP = 4f,  MaxHP = 4f,  Speed = 45f,  Collider = new() { Width = 14f, Height = 28f }, AttackInterval = 1.0f, AttackDamage = 12f, AttackRange = BlockW + 2f },
+            EnemyType.Berserker  => new Enemy { Type = type, X = SpawnX, HP = 2f,  MaxHP = 2f,  Speed = 110f, Collider = new() { Width = 13f, Height = 24f }, AttackInterval = 0.4f, AttackDamage = 10f, AttackRange = BlockW + 2f },
+            EnemyType.Crossbowman => new Enemy { Type = type, X = SpawnX, HP = 1f, MaxHP = 1f,  Speed = 65f,  Collider = new() { Width = 12f, Height = 26f }, AttackInterval = 0f,   AttackDamage = 0f,  AttackRange = 250f, FireInterval = 3f },
+            EnemyType.Catapult   => new Enemy { Type = type, X = SpawnX, HP = 5f,  MaxHP = 5f,  Speed = 35f,  Collider = new() { Width = 36f, Height = 26f }, AttackInterval = 4f,   AttackDamage = 0f,  AttackRange = 180f },
+            EnemyType.Ram        => new Enemy { Type = type, X = SpawnX, HP = 10f, MaxHP = 10f, Speed = 28f,  Collider = new() { Width = 40f, Height = 22f } },
+            EnemyType.Cow        => new Enemy { Type = type, X = SpawnX, HP = 1f,  MaxHP = 1f,  Speed = 55f,  Collider = new() { Width = 28f, Height = 20f } },
+            _                    => new Enemy { Type = type, X = SpawnX, HP = 1f,  MaxHP = 1f,  Speed = 50f,  Collider = new() { Width = 12f, Height = 24f } }
+        };
+        e.Y = GroundY - e.Collider.Height / 2f;
+        return e;
+    }
 
     // ── Enemy update ──────────────────────────────────────────────────────
 
@@ -374,7 +382,11 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         int tgtWall = FindTargetWall(e.X);
         switch (e.Type)
         {
-            case EnemyType.Cow: e.X -= e.Speed * dt; if (e.X < -e.W) e.Active = false; return;
+            case EnemyType.Cow:
+                e.Rigidbody.VelocityX = -e.Speed;
+                e.Rigidbody.Step(e, dt);
+                if (e.X < -e.Collider.Width) e.Active = false;
+                return;
             case EnemyType.Ram: UpdateRam(e, dt, tgtWall); return;
             case EnemyType.Catapult: UpdateCatapult(e, dt, tgtWall); return;
             case EnemyType.Crossbowman: UpdateCrossbowman(e, dt, tgtWall); return;
@@ -394,10 +406,11 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         if (tgtWall < 0)
         {
             float targetX = _lordActive ? LordStandX : KeepRight;
-            if (e.X - e.W / 2f > targetX + LordW + 5f)
+            if (e.X - e.Collider.Width / 2f > targetX + LordW + 5f)
             {
                 e.State = EnemyState.Walking;
-                e.X -= e.Speed * dt;
+                e.Rigidbody.VelocityX = -e.Speed;
+                e.Rigidbody.Step(e, dt);
             }
             else
             {
@@ -416,10 +429,11 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         var wall = _walls[tgtWall];
         float wallFace = wall.LeftX - 2f;
 
-        if (e.X - e.W / 2f > wallFace + e.AttackRange)
+        if (e.X - e.Collider.Width / 2f > wallFace + e.AttackRange)
         {
             e.State = EnemyState.Walking;
-            e.X -= e.Speed * dt;
+            e.Rigidbody.VelocityX = -e.Speed;
+            e.Rigidbody.Step(e, dt);
         }
         else
         {
@@ -443,8 +457,11 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     {
         if (tgtWall < 0)
         {
-            if (e.X - e.W / 2f > KeepRight + 5f)
-                e.X -= e.Speed * dt;
+            if (e.X - e.Collider.Width / 2f > KeepRight + 5f)
+            {
+                e.Rigidbody.VelocityX = -e.Speed;
+                e.Rigidbody.Step(e, dt);
+            }
             else
             {
                 _lordHP -= 5f * dt;
@@ -454,10 +471,11 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         }
 
         var wall = _walls[tgtWall];
-        if (e.X - e.W / 2f > wall.LeftX + 1f)
+        if (e.X - e.Collider.Width / 2f > wall.LeftX + 1f)
         {
             e.State = EnemyState.Walking;
-            e.X -= e.Speed * dt;
+            e.Rigidbody.VelocityX = -e.Speed;
+            e.Rigidbody.Step(e, dt);
         }
         else
         {
@@ -465,21 +483,23 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             if (tgtWall < _wallFlash.Length) _wallFlash[tgtWall] = 0.3f;
             UpdateArcherCount();
             SpawnText("WALL BREACHED!", wall.CenterX, wall.TopY - 50f, ColRed);
-            e.X -= e.Speed * dt * 0.5f;
+            e.Rigidbody.VelocityX = -e.Speed * 0.5f;
+            e.Rigidbody.Step(e, dt);
         }
     }
 
     private void UpdateCatapult(Enemy e, float dt, int tgtWall)
     {
-        if (tgtWall < 0) { e.X -= e.Speed * dt; return; }
+        if (tgtWall < 0) { e.Rigidbody.VelocityX = -e.Speed; e.Rigidbody.Step(e, dt); return; }
 
         var wall = _walls[tgtWall];
-        float stopX = wall.LeftX + BlockW + e.AttackRange + e.W / 2f;
+        float stopX = wall.LeftX + BlockW + e.AttackRange + e.Collider.Width / 2f;
 
         if (e.X > stopX)
         {
             e.State = EnemyState.Walking;
-            e.X -= e.Speed * dt;
+            e.Rigidbody.VelocityX = -e.Speed;
+            e.Rigidbody.Step(e, dt);
         }
         else
         {
@@ -507,7 +527,8 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         if (e.X > stopX)
         {
             e.State = EnemyState.Walking;
-            e.X -= e.Speed * dt;
+            e.Rigidbody.VelocityX = -e.Speed;
+            e.Rigidbody.Step(e, dt);
         }
         else
         {
@@ -529,14 +550,19 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         float T = Math.Abs(dx) / 260f;
         float vx = dx / T;
         float vy = (dy - 0.5f * ArrowGravity * T * T) / T;
-        _boulders.Add(new Boulder { X = catapult.X, Y = GroundY - 30f, VX = vx, VY = vy, TargetWallIdx = targetWallIdx });
+        var boulder = new Boulder { X = catapult.X, Y = GroundY - 30f, TargetWallIdx = targetWallIdx };
+        boulder.Rigidbody.VelocityX = vx;
+        boulder.Rigidbody.VelocityY = vy;
+        _boulders.Add(boulder);
     }
 
     private void FireCrossbowBolt(Enemy crossbow, int archerWallIdx)
     {
         var wall = _walls[archerWallIdx];
         float ay = wall.ArcherBaseY - ArcherH / 2f;
-        _arrows.Add(new Arrow { X = crossbow.X - crossbow.W / 2f, Y = ay, VX = -320f, VY = 0f, IsEnemy = true, EnemyTargetWall = archerWallIdx });
+        var bolt = new Arrow { X = crossbow.X - crossbow.Collider.Width / 2f, Y = ay, IsEnemy = true, EnemyTargetWall = archerWallIdx };
+        bolt.Rigidbody.VelocityX = -320f;
+        _arrows.Add(bolt);
     }
 
     // ── Lord ──────────────────────────────────────────────────────────────
@@ -559,7 +585,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         if (target != null)
         {
             target.HP -= LordAttackDamage;
-            if (target.HP <= 0f) KillEnemy(target, target.X, GroundY - target.H);
+            if (target.HP <= 0f) KillEnemy(target, target.X, GroundY - target.Collider.Height);
         }
     }
 
@@ -572,9 +598,8 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             var a = _arrows[i];
             if (!a.Active) { _arrows.RemoveAt(i); continue; }
 
-            a.VY += ArrowGravity * dt;
-            a.X += a.VX * dt;
-            a.Y += a.VY * dt;
+            a.Rigidbody.VelocityY += ArrowGravity * dt;
+            a.Rigidbody.Step(a, dt);
 
             if (a.X > GameWidth + 20f || a.X < -20f || a.Y > GroundY + 20f)
             {
@@ -594,27 +619,24 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         foreach (var e in _enemies)
         {
             if (!e.Active) continue;
-            float ex = e.X - e.W / 2f;
-            float ey = GroundY - e.H;
-            if (a.X >= ex && a.X <= ex + e.W && a.Y >= ey && a.Y <= GroundY)
+            if (!CollisionResolver.Overlaps(a, a.Collider, e, e.Collider)) continue;
+
+            float pts = PointsForEnemy(e.Type);
+            e.HP -= 1f;
+
+            if (_archerCount == 1)
             {
-                float pts = PointsForEnemy(e.Type);
-                e.HP -= 1f;
-
-                if (_archerCount == 1)
-                {
-                    _consecutiveHits++;
-                    _accuracyResetTimer = 3f;
-                    if (_consecutiveHits % 3 == 0) _accuracyMult = Math.Min(8, _accuracyMult + 1);
-                    pts += 25f * _accuracyMult;
-                }
-
-                if (e.HP <= 0f) KillEnemy(e, a.X, a.Y);
-                else SpawnText($"-{1}", e.X, GroundY - e.H - 5f, ColDim);
-
-                a.Active = false;
-                return;
+                _consecutiveHits++;
+                _accuracyResetTimer = 3f;
+                if (_consecutiveHits % 3 == 0) _accuracyMult = Math.Min(8, _accuracyMult + 1);
+                pts += 25f * _accuracyMult;
             }
+
+            if (e.HP <= 0f) KillEnemy(e, a.X, a.Y);
+            else SpawnText($"-{1}", e.X, GroundY - e.Collider.Height - 5f, ColDim);
+
+            a.Active = false;
+            return;
         }
     }
 
@@ -643,9 +665,8 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             var b = _boulders[i];
             if (!b.Active) { _boulders.RemoveAt(i); continue; }
 
-            b.VY += ArrowGravity * dt;
-            b.X += b.VX * dt;
-            b.Y += b.VY * dt;
+            b.Rigidbody.VelocityY += ArrowGravity * dt;
+            b.Rigidbody.Step(b, dt);
 
             if (b.X < -40f || b.X > GameWidth + 40f || b.Y > GroundY + 20f)
             { b.Active = false; _boulders.RemoveAt(i); continue; }
@@ -673,7 +694,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         e.Active = false;
         int pts = PointsForEnemy(e.Type);
         state.Score += pts;
-        SpawnText($"+{pts}", x > 0 ? x : e.X, GroundY - e.H - 10f,
+        SpawnText($"+{pts}", x > 0 ? x : e.X, GroundY - e.Collider.Height - 10f,
             e.Type == EnemyType.Cow ? ColGold : ColAccent);
     }
 
@@ -898,9 +919,9 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
         if (e.MaxHP > 1f)
         {
-            float ex = e.X - e.W / 2f;
-            float ey = GroundY - e.H;
-            float barW = e.W + 4f;
+            float ex = e.X - e.Collider.Width / 2f;
+            float ey = GroundY - e.Collider.Height;
+            float barW = e.Collider.Width + 4f;
             float ratio = e.HP / e.MaxHP;
             using var bg = new SKPaint { Color = new SKColor(0x40, 0x00, 0x00) };
             canvas.DrawRect(SKRect.Create(ex - 2f, ey - 8f, barW, 4f), bg);
@@ -911,15 +932,15 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private static void DrawHumanoidEnemy(SKCanvas canvas, Enemy e, SKColor col)
     {
-        float ex = e.X - e.W / 2f, ey = GroundY - e.H;
+        float ex = e.X - e.Collider.Width / 2f, ey = GroundY - e.Collider.Height;
         using var p = new SKPaint { Color = col, IsAntialias = true };
-        canvas.DrawRect(SKRect.Create(ex, ey, e.W, e.H - 8f), p);
+        canvas.DrawRect(SKRect.Create(ex, ey, e.Collider.Width, e.Collider.Height - 8f), p);
         canvas.DrawCircle(e.X, ey - 5f, 6f, p);
 
         if (e.Type == EnemyType.Crossbowman)
         {
             using var wp = new SKPaint { Color = ColArrow, StrokeWidth = 1.5f, IsAntialias = true };
-            canvas.DrawLine(ex - 4f, ey + e.H / 3f, ex - 12f, ey + e.H / 3f, wp);
+            canvas.DrawLine(ex - 4f, ey + e.Collider.Height / 3f, ex - 12f, ey + e.Collider.Height / 3f, wp);
         }
         else if (e.Type is EnemyType.Spearman or EnemyType.Berserker)
         {
@@ -935,38 +956,38 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private static void DrawCatapultSprite(SKCanvas canvas, Enemy e, SKColor col)
     {
-        float ex = e.X - e.W / 2f, ey = GroundY - e.H;
+        float ex = e.X - e.Collider.Width / 2f, ey = GroundY - e.Collider.Height;
         using var p = new SKPaint { Color = col, IsAntialias = true };
-        canvas.DrawRoundRect(SKRect.Create(ex, ey + 8f, e.W, e.H - 8f), 3f, 3f, p);
+        canvas.DrawRoundRect(SKRect.Create(ex, ey + 8f, e.Collider.Width, e.Collider.Height - 8f), 3f, 3f, p);
         using var arm = new SKPaint { Color = new SKColor(0x8B, 0x5E, 0x2E), StrokeWidth = 3f, IsAntialias = true };
         canvas.DrawLine(e.X, ey + 14f, e.X - 14f, ey, arm);
         using var wheel = new SKPaint { Color = new SKColor(0x55, 0x44, 0x22), IsAntialias = true };
         canvas.DrawCircle(ex + 6f, GroundY - 5f, 5f, wheel);
-        canvas.DrawCircle(ex + e.W - 6f, GroundY - 5f, 5f, wheel);
+        canvas.DrawCircle(ex + e.Collider.Width - 6f, GroundY - 5f, 5f, wheel);
     }
 
     private static void DrawRamSprite(SKCanvas canvas, Enemy e, SKColor col)
     {
-        float ex = e.X - e.W / 2f, ey = GroundY - e.H;
+        float ex = e.X - e.Collider.Width / 2f, ey = GroundY - e.Collider.Height;
         using var p = new SKPaint { Color = col, IsAntialias = true };
-        canvas.DrawRoundRect(SKRect.Create(ex, ey, e.W, e.H - 6f), 4f, 4f, p);
+        canvas.DrawRoundRect(SKRect.Create(ex, ey, e.Collider.Width, e.Collider.Height - 6f), 4f, 4f, p);
         using var tip = new SKPaint { Color = new SKColor(0xCC, 0xCC, 0xCC), IsAntialias = true };
         canvas.DrawRect(SKRect.Create(ex - 10f, ey + 6f, 14f, 8f), tip);
         using var wheel = new SKPaint { Color = new SKColor(0x55, 0x44, 0x22), IsAntialias = true };
         canvas.DrawCircle(ex + 6f, GroundY - 4f, 5f, wheel);
-        canvas.DrawCircle(ex + e.W - 6f, GroundY - 4f, 5f, wheel);
+        canvas.DrawCircle(ex + e.Collider.Width - 6f, GroundY - 4f, 5f, wheel);
     }
 
     private static void DrawCowSprite(SKCanvas canvas, Enemy e, SKColor col)
     {
-        float ex = e.X - e.W / 2f, ey = GroundY - e.H;
+        float ex = e.X - e.Collider.Width / 2f, ey = GroundY - e.Collider.Height;
         using var p = new SKPaint { Color = col, IsAntialias = true };
-        canvas.DrawRoundRect(SKRect.Create(ex, ey + 4f, e.W, e.H - 8f), 5f, 5f, p);
+        canvas.DrawRoundRect(SKRect.Create(ex, ey + 4f, e.Collider.Width, e.Collider.Height - 8f), 5f, 5f, p);
         using var head = new SKPaint { Color = col, IsAntialias = true };
         canvas.DrawRoundRect(SKRect.Create(ex - 8f, ey + 6f, 14f, 10f), 4f, 4f, head);
         using var leg = new SKPaint { Color = new SKColor(0xDD, 0xDD, 0xCC), StrokeWidth = 3f, IsAntialias = true };
-        canvas.DrawLine(ex + 4f, ey + e.H - 4f, ex + 4f, GroundY, leg);
-        canvas.DrawLine(ex + e.W - 4f, ey + e.H - 4f, ex + e.W - 4f, GroundY, leg);
+        canvas.DrawLine(ex + 4f, ey + e.Collider.Height - 4f, ex + 4f, GroundY, leg);
+        canvas.DrawLine(ex + e.Collider.Width - 4f, ey + e.Collider.Height - 4f, ex + e.Collider.Width - 4f, GroundY, leg);
         using var spot = new SKPaint { Color = new SKColor(0x88, 0x88, 0x77), IsAntialias = true };
         canvas.DrawCircle(e.X, ey + 8f, 3f, spot);
         DrawHelper.DrawCenteredText(canvas, "MOO", 10f, new SKColor(0x55, 0x44, 0x22), e.X, ey);
@@ -979,7 +1000,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         foreach (var a in _arrows)
         {
             if (!a.Active) continue;
-            float angle = MathF.Atan2(a.VY, a.VX);
+            float angle = MathF.Atan2(a.Rigidbody.VelocityY, a.Rigidbody.VelocityX);
             float len = 14f;
             float dx = MathF.Cos(angle) * len;
             float dy = MathF.Sin(angle) * len;

@@ -9,14 +9,18 @@ namespace SkiaSharpGames.GameEngine.Tests;
 
 file sealed class ScreenTracker
 {
+    public bool AActivating { get; set; }
     public bool AActivated { get; set; }
+    public bool ADeactivating { get; set; }
     public bool ADeactivated { get; set; }
     public bool AUpdateCalled { get; set; }
     public bool APaused { get; set; }
     public bool AResumed { get; set; }
     public bool AIsPausedWhenPaused { get; set; }
 
+    public bool BActivating { get; set; }
     public bool BActivated { get; set; }
+    public bool BDeactivating { get; set; }
     public bool BDeactivated { get; set; }
 }
 
@@ -26,7 +30,9 @@ file sealed class ScreenA(ScreenTracker t) : GameScreen
 {
     public override void Update(float dt) => t.AUpdateCalled = true;
     public override void Draw(SKCanvas c, int w, int h) { }
+    public override void OnActivating() => t.AActivating = true;
     public override void OnActivated() => t.AActivated = true;
+    public override void OnDeactivating() => t.ADeactivating = true;
     public override void OnDeactivated() => t.ADeactivated = true;
     public override void OnPaused() { t.APaused = true; t.AIsPausedWhenPaused = IsPaused; }
     public override void OnResumed() => t.AResumed = true;
@@ -36,7 +42,9 @@ file sealed class ScreenB(ScreenTracker t) : GameScreen
 {
     public override void Update(float dt) { }
     public override void Draw(SKCanvas c, int w, int h) { }
+    public override void OnActivating() => t.BActivating = true;
     public override void OnActivated() => t.BActivated = true;
+    public override void OnDeactivating() => t.BDeactivating = true;
     public override void OnDeactivated() => t.BDeactivated = true;
 }
 
@@ -219,6 +227,72 @@ public class GameTests
         var coordinator = game.Services.GetRequiredService<IScreenCoordinator>();
         coordinator.PushOverlay<OverlayScreen>();
         coordinator.TransitionTo<ScreenB>();
+        Assert.True(tracker.ADeactivated);
+    }
+
+    // ── Activating / Deactivating lifecycle ───────────────────────────────
+
+    [Fact]
+    public void InitialScreen_OnActivating_IsCalledBeforeOnActivated()
+    {
+        var (_, tracker) = TestGameFactory.Create();
+        Assert.True(tracker.AActivating);
+        Assert.True(tracker.AActivated);
+    }
+
+    [Fact]
+    public void TransitionTo_NoTransition_OnDeactivatingCalledOnOldScreen()
+    {
+        var (game, tracker) = TestGameFactory.Create();
+        game.Services.GetRequiredService<IScreenCoordinator>().TransitionTo<ScreenB>();
+        Assert.True(tracker.ADeactivating);
+    }
+
+    [Fact]
+    public void TransitionTo_NoTransition_OnActivatingCalledOnNewScreen()
+    {
+        var (game, tracker) = TestGameFactory.Create();
+        game.Services.GetRequiredService<IScreenCoordinator>().TransitionTo<ScreenB>();
+        Assert.True(tracker.BActivating);
+    }
+
+    [Fact]
+    public void TransitionTo_WithTransition_OnActivatingCalledImmediately()
+    {
+        var (game, tracker) = TestGameFactory.Create();
+        game.Services.GetRequiredService<IScreenCoordinator>().TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
+        // OnActivating is called at transition START — before any Update
+        Assert.True(tracker.BActivating);
+        Assert.False(tracker.BActivated);
+    }
+
+    [Fact]
+    public void TransitionTo_WithTransition_OnDeactivatingCalledImmediately()
+    {
+        var (game, tracker) = TestGameFactory.Create();
+        game.Services.GetRequiredService<IScreenCoordinator>().TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
+        // OnDeactivating is called at transition START — OnDeactivated is not called yet
+        Assert.True(tracker.ADeactivating);
+        Assert.False(tracker.ADeactivated);
+    }
+
+    [Fact]
+    public void TransitionTo_WithTransition_OnActivatedCalledAfterCompletion()
+    {
+        var (game, tracker) = TestGameFactory.Create();
+        game.Services.GetRequiredService<IScreenCoordinator>().TransitionTo<ScreenB>(new DissolveTransition { Duration = 0.5f });
+        Assert.False(tracker.BActivated);  // not yet
+        game.Update(0.5f);                  // completes the transition
+        Assert.True(tracker.BActivated);   // now called
+    }
+
+    [Fact]
+    public void TransitionTo_WithTransition_OnDeactivatedCalledAfterCompletion()
+    {
+        var (game, tracker) = TestGameFactory.Create();
+        game.Services.GetRequiredService<IScreenCoordinator>().TransitionTo<ScreenB>(new DissolveTransition { Duration = 0.5f });
+        Assert.False(tracker.ADeactivated);
+        game.Update(0.5f);
         Assert.True(tracker.ADeactivated);
     }
 }

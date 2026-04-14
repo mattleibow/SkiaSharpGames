@@ -18,7 +18,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
     private bool _gameOverShown;
     private CountdownTimer _nextWaveTimer;
 
-    public override void OnActivated()
+    public override void OnActivating()
     {
         state.Score = 0;
         state.Lives = 3;

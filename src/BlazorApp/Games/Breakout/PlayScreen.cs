@@ -15,14 +15,12 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     private CountdownTimer _strongBallTimer;
     private CountdownTimer _bigPaddleTimer;
 
-    // True on the very first Update after activation so the ball can be re-synced
-    // to wherever the paddle has moved during the dissolve-in transition.
-    private bool _needsBallReset;
-
     private readonly List<Brick> _bricks = [];
     private readonly List<FallingPowerUp> _powerUps = [];
 
-    public override void OnActivated()
+    // ── Lifecycle ─────────────────────────────────────────────────────────
+
+    public override void OnActivating()
     {
         state.Score = 0;
         state.Lives = 3;
@@ -34,9 +32,13 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         _paddle.Y = PaddleY + PaddleHeight / 2f;
         _paddle.SetWidthImmediate(DefaultPaddleWidth);
         ResetBall();
-        // Flag so the first Update re-syncs the ball above wherever the paddle
-        // actually ends up after the transition-in completes.
-        _needsBallReset = true;
+    }
+
+    public override void OnActivated()
+    {
+        // The transition is complete — re-sync the ball to wherever the paddle actually is.
+        // Pointer events during the dissolve-in may have moved the paddle while Update was paused.
+        ResetBall();
     }
 
     // ── Initialisation ────────────────────────────────────────────────────
@@ -81,16 +83,6 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     public override void Update(float deltaTime)
     {
         _paddle.Update(deltaTime);
-
-        // On the first Update after activation, re-sync the ball to the paddle's actual
-        // position. The paddle may have been moved by pointer events that fired during the
-        // dissolve-in transition (while Update was paused), which would otherwise leave the
-        // ball stranded at the centre while the paddle sits at the cursor position.
-        if (_needsBallReset)
-        {
-            _needsBallReset = false;
-            ResetBall();
-        }
 
         foreach (var brick in _bricks)
             brick.Sprite.Update(deltaTime);

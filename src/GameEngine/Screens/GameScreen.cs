@@ -57,10 +57,29 @@ public abstract class GameScreen
 
     // ── Lifecycle ─────────────────────────────────────────────────────────
 
-    /// <summary>Called once when this screen becomes the active (or initial) screen.</summary>
+    /// <summary>
+    /// Called when a transition to this screen begins — i.e., the screen is about to become
+    /// visible and is starting to appear. Input events are still forwarded to this screen during
+    /// the transition so that games can produce interactive transition effects.
+    /// Typically used to initialise game state so it is ready to be drawn during the animation.
+    /// </summary>
+    public virtual void OnActivating() { }
+
+    /// <summary>
+    /// Called once when this screen is fully visible and the transition (if any) has completed.
+    /// Typically used to perform any final setup that depends on the screen being fully active,
+    /// such as re-syncing dynamic elements to positions updated by input during the transition.
+    /// </summary>
     public virtual void OnActivated() { }
 
-    /// <summary>Called once when this screen is replaced by a transition or removed entirely.</summary>
+    /// <summary>
+    /// Called when a transition away from this screen begins — i.e., the screen is starting to
+    /// disappear. Input events are still forwarded to this screen during the transition.
+    /// </summary>
+    public virtual void OnDeactivating() { }
+
+    /// <summary>Called once when this screen is fully hidden and the transition has completed,
+    /// or immediately when replaced without a transition.</summary>
     public virtual void OnDeactivated() { }
 
     /// <summary>Called when an overlay is pushed on top of this screen.</summary>

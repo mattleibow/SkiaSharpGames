@@ -143,6 +143,22 @@ public class MiscCoverageTests
         Assert.Null(ex);
     }
 
+    [Fact]
+    public void GameScreen_DefaultOnActivating_DoesNotThrow()
+    {
+        var screen = new DefaultGameScreen();
+        var ex = Record.Exception(() => screen.OnActivating());
+        Assert.Null(ex);
+    }
+
+    [Fact]
+    public void GameScreen_DefaultOnDeactivating_DoesNotThrow()
+    {
+        var screen = new DefaultGameScreen();
+        var ex = Record.Exception(() => screen.OnDeactivating());
+        Assert.Null(ex);
+    }
+
     // ── Game input forwarding ─────────────────────────────────────────────
 
     private static (Game game, InputTracker tracker) BuildTestGame()

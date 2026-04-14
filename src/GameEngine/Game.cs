@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using SkiaSharp;
 
 namespace SkiaSharpGames.GameEngine;
@@ -31,10 +32,10 @@ public sealed class Game
 {
     private readonly ScreenCoordinator _coordinator;
 
-    internal Game(IServiceProvider services, Type initialScreenType, SKSize gameDimensions)
+    internal Game(IOptions<GameOptions> options, ScreenCoordinator coordinator)
     {
-        GameDimensions = gameDimensions;
-        _coordinator   = new ScreenCoordinator(services, initialScreenType);
+        GameDimensions = options.Value.Dimensions;
+        _coordinator   = coordinator;
     }
 
     // ── Screen navigation (called by screens via their Coordinator property) ──

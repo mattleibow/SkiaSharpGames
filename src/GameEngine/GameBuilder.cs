@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using SkiaSharp;
 
 namespace SkiaSharpGames.GameEngine;
@@ -150,7 +151,26 @@ public sealed class GameBuilder
         var config = Configuration.Build();
         _serviceCollection.AddSingleton<IConfiguration>(config);
 
+        // Bind game options so any service can inject IOptions<GameOptions>.
+        _serviceCollection.Configure<GameOptions>(opts =>
+        {
+            opts.Dimensions        = _gameDimensions;
+            opts.InitialScreenType = _initialScreenType;
+        });
+
+        // ScreenCoordinator is the single job that loads and moves between screens.
+        // Register the concrete type (used by Game) and the interface (used by screens).
+        _serviceCollection.AddSingleton<ScreenCoordinator>(
+            sp => new ScreenCoordinator(sp, sp.GetRequiredService<IOptions<GameOptions>>()));
+        _serviceCollection.AddSingleton<IScreenCoordinator>(
+            sp => sp.GetRequiredService<ScreenCoordinator>());
+
+        // Game is the public host API; constructed via factory to preserve the internal constructor.
+        _serviceCollection.AddSingleton<Game>(
+            sp => new Game(sp.GetRequiredService<IOptions<GameOptions>>(),
+                           sp.GetRequiredService<ScreenCoordinator>()));
+
         var provider = _serviceCollection.BuildServiceProvider();
-        return new Game(provider, _initialScreenType, _gameDimensions);
+        return provider.GetRequiredService<Game>();
     }
 }

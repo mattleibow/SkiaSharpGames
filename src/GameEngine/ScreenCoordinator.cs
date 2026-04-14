@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using SkiaSharp;
 
 namespace SkiaSharpGames.GameEngine;
@@ -6,7 +7,7 @@ namespace SkiaSharpGames.GameEngine;
 /// <summary>
 /// Default implementation of <see cref="IScreenCoordinator"/>.
 /// Manages the active screen, overlay stack, and running transitions.
-/// Created by <see cref="GameBuilder.Build"/>; not intended to be instantiated directly.
+/// Registered as a singleton in the game's own DI container by <see cref="GameBuilder.Build"/>.
 /// </summary>
 internal sealed class ScreenCoordinator : IScreenCoordinator
 {
@@ -26,10 +27,10 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
         public float             Progress   { get; set; }
     }
 
-    internal ScreenCoordinator(IServiceProvider services, Type initialScreenType)
+    internal ScreenCoordinator(IServiceProvider services, IOptions<GameOptions> options)
     {
         _services = services;
-        _current  = (GameScreen)services.GetRequiredService(initialScreenType);
+        _current  = (GameScreen)services.GetRequiredService(options.Value.InitialScreenType!);
         _current.SetCoordinator(this);
         _current.OnActivated();
     }

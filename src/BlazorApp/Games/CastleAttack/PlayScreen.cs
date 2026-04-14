@@ -23,7 +23,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private float _aimAngle = AimDefault;
     private bool _touchAimLeft, _touchAimRight;
-    private float _arrowCooldown;
+    private CountdownTimer _arrowCooldown;
 
     private bool _oilAvail = true;
     private bool _mangonelAvail = true;
@@ -40,9 +40,9 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private int _accuracyMult = 1;
     private int _consecutiveHits;
-    private float _accuracyResetTimer;
+    private CountdownTimer _accuracyResetTimer;
 
-    private float[] _wallFlash = new float[3];
+    private CountdownTimer[] _wallFlash = new CountdownTimer[3];
 
     // ── Lifecycle ─────────────────────────────────────────────────────────
 
@@ -63,7 +63,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         _rightHeld = false;
         _touchAimLeft = false;
         _touchAimRight = false;
-        _arrowCooldown = 0f;
+        _arrowCooldown = default;
         _aimAngle = AimDefault;
         _spawnTimer = 3.5f;
         _spawnInterval = 5f;
@@ -72,8 +72,8 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         _cowSpawnTime = 25f;
         _accuracyMult = 1;
         _consecutiveHits = 0;
-        _accuracyResetTimer = 0f;
-        _wallFlash = new float[3];
+        _accuracyResetTimer = default;
+        _wallFlash = new CountdownTimer[3];
         _enemies.Clear();
         _arrows.Clear();
         _boulders.Clear();
@@ -218,8 +218,8 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private void FireVolley()
     {
-        if (_arrowCooldown > 0f || _archerCount == 0) return;
-        _arrowCooldown = ArrowCooldownTime;
+        if (_arrowCooldown.Active || _archerCount == 0) return;
+        _arrowCooldown.Set(ArrowCooldownTime);
 
         float rad = _aimAngle * MathF.PI / 180f;
         float vx = ArrowSpeed * MathF.Cos(rad);
@@ -259,19 +259,15 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     public override void Update(float deltaTime)
     {
         _levelTime += deltaTime;
-        _arrowCooldown = Math.Max(0f, _arrowCooldown - deltaTime);
+        _arrowCooldown.Tick(deltaTime);
 
         if (_leftHeld || _touchAimLeft) _aimAngle = Math.Max(AimMin, _aimAngle - AimSpeed * deltaTime);
         if (_rightHeld || _touchAimRight) _aimAngle = Math.Min(AimMax, _aimAngle + AimSpeed * deltaTime);
 
-        if (_accuracyResetTimer > 0f)
+        if (_accuracyResetTimer.Tick(deltaTime))
         {
-            _accuracyResetTimer -= deltaTime;
-            if (_accuracyResetTimer <= 0f)
-            {
-                _accuracyMult = 1;
-                _consecutiveHits = 0;
-            }
+            _accuracyMult = 1;
+            _consecutiveHits = 0;
         }
 
         // Keep construction
@@ -291,7 +287,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         UpdateSpawning(deltaTime);
 
         for (int i = 0; i < _wallFlash.Length; i++)
-            _wallFlash[i] = Math.Max(0f, _wallFlash[i] - deltaTime);
+            _wallFlash[i].Tick(deltaTime);
 
         UpdateEnemies(deltaTime);
 
@@ -443,7 +439,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             {
                 e.AttackTimer = 0f;
                 wall.TakeDamage(e.AttackDamage);
-                if (tgtWall < _wallFlash.Length) _wallFlash[tgtWall] = 0.15f;
+                if (tgtWall < _wallFlash.Length) _wallFlash[tgtWall].Set(0.15f);
                 if (wall.IsDestroyed)
                 {
                     wall.HasArcher = false;
@@ -480,7 +476,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         else
         {
             wall.Demolish();
-            if (tgtWall < _wallFlash.Length) _wallFlash[tgtWall] = 0.3f;
+            if (tgtWall < _wallFlash.Length) _wallFlash[tgtWall].Set(0.3f);
             UpdateArcherCount();
             SpawnText("WALL BREACHED!", wall.CenterX, wall.TopY - 50f, ColRed);
             e.Rigidbody.VelocityX = -e.Speed * 0.5f;
@@ -603,18 +599,18 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
             if (a.X > GameWidth + 20f || a.X < -20f || a.Y > GroundY + 20f)
             {
-                if (!a.IsEnemy) { _consecutiveHits = 0; _accuracyMult = 1; _accuracyResetTimer = 0f; }
+                if (!a.IsEnemy) { _consecutiveHits = 0; _accuracyMult = 1; _accuracyResetTimer.Reset(); }
                 a.Active = false;
                 _arrows.RemoveAt(i);
                 continue;
             }
 
-            if (a.IsEnemy) CheckBoltHitsArcher(a);
-            else CheckArrowHitsEnemy(a);
+            if (a.IsEnemy) ResolveBoltHitsArcher(a);
+            else ResolveArrowHitsEnemy(a);
         }
     }
 
-    private void CheckArrowHitsEnemy(Arrow a)
+    private void ResolveArrowHitsEnemy(Arrow a)
     {
         foreach (var e in _enemies)
         {
@@ -627,7 +623,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             if (_archerCount == 1)
             {
                 _consecutiveHits++;
-                _accuracyResetTimer = 3f;
+                _accuracyResetTimer.Set(3f);
                 if (_consecutiveHits % 3 == 0) _accuracyMult = Math.Min(8, _accuracyMult + 1);
                 pts += 25f * _accuracyMult;
             }
@@ -640,7 +636,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         }
     }
 
-    private void CheckBoltHitsArcher(Arrow bolt)
+    private void ResolveBoltHitsArcher(Arrow bolt)
     {
         int idx = bolt.EnemyTargetWall;
         if (idx < 0 || idx >= _walls.Count) { bolt.Active = false; return; }
@@ -677,7 +673,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
                 if (!wall.IsDestroyed && b.X >= wall.LeftX - 10f && b.X <= wall.LeftX + BlockW + 10f)
                 {
                     wall.TakeDamage(50f);
-                    if (b.TargetWallIdx < _wallFlash.Length) _wallFlash[b.TargetWallIdx] = 0.2f;
+                    if (b.TargetWallIdx < _wallFlash.Length) _wallFlash[b.TargetWallIdx].Set(0.2f);
                     if (wall.IsDestroyed) { wall.HasArcher = false; UpdateArcherCount(); }
                     b.Active = false;
                     _boulders.RemoveAt(i);
@@ -810,7 +806,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         for (int wi = 0; wi < _walls.Count; wi++)
         {
             var wall = _walls[wi];
-            float flash = wi < _wallFlash.Length ? _wallFlash[wi] : 0f;
+            bool flash = wi < _wallFlash.Length && _wallFlash[wi].Active;
 
             float blockY = GroundY - BlockH;
             for (int bi = wall.Blocks.Count - 1; bi >= 0; bi--)
@@ -819,7 +815,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
                 if (!block.Active) continue;
 
                 float ratio = block.HP / block.MaxHP;
-                SKColor col = flash > 0f ? ColStoneDmg
+                SKColor col = flash ? ColStoneDmg
                             : ratio < 0.3f ? ColStoneLow
                             : ratio < 0.6f ? ColStoneDmg
                             : ColStone;
@@ -1107,9 +1103,9 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
         DrawHelper.DrawCenteredText(canvas, $"Aim: {_aimAngle:F0}°", 15f, ColDim, GameWidth / 2f, 20f);
 
-        if (_arrowCooldown > 0f)
+        if (_arrowCooldown.Active)
         {
-            float r = _arrowCooldown / ArrowCooldownTime;
+            float r = _arrowCooldown.Remaining / ArrowCooldownTime;
             DrawHelper.DrawCenteredText(canvas, "●", 12f,
                 new SKColor(0xFF, 0xFF, 0xFF, (byte)(r * 200)), GameWidth / 2f, 38f);
         }
@@ -1134,7 +1130,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
         bool canA2W = _workerCount > 1 && _archerCount > 0;
         bool canW2A = _workerCount > 1 && _archerCount < _walls.Count;
-        bool ready = _arrowCooldown <= 0f && _archerCount > 0;
+        bool ready = !_arrowCooldown.Active && _archerCount > 0;
 
         DrawButton(canvas, BtnAimLeft, "← Aim", true, ColDim, _touchAimLeft);
         DrawButton(canvas, BtnAimRight, "Aim →", true, ColDim, _touchAimRight);

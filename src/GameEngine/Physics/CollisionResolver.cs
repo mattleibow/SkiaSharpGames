@@ -98,6 +98,36 @@ public static class CollisionResolver
     private static bool RectRect(PhysicsBody a, PhysicsBody b)
         => a.BoundingBox.IntersectsWith(b.BoundingBox);
 
+    // ── Wall resolution ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// Resolves left-wall, right-wall, and ceiling collisions for a circle moving through a bounded
+    /// game area. The game area is assumed to span from <c>X=0</c> to <c>X=gameWidth</c> and from
+    /// <c>Y=0</c> (ceiling) downward. The bottom boundary is intentionally excluded — treat that
+    /// as an out-of-bounds condition in the caller.
+    /// </summary>
+    public static void ResolveWalls(Entity entity, CircleCollider collider, Rigidbody2D rigidbody, float gameWidth)
+    {
+        float r = collider.Radius;
+
+        if (entity.X - r < 0f)
+        {
+            entity.X = r;
+            rigidbody.VelocityX = MathF.Abs(rigidbody.VelocityX);
+        }
+        else if (entity.X + r > gameWidth)
+        {
+            entity.X = gameWidth - r;
+            rigidbody.VelocityX = -MathF.Abs(rigidbody.VelocityX);
+        }
+
+        if (entity.Y - r < 0f)
+        {
+            entity.Y = r;
+            rigidbody.VelocityY = MathF.Abs(rigidbody.VelocityY);
+        }
+    }
+
     // ── Entity + Collider API ─────────────────────────────────────────────
 
     /// <summary>

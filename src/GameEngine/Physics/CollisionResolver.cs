@@ -97,4 +97,57 @@ public static class CollisionResolver
 
     private static bool RectRect(PhysicsBody a, PhysicsBody b)
         => a.BoundingBox.IntersectsWith(b.BoundingBox);
+
+    // ── Entity + Collider API ─────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns <see langword="true"/> when the circle described by
+    /// <paramref name="circle"/>/<paramref name="circleOwner"/> overlaps the rectangle described by
+    /// <paramref name="rect"/>/<paramref name="rectOwner"/>.
+    /// </summary>
+    public static bool Overlaps(Entity circleOwner, CircleCollider circle,
+                                Entity rectOwner,   RectCollider rect)
+    {
+        var (cx, cy) = circle.WorldCenter(circleOwner);
+        var bounds   = rect.WorldRect(rectOwner);
+        float nearX  = Math.Clamp(cx, bounds.Left, bounds.Right);
+        float nearY  = Math.Clamp(cy, bounds.Top,  bounds.Bottom);
+        float dx     = cx - nearX, dy = cy - nearY;
+        return dx * dx + dy * dy < circle.Radius * circle.Radius;
+    }
+
+    /// <summary>
+    /// Reflects <paramref name="rigidbody"/>'s velocity off the rectangle
+    /// <paramref name="rect"/>/<paramref name="rectOwner"/> using the smallest-overlap axis.
+    /// Does <b>not</b> check for overlap first.
+    /// </summary>
+    public static void Reflect(Entity circleOwner, CircleCollider circle, Rigidbody2D rigidbody,
+                               Entity rectOwner,   RectCollider rect)
+    {
+        var (cx, cy) = circle.WorldCenter(circleOwner);
+        float r      = circle.Radius;
+        var bounds   = rect.WorldRect(rectOwner);
+
+        float overlapLeft   = (cx + r) - bounds.Left;
+        float overlapRight  = bounds.Right  - (cx - r);
+        float overlapTop    = (cy + r) - bounds.Top;
+        float overlapBottom = bounds.Bottom - (cy - r);
+        float minH = MathF.Min(overlapLeft,  overlapRight);
+        float minV = MathF.Min(overlapTop,   overlapBottom);
+
+        if (minV <= minH) rigidbody.VelocityY = -rigidbody.VelocityY;
+        else              rigidbody.VelocityX = -rigidbody.VelocityX;
+    }
+
+    /// <summary>
+    /// If the circle overlaps the rectangle, reflects <paramref name="rigidbody"/>'s velocity
+    /// and returns <see langword="true"/>. Returns <see langword="false"/> when there is no overlap.
+    /// </summary>
+    public static bool ReflectOff(Entity circleOwner, CircleCollider circle, Rigidbody2D rigidbody,
+                                  Entity rectOwner,   RectCollider rect)
+    {
+        if (!Overlaps(circleOwner, circle, rectOwner, rect)) return false;
+        Reflect(circleOwner, circle, rigidbody, rectOwner, rect);
+        return true;
+    }
 }

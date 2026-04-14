@@ -43,19 +43,24 @@ public class RectSprite : Sprite
     public override void Update(float deltaTime) => Shimmer.Update(deltaTime);
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas)
+    /// <param name="canvas">Target canvas.</param>
+    /// <param name="x">Centre X of the rectangle in game-space units.</param>
+    /// <param name="y">Centre Y of the rectangle in game-space units.</param>
+    public override void Draw(SKCanvas canvas, float x, float y)
     {
         if (!Visible || Alpha <= 0f) return;
 
-        byte a = (byte)(255 * Alpha);
-        var rect = SKRect.Create(X, Y, Width, Height);
+        float left = x - Width / 2f;
+        float top  = y - Height / 2f;
+        byte  a    = (byte)(255 * Alpha);
+        var   rect = SKRect.Create(left, top, Width, Height);
 
         using var fill = new SKPaint { Color = Color.WithAlpha(a), IsAntialias = true };
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, fill);
 
         if (ShowShine && Width > 4f && Height > 4f)
         {
-            var shineRect = SKRect.Create(X + 2f, Y + 2f, Width - 4f, (Height - 4f) / 2f);
+            var shineRect = SKRect.Create(left + 2f, top + 2f, Width - 4f, (Height - 4f) / 2f);
             float cr = Math.Max(CornerRadius - 1f, 0f);
             using var shine = new SKPaint
             {
@@ -69,15 +74,14 @@ public class RectSprite : Sprite
         if (Shimmer.IsActive && Width > 0f && Height > 0f)
         {
             float stripeW = Width * 0.5f;
-            // Centre of the stripe travels from X-stripeW/2 to X+Width+stripeW/2
-            float sweepX = X - stripeW / 2f + Shimmer.Progress * (Width + stripeW);
+            float sweepX  = left - stripeW / 2f + Shimmer.Progress * (Width + stripeW);
 
             canvas.Save();
             canvas.ClipRoundRect(new SKRoundRect(rect, CornerRadius));
 
             using var shader = SKShader.CreateLinearGradient(
-                new SKPoint(sweepX, Y),
-                new SKPoint(sweepX + stripeW, Y),
+                new SKPoint(sweepX, top),
+                new SKPoint(sweepX + stripeW, top),
                 [
                     SKColors.Transparent,
                     SKColors.White.WithAlpha((byte)(90 * Alpha)),
@@ -87,7 +91,7 @@ public class RectSprite : Sprite
                 SKShaderTileMode.Clamp);
 
             using var shimmerPaint = new SKPaint { Shader = shader, IsAntialias = true };
-            canvas.DrawRect(SKRect.Create(sweepX, Y, stripeW, Height), shimmerPaint);
+            canvas.DrawRect(SKRect.Create(sweepX, top, stripeW, Height), shimmerPaint);
 
             canvas.Restore();
         }

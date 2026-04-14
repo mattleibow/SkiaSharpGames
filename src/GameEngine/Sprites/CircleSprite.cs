@@ -8,7 +8,7 @@ namespace SkiaSharpGames.GameEngine;
 /// </summary>
 public class CircleSprite : Sprite
 {
-    /// <summary>Radius of the circle in game-space units. X/Y are the centre point.</summary>
+    /// <summary>Radius of the circle in game-space units.</summary>
     public float Radius { get; set; }
 
     /// <summary>Fill colour of the circle.</summary>
@@ -24,7 +24,7 @@ public class CircleSprite : Sprite
     public SKColor GlowColor { get; set; } = SKColors.White;
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas)
+    public override void Draw(SKCanvas canvas, float x, float y)
     {
         if (!Visible || Alpha <= 0f) return;
 
@@ -38,10 +38,10 @@ public class CircleSprite : Sprite
                 IsAntialias = true,
                 MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, GlowRadius)
             };
-            canvas.DrawCircle(X, Y, Radius + GlowRadius / 2f, glow);
+            canvas.DrawCircle(x, y, Radius + GlowRadius / 2f, glow);
         }
 
         using var fill = new SKPaint { Color = Color.WithAlpha(a), IsAntialias = true };
-        canvas.DrawCircle(X, Y, Radius, fill);
+        canvas.DrawCircle(x, y, Radius, fill);
     }
 }

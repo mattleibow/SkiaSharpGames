@@ -7,10 +7,9 @@ namespace SkiaSharpGames.BlazorApp.Games.Breakout;
 /// <summary>Active gameplay screen: ball, paddle, bricks, power-ups, HUD.</summary>
 internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coordinator) : GameScreen
 {
-    // ── Physics ───────────────────────────────────────────────────────────
-    private float _paddleX;
-    private readonly CircleBody _ball = new() { Radius = BallRadius };
-    private readonly RectBody _paddleBody = new() { Height = PaddleHeight, IsStatic = true };
+    // ── Entities ──────────────────────────────────────────────────────────
+    private readonly Ball _ball = new();
+    private readonly Paddle _paddle = new();
 
     // ── Animated paddle width ─────────────────────────────────────────────
     private readonly AnimatedFloat _paddleWidth = new(DefaultPaddleWidth);
@@ -19,22 +18,6 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     // ── Power-up timers ───────────────────────────────────────────────────
     private float _strongBallTimer;
     private float _bigPaddleTimer;
-
-    // ── Sprites ───────────────────────────────────────────────────────────
-    private readonly CircleSprite _ballSprite = new()
-    {
-        Radius = BallRadius,
-        Color = SKColors.White,
-        GlowRadius = 4f,
-        GlowColor = SKColors.White
-    };
-    private readonly RectSprite _paddleSprite = new()
-    {
-        Height = PaddleHeight,
-        Color = PaddleColor,
-        CornerRadius = 6f,
-        ShowShine = false
-    };
 
     private readonly List<Brick> _bricks = [];
     private readonly List<FallingPowerUp> _powerUps = [];
@@ -47,8 +30,10 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         _bigPaddleTimer = 0f;
         _powerUps.Clear();
         InitBricks();
-        _paddleX = (GameWidth - DefaultPaddleWidth) / 2f;
+        _paddle.X = GameWidth / 2f;
+        _paddle.Y = PaddleY + PaddleHeight / 2f;
         _paddleWidth.SetImmediate(DefaultPaddleWidth);
+        _paddle.Collider.Width = DefaultPaddleWidth;
         ResetBall();
     }
 
@@ -61,9 +46,9 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         {
             for (int c = 0; c < BrickCols; c++)
             {
-                float bx = BricksStartX + c * (BrickWidth + BrickGap);
-                float by = BricksStartY + r * (BrickHeight + BrickGap);
-                var brick = new Brick(r, c, bx, by);
+                float cx = BricksStartX + c * (BrickWidth + BrickGap) + BrickWidth / 2f;
+                float cy = BricksStartY + r * (BrickHeight + BrickGap) + BrickHeight / 2f;
+                var brick = new Brick(r, c, cx, cy);
                 brick.Sprite.Color = BrickColors[r];
                 brick.Sprite.Shimmer.Start(Random.Shared.NextSingle() * brick.Sprite.Shimmer.Period);
                 _bricks.Add(brick);
@@ -73,11 +58,11 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
 
     private void ResetBall()
     {
-        _ball.X = _paddleX + CurrentPaddleWidth / 2f;
+        _ball.X = _paddle.X;
         _ball.Y = PaddleY - BallRadius - 10f;
         double angle = (35.0 + Random.Shared.NextDouble() * 110.0) * Math.PI / 180.0;
-        _ball.VelocityX = (float)(BallSpeed * Math.Cos(angle));
-        _ball.VelocityY = -(float)(BallSpeed * Math.Sin(angle));
+        _ball.Rigidbody.VelocityX = (float)(BallSpeed * Math.Cos(angle));
+        _ball.Rigidbody.VelocityY = -(float)(BallSpeed * Math.Sin(angle));
     }
 
     // ── Input ─────────────────────────────────────────────────────────────
@@ -85,7 +70,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     public override void OnPointerMove(float x, float y)
     {
         float pw = CurrentPaddleWidth;
-        _paddleX = Math.Clamp(x - pw / 2f, 0f, GameWidth - pw);
+        _paddle.X = Math.Clamp(x, pw / 2f, GameWidth - pw / 2f);
     }
 
     // ── Update ────────────────────────────────────────────────────────────
@@ -105,15 +90,19 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         if (prevBigPaddleTimer > 0f && _bigPaddleTimer <= 0f)
         {
             _paddleWidth.AnimateTo(DefaultPaddleWidth, 0.4f, Easing.EaseIn);
-            _paddleX = Math.Clamp(_paddleX, 0f, GameWidth - DefaultPaddleWidth);
+            float halfW = DefaultPaddleWidth / 2f;
+            _paddle.X = Math.Clamp(_paddle.X, halfW, GameWidth - halfW);
         }
 
-        _ball.Step(deltaTime);
+        // Update paddle collider width to match the animated value
+        float pw = CurrentPaddleWidth;
+        _paddle.Collider.Width = pw;
+
+        // Physics step
+        _ball.Rigidbody.Step(_ball, deltaTime);
 
         // Wall collisions
-        if (_ball.X - BallRadius < 0f) { _ball.X = BallRadius; _ball.VelocityX = MathF.Abs(_ball.VelocityX); }
-        else if (_ball.X + BallRadius > GameWidth) { _ball.X = GameWidth - BallRadius; _ball.VelocityX = -MathF.Abs(_ball.VelocityX); }
-        if (_ball.Y - BallRadius < 0f) { _ball.Y = BallRadius; _ball.VelocityY = MathF.Abs(_ball.VelocityY); }
+        ResolveWallCollisions();
 
         // Ball lost
         if (_ball.Y > GameHeight + BallRadius * 2)
@@ -127,23 +116,49 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         }
 
         // Paddle collision
-        float pw = CurrentPaddleWidth;
-        _paddleBody.X = _paddleX;
-        _paddleBody.Y = PaddleY;
-        _paddleBody.Width = pw;
-        if (_ball.VelocityY > 0f && _ball.Overlaps(_paddleBody))
-        {
-            float hitPos = (_ball.X - (_paddleX + pw / 2f)) / (pw / 2f);
-            float angle = hitPos * (65f * MathF.PI / 180f);
-            _ball.VelocityX = BallSpeed * MathF.Sin(angle);
-            _ball.VelocityY = -BallSpeed * MathF.Cos(angle);
-        }
+        ResolvePaddleCollision();
 
+        // Brick collisions
         CheckBrickCollisions();
+
+        // Falling power-ups
         UpdateFallingPowerUps(deltaTime);
 
         if (!_bricks.Any(b => b.Active))
             coordinator.PushOverlay<VictoryScreen>();
+    }
+
+    private void ResolveWallCollisions()
+    {
+        if (_ball.X - BallRadius < 0f)
+        {
+            _ball.X = BallRadius;
+            _ball.Rigidbody.VelocityX = MathF.Abs(_ball.Rigidbody.VelocityX);
+        }
+        else if (_ball.X + BallRadius > GameWidth)
+        {
+            _ball.X = GameWidth - BallRadius;
+            _ball.Rigidbody.VelocityX = -MathF.Abs(_ball.Rigidbody.VelocityX);
+        }
+
+        if (_ball.Y - BallRadius < 0f)
+        {
+            _ball.Y = BallRadius;
+            _ball.Rigidbody.VelocityY = MathF.Abs(_ball.Rigidbody.VelocityY);
+        }
+    }
+
+    private void ResolvePaddleCollision()
+    {
+        if (_ball.Rigidbody.VelocityY > 0f &&
+            CollisionResolver.Overlaps(_ball, _ball.Collider, _paddle, _paddle.Collider))
+        {
+            float pw = CurrentPaddleWidth;
+            float hitPos = (_ball.X - _paddle.X) / (pw / 2f);
+            float angle = hitPos * (65f * MathF.PI / 180f);
+            _ball.Rigidbody.VelocityX = BallSpeed * MathF.Sin(angle);
+            _ball.Rigidbody.VelocityY = -BallSpeed * MathF.Cos(angle);
+        }
     }
 
     private void CheckBrickCollisions()
@@ -152,15 +167,15 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
 
         foreach (var brick in _bricks)
         {
-            if (!brick.Active || !_ball.Overlaps(brick.Body)) continue;
+            if (!brick.Active || !CollisionResolver.Overlaps(_ball, _ball.Collider, brick, brick.Collider)) continue;
 
             brick.Active = false;
             state.Score += 10 * (BrickRows - brick.Row);
-            TrySpawnPowerUp(brick.Body.X + BrickWidth / 2f, brick.Body.Y + BrickHeight / 2f);
+            TrySpawnPowerUp(brick.X, brick.Y);
 
             if (!piercing)
             {
-                _ball.Reflect(brick.Body);
+                CollisionResolver.Reflect(_ball, _ball.Collider, _ball.Rigidbody, brick, brick.Collider);
                 return;
             }
         }
@@ -171,8 +186,6 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         if (Random.Shared.NextDouble() >= PowerUpChance) return;
         var type = Random.Shared.NextDouble() < 0.5 ? PowerUpType.StrongBall : PowerUpType.BigPaddle;
         var pu = new FallingPowerUp { X = cx, Y = cy, Type = type };
-        pu.Sprite.X = cx - PowerUpW / 2f;
-        pu.Sprite.Y = cy - PowerUpH / 2f;
         pu.Sprite.Color = type == PowerUpType.StrongBall ? StrongBallColor : BigPaddleColor;
         _powerUps.Add(pu);
     }
@@ -185,12 +198,12 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         {
             var pu = _powerUps[i];
 
-            pu.Y += PowerUpSpeed * deltaTime;
-            pu.Sprite.Y = pu.Y - PowerUpH / 2f;
+            pu.Rigidbody.Step(pu, deltaTime);
 
+            // Paddle collision: power-up centre Y within paddle vertical range, X within paddle width
             if (pu.Y + PowerUpH / 2f >= PaddleY &&
                 pu.Y - PowerUpH / 2f <= PaddleY + PaddleHeight &&
-                pu.X >= _paddleX && pu.X <= _paddleX + pw)
+                pu.X >= _paddle.X - pw / 2f && pu.X <= _paddle.X + pw / 2f)
             {
                 ApplyPowerUp(pu.Type);
                 _powerUps.RemoveAt(i);
@@ -231,32 +244,28 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         {
             if (!brick.Active) continue;
             brick.Sprite.Alpha = 1f;
-            brick.Sprite.Draw(canvas);
+            brick.Sprite.Draw(canvas, brick.X, brick.Y);
         }
 
         // Falling power-ups
         foreach (var pu in _powerUps)
         {
-            pu.Sprite.Draw(canvas);
+            pu.Sprite.Draw(canvas, pu.X, pu.Y);
             string label = pu.Type == PowerUpType.StrongBall ? "S" : "B";
             DrawHelper.DrawCenteredText(canvas, label, 11f, SKColors.White, pu.X, pu.Y + 4f);
         }
 
         // Paddle
         float pw = CurrentPaddleWidth;
-        _paddleSprite.X = _paddleX;
-        _paddleSprite.Y = PaddleY;
-        _paddleSprite.Width = pw;
-        _paddleSprite.Color = _bigPaddleTimer > 0f || _paddleWidth.IsAnimating
+        _paddle.Sprite.Width = pw;
+        _paddle.Sprite.Color = _bigPaddleTimer > 0f || _paddleWidth.IsAnimating
             ? BigPaddleColor : PaddleColor;
-        _paddleSprite.Draw(canvas);
+        _paddle.Sprite.Draw(canvas, _paddle.X, _paddle.Y);
 
         // Ball
-        _ballSprite.X = _ball.X;
-        _ballSprite.Y = _ball.Y;
-        _ballSprite.Color = _strongBallTimer > 0f ? StrongBallColor : SKColors.White;
-        _ballSprite.GlowColor = _strongBallTimer > 0f ? StrongBallColor : SKColors.White;
-        _ballSprite.Draw(canvas);
+        _ball.Sprite.Color = _strongBallTimer > 0f ? StrongBallColor : SKColors.White;
+        _ball.Sprite.GlowColor = _strongBallTimer > 0f ? StrongBallColor : SKColors.White;
+        _ball.Sprite.Draw(canvas, _ball.X, _ball.Y);
 
         // HUD
         DrawHelper.DrawText(canvas, $"Score: {state.Score}", 20f, SKColors.White, 20f, 30f);

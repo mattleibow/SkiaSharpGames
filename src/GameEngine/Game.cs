@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SkiaSharp;
 
@@ -33,14 +34,21 @@ public sealed class Game
     private readonly IScreenCoordinator _coordinator;
     private readonly IScreenDrawable _drawable;
 
-    internal Game(IOptions<GameOptions> options, IScreenCoordinator coordinator, IScreenDrawable drawable)
+    internal Game(IServiceProvider services, IOptions<GameOptions> options, IScreenDrawable drawable)
     {
+        Services = services;
         GameDimensions = options.Value.Dimensions;
-        _coordinator = coordinator;
+        _coordinator = services.GetRequiredService<IScreenCoordinator>();
         _drawable = drawable;
     }
 
     // ── Host API (called by GameView or any rendering host) ───────────────
+
+    /// <summary>
+    /// The game's isolated DI container. Use this to resolve any service registered via
+    /// <see cref="GameBuilder.Services"/>, including <see cref="IScreenCoordinator"/>.
+    /// </summary>
+    public IServiceProvider Services { get; }
 
     /// <summary>
     /// Logical (virtual) dimensions of the game canvas in game-space units.
@@ -48,11 +56,6 @@ public sealed class Game
     /// <see cref="GameBuilder.Build"/>. All screens in the game share this value.
     /// </summary>
     public SKSize GameDimensions { get; }
-
-    /// <summary>
-    /// The coordinator that manages screen transitions and overlays.
-    /// </summary>
-    public IScreenCoordinator Coordinator => _coordinator;
 
     /// <summary>Advances the game by <paramref name="deltaTime"/> seconds.</summary>
     public void Update(float deltaTime) => _drawable.Update(deltaTime);

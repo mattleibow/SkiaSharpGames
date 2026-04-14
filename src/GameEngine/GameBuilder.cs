@@ -170,8 +170,8 @@ public sealed class GameBuilder
 
         // Game is the public host API; constructed via factory to preserve the internal constructor.
         _serviceCollection.AddSingleton<Game>(
-            sp => new Game(sp.GetRequiredService<IOptions<GameOptions>>(),
-                           sp.GetRequiredService<IScreenCoordinator>(),
+            sp => new Game(sp,
+                           sp.GetRequiredService<IOptions<GameOptions>>(),
                            sp.GetRequiredService<IScreenDrawable>()));
 
         var provider = _serviceCollection.BuildServiceProvider();

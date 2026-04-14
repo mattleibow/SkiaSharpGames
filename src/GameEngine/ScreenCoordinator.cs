@@ -154,7 +154,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
     }
 
     /// <inheritdoc/>
-    public void DrawScreens(SKCanvas canvas, int width, int height)
+    public void Draw(SKCanvas canvas, int width, int height)
     {
         EnsureInitialized();
 

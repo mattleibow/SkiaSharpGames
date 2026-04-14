@@ -20,5 +20,5 @@ public interface IScreenDrawable
     /// <paramref name="canvas"/>. The canvas is assumed to already be in game-space
     /// coordinates (the fit-and-centre transform is applied by the caller).
     /// </summary>
-    void DrawScreens(SKCanvas canvas, int width, int height);
+    void Draw(SKCanvas canvas, int width, int height);
 }

@@ -55,7 +55,7 @@ public sealed class Game
     /// <summary>Draws the current frame to <paramref name="canvas"/>.</summary>
     /// <remarks>
     /// Computes the fit-and-centre transform from pixel space to game space once, then
-    /// delegates to <see cref="IScreenDrawable.DrawScreens"/> with a pre-transformed canvas.
+    /// delegates to <see cref="IScreenDrawable.Draw"/> with a pre-transformed canvas.
     /// Screens always receive a canvas in game-space coordinates — they never need to
     /// compute or apply their own scale/offset.
     /// </remarks>
@@ -71,7 +71,7 @@ public sealed class Game
         canvas.Translate(offsetX, offsetY);
         canvas.Scale(scale, scale);
 
-        _drawable.DrawScreens(canvas, (int)gw, (int)gh);
+        _drawable.Draw(canvas, (int)gw, (int)gh);
 
         canvas.Restore();
     }

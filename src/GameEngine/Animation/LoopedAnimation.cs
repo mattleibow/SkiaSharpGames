@@ -25,25 +25,17 @@ namespace SkiaSharpGames.GameEngine;
 ///     DrawShimmerAtProgress(shimmer.Progress);
 /// </code>
 /// </example>
-public sealed class LoopedAnimation
+public sealed class LoopedAnimation(float period, float duration)
 {
     private float _sinceLastRun;
     private float _runElapsed;
     private int _completedRuns;
 
-    /// <param name="period">Seconds between the start of successive runs.</param>
-    /// <param name="duration">Seconds each run lasts.</param>
-    public LoopedAnimation(float period, float duration)
-    {
-        Period = period;
-        Duration = duration;
-    }
-
     /// <summary>Seconds between the start of successive animation runs.</summary>
-    public float Period { get; set; }
+    public float Period { get; set; } = period;
 
     /// <summary>Seconds each animation run lasts.</summary>
-    public float Duration { get; set; }
+    public float Duration { get; set; } = duration;
 
     /// <summary>
     /// Number of times to repeat. Use <c>-1</c> (default) for infinite repetitions.

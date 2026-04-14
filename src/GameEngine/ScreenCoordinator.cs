@@ -5,14 +5,15 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
-/// Default implementation of <see cref="IScreenCoordinator"/>.
+/// Default implementation of <see cref="IScreenCoordinator"/> and <see cref="IScreenDrawable"/>.
 /// Manages the active screen, overlay stack, and running transitions.
 /// Registered as a singleton in the game's own DI container by <see cref="GameBuilder.Build"/>.
 /// </summary>
-internal sealed class ScreenCoordinator : IScreenCoordinator
+internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
 {
     private readonly IServiceProvider _services;
-    private GameScreen _current;
+    private readonly Type _initialScreenType;
+    private GameScreen? _current;
     private readonly List<GameScreen> _overlays = [];
     private ActiveTransition? _activeTransition;
 
@@ -30,8 +31,15 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
     internal ScreenCoordinator(IServiceProvider services, IOptions<GameOptions> options)
     {
         _services = services;
-        _current = (GameScreen)services.GetRequiredService(options.Value.InitialScreenType!);
-        _current.SetCoordinator(this);
+        _initialScreenType = options.Value.InitialScreenType!;
+    }
+
+    private void EnsureInitialized()
+    {
+        if (_current is not null)
+            return;
+
+        _current = (GameScreen)_services.GetRequiredService(_initialScreenType);
         _current.OnActivated();
     }
 
@@ -41,6 +49,8 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
     public void TransitionTo<TScreen>(IScreenTransition? transition = null)
         where TScreen : GameScreen
     {
+        EnsureInitialized();
+
         // Cancel any running transition
         if (_activeTransition != null)
         {
@@ -57,14 +67,14 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
 
         if (transition is null)
         {
-            _current.OnDeactivated();
+            _current!.OnDeactivated();
             _current = incoming;
             _current.IsPaused = false;
             _current.OnActivated();
         }
         else
         {
-            _current.IsPaused = true;
+            _current!.IsPaused = true;
             incoming.OnActivated();
             _activeTransition = new ActiveTransition(_current, incoming, transition);
         }
@@ -73,9 +83,11 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
     /// <inheritdoc/>
     public void PushOverlay<TOverlay>() where TOverlay : GameScreen
     {
+        EnsureInitialized();
+
         if (_overlays.Count == 0)
         {
-            _current.IsPaused = true;
+            _current!.IsPaused = true;
             _current.OnPaused();
         }
 
@@ -95,16 +107,30 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
 
         if (_overlays.Count == 0)
         {
-            _current.IsPaused = false;
+            _current!.IsPaused = false;
             _current.OnResumed();
         }
     }
 
-    // ── Internal API (used by Game) ───────────────────────────────────────
-
-    /// <summary>Advances the screen stack by <paramref name="deltaTime"/> seconds.</summary>
-    internal void Update(float deltaTime)
+    /// <inheritdoc/>
+    public GameScreen ActiveInputScreen
     {
+        get
+        {
+            EnsureInitialized();
+            return _activeTransition is not null ? _activeTransition.Incoming :
+                   _overlays.Count > 0 ? _overlays[^1] :
+                                         _current!;
+        }
+    }
+
+    // ── IScreenDrawable ───────────────────────────────────────────────────
+
+    /// <inheritdoc/>
+    public void Update(float deltaTime)
+    {
+        EnsureInitialized();
+
         if (_activeTransition is not null)
         {
             _activeTransition.Progress +=
@@ -124,16 +150,14 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
         if (_overlays.Count > 0)
             _overlays[^1].Update(deltaTime);
         else
-            _current.Update(deltaTime);
+            _current!.Update(deltaTime);
     }
 
-    /// <summary>
-    /// Draws the current screen, overlays, or active transition to
-    /// <paramref name="canvas"/>. The canvas is assumed to already be in game-space
-    /// coordinates (the fit-and-centre transform is applied by the caller).
-    /// </summary>
-    internal void DrawScreens(SKCanvas canvas, int width, int height)
+    /// <inheritdoc/>
+    public void DrawScreens(SKCanvas canvas, int width, int height)
     {
+        EnsureInitialized();
+
         if (_activeTransition is not null)
         {
             float progress = Math.Clamp(_activeTransition.Progress, 0f, 1f);
@@ -145,24 +169,14 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
         }
         else
         {
-            _current.Draw(canvas, width, height);
+            _current!.Draw(canvas, width, height);
             foreach (var overlay in _overlays)
                 overlay.Draw(canvas, width, height);
         }
     }
 
-    /// <summary>The screen that should receive input events.</summary>
-    internal GameScreen ActiveInputScreen =>
-        _activeTransition is not null ? _activeTransition.Incoming :
-        _overlays.Count > 0 ? _overlays[^1] :
-                                        _current;
-
     // ── Private helpers ───────────────────────────────────────────────────
 
-    private TScreen ResolveScreen<TScreen>() where TScreen : GameScreen
-    {
-        var screen = _services.GetRequiredService<TScreen>();
-        screen.SetCoordinator(this);
-        return screen;
-    }
+    private TScreen ResolveScreen<TScreen>() where TScreen : GameScreen =>
+        _services.GetRequiredService<TScreen>();
 }

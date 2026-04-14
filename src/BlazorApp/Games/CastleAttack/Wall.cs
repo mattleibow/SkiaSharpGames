@@ -4,24 +4,24 @@ namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
 
 internal sealed class Wall
 {
-    public float CenterX    { get; }
-    public float LeftX      => CenterX - BlockW / 2f;
+    public float CenterX { get; }
+    public float LeftX => CenterX - BlockW / 2f;
     public List<WallBlock> Blocks { get; } = [];
-    public bool  HasArcher  { get; set; }
-    public int   TotalBlocks { get; }
+    public bool HasArcher { get; set; }
+    public int TotalBlocks { get; }
 
-    public int   ActiveBlocks => Blocks.Count(b => b.Active);
-    public bool  IsDestroyed  => Blocks.All(b => !b.Active);
+    public int ActiveBlocks => Blocks.Count(b => b.Active);
+    public bool IsDestroyed => Blocks.All(b => !b.Active);
 
-    public float TopY          => IsDestroyed ? GroundY : GroundY - ActiveBlocks * BlockH;
+    public float TopY => IsDestroyed ? GroundY : GroundY - ActiveBlocks * BlockH;
     public float ArcherCenterX => CenterX;
-    public float ArcherBaseY   => TopY;
+    public float ArcherBaseY => TopY;
 
     public Wall(float cx, int blocks, bool hasArcher)
     {
-        CenterX     = cx;
+        CenterX = cx;
         TotalBlocks = blocks;
-        HasArcher   = hasArcher;
+        HasArcher = hasArcher;
         for (int i = 0; i < blocks; i++)
             Blocks.Add(new WallBlock());
     }

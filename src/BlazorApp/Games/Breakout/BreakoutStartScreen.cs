@@ -5,7 +5,7 @@ using static SkiaSharpGames.BlazorApp.Games.Breakout.BreakoutConstants;
 namespace SkiaSharpGames.BlazorApp.Games.Breakout;
 
 /// <summary>Start/title screen: decorative brick grid + instructions. Click to start the game.</summary>
-internal sealed class BreakoutStartScreen : GameScreen
+internal sealed class BreakoutStartScreen(IScreenCoordinator coordinator) : GameScreen
 {
     private readonly List<Brick> _bricks = [];
 
@@ -48,5 +48,5 @@ internal sealed class BreakoutStartScreen : GameScreen
     }
 
     public override void OnPointerDown(float x, float y)
-        => Coordinator?.TransitionTo<BreakoutPlayScreen>(new DissolveTransition());
+        => coordinator.TransitionTo<BreakoutPlayScreen>(new DissolveTransition());
 }

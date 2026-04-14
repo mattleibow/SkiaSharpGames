@@ -14,14 +14,19 @@ internal sealed class Brick
         Row = row; Col = col;
         Sprite = new RectSprite
         {
-            X = x, Y = y,
-            Width = BreakoutConstants.BrickWidth, Height = BreakoutConstants.BrickHeight,
-            CornerRadius = 3f, ShowShine = true
+            X = x,
+            Y = y,
+            Width = BreakoutConstants.BrickWidth,
+            Height = BreakoutConstants.BrickHeight,
+            CornerRadius = 3f,
+            ShowShine = true
         };
         Body = new RectBody
         {
-            X = x, Y = y,
-            Width = BreakoutConstants.BrickWidth, Height = BreakoutConstants.BrickHeight,
+            X = x,
+            Y = y,
+            Width = BreakoutConstants.BrickWidth,
+            Height = BreakoutConstants.BrickHeight,
             IsStatic = true
         };
     }

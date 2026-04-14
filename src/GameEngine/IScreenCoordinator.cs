@@ -4,9 +4,8 @@ namespace SkiaSharpGames.GameEngine;
 /// Manages the active screen stack and transitions between screens.
 /// </summary>
 /// <remarks>
-/// Use the protected <see cref="GameScreen.Coordinator"/> property inside a
-/// <see cref="GameScreen"/> implementation to trigger transitions, push overlays,
-/// and pop overlays.
+/// Inject this interface into a <see cref="GameScreen"/> constructor to trigger transitions,
+/// push overlays, and pop overlays.
 /// </remarks>
 public interface IScreenCoordinator
 {
@@ -28,4 +27,7 @@ public interface IScreenCoordinator
     /// Does nothing if no overlay is currently active.
     /// </summary>
     void PopOverlay();
+
+    /// <summary>The screen that should receive input events.</summary>
+    GameScreen ActiveInputScreen { get; }
 }

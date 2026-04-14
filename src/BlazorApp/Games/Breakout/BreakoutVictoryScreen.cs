@@ -8,7 +8,7 @@ namespace SkiaSharpGames.BlazorApp.Games.Breakout;
 /// Victory overlay drawn on top of the frozen play screen.
 /// Does not clear the canvas — relies on the base play screen being drawn first.
 /// </summary>
-internal sealed class BreakoutVictoryScreen(BreakoutGameState state) : GameScreen
+internal sealed class BreakoutVictoryScreen(BreakoutGameState state, IScreenCoordinator coordinator) : GameScreen
 {
     public override void Draw(SKCanvas canvas, int width, int height)
     {
@@ -19,5 +19,5 @@ internal sealed class BreakoutVictoryScreen(BreakoutGameState state) : GameScree
     }
 
     public override void OnPointerDown(float x, float y)
-        => Coordinator?.TransitionTo<BreakoutStartScreen>(new DissolveTransition());
+        => coordinator.TransitionTo<BreakoutStartScreen>(new DissolveTransition());
 }

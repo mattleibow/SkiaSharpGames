@@ -13,7 +13,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 // Each game is registered as a keyed transient so every page visit gets a fresh Game instance
 // built by its own isolated GameBuilder.
-builder.Services.AddKeyedTransient<Game>("breakout",     (sp, _) => BreakoutGame.Create());
-builder.Services.AddKeyedTransient<Game>("castle-attack",(sp, _) => CastleAttackGame.Create());
+builder.Services.AddKeyedTransient<Game>("breakout", (sp, _) => BreakoutGame.Create());
+builder.Services.AddKeyedTransient<Game>("castle-attack", (sp, _) => CastleAttackGame.Create());
 
 await builder.Build().RunAsync();

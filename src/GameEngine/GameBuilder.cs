@@ -159,16 +159,20 @@ public sealed class GameBuilder
         });
 
         // ScreenCoordinator is the single job that loads and moves between screens.
-        // Register the concrete type (used by Game) and the interface (used by screens).
+        // Register the concrete type and both interfaces so consumers can depend on the
+        // narrowest interface they need.
         _serviceCollection.AddSingleton<ScreenCoordinator>(
             sp => new ScreenCoordinator(sp, sp.GetRequiredService<IOptions<GameOptions>>()));
         _serviceCollection.AddSingleton<IScreenCoordinator>(
+            sp => sp.GetRequiredService<ScreenCoordinator>());
+        _serviceCollection.AddSingleton<IScreenDrawable>(
             sp => sp.GetRequiredService<ScreenCoordinator>());
 
         // Game is the public host API; constructed via factory to preserve the internal constructor.
         _serviceCollection.AddSingleton<Game>(
             sp => new Game(sp.GetRequiredService<IOptions<GameOptions>>(),
-                           sp.GetRequiredService<ScreenCoordinator>()));
+                           sp.GetRequiredService<IScreenCoordinator>(),
+                           sp.GetRequiredService<IScreenDrawable>()));
 
         var provider = _serviceCollection.BuildServiceProvider();
         return provider.GetRequiredService<Game>();

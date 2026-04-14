@@ -30,36 +30,15 @@ namespace SkiaSharpGames.GameEngine;
 /// </remarks>
 public sealed class Game
 {
-    private readonly ScreenCoordinator _coordinator;
+    private readonly IScreenCoordinator _coordinator;
+    private readonly IScreenDrawable _drawable;
 
-    internal Game(IOptions<GameOptions> options, ScreenCoordinator coordinator)
+    internal Game(IOptions<GameOptions> options, IScreenCoordinator coordinator, IScreenDrawable drawable)
     {
         GameDimensions = options.Value.Dimensions;
         _coordinator = coordinator;
+        _drawable = drawable;
     }
-
-    // ── Screen navigation (called by screens via their Coordinator property) ──
-
-    /// <summary>
-    /// Replaces the current screen with a new <typeparamref name="TScreen"/> instance,
-    /// optionally playing a cross-screen transition. Clears any open overlays first.
-    /// </summary>
-    public void TransitionTo<TScreen>(IScreenTransition? transition = null)
-        where TScreen : GameScreen
-        => _coordinator.TransitionTo<TScreen>(transition);
-
-    /// <summary>
-    /// Pushes an overlay screen on top of the current screen.
-    /// The current screen is paused (still drawn, not updated) while any overlay is active.
-    /// </summary>
-    public void PushOverlay<TOverlay>() where TOverlay : GameScreen
-        => _coordinator.PushOverlay<TOverlay>();
-
-    /// <summary>
-    /// Removes the topmost overlay and resumes the underlying screen.
-    /// Does nothing if no overlay is currently active.
-    /// </summary>
-    public void PopOverlay() => _coordinator.PopOverlay();
 
     // ── Host API (called by GameView or any rendering host) ───────────────
 
@@ -71,12 +50,12 @@ public sealed class Game
     public SKSize GameDimensions { get; }
 
     /// <summary>Advances the game by <paramref name="deltaTime"/> seconds.</summary>
-    public void Update(float deltaTime) => _coordinator.Update(deltaTime);
+    public void Update(float deltaTime) => _drawable.Update(deltaTime);
 
     /// <summary>Draws the current frame to <paramref name="canvas"/>.</summary>
     /// <remarks>
     /// Computes the fit-and-centre transform from pixel space to game space once, then
-    /// delegates to <see cref="ScreenCoordinator.DrawScreens"/> with a pre-transformed canvas.
+    /// delegates to <see cref="IScreenDrawable.DrawScreens"/> with a pre-transformed canvas.
     /// Screens always receive a canvas in game-space coordinates — they never need to
     /// compute or apply their own scale/offset.
     /// </remarks>
@@ -92,7 +71,7 @@ public sealed class Game
         canvas.Translate(offsetX, offsetY);
         canvas.Scale(scale, scale);
 
-        _coordinator.DrawScreens(canvas, (int)gw, (int)gh);
+        _drawable.DrawScreens(canvas, (int)gw, (int)gh);
 
         canvas.Restore();
     }

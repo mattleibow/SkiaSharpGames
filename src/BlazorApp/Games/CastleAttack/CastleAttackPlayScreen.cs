@@ -5,41 +5,41 @@ using static SkiaSharpGames.BlazorApp.Games.CastleAttack.CastleAttackConstants;
 namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
 
 /// <summary>Active gameplay screen for Castle Attack.</summary>
-internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : GameScreen
+internal sealed class CastleAttackPlayScreen(CastleAttackGameState state, IScreenCoordinator coordinator) : GameScreen
 {
     // ── State ─────────────────────────────────────────────────────────────
-    private readonly List<Wall>      _walls    = [];
-    private readonly List<Enemy>     _enemies  = [];
-    private readonly List<Arrow>     _arrows   = [];
-    private readonly List<Boulder>   _boulders = [];
-    private readonly List<FloatText> _texts    = [];
+    private readonly List<Wall> _walls = [];
+    private readonly List<Enemy> _enemies = [];
+    private readonly List<Arrow> _arrows = [];
+    private readonly List<Boulder> _boulders = [];
+    private readonly List<FloatText> _texts = [];
 
-    private int   _archerCount = 3;
-    private int   _workerCount = 3;
+    private int _archerCount = 3;
+    private int _workerCount = 3;
     private float _keepProgress;
-    private float _lordHP     = 10f;
-    private bool  _lordActive;
+    private float _lordHP = 10f;
+    private bool _lordActive;
     private float _lordAttackTimer;
 
     private float _aimAngle = AimDefault;
-    private bool  _touchAimLeft, _touchAimRight;
+    private bool _touchAimLeft, _touchAimRight;
     private float _arrowCooldown;
 
-    private bool  _oilAvail       = true;
-    private bool  _mangonelAvail  = true;
-    private bool  _logsAvail      = true;
+    private bool _oilAvail = true;
+    private bool _mangonelAvail = true;
+    private bool _logsAvail = true;
 
-    private bool  _leftHeld, _rightHeld;
+    private bool _leftHeld, _rightHeld;
 
-    private float _spawnTimer    = 3.5f;
+    private float _spawnTimer = 3.5f;
     private float _spawnInterval = 5f;
     private float _levelTime;
 
-    private bool  _cowSpawned;
+    private bool _cowSpawned;
     private float _cowSpawnTime = 25f;
 
-    private int   _accuracyMult     = 1;
-    private int   _consecutiveHits;
+    private int _accuracyMult = 1;
+    private int _consecutiveHits;
     private float _accuracyResetTimer;
 
     private float[] _wallFlash = new float[3];
@@ -48,32 +48,32 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
 
     public override void OnActivated()
     {
-        state.Score       = 0;
-        state.Level       = 1;
-        _archerCount       = 3;
-        _workerCount       = 3;
-        _keepProgress      = 0f;
-        _lordHP            = 10f;
-        _lordActive        = false;
-        _lordAttackTimer   = 0f;
-        _oilAvail          = true;
-        _mangonelAvail     = true;
-        _logsAvail         = true;
-        _leftHeld          = false;
-        _rightHeld         = false;
-        _touchAimLeft      = false;
-        _touchAimRight     = false;
-        _arrowCooldown     = 0f;
-        _aimAngle          = AimDefault;
-        _spawnTimer        = 3.5f;
-        _spawnInterval     = 5f;
-        _levelTime         = 0f;
-        _cowSpawned        = false;
-        _cowSpawnTime      = 25f;
-        _accuracyMult      = 1;
-        _consecutiveHits   = 0;
+        state.Score = 0;
+        state.Level = 1;
+        _archerCount = 3;
+        _workerCount = 3;
+        _keepProgress = 0f;
+        _lordHP = 10f;
+        _lordActive = false;
+        _lordAttackTimer = 0f;
+        _oilAvail = true;
+        _mangonelAvail = true;
+        _logsAvail = true;
+        _leftHeld = false;
+        _rightHeld = false;
+        _touchAimLeft = false;
+        _touchAimRight = false;
+        _arrowCooldown = 0f;
+        _aimAngle = AimDefault;
+        _spawnTimer = 3.5f;
+        _spawnInterval = 5f;
+        _levelTime = 0f;
+        _cowSpawned = false;
+        _cowSpawnTime = 25f;
+        _accuracyMult = 1;
+        _consecutiveHits = 0;
         _accuracyResetTimer = 0f;
-        _wallFlash         = new float[3];
+        _wallFlash = new float[3];
         _enemies.Clear();
         _arrows.Clear();
         _boulders.Clear();
@@ -84,23 +84,23 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
     private void InitWalls()
     {
         _walls.Clear();
-        _walls.Add(new Wall(InnerWallX  + BlockW / 2f, 6, hasArcher: true));
+        _walls.Add(new Wall(InnerWallX + BlockW / 2f, 6, hasArcher: true));
         _walls.Add(new Wall(MiddleWallX + BlockW / 2f, 4, hasArcher: true));
-        _walls.Add(new Wall(OuterWallX  + BlockW / 2f, 2, hasArcher: true));
+        _walls.Add(new Wall(OuterWallX + BlockW / 2f, 2, hasArcher: true));
     }
 
     // ── Input ─────────────────────────────────────────────────────────────
 
     public override void OnPointerDown(float x, float y)
     {
-        if (BtnAimLeft.Contains(x, y))  { _touchAimLeft  = true; _aimAngle = Math.Max(AimMin, _aimAngle - AimStep); return; }
+        if (BtnAimLeft.Contains(x, y)) { _touchAimLeft = true; _aimAngle = Math.Max(AimMin, _aimAngle - AimStep); return; }
         if (BtnAimRight.Contains(x, y)) { _touchAimRight = true; _aimAngle = Math.Min(AimMax, _aimAngle + AimStep); return; }
-        if (BtnA2W.Contains(x, y))      { ConvertArcherToWorker(); return; }
-        if (BtnW2A.Contains(x, y))      { ConvertWorkerToArcher(); return; }
-        if (BtnFire.Contains(x, y))     { FireVolley(); return; }
-        if (BtnOil.Contains(x, y))      { UseOil();     return; }
-        if (BtnCannon.Contains(x, y))   { UseMangonel(); return; }
-        if (BtnLogs.Contains(x, y))     { UseLogs();    return; }
+        if (BtnA2W.Contains(x, y)) { ConvertArcherToWorker(); return; }
+        if (BtnW2A.Contains(x, y)) { ConvertWorkerToArcher(); return; }
+        if (BtnFire.Contains(x, y)) { FireVolley(); return; }
+        if (BtnOil.Contains(x, y)) { UseOil(); return; }
+        if (BtnCannon.Contains(x, y)) { UseMangonel(); return; }
+        if (BtnLogs.Contains(x, y)) { UseLogs(); return; }
 
         if (y < BtnY && x > KeepRight + 20f)
         {
@@ -111,7 +111,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
 
     public override void OnPointerUp(float x, float y)
     {
-        _touchAimLeft  = false;
+        _touchAimLeft = false;
         _touchAimRight = false;
     }
 
@@ -119,14 +119,14 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
     {
         switch (key)
         {
-            case "ArrowLeft":  _leftHeld  = true;  break;
-            case "ArrowRight": _rightHeld = true;  break;
-            case " ":          FireVolley();        break;
-            case "ArrowDown":  ConvertArcherToWorker(); break;
-            case "ArrowUp":    ConvertWorkerToArcher(); break;
-            case "z": case "Z": UseOil();      break;
+            case "ArrowLeft": _leftHeld = true; break;
+            case "ArrowRight": _rightHeld = true; break;
+            case " ": FireVolley(); break;
+            case "ArrowDown": ConvertArcherToWorker(); break;
+            case "ArrowUp": ConvertWorkerToArcher(); break;
+            case "z": case "Z": UseOil(); break;
             case "x": case "X": UseMangonel(); break;
-            case "c": case "C": UseLogs();     break;
+            case "c": case "C": UseLogs(); break;
         }
     }
 
@@ -134,7 +134,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
     {
         switch (key)
         {
-            case "ArrowLeft":  _leftHeld  = false; break;
+            case "ArrowLeft": _leftHeld = false; break;
             case "ArrowRight": _rightHeld = false; break;
         }
     }
@@ -222,8 +222,8 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         _arrowCooldown = ArrowCooldownTime;
 
         float rad = _aimAngle * MathF.PI / 180f;
-        float vx  =  ArrowSpeed * MathF.Cos(rad);
-        float vy  = -ArrowSpeed * MathF.Sin(rad);
+        float vx = ArrowSpeed * MathF.Cos(rad);
+        float vy = -ArrowSpeed * MathF.Sin(rad);
 
         foreach (var wall in _walls)
         {
@@ -255,10 +255,10 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
 
     public override void Update(float deltaTime)
     {
-        _levelTime    += deltaTime;
+        _levelTime += deltaTime;
         _arrowCooldown = Math.Max(0f, _arrowCooldown - deltaTime);
 
-        if (_leftHeld  || _touchAimLeft)  _aimAngle = Math.Max(AimMin, _aimAngle - AimSpeed * deltaTime);
+        if (_leftHeld || _touchAimLeft) _aimAngle = Math.Max(AimMin, _aimAngle - AimSpeed * deltaTime);
         if (_rightHeld || _touchAimRight) _aimAngle = Math.Min(AimMax, _aimAngle + AimSpeed * deltaTime);
 
         if (_accuracyResetTimer > 0f)
@@ -266,7 +266,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
             _accuracyResetTimer -= deltaTime;
             if (_accuracyResetTimer <= 0f)
             {
-                _accuracyMult    = 1;
+                _accuracyMult = 1;
                 _consecutiveHits = 0;
             }
         }
@@ -276,7 +276,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         {
             _keepProgress = Math.Min(1f, _keepProgress + _workerCount * WorkerBuildRate * deltaTime);
             if (_keepProgress >= 1f)
-                Coordinator?.PushOverlay<CastleAttackVictoryScreen>();
+                coordinator.PushOverlay<CastleAttackVictoryScreen>();
         }
 
         if (!_cowSpawned && _levelTime >= _cowSpawnTime)
@@ -305,7 +305,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         for (int i = _texts.Count - 1; i >= 0; i--)
         {
             _texts[i].Life -= deltaTime;
-            _texts[i].Y    -= 28f * deltaTime;
+            _texts[i].Y -= 28f * deltaTime;
             if (_texts[i].Life <= 0f) _texts.RemoveAt(i);
         }
     }
@@ -317,7 +317,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         _spawnTimer -= deltaTime;
         if (_spawnTimer > 0f) return;
         _spawnInterval = Math.Max(1.5f, 5f - _levelTime * 0.02f);
-        _spawnTimer    = _spawnInterval + Random.Shared.NextSingle() * 1.5f;
+        _spawnTimer = _spawnInterval + Random.Shared.NextSingle() * 1.5f;
         SpawnEnemy();
     }
 
@@ -332,13 +332,13 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         else if (t < 35f)
             type = r < 0.4 ? EnemyType.Spearman : r < 0.7 ? EnemyType.Swordsman : EnemyType.Berserker;
         else if (t < 60f)
-            type = r < 0.25 ? EnemyType.Spearman  : r < 0.45 ? EnemyType.Swordsman
-                 : r < 0.65  ? EnemyType.Berserker : r < 0.80 ? EnemyType.Crossbowman
-                 :              EnemyType.Catapult;
+            type = r < 0.25 ? EnemyType.Spearman : r < 0.45 ? EnemyType.Swordsman
+                 : r < 0.65 ? EnemyType.Berserker : r < 0.80 ? EnemyType.Crossbowman
+                 : EnemyType.Catapult;
         else
-            type = r < 0.15 ? EnemyType.Spearman  : r < 0.30 ? EnemyType.Swordsman
-                 : r < 0.50  ? EnemyType.Berserker : r < 0.65 ? EnemyType.Crossbowman
-                 : r < 0.78  ? EnemyType.Catapult  :             EnemyType.Ram;
+            type = r < 0.15 ? EnemyType.Spearman : r < 0.30 ? EnemyType.Swordsman
+                 : r < 0.50 ? EnemyType.Berserker : r < 0.65 ? EnemyType.Crossbowman
+                 : r < 0.78 ? EnemyType.Catapult : EnemyType.Ram;
 
         _enemies.Add(CreateEnemy(type));
     }
@@ -347,14 +347,14 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
 
     private static Enemy CreateEnemy(EnemyType type) => type switch
     {
-        EnemyType.Spearman    => new Enemy { Type = type, X = SpawnX, HP = 1f,  MaxHP = 1f,  Speed = 95f,  W = 12f, H = 26f, AttackInterval = 0.5f, AttackDamage = 8f,  AttackRange = BlockW + 2f },
-        EnemyType.Swordsman   => new Enemy { Type = type, X = SpawnX, HP = 4f,  MaxHP = 4f,  Speed = 45f,  W = 14f, H = 28f, AttackInterval = 1.0f, AttackDamage = 12f, AttackRange = BlockW + 2f },
-        EnemyType.Berserker   => new Enemy { Type = type, X = SpawnX, HP = 2f,  MaxHP = 2f,  Speed = 110f, W = 13f, H = 24f, AttackInterval = 0.4f, AttackDamage = 10f, AttackRange = BlockW + 2f },
-        EnemyType.Crossbowman => new Enemy { Type = type, X = SpawnX, HP = 1f,  MaxHP = 1f,  Speed = 65f,  W = 12f, H = 26f, AttackInterval = 0f,   AttackDamage = 0f,  AttackRange = 250f, FireInterval = 3f },
-        EnemyType.Catapult    => new Enemy { Type = type, X = SpawnX, HP = 5f,  MaxHP = 5f,  Speed = 35f,  W = 36f, H = 26f, AttackInterval = 4f,   AttackDamage = 0f,  AttackRange = 180f },
-        EnemyType.Ram         => new Enemy { Type = type, X = SpawnX, HP = 10f, MaxHP = 10f, Speed = 28f,  W = 40f, H = 22f },
-        EnemyType.Cow         => new Enemy { Type = type, X = SpawnX, HP = 1f,  MaxHP = 1f,  Speed = 55f,  W = 28f, H = 20f },
-        _                     => new Enemy { Type = type, X = SpawnX, HP = 1f,  MaxHP = 1f,  Speed = 50f,  W = 12f, H = 24f }
+        EnemyType.Spearman => new Enemy { Type = type, X = SpawnX, HP = 1f, MaxHP = 1f, Speed = 95f, W = 12f, H = 26f, AttackInterval = 0.5f, AttackDamage = 8f, AttackRange = BlockW + 2f },
+        EnemyType.Swordsman => new Enemy { Type = type, X = SpawnX, HP = 4f, MaxHP = 4f, Speed = 45f, W = 14f, H = 28f, AttackInterval = 1.0f, AttackDamage = 12f, AttackRange = BlockW + 2f },
+        EnemyType.Berserker => new Enemy { Type = type, X = SpawnX, HP = 2f, MaxHP = 2f, Speed = 110f, W = 13f, H = 24f, AttackInterval = 0.4f, AttackDamage = 10f, AttackRange = BlockW + 2f },
+        EnemyType.Crossbowman => new Enemy { Type = type, X = SpawnX, HP = 1f, MaxHP = 1f, Speed = 65f, W = 12f, H = 26f, AttackInterval = 0f, AttackDamage = 0f, AttackRange = 250f, FireInterval = 3f },
+        EnemyType.Catapult => new Enemy { Type = type, X = SpawnX, HP = 5f, MaxHP = 5f, Speed = 35f, W = 36f, H = 26f, AttackInterval = 4f, AttackDamage = 0f, AttackRange = 180f },
+        EnemyType.Ram => new Enemy { Type = type, X = SpawnX, HP = 10f, MaxHP = 10f, Speed = 28f, W = 40f, H = 22f },
+        EnemyType.Cow => new Enemy { Type = type, X = SpawnX, HP = 1f, MaxHP = 1f, Speed = 55f, W = 28f, H = 20f },
+        _ => new Enemy { Type = type, X = SpawnX, HP = 1f, MaxHP = 1f, Speed = 50f, W = 12f, H = 24f }
     };
 
     // ── Enemy update ──────────────────────────────────────────────────────
@@ -374,11 +374,11 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         int tgtWall = FindTargetWall(e.X);
         switch (e.Type)
         {
-            case EnemyType.Cow:       e.X -= e.Speed * dt; if (e.X < -e.W) e.Active = false; return;
-            case EnemyType.Ram:       UpdateRam(e, dt, tgtWall); return;
-            case EnemyType.Catapult:  UpdateCatapult(e, dt, tgtWall); return;
+            case EnemyType.Cow: e.X -= e.Speed * dt; if (e.X < -e.W) e.Active = false; return;
+            case EnemyType.Ram: UpdateRam(e, dt, tgtWall); return;
+            case EnemyType.Catapult: UpdateCatapult(e, dt, tgtWall); return;
             case EnemyType.Crossbowman: UpdateCrossbowman(e, dt, tgtWall); return;
-            default:                  UpdateMeleeEnemy(e, dt, tgtWall); return;
+            default: UpdateMeleeEnemy(e, dt, tgtWall); return;
         }
     }
 
@@ -407,7 +407,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
                 {
                     e.AttackTimer = 0f;
                     _lordHP -= e.AttackDamage * 0.5f;
-                    if (_lordHP <= 0f) Coordinator?.PushOverlay<CastleAttackGameOverScreen>();
+                    if (_lordHP <= 0f) coordinator.PushOverlay<CastleAttackGameOverScreen>();
                 }
             }
             return;
@@ -448,7 +448,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
             else
             {
                 _lordHP -= 5f * dt;
-                if (_lordHP <= 0f) Coordinator?.PushOverlay<CastleAttackGameOverScreen>();
+                if (_lordHP <= 0f) coordinator.PushOverlay<CastleAttackGameOverScreen>();
             }
             return;
         }
@@ -473,7 +473,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
     {
         if (tgtWall < 0) { e.X -= e.Speed * dt; return; }
 
-        var wall  = _walls[tgtWall];
+        var wall = _walls[tgtWall];
         float stopX = wall.LeftX + BlockW + e.AttackRange + e.W / 2f;
 
         if (e.X > stopX)
@@ -525,8 +525,8 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
     {
         var wall = _walls[targetWallIdx];
         float dx = wall.CenterX - catapult.X;
-        float dy = wall.TopY    - (GroundY - 30f);
-        float T  = Math.Abs(dx) / 260f;
+        float dy = wall.TopY - (GroundY - 30f);
+        float T = Math.Abs(dx) / 260f;
         float vx = dx / T;
         float vy = (dy - 0.5f * ArrowGravity * T * T) / T;
         _boulders.Add(new Boulder { X = catapult.X, Y = GroundY - 30f, VX = vx, VY = vy, TargetWallIdx = targetWallIdx });
@@ -548,7 +548,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         _lordAttackTimer = 0f;
 
         Enemy? target = null;
-        float  minDist = float.MaxValue;
+        float minDist = float.MaxValue;
         foreach (var e in _enemies)
         {
             if (!e.Active || e.Type == EnemyType.Cow) continue;
@@ -573,8 +573,8 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
             if (!a.Active) { _arrows.RemoveAt(i); continue; }
 
             a.VY += ArrowGravity * dt;
-            a.X  += a.VX * dt;
-            a.Y  += a.VY * dt;
+            a.X += a.VX * dt;
+            a.Y += a.VY * dt;
 
             if (a.X > GameWidth + 20f || a.X < -20f || a.Y > GroundY + 20f)
             {
@@ -585,7 +585,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
             }
 
             if (a.IsEnemy) CheckBoltHitsArcher(a);
-            else           CheckArrowHitsEnemy(a);
+            else CheckArrowHitsEnemy(a);
         }
     }
 
@@ -630,7 +630,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         if (MathF.Abs(bolt.X - ax) < ArcherW && bolt.Y >= ay && bolt.Y <= ay + ArcherH)
         {
             wall.HasArcher = false;
-            _archerCount   = Math.Max(0, _archerCount - 1);
+            _archerCount = Math.Max(0, _archerCount - 1);
             SpawnText("Archer down!", ax, ay - 15f, ColRed);
             bolt.Active = false;
         }
@@ -644,8 +644,8 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
             if (!b.Active) { _boulders.RemoveAt(i); continue; }
 
             b.VY += ArrowGravity * dt;
-            b.X  += b.VX * dt;
-            b.Y  += b.VY * dt;
+            b.X += b.VX * dt;
+            b.Y += b.VY * dt;
 
             if (b.X < -40f || b.X > GameWidth + 40f || b.Y > GroundY + 20f)
             { b.Active = false; _boulders.RemoveAt(i); continue; }
@@ -679,14 +679,14 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
 
     private static int PointsForEnemy(EnemyType t) => t switch
     {
-        EnemyType.Spearman    => 100,
-        EnemyType.Swordsman   => 200,
-        EnemyType.Berserker   => 150,
+        EnemyType.Spearman => 100,
+        EnemyType.Swordsman => 200,
+        EnemyType.Berserker => 150,
         EnemyType.Crossbowman => 250,
-        EnemyType.Catapult    => 300,
-        EnemyType.Ram         => 500,
-        EnemyType.Cow         => 3000,
-        _                     => 50
+        EnemyType.Catapult => 300,
+        EnemyType.Ram => 500,
+        EnemyType.Cow => 3000,
+        _ => 50
     };
 
     private void UpdateArcherCount()
@@ -734,10 +734,10 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         canvas.DrawRect(SKRect.Create(0, GroundY, GameWidth, 4f), gep);
 
         using var hillPaint = new SKPaint { Color = new SKColor(0x2A, 0x20, 0x12), IsAntialias = true };
-        using var hillPath  = new SKPath();
+        using var hillPath = new SKPath();
         hillPath.MoveTo(0, GroundY);
         hillPath.CubicTo(200, GroundY - 60, 400, GroundY - 80, 600, GroundY - 40);
-        hillPath.CubicTo(800, GroundY,      900, GroundY - 50, 1100, GroundY - 30);
+        hillPath.CubicTo(800, GroundY, 900, GroundY - 50, 1100, GroundY - 30);
         hillPath.LineTo(GameWidth, GroundY);
         hillPath.LineTo(0, GroundY);
         hillPath.Close();
@@ -750,7 +750,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
     {
         float builtH = KeepFullH * _keepProgress;
         float builtY = KeepBaseY - builtH;
-        float keepW  = KeepRight - KeepLeft;
+        float keepW = KeepRight - KeepLeft;
 
         using var foundPaint = new SKPaint { Color = ColKeepBase, IsAntialias = true };
         canvas.DrawRect(SKRect.Create(KeepLeft, KeepBaseY - KeepFullH, keepW, KeepFullH), foundPaint);
@@ -766,7 +766,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
 
         float merlonW = 14f, merlonH = 14f, gap = 4f;
         float startX = KeepLeft + 4f;
-        float topY   = KeepBaseY - KeepFullH;
+        float topY = KeepBaseY - KeepFullH;
         using var mPaint = new SKPaint { Color = ColKeepBase };
         while (startX + merlonW <= KeepRight - 4f)
         {
@@ -788,7 +788,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
     {
         for (int wi = 0; wi < _walls.Count; wi++)
         {
-            var wall  = _walls[wi];
+            var wall = _walls[wi];
             float flash = wi < _wallFlash.Length ? _wallFlash[wi] : 0f;
 
             float blockY = GroundY - BlockH;
@@ -837,7 +837,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
     private void DrawWorkers(SKCanvas canvas)
     {
         float workerAreaW = KeepRight - KeepLeft - 10f;
-        float spacing     = workerAreaW / Math.Max(_workerCount, 1);
+        float spacing = workerAreaW / Math.Max(_workerCount, 1);
         for (int w = 0; w < _workerCount; w++)
             DrawWorker(canvas, KeepLeft + 8f + w * spacing, GroundY);
     }
@@ -891,15 +891,15 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         switch (e.Type)
         {
             case EnemyType.Catapult: DrawCatapultSprite(canvas, e, col); break;
-            case EnemyType.Ram:      DrawRamSprite(canvas, e, col);      break;
-            case EnemyType.Cow:      DrawCowSprite(canvas, e, col);      break;
-            default:                 DrawHumanoidEnemy(canvas, e, col);  break;
+            case EnemyType.Ram: DrawRamSprite(canvas, e, col); break;
+            case EnemyType.Cow: DrawCowSprite(canvas, e, col); break;
+            default: DrawHumanoidEnemy(canvas, e, col); break;
         }
 
         if (e.MaxHP > 1f)
         {
-            float ex   = e.X - e.W / 2f;
-            float ey   = GroundY - e.H;
+            float ex = e.X - e.W / 2f;
+            float ey = GroundY - e.H;
             float barW = e.W + 4f;
             float ratio = e.HP / e.MaxHP;
             using var bg = new SKPaint { Color = new SKColor(0x40, 0x00, 0x00) };
@@ -936,37 +936,37 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
     private static void DrawCatapultSprite(SKCanvas canvas, Enemy e, SKColor col)
     {
         float ex = e.X - e.W / 2f, ey = GroundY - e.H;
-        using var p   = new SKPaint { Color = col, IsAntialias = true };
+        using var p = new SKPaint { Color = col, IsAntialias = true };
         canvas.DrawRoundRect(SKRect.Create(ex, ey + 8f, e.W, e.H - 8f), 3f, 3f, p);
         using var arm = new SKPaint { Color = new SKColor(0x8B, 0x5E, 0x2E), StrokeWidth = 3f, IsAntialias = true };
         canvas.DrawLine(e.X, ey + 14f, e.X - 14f, ey, arm);
         using var wheel = new SKPaint { Color = new SKColor(0x55, 0x44, 0x22), IsAntialias = true };
-        canvas.DrawCircle(ex + 6f,         GroundY - 5f, 5f, wheel);
-        canvas.DrawCircle(ex + e.W - 6f,   GroundY - 5f, 5f, wheel);
+        canvas.DrawCircle(ex + 6f, GroundY - 5f, 5f, wheel);
+        canvas.DrawCircle(ex + e.W - 6f, GroundY - 5f, 5f, wheel);
     }
 
     private static void DrawRamSprite(SKCanvas canvas, Enemy e, SKColor col)
     {
         float ex = e.X - e.W / 2f, ey = GroundY - e.H;
-        using var p   = new SKPaint { Color = col, IsAntialias = true };
+        using var p = new SKPaint { Color = col, IsAntialias = true };
         canvas.DrawRoundRect(SKRect.Create(ex, ey, e.W, e.H - 6f), 4f, 4f, p);
         using var tip = new SKPaint { Color = new SKColor(0xCC, 0xCC, 0xCC), IsAntialias = true };
         canvas.DrawRect(SKRect.Create(ex - 10f, ey + 6f, 14f, 8f), tip);
         using var wheel = new SKPaint { Color = new SKColor(0x55, 0x44, 0x22), IsAntialias = true };
-        canvas.DrawCircle(ex + 6f,        GroundY - 4f, 5f, wheel);
-        canvas.DrawCircle(ex + e.W - 6f,  GroundY - 4f, 5f, wheel);
+        canvas.DrawCircle(ex + 6f, GroundY - 4f, 5f, wheel);
+        canvas.DrawCircle(ex + e.W - 6f, GroundY - 4f, 5f, wheel);
     }
 
     private static void DrawCowSprite(SKCanvas canvas, Enemy e, SKColor col)
     {
         float ex = e.X - e.W / 2f, ey = GroundY - e.H;
-        using var p    = new SKPaint { Color = col, IsAntialias = true };
+        using var p = new SKPaint { Color = col, IsAntialias = true };
         canvas.DrawRoundRect(SKRect.Create(ex, ey + 4f, e.W, e.H - 8f), 5f, 5f, p);
         using var head = new SKPaint { Color = col, IsAntialias = true };
         canvas.DrawRoundRect(SKRect.Create(ex - 8f, ey + 6f, 14f, 10f), 4f, 4f, head);
-        using var leg  = new SKPaint { Color = new SKColor(0xDD, 0xDD, 0xCC), StrokeWidth = 3f, IsAntialias = true };
-        canvas.DrawLine(ex + 4f,        ey + e.H - 4f, ex + 4f,        GroundY, leg);
-        canvas.DrawLine(ex + e.W - 4f,  ey + e.H - 4f, ex + e.W - 4f,  GroundY, leg);
+        using var leg = new SKPaint { Color = new SKColor(0xDD, 0xDD, 0xCC), StrokeWidth = 3f, IsAntialias = true };
+        canvas.DrawLine(ex + 4f, ey + e.H - 4f, ex + 4f, GroundY, leg);
+        canvas.DrawLine(ex + e.W - 4f, ey + e.H - 4f, ex + e.W - 4f, GroundY, leg);
         using var spot = new SKPaint { Color = new SKColor(0x88, 0x88, 0x77), IsAntialias = true };
         canvas.DrawCircle(e.X, ey + 8f, 3f, spot);
         DrawHelper.DrawCenteredText(canvas, "MOO", 10f, new SKColor(0x55, 0x44, 0x22), e.X, ey);
@@ -980,13 +980,13 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         {
             if (!a.Active) continue;
             float angle = MathF.Atan2(a.VY, a.VX);
-            float len   = 14f;
-            float dx    = MathF.Cos(angle) * len;
-            float dy    = MathF.Sin(angle) * len;
+            float len = 14f;
+            float dx = MathF.Cos(angle) * len;
+            float dy = MathF.Sin(angle) * len;
             using var ap = new SKPaint
             {
-                Color       = a.IsEnemy ? ColFire : ColArrow,
-                StrokeWidth = a.IsEnemy ? 2.5f    : 2f,
+                Color = a.IsEnemy ? ColFire : ColArrow,
+                StrokeWidth = a.IsEnemy ? 2.5f : 2f,
                 IsAntialias = true
             };
             canvas.DrawLine(a.X - dx / 2f, a.Y - dy / 2f, a.X + dx / 2f, a.Y + dy / 2f, ap);
@@ -1014,18 +1014,18 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
             if (!_walls[i].IsDestroyed && _walls[i].HasArcher) { refWall = _walls[i]; break; }
         if (refWall == null) return;
 
-        float ax  = refWall.ArcherCenterX;
-        float ay  = refWall.ArcherBaseY - ArcherH / 2f;
+        float ax = refWall.ArcherCenterX;
+        float ay = refWall.ArcherBaseY - ArcherH / 2f;
         float rad = _aimAngle * MathF.PI / 180f;
-        float vx  =  ArrowSpeed * MathF.Cos(rad);
-        float vy  = -ArrowSpeed * MathF.Sin(rad);
+        float vx = ArrowSpeed * MathF.Cos(rad);
+        float vy = -ArrowSpeed * MathF.Sin(rad);
 
         using var dotPaint = new SKPaint
         {
-            Color       = new SKColor(0xFF, 0xFF, 0xFF, 100),
+            Color = new SKColor(0xFF, 0xFF, 0xFF, 100),
             StrokeWidth = 1.5f,
             IsAntialias = true,
-            PathEffect  = SKPathEffect.CreateDash([4f, 6f], 0f)
+            PathEffect = SKPathEffect.CreateDash([4f, 6f], 0f)
         };
         using var path = new SKPath();
         bool first = true;
@@ -1035,7 +1035,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
             float ny = ay + vy * t + 0.5f * ArrowGravity * t * t;
             if (nx > GameWidth || ny > GroundY) break;
             if (first) { path.MoveTo(nx, ny); first = false; }
-            else         path.LineTo(nx, ny);
+            else path.LineTo(nx, ny);
         }
         canvas.DrawPath(path, dotPaint);
 
@@ -1054,14 +1054,14 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
     private float FindLandingTime(float startY, float vy0)
     {
         float dy = GroundY - startY;
-        float a  = 0.5f * ArrowGravity;
-        float b  = vy0;
-        float c  = -dy;
+        float a = 0.5f * ArrowGravity;
+        float b = vy0;
+        float c = -dy;
         float disc = b * b - 4f * a * c;
         if (disc < 0f) return -1f;
         float t1 = (-b + MathF.Sqrt(disc)) / (2f * a);
         float t2 = (-b - MathF.Sqrt(disc)) / (2f * a);
-        float t  = t1 > 0 ? (t2 > 0 ? Math.Min(t1, t2) : t1) : t2;
+        float t = t1 > 0 ? (t2 > 0 ? Math.Min(t1, t2) : t1) : t2;
         return t > 0f ? t : -1f;
     }
 
@@ -1071,7 +1071,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
     {
         DrawHelper.DrawText(canvas, $"Score: {state.Score}", 20f, ColHud, 8f, 26f);
         string levelStr = $"Level {state.Level}";
-        float  levelW   = DrawHelper.MeasureText(levelStr, 20f);
+        float levelW = DrawHelper.MeasureText(levelStr, 20f);
         DrawHelper.DrawText(canvas, levelStr, 20f, ColHud, GameWidth - levelW - 8f, 26f);
 
         DrawHelper.DrawText(canvas, $"Archers: {_archerCount}", 16f, ColArcher, 8f, 50f);
@@ -1113,24 +1113,24 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
 
         bool canA2W = _workerCount > 1 && _archerCount > 0;
         bool canW2A = _workerCount > 1 && _archerCount < _walls.Count;
-        bool ready  = _arrowCooldown <= 0f && _archerCount > 0;
+        bool ready = _arrowCooldown <= 0f && _archerCount > 0;
 
-        DrawButton(canvas, BtnAimLeft,  "← Aim",     true,          ColDim,     _touchAimLeft);
-        DrawButton(canvas, BtnAimRight, "Aim →",     true,          ColDim,     _touchAimRight);
-        DrawButton(canvas, BtnA2W,      "↓ A→W",     canA2W,        ColWorker,  false);
-        DrawButton(canvas, BtnW2A,      "↑ W→A",     canW2A,        ColArcher,  false);
-        DrawButton(canvas, BtnFire,     "FIRE",      ready,         SKColors.White, false, large: true);
-        DrawButton(canvas, BtnOil,    "Oil (Z)",    _oilAvail,      ColOil,     false);
+        DrawButton(canvas, BtnAimLeft, "← Aim", true, ColDim, _touchAimLeft);
+        DrawButton(canvas, BtnAimRight, "Aim →", true, ColDim, _touchAimRight);
+        DrawButton(canvas, BtnA2W, "↓ A→W", canA2W, ColWorker, false);
+        DrawButton(canvas, BtnW2A, "↑ W→A", canW2A, ColArcher, false);
+        DrawButton(canvas, BtnFire, "FIRE", ready, SKColors.White, false, large: true);
+        DrawButton(canvas, BtnOil, "Oil (Z)", _oilAvail, ColOil, false);
         DrawButton(canvas, BtnCannon, "Cannon (X)", _mangonelAvail, ColBoulder, false);
-        DrawButton(canvas, BtnLogs,   "Logs (C)",   _logsAvail,     ColFire,    false);
+        DrawButton(canvas, BtnLogs, "Logs (C)", _logsAvail, ColFire, false);
     }
 
     private static void DrawButton(SKCanvas canvas, SKRect rect, string label,
         bool enabled, SKColor labelCol, bool pressed, bool large = false)
     {
         float alpha = enabled ? 1f : 0.4f;
-        byte  bgA   = pressed ? (byte)180 : (byte)110;
-        SKColor bg  = pressed ? new SKColor(0xFF, 0xFF, 0xFF, bgA)
+        byte bgA = pressed ? (byte)180 : (byte)110;
+        SKColor bg = pressed ? new SKColor(0xFF, 0xFF, 0xFF, bgA)
                                : new SKColor(0x22, 0x22, 0x33, bgA);
         using var bgPaint = new SKPaint { Color = bg, IsAntialias = true };
         canvas.DrawRoundRect(rect, BtnR, BtnR, bgPaint);
@@ -1148,7 +1148,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state) : Game
         canvas.DrawRoundRect(rect, BtnR, BtnR, borderPaint);
 
         float fontSize = large ? 16f : 13f;
-        SKColor col    = pressed ? SKColors.Black : labelCol;
+        SKColor col = pressed ? SKColors.Black : labelCol;
         DrawHelper.DrawCenteredText(canvas, label, fontSize, col, rect.MidX, rect.MidY + fontSize * 0.38f, alpha);
     }
 

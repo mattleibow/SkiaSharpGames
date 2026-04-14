@@ -8,7 +8,7 @@ namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
 /// Victory overlay drawn on top of the frozen play screen.
 /// Does not clear the canvas — relies on the base play screen being drawn first.
 /// </summary>
-internal sealed class CastleAttackVictoryScreen(CastleAttackGameState state) : GameScreen
+internal sealed class CastleAttackVictoryScreen(CastleAttackGameState state, IScreenCoordinator coordinator) : GameScreen
 {
     public override void Draw(SKCanvas canvas, int width, int height)
     {
@@ -20,5 +20,5 @@ internal sealed class CastleAttackVictoryScreen(CastleAttackGameState state) : G
     }
 
     public override void OnPointerDown(float x, float y)
-        => Coordinator?.TransitionTo<CastleAttackStartScreen>(new DissolveTransition());
+        => coordinator.TransitionTo<CastleAttackStartScreen>(new DissolveTransition());
 }

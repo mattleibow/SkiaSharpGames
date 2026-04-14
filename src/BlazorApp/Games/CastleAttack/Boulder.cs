@@ -4,6 +4,6 @@ internal sealed class Boulder
 {
     public float X, Y;
     public float VX, VY;
-    public bool  Active = true;
-    public int   TargetWallIdx;
+    public bool Active = true;
+    public int TargetWallIdx;
 }

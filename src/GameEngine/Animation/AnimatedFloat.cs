@@ -23,7 +23,7 @@ namespace SkiaSharpGames.GameEngine;
 /// float w = paddleWidth.Value;
 /// </code>
 /// </example>
-public sealed class AnimatedFloat
+public sealed class AnimatedFloat(float initialValue = 0f)
 {
     private float _from;
     private float _to;
@@ -31,11 +31,8 @@ public sealed class AnimatedFloat
     private float _elapsed;
     private Func<float, float> _easing = Easing.Linear;
 
-    /// <summary>Creates an <see cref="AnimatedFloat"/> with the specified initial value.</summary>
-    public AnimatedFloat(float initialValue = 0f) => Value = initialValue;
-
     /// <summary>The current interpolated value.</summary>
-    public float Value { get; private set; }
+    public float Value { get; private set; } = initialValue;
 
     /// <summary>True while the animation is in progress.</summary>
     public bool IsAnimating { get; private set; }

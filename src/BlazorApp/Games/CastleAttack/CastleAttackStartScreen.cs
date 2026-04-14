@@ -5,7 +5,7 @@ using static SkiaSharpGames.BlazorApp.Games.CastleAttack.CastleAttackConstants;
 namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
 
 /// <summary>Start/title screen for Castle Attack. Shows the background and instructions.</summary>
-internal sealed class CastleAttackStartScreen : GameScreen
+internal sealed class CastleAttackStartScreen(IScreenCoordinator coordinator) : GameScreen
 {
     public override void Draw(SKCanvas canvas, int width, int height)
     {
@@ -28,7 +28,7 @@ internal sealed class CastleAttackStartScreen : GameScreen
     }
 
     public override void OnPointerDown(float x, float y)
-        => Coordinator?.TransitionTo<CastleAttackPlayScreen>(new DissolveTransition());
+        => coordinator.TransitionTo<CastleAttackPlayScreen>(new DissolveTransition());
 
     private static void DrawBackground(SKCanvas canvas)
     {
@@ -44,10 +44,10 @@ internal sealed class CastleAttackStartScreen : GameScreen
         canvas.DrawRect(SKRect.Create(0, GroundY, GameWidth, 4f), gep);
 
         using var hillPaint = new SKPaint { Color = new SKColor(0x2A, 0x20, 0x12), IsAntialias = true };
-        using var hillPath  = new SKPath();
+        using var hillPath = new SKPath();
         hillPath.MoveTo(0, GroundY);
         hillPath.CubicTo(200, GroundY - 60, 400, GroundY - 80, 600, GroundY - 40);
-        hillPath.CubicTo(800, GroundY,      900, GroundY - 50, 1100, GroundY - 30);
+        hillPath.CubicTo(800, GroundY, 900, GroundY - 50, 1100, GroundY - 30);
         hillPath.LineTo(GameWidth, GroundY);
         hillPath.LineTo(0, GroundY);
         hillPath.Close();

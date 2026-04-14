@@ -10,25 +10,18 @@ namespace SkiaSharpGames.GameEngine;
 /// </summary>
 /// <remarks>
 /// All screens are registered as transients in the game-scoped DI container so that each
-/// call to <see cref="Game.TransitionTo{TScreen}"/> or <see cref="Game.PushOverlay{TOverlay}"/>
-/// resolves a fresh instance.
+/// call to <see cref="IScreenCoordinator.TransitionTo{TScreen}"/> or
+/// <see cref="IScreenCoordinator.PushOverlay{TOverlay}"/> resolves a fresh instance.
 /// </remarks>
-public sealed class ScreenCollection
+public sealed class ScreenCollection(IServiceCollection services)
 {
-    private readonly IServiceCollection _services;
-
-    internal ScreenCollection(IServiceCollection services)
-    {
-        _services = services;
-    }
-
     /// <summary>
     /// Registers <typeparamref name="TScreen"/> as a transient in the game's DI container.
     /// Returns <see langword="this"/> for fluent chaining.
     /// </summary>
     public ScreenCollection Add<TScreen>() where TScreen : GameScreen
     {
-        _services.AddTransient<TScreen>();
+        services.AddTransient<TScreen>();
         return this;
     }
 }

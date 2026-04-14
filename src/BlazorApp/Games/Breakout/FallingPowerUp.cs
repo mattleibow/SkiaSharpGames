@@ -8,7 +8,9 @@ internal sealed class FallingPowerUp
     public PowerUpType Type;
     public readonly RectSprite Sprite = new()
     {
-        Width = BreakoutConstants.PowerUpW, Height = BreakoutConstants.PowerUpH,
-        CornerRadius = 5f, ShowShine = false
+        Width = BreakoutConstants.PowerUpW,
+        Height = BreakoutConstants.PowerUpH,
+        CornerRadius = 5f,
+        ShowShine = false
     };
 }

@@ -1,15 +1,15 @@
 using SkiaSharpGames.GameEngine;
 
-namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
+namespace SkiaSharpGames.BlazorApp.Games.Breakout;
 
-internal static class CastleAttackGame
+internal static class BreakoutGame
 {
     internal static Game Create()
     {
         var builder = GameBuilder.CreateDefault();
 
-        builder.SetGameDimensions(CastleAttackConstants.GameWidth, CastleAttackConstants.GameHeight);
-        builder.Services.AddSingleton<CastleAttackGameState>();
+        builder.SetGameDimensions(BreakoutConstants.GameWidth, BreakoutConstants.GameHeight);
+        builder.Services.AddSingleton<BreakoutGameState>();
 
         builder.Screens
                .Add<StartScreen>()

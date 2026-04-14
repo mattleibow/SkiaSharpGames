@@ -4,7 +4,7 @@ namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
 /// Static utility methods for common SkiaSharp drawing patterns used across games.
-/// These helpers reduce boilerplate in <see cref="GameScreenBase"/> subclasses.
+/// These helpers reduce boilerplate in <see cref="GameScreen"/> subclasses.
 /// </summary>
 public static class DrawHelper
 {

@@ -23,7 +23,7 @@ namespace SkiaSharpGames.GameEngine;
 /// float w = paddleWidth.Value;
 /// </code>
 /// </example>
-public sealed class AnimatedFloat
+public sealed class AnimatedFloat(float initialValue = 0f)
 {
     private float _from;
     private float _to;
@@ -31,11 +31,8 @@ public sealed class AnimatedFloat
     private float _elapsed;
     private Func<float, float> _easing = Easing.Linear;
 
-    /// <summary>Creates an <see cref="AnimatedFloat"/> with the specified initial value.</summary>
-    public AnimatedFloat(float initialValue = 0f) => Value = initialValue;
-
     /// <summary>The current interpolated value.</summary>
-    public float Value { get; private set; }
+    public float Value { get; private set; } = initialValue;
 
     /// <summary>True while the animation is in progress.</summary>
     public bool IsAnimating { get; private set; }
@@ -48,11 +45,11 @@ public sealed class AnimatedFloat
     /// <param name="easing">Easing function to use. Defaults to <see cref="Easing.Linear"/>.</param>
     public void AnimateTo(float target, float duration, Func<float, float>? easing = null)
     {
-        _from     = Value;
-        _to       = target;
+        _from = Value;
+        _to = target;
         _duration = MathF.Max(duration, 0f);
-        _elapsed  = 0f;
-        _easing   = easing ?? Easing.Linear;
+        _elapsed = 0f;
+        _easing = easing ?? Easing.Linear;
         IsAnimating = _duration > 0f;
         if (!IsAnimating) Value = _to;
     }
@@ -60,7 +57,7 @@ public sealed class AnimatedFloat
     /// <summary>Sets the value instantly without animating.</summary>
     public void SetImmediate(float value)
     {
-        Value       = value;
+        Value = value;
         IsAnimating = false;
     }
 
@@ -69,8 +66,8 @@ public sealed class AnimatedFloat
     {
         if (!IsAnimating) return;
         _elapsed = MathF.Min(_elapsed + deltaTime, _duration);
-        float t  = _elapsed / _duration;
-        Value    = _from + (_to - _from) * _easing(t);
+        float t = _elapsed / _duration;
+        Value = _from + (_to - _from) * _easing(t);
         if (_elapsed >= _duration) IsAnimating = false;
     }
 }

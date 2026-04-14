@@ -35,7 +35,7 @@ public sealed class Game
     internal Game(IOptions<GameOptions> options, ScreenCoordinator coordinator)
     {
         GameDimensions = options.Value.Dimensions;
-        _coordinator   = coordinator;
+        _coordinator = coordinator;
     }
 
     // ── Screen navigation (called by screens via their Coordinator property) ──
@@ -82,10 +82,10 @@ public sealed class Game
     /// </remarks>
     public void Draw(SKCanvas canvas, int width, int height)
     {
-        float gw    = GameDimensions.Width;
-        float gh    = GameDimensions.Height;
-        float scale   = MathF.Min(width / gw, height / gh);
-        float offsetX = (width  - gw * scale) / 2f;
+        float gw = GameDimensions.Width;
+        float gh = GameDimensions.Height;
+        float scale = MathF.Min(width / gw, height / gh);
+        float offsetX = (width - gw * scale) / 2f;
         float offsetY = (height - gh * scale) / 2f;
 
         canvas.Save();

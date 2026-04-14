@@ -29,13 +29,13 @@ public sealed class LoopedAnimation
 {
     private float _sinceLastRun;
     private float _runElapsed;
-    private int   _completedRuns;
+    private int _completedRuns;
 
     /// <param name="period">Seconds between the start of successive runs.</param>
     /// <param name="duration">Seconds each run lasts.</param>
     public LoopedAnimation(float period, float duration)
     {
-        Period   = period;
+        Period = period;
         Duration = duration;
     }
 
@@ -74,11 +74,11 @@ public sealed class LoopedAnimation
     /// </param>
     public void Start(float initialDelay = 0f)
     {
-        Enabled        = true;
-        IsActive       = false;
-        Progress       = 0f;
+        Enabled = true;
+        IsActive = false;
+        Progress = 0f;
         _completedRuns = 0;
-        _runElapsed    = 0f;
+        _runElapsed = 0f;
         // _sinceLastRun reaches Period to trigger a run; initialDelay controls how long until then.
         _sinceLastRun = Math.Clamp(Period - initialDelay, 0f, Period);
     }
@@ -86,11 +86,11 @@ public sealed class LoopedAnimation
     /// <summary>Pauses and resets the animation.</summary>
     public void Stop()
     {
-        Enabled       = false;
-        IsActive      = false;
-        Progress      = 0f;
+        Enabled = false;
+        IsActive = false;
+        Progress = 0f;
         _sinceLastRun = 0f;
-        _runElapsed   = 0f;
+        _runElapsed = 0f;
     }
 
     /// <summary>Advances the animation by <paramref name="deltaTime"/> seconds.</summary>
@@ -103,11 +103,11 @@ public sealed class LoopedAnimation
             _runElapsed += deltaTime;
             if (_runElapsed >= Duration)
             {
-                Progress  = 1f;
-                IsActive  = false;
+                Progress = 1f;
+                IsActive = false;
                 _completedRuns++;
                 _sinceLastRun = 0f;
-                _runElapsed   = 0f;
+                _runElapsed = 0f;
 
                 if (RepeatCount >= 0 && _completedRuns >= RepeatCount)
                     Stop();
@@ -123,9 +123,9 @@ public sealed class LoopedAnimation
             if (_sinceLastRun >= Period)
             {
                 _sinceLastRun -= Period;
-                _runElapsed   = 0f;
-                Progress      = 0f;
-                IsActive      = true;
+                _runElapsed = 0f;
+                Progress = 0f;
+                IsActive = true;
             }
         }
     }

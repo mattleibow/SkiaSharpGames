@@ -40,14 +40,14 @@ namespace SkiaSharpGames.GameEngine;
 public sealed class GameBuilder
 {
     private readonly ServiceCollection _serviceCollection = new();
-    private Type?   _initialScreenType;
-    private SKSize  _gameDimensions = new(800, 600);
+    private Type? _initialScreenType;
+    private SKSize _gameDimensions = new(800, 600);
 
     private GameBuilder()
     {
         Services = _serviceCollection;
-        Screens  = new ScreenCollection(_serviceCollection);
-        Assets   = new AssetCollection(_serviceCollection);
+        Screens = new ScreenCollection(_serviceCollection);
+        Assets = new AssetCollection(_serviceCollection);
     }
 
     // ── Public surface ────────────────────────────────────────────────────
@@ -154,7 +154,7 @@ public sealed class GameBuilder
         // Bind game options so any service can inject IOptions<GameOptions>.
         _serviceCollection.Configure<GameOptions>(opts =>
         {
-            opts.Dimensions        = _gameDimensions;
+            opts.Dimensions = _gameDimensions;
             opts.InitialScreenType = _initialScreenType;
         });
 

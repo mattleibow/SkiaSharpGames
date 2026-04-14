@@ -31,10 +31,10 @@ public sealed class SlideTransition : IScreenTransition
         float tx = 0f, ty = 0f;
         switch (Direction)
         {
-            case SlideDirection.Left:  tx =  width  * (1f - ease); break;
-            case SlideDirection.Right: tx = -width  * (1f - ease); break;
-            case SlideDirection.Up:    ty =  height * (1f - ease); break;
-            case SlideDirection.Down:  ty = -height * (1f - ease); break;
+            case SlideDirection.Left: tx = width * (1f - ease); break;
+            case SlideDirection.Right: tx = -width * (1f - ease); break;
+            case SlideDirection.Up: ty = height * (1f - ease); break;
+            case SlideDirection.Down: ty = -height * (1f - ease); break;
         }
 
         canvas.Save();

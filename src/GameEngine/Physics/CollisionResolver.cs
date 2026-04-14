@@ -17,8 +17,8 @@ public static class CollisionResolver
     public static bool Overlaps(PhysicsBody a, PhysicsBody b)
     {
         if (a is CircleBody ca && b is CircleBody cb) return CircleCircle(ca, cb);
-        if (a is CircleBody c  && b is RectBody r)   return CircleRect(c, r);
-        if (a is RectBody   ra && b is CircleBody cc) return CircleRect(cc, ra);
+        if (a is CircleBody c && b is RectBody r) return CircleRect(c, r);
+        if (a is RectBody ra && b is CircleBody cc) return CircleRect(cc, ra);
         return RectRect(a, b); // RectBody vs RectBody
     }
 
@@ -70,15 +70,15 @@ public static class CollisionResolver
 
     private static void ReflectCircleOnRect(CircleBody circle, RectBody rect)
     {
-        float overlapLeft   = (circle.X + circle.Radius) - rect.X;
-        float overlapRight  = (rect.X + rect.Width)  - (circle.X - circle.Radius);
-        float overlapTop    = (circle.Y + circle.Radius) - rect.Y;
+        float overlapLeft = (circle.X + circle.Radius) - rect.X;
+        float overlapRight = (rect.X + rect.Width) - (circle.X - circle.Radius);
+        float overlapTop = (circle.Y + circle.Radius) - rect.Y;
         float overlapBottom = (rect.Y + rect.Height) - (circle.Y - circle.Radius);
         float minH = MathF.Min(overlapLeft, overlapRight);
-        float minV = MathF.Min(overlapTop,  overlapBottom);
+        float minV = MathF.Min(overlapTop, overlapBottom);
 
         if (minV <= minH) circle.VelocityY = -circle.VelocityY;
-        else              circle.VelocityX = -circle.VelocityX;
+        else circle.VelocityX = -circle.VelocityX;
     }
 
     private static bool CircleCircle(CircleBody a, CircleBody b)

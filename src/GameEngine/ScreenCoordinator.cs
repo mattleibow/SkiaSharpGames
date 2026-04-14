@@ -21,16 +21,16 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
         GameScreen incoming,
         IScreenTransition transition)
     {
-        public GameScreen        Outgoing   { get; } = outgoing;
-        public GameScreen        Incoming   { get; } = incoming;
+        public GameScreen Outgoing { get; } = outgoing;
+        public GameScreen Incoming { get; } = incoming;
         public IScreenTransition Transition { get; } = transition;
-        public float             Progress   { get; set; }
+        public float Progress { get; set; }
     }
 
     internal ScreenCoordinator(IServiceProvider services, IOptions<GameOptions> options)
     {
         _services = services;
-        _current  = (GameScreen)services.GetRequiredService(options.Value.InitialScreenType!);
+        _current = (GameScreen)services.GetRequiredService(options.Value.InitialScreenType!);
         _current.SetCoordinator(this);
         _current.OnActivated();
     }
@@ -58,7 +58,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
         if (transition is null)
         {
             _current.OnDeactivated();
-            _current          = incoming;
+            _current = incoming;
             _current.IsPaused = false;
             _current.OnActivated();
         }
@@ -115,7 +115,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
                 var incoming = _activeTransition.Incoming;
                 _activeTransition.Outgoing.OnDeactivated();
                 _activeTransition = null;
-                _current          = incoming;
+                _current = incoming;
                 _current.IsPaused = false;
             }
             return;
@@ -154,7 +154,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator
     /// <summary>The screen that should receive input events.</summary>
     internal GameScreen ActiveInputScreen =>
         _activeTransition is not null ? _activeTransition.Incoming :
-        _overlays.Count   > 0         ? _overlays[^1]              :
+        _overlays.Count > 0 ? _overlays[^1] :
                                         _current;
 
     // ── Private helpers ───────────────────────────────────────────────────

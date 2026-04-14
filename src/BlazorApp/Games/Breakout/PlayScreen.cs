@@ -91,16 +91,9 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         // Physics step
         _ball.Rigidbody.Step(_ball, deltaTime);
 
-        // Wall collisions
-        CollisionResolver.ResolveBounds(
-            _ball,
-            _ball.Collider,
-            _ball.Rigidbody,
-            GameBounds.FromSize(GameWidth, GameHeight),
-            bounceBottom: false);
-
-        // Ball lost
-        if (_ball.Y > GameHeight + _ball.Collider.Radius * 2)
+        // Ball lost — check BEFORE wall resolution so the ball is not clamped at the bottom
+        // boundary and the lost condition can be detected on the same frame.
+        if (_ball.Y + _ball.Collider.Radius > GameHeight)
         {
             state.Lives--;
             if (state.Lives <= 0)
@@ -109,6 +102,14 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
                 ResetBall();
             return;
         }
+
+        // Wall collisions (left / right / top only — bottom is an open boundary handled above)
+        CollisionResolver.ResolveBounds(
+            _ball,
+            _ball.Collider,
+            _ball.Rigidbody,
+            GameBounds.FromSize(GameWidth, GameHeight),
+            bounceBottom: false);
 
         // Paddle collision
         ResolvePaddleCollision();
@@ -126,9 +127,14 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     private void ResolvePaddleCollision()
     {
         if (_ball.Rigidbody.VelocityY > 0f &&
-            CollisionResolver.TryGetHit(_ball, _ball.Collider, _paddle, _paddle.Collider, out _))
+            CollisionResolver.TryGetHit(_ball, _ball.Collider, _paddle, _paddle.Collider, out var hit))
         {
-            float hitPos = (_ball.X - _paddle.X) / (_paddle.Width / 2f);
+            // Push the ball out of the paddle so it cannot oscillate inside it.
+            _ball.X += hit.NormalX * hit.Penetration;
+            _ball.Y += hit.NormalY * hit.Penetration;
+
+            // Clamp hitPos to [-1, 1] so corner overlaps don't produce extreme angles.
+            float hitPos = Math.Clamp((_ball.X - _paddle.X) / (_paddle.Width / 2f), -1f, 1f);
             float angle = hitPos * (65f * MathF.PI / 180f);
             _ball.Rigidbody.SetVelocity(
                 BallSpeed * MathF.Sin(angle),

@@ -111,7 +111,7 @@ public class GameTests
     public void TransitionTo_NoTransition_DeactivatesOldScreen()
     {
         var (game, tracker) = TestGameFactory.Create();
-        game.TransitionTo<ScreenB>();
+        game.Coordinator.TransitionTo<ScreenB>();
         Assert.True(tracker.ADeactivated);
     }
 
@@ -119,7 +119,7 @@ public class GameTests
     public void TransitionTo_NoTransition_ActivatesNewScreen()
     {
         var (game, tracker) = TestGameFactory.Create();
-        game.TransitionTo<ScreenB>();
+        game.Coordinator.TransitionTo<ScreenB>();
         Assert.True(tracker.BActivated);
     }
 
@@ -127,7 +127,7 @@ public class GameTests
     public void TransitionTo_NoTransition_NewScreenReceivesUpdate()
     {
         var (game, _) = TestGameFactory.Create();
-        game.TransitionTo<ScreenB>();
+        game.Coordinator.TransitionTo<ScreenB>();
         var ex = Record.Exception(() => game.Update(0.016f));
         Assert.Null(ex);
     }
@@ -138,7 +138,7 @@ public class GameTests
     public void TransitionTo_WithTransition_OldScreenNotDeactivatedYet()
     {
         var (game, tracker) = TestGameFactory.Create();
-        game.TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
+        game.Coordinator.TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
         Assert.False(tracker.ADeactivated);
     }
 
@@ -146,7 +146,7 @@ public class GameTests
     public void TransitionTo_WithTransition_CompletesAfterDuration()
     {
         var (game, tracker) = TestGameFactory.Create();
-        game.TransitionTo<ScreenB>(new DissolveTransition { Duration = 0.5f });
+        game.Coordinator.TransitionTo<ScreenB>(new DissolveTransition { Duration = 0.5f });
         game.Update(0.5f);
         Assert.True(tracker.ADeactivated);
     }
@@ -155,7 +155,7 @@ public class GameTests
     public void TransitionTo_WithTransition_DrawDoesNotThrow()
     {
         var (game, _) = TestGameFactory.Create();
-        game.TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
+        game.Coordinator.TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
         using var bmp    = new SKBitmap(800, 600);
         using var canvas = new SKCanvas(bmp);
         game.Update(0.25f);
@@ -169,7 +169,7 @@ public class GameTests
     public void PushOverlay_PausesBaseScreen()
     {
         var (game, tracker) = TestGameFactory.Create();
-        game.PushOverlay<OverlayScreen>();
+        game.Coordinator.PushOverlay<OverlayScreen>();
         Assert.True(tracker.APaused);
         Assert.True(tracker.AIsPausedWhenPaused);
     }
@@ -178,7 +178,7 @@ public class GameTests
     public void PushOverlay_BaseScreenNotUpdated()
     {
         var (game, tracker) = TestGameFactory.Create();
-        game.PushOverlay<OverlayScreen>();
+        game.Coordinator.PushOverlay<OverlayScreen>();
         tracker.AUpdateCalled = false; // reset after initial activation
         game.Update(0.016f);
         Assert.False(tracker.AUpdateCalled);
@@ -188,8 +188,8 @@ public class GameTests
     public void PopOverlay_ResumesBaseScreen()
     {
         var (game, tracker) = TestGameFactory.Create();
-        game.PushOverlay<OverlayScreen>();
-        game.PopOverlay();
+        game.Coordinator.PushOverlay<OverlayScreen>();
+        game.Coordinator.PopOverlay();
         Assert.True(tracker.AResumed);
     }
 
@@ -197,7 +197,7 @@ public class GameTests
     public void PopOverlay_WhenEmpty_DoesNothing()
     {
         var (game, _) = TestGameFactory.Create();
-        var ex = Record.Exception(() => game.PopOverlay());
+        var ex = Record.Exception(() => game.Coordinator.PopOverlay());
         Assert.Null(ex);
     }
 
@@ -207,8 +207,8 @@ public class GameTests
     public void TransitionTo_ClearsOverlayStack_DeactivatesBase()
     {
         var (game, tracker) = TestGameFactory.Create();
-        game.PushOverlay<OverlayScreen>();
-        game.TransitionTo<ScreenB>();
+        game.Coordinator.PushOverlay<OverlayScreen>();
+        game.Coordinator.TransitionTo<ScreenB>();
         Assert.True(tracker.ADeactivated);
     }
 }

@@ -34,6 +34,8 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
         _initialScreenType = options.Value.InitialScreenType!;
     }
 
+    internal void Initialize() => EnsureInitialized();
+
     private void EnsureInitialized()
     {
         if (_current is not null)

@@ -175,6 +175,9 @@ public sealed class GameBuilder
                            sp.GetRequiredService<IScreenDrawable>()));
 
         var provider = _serviceCollection.BuildServiceProvider();
-        return provider.GetRequiredService<Game>();
+        var game = provider.GetRequiredService<Game>();
+        // Activate the initial screen immediately at build time (not lazily on first frame).
+        provider.GetRequiredService<ScreenCoordinator>().Initialize();
+        return game;
     }
 }

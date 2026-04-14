@@ -49,6 +49,11 @@ public sealed class Game
     /// </summary>
     public SKSize GameDimensions { get; }
 
+    /// <summary>
+    /// The coordinator that manages screen transitions and overlays.
+    /// </summary>
+    public IScreenCoordinator Coordinator => _coordinator;
+
     /// <summary>Advances the game by <paramref name="deltaTime"/> seconds.</summary>
     public void Update(float deltaTime) => _drawable.Update(deltaTime);
 

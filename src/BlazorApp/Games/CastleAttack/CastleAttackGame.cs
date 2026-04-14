@@ -12,12 +12,12 @@ internal static class CastleAttackGame
         builder.Services.AddSingleton<CastleAttackGameState>();
 
         builder.Screens
-               .Add<CastleAttackStartScreen>()
-               .Add<CastleAttackPlayScreen>()
-               .Add<CastleAttackGameOverScreen>()
-               .Add<CastleAttackVictoryScreen>();
+               .Add<StartScreen>()
+               .Add<PlayScreen>()
+               .Add<GameOverScreen>()
+               .Add<VictoryScreen>();
 
-        builder.SetInitialScreen<CastleAttackStartScreen>();
+        builder.SetInitialScreen<StartScreen>();
 
         return builder.Build();
     }

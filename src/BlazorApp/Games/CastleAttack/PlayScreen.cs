@@ -5,7 +5,7 @@ using static SkiaSharpGames.BlazorApp.Games.CastleAttack.CastleAttackConstants;
 namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
 
 /// <summary>Active gameplay screen for Castle Attack.</summary>
-internal sealed class CastleAttackPlayScreen(CastleAttackGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator coordinator) : GameScreen
 {
     // ── State ─────────────────────────────────────────────────────────────
     private readonly List<Wall> _walls = [];
@@ -276,7 +276,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state, IScree
         {
             _keepProgress = Math.Min(1f, _keepProgress + _workerCount * WorkerBuildRate * deltaTime);
             if (_keepProgress >= 1f)
-                coordinator.PushOverlay<CastleAttackVictoryScreen>();
+                coordinator.PushOverlay<VictoryScreen>();
         }
 
         if (!_cowSpawned && _levelTime >= _cowSpawnTime)
@@ -407,7 +407,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state, IScree
                 {
                     e.AttackTimer = 0f;
                     _lordHP -= e.AttackDamage * 0.5f;
-                    if (_lordHP <= 0f) coordinator.PushOverlay<CastleAttackGameOverScreen>();
+                    if (_lordHP <= 0f) coordinator.PushOverlay<GameOverScreen>();
                 }
             }
             return;
@@ -448,7 +448,7 @@ internal sealed class CastleAttackPlayScreen(CastleAttackGameState state, IScree
             else
             {
                 _lordHP -= 5f * dt;
-                if (_lordHP <= 0f) coordinator.PushOverlay<CastleAttackGameOverScreen>();
+                if (_lordHP <= 0f) coordinator.PushOverlay<GameOverScreen>();
             }
             return;
         }

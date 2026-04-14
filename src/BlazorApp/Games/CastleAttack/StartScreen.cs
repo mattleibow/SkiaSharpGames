@@ -5,7 +5,7 @@ using static SkiaSharpGames.BlazorApp.Games.CastleAttack.CastleAttackConstants;
 namespace SkiaSharpGames.BlazorApp.Games.CastleAttack;
 
 /// <summary>Start/title screen for Castle Attack. Shows the background and instructions.</summary>
-internal sealed class CastleAttackStartScreen(IScreenCoordinator coordinator) : GameScreen
+internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
     public override void Draw(SKCanvas canvas, int width, int height)
     {
@@ -28,7 +28,7 @@ internal sealed class CastleAttackStartScreen(IScreenCoordinator coordinator) : 
     }
 
     public override void OnPointerDown(float x, float y)
-        => coordinator.TransitionTo<CastleAttackPlayScreen>(new DissolveTransition());
+        => coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
 
     private static void DrawBackground(SKCanvas canvas)
     {

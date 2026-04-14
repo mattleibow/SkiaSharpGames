@@ -12,12 +12,12 @@ internal static class BreakoutGame
         builder.Services.AddSingleton<BreakoutGameState>();
 
         builder.Screens
-               .Add<BreakoutStartScreen>()
-               .Add<BreakoutPlayScreen>()
-               .Add<BreakoutGameOverScreen>()
-               .Add<BreakoutVictoryScreen>();
+               .Add<StartScreen>()
+               .Add<PlayScreen>()
+               .Add<GameOverScreen>()
+               .Add<VictoryScreen>();
 
-        builder.SetInitialScreen<BreakoutStartScreen>();
+        builder.SetInitialScreen<StartScreen>();
 
         return builder.Build();
     }

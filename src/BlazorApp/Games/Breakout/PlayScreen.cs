@@ -5,7 +5,7 @@ using static SkiaSharpGames.BlazorApp.Games.Breakout.BreakoutConstants;
 namespace SkiaSharpGames.BlazorApp.Games.Breakout;
 
 /// <summary>Active gameplay screen: ball, paddle, bricks, power-ups, HUD.</summary>
-internal sealed class BreakoutPlayScreen(BreakoutGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coordinator) : GameScreen
 {
     // ── Physics ───────────────────────────────────────────────────────────
     private float _paddleX;
@@ -120,7 +120,7 @@ internal sealed class BreakoutPlayScreen(BreakoutGameState state, IScreenCoordin
         {
             state.Lives--;
             if (state.Lives <= 0)
-                coordinator.PushOverlay<BreakoutGameOverScreen>();
+                coordinator.PushOverlay<GameOverScreen>();
             else
                 ResetBall();
             return;
@@ -143,7 +143,7 @@ internal sealed class BreakoutPlayScreen(BreakoutGameState state, IScreenCoordin
         UpdateFallingPowerUps(deltaTime);
 
         if (!_bricks.Any(b => b.Active))
-            coordinator.PushOverlay<BreakoutVictoryScreen>();
+            coordinator.PushOverlay<VictoryScreen>();
     }
 
     private void CheckBrickCollisions()

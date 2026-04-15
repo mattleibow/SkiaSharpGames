@@ -15,10 +15,10 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     {
         canvas.Clear(BackgroundColor);
 
-        _title.Draw(canvas, GameWidth / 2f, 180f);
-        _subtitle.Draw(canvas, GameWidth / 2f, 250f);
-        _controls.Draw(canvas, GameWidth / 2f, 320f);
-        _startPrompt.Draw(canvas, GameWidth / 2f, 360f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 180f); _title.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 250f); _subtitle.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 320f); _controls.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 360f); _startPrompt.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y) =>

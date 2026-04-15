@@ -13,10 +13,10 @@ internal sealed class FloatTextSprite : Sprite
     public float Life { get; set; }
     public float MaxLife { get; set; } = 1.4f;
 
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible || string.IsNullOrEmpty(Text)) return;
         _text.Alpha = Math.Clamp(Life / MaxLife, 0f, 1f);
-        _text.Draw(canvas, x, y);
+        _text.Draw(canvas);
     }
 }

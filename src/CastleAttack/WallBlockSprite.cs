@@ -14,7 +14,7 @@ internal sealed class WallBlockSprite : Sprite
     private static readonly SKPaint CrackPaint = new() { Color = new SKColor(0x00, 0x00, 0x00, 80), StrokeWidth = 1.5f, IsAntialias = true };
     private static readonly SKPaint ShinePaint = new() { Color = SKColors.White.WithAlpha(40), IsAntialias = true };
 
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible) return;
 
@@ -24,11 +24,11 @@ internal sealed class WallBlockSprite : Sprite
                     : ColStone;
 
         BlockPaint.Color = col;
-        canvas.DrawRoundRect(SKRect.Create(x, y, BlockW, BlockH), 3f, 3f, BlockPaint);
+        canvas.DrawRoundRect(SKRect.Create(0f, 0f, BlockW, BlockH), 3f, 3f, BlockPaint);
 
         if (HPRatio < 0.6f)
-            canvas.DrawLine(x + 8f, y + 4f, x + 18f, y + BlockH - 4f, CrackPaint);
+            canvas.DrawLine(0f + 8f, 0f + 4f, 0f + 18f, 0f + BlockH - 4f, CrackPaint);
 
-        canvas.DrawRect(SKRect.Create(x + 2f, y + 2f, BlockW - 4f, BlockH / 2f - 2f), ShinePaint);
+        canvas.DrawRect(SKRect.Create(0f + 2f, 0f + 2f, BlockW - 4f, BlockH / 2f - 2f), ShinePaint);
     }
 }

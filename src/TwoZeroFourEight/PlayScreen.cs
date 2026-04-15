@@ -140,15 +140,15 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IScreenCoordin
     {
         canvas.Clear(BackgroundColor);
 
-        _headerText.Draw(canvas, 90f, 94f);
+        canvas.Save(); canvas.Translate(90f, 94f); _headerText.Draw(canvas); canvas.Restore();
 
         _scoreText.Text = $"Score: {state.Score}";
-        _scoreText.Draw(canvas, GameWidth - 280f, 72f);
+        canvas.Save(); canvas.Translate(GameWidth - 280f, 72f); _scoreText.Draw(canvas); canvas.Restore();
 
         _bestText.Text = $"Best: {state.BestScore}";
-        _bestText.Draw(canvas, GameWidth - 280f, 102f);
+        canvas.Save(); canvas.Translate(GameWidth - 280f, 102f); _bestText.Draw(canvas); canvas.Restore();
 
-        _controlsText.Draw(canvas, GameWidth / 2f, 64f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 64f); _controlsText.Draw(canvas); canvas.Restore();
 
         var boardRect = SKRect.Create(BoardX, BoardY, BoardPixelSize, BoardPixelSize);
         canvas.DrawRoundRect(boardRect, 18f, 18f, _boardPaint);
@@ -178,7 +178,7 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IScreenCoordin
         _footerText.Text = state.HasReached2048
             ? "2048 reached! Keep going..."
             : "Merge tiles to reach 2048";
-        _footerText.Draw(canvas, GameWidth / 2f, 565f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 565f); _footerText.Draw(canvas); canvas.Restore();
     }
 
     private void DrawSlideTiles(SKCanvas canvas)
@@ -236,7 +236,7 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IScreenCoordin
         _tileText.Size = textSize;
         _tileText.Color = value <= 4 ? DarkTextColor : LightTextColor;
         _tileText.Align = TextAlign.Center;
-        _tileText.Draw(canvas, left + size / 2f, top + size / 2f + textSize / 3f);
+        canvas.Save(); canvas.Translate(left + size / 2f, top + size / 2f + textSize / 3f); _tileText.Draw(canvas); canvas.Restore();
     }
 
     private void TryMove(MoveDirection direction)

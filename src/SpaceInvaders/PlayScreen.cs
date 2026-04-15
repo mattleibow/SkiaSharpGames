@@ -218,7 +218,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
             {
                 var invader = _invaders[invaderIndex];
                 if (!invader.Active ||
-                    !CollisionResolver.Overlaps(bullet, bullet.Collider, invader, invader.Collider))
+                    !CollisionResolver.TryGetHit(bullet.X, bullet.Y, bullet.Collider, invader.X, invader.Y, invader.Collider, out _))
                     continue;
 
                 invader.Active = false;
@@ -235,7 +235,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
             {
                 var block = _shieldBlocks[shieldIndex];
                 if (!block.Active ||
-                    !CollisionResolver.Overlaps(bullet, bullet.Collider, block, block.Collider))
+                    !CollisionResolver.TryGetHit(bullet.X, bullet.Y, bullet.Collider, block.X, block.Y, block.Collider, out _))
                     continue;
 
                 block.Hit();
@@ -250,7 +250,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
             for (int enemyIndex = _enemyBullets.Count - 1; enemyIndex >= 0; enemyIndex--)
             {
                 var enemyBullet = _enemyBullets[enemyIndex];
-                if (!CollisionResolver.Overlaps(bullet, bullet.Collider, enemyBullet, enemyBullet.Collider))
+                if (!CollisionResolver.TryGetHit(bullet.X, bullet.Y, bullet.Collider, enemyBullet.X, enemyBullet.Y, enemyBullet.Collider, out _))
                     continue;
 
                 _enemyBullets.RemoveAt(enemyIndex);
@@ -273,7 +273,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
             {
                 var block = _shieldBlocks[shieldIndex];
                 if (!block.Active ||
-                    !CollisionResolver.Overlaps(bullet, bullet.Collider, block, block.Collider))
+                    !CollisionResolver.TryGetHit(bullet.X, bullet.Y, bullet.Collider, block.X, block.Y, block.Collider, out _))
                     continue;
 
                 block.Hit();
@@ -285,7 +285,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
             if (consumed)
                 continue;
 
-            if (CollisionResolver.Overlaps(bullet, bullet.Collider, _player, _player.Collider))
+            if (CollisionResolver.TryGetHit(bullet.X, bullet.Y, bullet.Collider, _player.X, _player.Y, _player.Collider, out _))
             {
                 _enemyBullets.RemoveAt(i);
                 state.Lives--;
@@ -404,12 +404,12 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         _player.Draw(canvas);
 
         _scoreText.Text = $"SCORE: {state.Score:0000}";
-        _scoreText.Draw(canvas, 20f, 34f);
+        canvas.Save(); canvas.Translate(20f, 34f); _scoreText.Draw(canvas); canvas.Restore();
 
         _livesText.Text = $"LIVES: {state.Lives}";
         float livesWidth = _livesText.MeasureWidth();
-        _livesText.Draw(canvas, GameWidth - livesWidth - 20f, 34f);
+        canvas.Save(); canvas.Translate(GameWidth - livesWidth - 20f, 34f); _livesText.Draw(canvas); canvas.Restore();
 
-        _controlsText.Draw(canvas, GameWidth / 2f, GameHeight - 12f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, GameHeight - 12f); _controlsText.Draw(canvas); canvas.Restore();
     }
 }

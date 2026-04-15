@@ -51,38 +51,54 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 SkiaSharpGames.slnx
 
 src/
-  GameEngine/
-    Game.cs                   # Runtime host used by GameView
-    GameBuilder.cs            # Game construction + screen/service registration
-    Entity.cs                 # Center-based world position + Active flag
-    CountdownTimer.cs         # Simple cooldown / duration timer
+  GameEngine/                   # Shared engine library
+    Game.cs                     # Runtime host used by GameView
+    GameBuilder.cs              # Game construction + screen/service registration
+    Entity.cs                   # Center-based world position + Active flag
+    Sprite.cs                   # Abstract sprite base
+    CountdownTimer.cs           # Simple cooldown / duration timer
     Animation/
       AnimatedFloat.cs
       Easing.cs
       LoopedAnimation.cs
     Physics/
-      Collider2D.cs           # Common collider base
+      Collider2D.cs             # Common collider base
       CircleCollider.cs
       RectCollider.cs
-      Rigidbody2D.cs          # Velocity + bounce helpers
-      CollisionResolver.cs    # Overlap tests, hit normals, bounds handling
+      Rigidbody2D.cs            # Velocity + bounce helpers
+      CollisionResolver.cs      # Overlap tests, hit normals, bounds handling
       CollisionHit.cs
       GameBounds.cs
     Screens/
       GameScreen.cs
       ScreenCoordinator.cs
-    Sprites/
-      Sprite.cs
-      RectSprite.cs
-      CircleSprite.cs
-    Drawing/
-      DrawHelper.cs
+    Transitions/
+      IScreenTransition.cs
+      DissolveTransition.cs
+      FadeToColorTransition.cs
+      SlideTransition.cs
 
-  BlazorApp/
-    Games/
-      Breakout/
-      CastleAttack/
-      SinkSub/
+  Breakout/                     # SkiaSharpGames.Breakout class library
+    BreakoutGame.cs
+    BallSprite.cs, BrickSprite.cs, PaddleSprite.cs, PowerUpSprite.cs
+    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs, VictoryScreen.cs
+    TextRenderer.cs             # Game-local text/overlay helper
+
+  CastleAttack/                 # SkiaSharpGames.CastleAttack class library
+    CastleAttackGame.cs
+    EnemySprite.cs, ArrowSprite.cs, BoulderSprite.cs, WallBlockSprite.cs
+    ArcherSprite.cs, WorkerSprite.cs, LordSprite.cs
+    FloatTextSprite.cs, ButtonSprite.cs
+    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs, VictoryScreen.cs
+    TextRenderer.cs
+
+  SinkSub/                      # SkiaSharpGames.SinkSub class library
+    SinkSubGame.cs
+    ShipSprite.cs, SubmarineSprite.cs, MineSprite.cs, DepthChargeSprite.cs
+    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
+    TextRenderer.cs
+
+  BlazorApp/                    # Blazor WebAssembly host
     Pages/
       Home.razor
       Games/
@@ -128,22 +144,29 @@ This keeps the engine deliberately small and explicit. There is no hidden solver
 | `GameBuilder` | Registers screens, services, assets, and the initial screen |
 | `GameScreen` | One gameplay mode or overlay |
 | `Entity` | Center-based object position |
+| `Sprite` | Abstract visual base; concrete sprites live with each game |
 | `Rigidbody2D` | Velocity and bounce helpers |
 | `CircleCollider` / `RectCollider` | Simple arcade hit shapes |
 | `CollisionResolver` | Overlaps, collision normals, wall/bounds resolution |
 | `CountdownTimer` | Cooldowns and temporary effects |
 | `AnimatedFloat` / `LoopedAnimation` | Smooth values and repeating effects |
 
+Concrete visuals such as Breakout bricks/balls, Castle Attack enemies/archers, or Sink Sub ships/submarines live in their own game libraries. Each game is a standalone class library (`SkiaSharpGames.<GameName>`) that references only the engine and SkiaSharp. The engine keeps only the sprite contract — no shared drawing helpers. Each game owns its own `TextRenderer` for text/overlay rendering with cached paints and fonts.
+
 ## Adding a new game
 
-1. Create a new folder under `src/BlazorApp/Games/<GameName>/`.
-2. Build the game with `GameBuilder.CreateDefault()`.
-3. Register one or more `GameScreen` types and set the initial screen.
-4. Add a page in `src/BlazorApp/Pages/Games/`.
-5. Register the game in `Program.cs`.
-6. Add a card to `Home.razor`.
-7. Add four screenshots under `docs/screenshots/<slug>/`.
-8. Update this README and the engine docs.
+1. Create a new class library under `src/<GameName>/` named `SkiaSharpGames.<GameName>`.
+2. Reference `SkiaSharpGames.GameEngine` and `SkiaSharp`.
+3. Build the game with `GameBuilder.CreateDefault()`.
+4. Register one or more `GameScreen` types and set the initial screen.
+5. Create sprites for all game visuals with cached `SKPaint` fields.
+6. Add a `TextRenderer` static class for text/overlay drawing.
+7. Add the project to the solution and reference it from `BlazorApp`.
+8. Add a page in `src/BlazorApp/Pages/Games/`.
+9. Register the game in `Program.cs` as a keyed service.
+10. Add a card to `Home.razor`.
+11. Add four screenshots under `docs/screenshots/<slug>/`.
+12. Update this README and the engine docs.
 
 ## Testing
 

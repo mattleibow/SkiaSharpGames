@@ -73,7 +73,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
 
         var incoming = ResolveScreen<TScreen>();
 
-        if (transition is null)
+        if (transition is null || transition.Duration <= 0f)
         {
             _current!.OnDeactivating();
             _current.OnDeactivated();

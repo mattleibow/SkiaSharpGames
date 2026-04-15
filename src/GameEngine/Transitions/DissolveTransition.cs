@@ -18,23 +18,21 @@ public sealed class DissolveTransition : IScreenTransition
                      int width, int height)
     {
         // Draw outgoing at (1 – progress) opacity
-        var outPaint = new SKPaint
+        using var outPaint = new SKPaint
         {
             Color = SKColors.White.WithAlpha((byte)((1f - progress) * 255))
         };
         canvas.SaveLayer(outPaint);
         drawOutgoing(canvas);
         canvas.Restore();
-        outPaint.Dispose();
 
         // Draw incoming at progress opacity on top
-        var inPaint = new SKPaint
+        using var inPaint = new SKPaint
         {
             Color = SKColors.White.WithAlpha((byte)(progress * 255))
         };
         canvas.SaveLayer(inPaint);
         drawIncoming(canvas);
         canvas.Restore();
-        inPaint.Dispose();
     }
 }

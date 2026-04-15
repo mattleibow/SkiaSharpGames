@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SkiaSharpGames.BlazorApp;
-using SkiaSharpGames.BlazorApp.Games.Breakout;
-using SkiaSharpGames.BlazorApp.Games.CastleAttack;
-using SkiaSharpGames.BlazorApp.Games.SinkSub;
+using SkiaSharpGames.Breakout;
+using SkiaSharpGames.CastleAttack;
+using SkiaSharpGames.SinkSub;
 using SkiaSharpGames.GameEngine;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);

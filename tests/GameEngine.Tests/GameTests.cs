@@ -179,6 +179,16 @@ public class GameTests
         Assert.Null(ex);
     }
 
+    [Fact]
+    public void TransitionTo_InterruptedTransition_DeactivatesAbandonedIncoming()
+    {
+        var (game, tracker) = TestGameFactory.Create();
+        var coordinator = game.Services.GetRequiredService<IScreenCoordinator>();
+        coordinator.TransitionTo<ScreenB>(new DissolveTransition { Duration = 1f });
+        coordinator.TransitionTo<ScreenA>();
+        Assert.True(tracker.BDeactivated);
+    }
+
     // ── PushOverlay / PopOverlay ───────────────────────────────────────────
 
     [Fact]

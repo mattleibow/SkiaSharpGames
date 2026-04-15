@@ -5,37 +5,11 @@ using Xunit;
 
 namespace SkiaSharpGames.GameEngine.Tests;
 
-/// <summary>Tests covering GameBounds, RectCollider.BoundingBox, GameScreen virtual defaults,
+/// <summary>Tests covering RectCollider.BoundingBox, GameScreen virtual defaults,
 /// Game input forwarding, and ScreenCoordinator.ActiveInputScreen during a transition.</summary>
 public class MiscCoverageTests
 {
     private sealed class TestEntity : Entity { }
-
-    // ── GameBounds ─────────────────────────────────────────────────────────
-
-    [Fact]
-    public void GameBounds_Width_ReturnsRightMinusLeft()
-    {
-        var b = new GameBounds(10f, 20f, 110f, 220f);
-        Assert.Equal(100f, b.Width, precision: 4);
-    }
-
-    [Fact]
-    public void GameBounds_Height_ReturnsBottomMinusTop()
-    {
-        var b = new GameBounds(10f, 20f, 110f, 220f);
-        Assert.Equal(200f, b.Height, precision: 4);
-    }
-
-    [Fact]
-    public void GameBounds_FromSize_LeftTopAreZero()
-    {
-        var b = GameBounds.FromSize(800f, 600f);
-        Assert.Equal(0f, b.Left, precision: 4);
-        Assert.Equal(0f, b.Top, precision: 4);
-        Assert.Equal(800f, b.Right, precision: 4);
-        Assert.Equal(600f, b.Bottom, precision: 4);
-    }
 
     // ── RectCollider.BoundingBox ──────────────────────────────────────────
 

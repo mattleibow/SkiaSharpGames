@@ -15,6 +15,9 @@
   <Folder Name="/src/SinkSub/">
     <Project Path="src/SinkSub/SkiaSharpGames.SinkSub.csproj" />
   </Folder>
+  <Folder Name="/src/Catch/">
+    <Project Path="src/Catch/SkiaSharpGames.Catch.csproj" />
+  </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/GameEngine.Tests/">
     <Project Path="tests/GameEngine.Tests/SkiaSharpGames.GameEngine.Tests.csproj" />

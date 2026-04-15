@@ -1,0 +1,15 @@
+@page "/games/space-invaders"
+@layout GameLayout
+
+<PageTitle>Space Invaders – SkiaSharp Games</PageTitle>
+
+<GameView Game="_game" />
+
+@code {
+    private readonly Game _game;
+
+    public SpaceInvaders([FromKeyedServices("space-invaders")] Game game)
+    {
+        _game = game;
+    }
+}

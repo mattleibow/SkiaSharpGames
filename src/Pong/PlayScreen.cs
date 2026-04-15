@@ -124,13 +124,13 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
         ResolvePaddleCollision(isLeft: false);
 
         if (_ball.Rigidbody.VelocityX < 0f &&
-            CollisionResolver.Overlaps(_ball, _ball.Collider, _leftGoalEdge, _leftGoalEdge.Collider))
+            CollisionResolver.TryGetHit(_ball.X, _ball.Y, _ball.Collider, _leftGoalEdge.X, _leftGoalEdge.Y, _leftGoalEdge.Collider, out _))
         {
             state.RightScore++;
             HandleScore(leftScored: false);
         }
         else if (_ball.Rigidbody.VelocityX > 0f &&
-            CollisionResolver.Overlaps(_ball, _ball.Collider, _rightGoalEdge, _rightGoalEdge.Collider))
+            CollisionResolver.TryGetHit(_ball.X, _ball.Y, _ball.Collider, _rightGoalEdge.X, _rightGoalEdge.Y, _rightGoalEdge.Collider, out _))
         {
             state.LeftScore++;
             HandleScore(leftScored: true);
@@ -153,7 +153,7 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
     private void ResolveEdgeCollision(PongEdge edge, bool movingTowardEdge)
     {
         if (!movingTowardEdge ||
-            !CollisionResolver.TryGetHit(_ball, _ball.Collider, edge, edge.Collider, out var hit))
+            !CollisionResolver.TryGetHit(_ball.X, _ball.Y, _ball.Collider, edge.X, edge.Y, edge.Collider, out var hit))
             return;
 
         _ball.X += hit.NormalX * hit.Penetration;
@@ -166,7 +166,7 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
         var paddle = isLeft ? _leftPaddle : _rightPaddle;
         bool movingTowardPaddle = isLeft ? _ball.Rigidbody.VelocityX < 0f : _ball.Rigidbody.VelocityX > 0f;
         if (!movingTowardPaddle ||
-            !CollisionResolver.TryGetHit(_ball, _ball.Collider, paddle, paddle.Collider, out var hit))
+            !CollisionResolver.TryGetHit(_ball.X, _ball.Y, _ball.Collider, paddle.X, paddle.Y, paddle.Collider, out var hit))
             return;
 
         _ball.X += hit.NormalX * hit.Penetration;
@@ -216,27 +216,29 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
     {
         canvas.Clear(BackgroundColor);
 
-        _leftPaddle.Sprite.Draw(canvas, _leftPaddle.X, _leftPaddle.Y);
-        _rightPaddle.Sprite.Draw(canvas, _rightPaddle.X, _rightPaddle.Y);
+        canvas.Save(); canvas.Translate(_leftPaddle.X, _leftPaddle.Y); _leftPaddle.Sprite.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(_rightPaddle.X, _rightPaddle.Y); _rightPaddle.Sprite.Draw(canvas); canvas.Restore();
 
         // Center-court dashed line
         _fillPaint.Color = SKColors.White.WithAlpha((byte)(255 * 0.5f));
         for (float y = 18f; y < GameHeight; y += 30f)
             canvas.DrawRect(SKRect.Create(GameWidth / 2f - 3f, y, 6f, 16f), _fillPaint);
 
-        _ball.Sprite.Draw(canvas, _ball.X, _ball.Y);
+        canvas.Save(); canvas.Translate(_ball.X, _ball.Y); _ball.Sprite.Draw(canvas); canvas.Restore();
 
         // Scores
         _leftScoreText.Text = state.LeftScore.ToString();
-        _leftScoreText.Draw(canvas, GameWidth * 0.34f, 82f);
+        canvas.Save(); canvas.Translate(GameWidth * 0.34f, 82f); _leftScoreText.Draw(canvas); canvas.Restore();
         _rightScoreText.Text = state.RightScore.ToString();
-        _rightScoreText.Draw(canvas, GameWidth * 0.66f, 82f);
+        canvas.Save(); canvas.Translate(GameWidth * 0.66f, 82f); _rightScoreText.Draw(canvas); canvas.Restore();
 
         // Control hints
-        _leftControlsText.Draw(canvas, 18f, 28f);
-        _rightControlsText.Draw(canvas, GameWidth - 18f, 28f);
+        canvas.Save(); canvas.Translate(18f, 28f); _leftControlsText.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth - 18f, 28f); _rightControlsText.Draw(canvas); canvas.Restore();
 
         if (_serveTimer.Active)
-            _serveText.Draw(canvas, GameWidth / 2f, 320f);
+        {
+            canvas.Save(); canvas.Translate(GameWidth / 2f, 320f); _serveText.Draw(canvas); canvas.Restore();
+        }
     }
 }

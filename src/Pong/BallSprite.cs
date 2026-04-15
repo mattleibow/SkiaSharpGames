@@ -13,7 +13,7 @@ internal sealed class BallSprite : Sprite
     public SKColor GlowColor { get; set; } = SKColors.White;
     public float GlowRadius { get; set; } = 2f;
 
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible || Alpha <= 0f)
             return;
@@ -23,10 +23,10 @@ internal sealed class BallSprite : Sprite
         if (GlowRadius > 0f)
         {
             _glowPaint.Color = GlowColor.WithAlpha((byte)(a * 0.5f));
-            canvas.DrawCircle(x, y, Radius + GlowRadius, _glowPaint);
+            canvas.DrawCircle(0f, 0f, Radius + GlowRadius, _glowPaint);
         }
 
         _paint.Color = Color.WithAlpha(a);
-        canvas.DrawCircle(x, y, Radius, _paint);
+        canvas.DrawCircle(0f, 0f, Radius, _paint);
     }
 }

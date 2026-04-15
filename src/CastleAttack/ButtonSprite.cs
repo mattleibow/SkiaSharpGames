@@ -16,6 +16,7 @@ internal sealed class ButtonSprite : Sprite
 
     private static readonly SKPaint BgPaint = new() { IsAntialias = true };
     private static readonly SKPaint BorderPaint = new() { Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, IsAntialias = true };
+    private readonly TextSprite _labelText = new() { Align = TextAlign.Center };
 
     /// <summary>
     /// Draws the button. The <paramref name="x"/> and <paramref name="y"/> parameters are ignored;
@@ -40,6 +41,10 @@ internal sealed class ButtonSprite : Sprite
 
         float fontSize = Large ? 16f : 13f;
         SKColor col = Pressed ? SKColors.Black : LabelColor;
-        TextRenderer.DrawCenteredText(canvas, Label, fontSize, col, Rect.MidX, Rect.MidY + fontSize * 0.38f, alpha);
+        _labelText.Text = Label;
+        _labelText.Size = fontSize;
+        _labelText.Color = col;
+        _labelText.Alpha = alpha;
+        _labelText.Draw(canvas, Rect.MidX, Rect.MidY + fontSize * 0.38f);
     }
 }

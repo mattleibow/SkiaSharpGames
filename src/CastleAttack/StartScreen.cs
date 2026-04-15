@@ -8,11 +8,20 @@ namespace SkiaSharpGames.CastleAttack;
 internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
     // ── Cached paints ─────────────────────────────────────────────────────
+    private static readonly SKPaint OverlayPaint = new();
     private static readonly SKPaint SkyPaint = new();
     private static readonly SKPaint GroundPaint = new() { Color = ColGround };
     private static readonly SKPaint GroundEdgePaint = new() { Color = ColGroundEdge };
     private static readonly SKPaint HillPaint = new() { Color = new SKColor(0x2A, 0x20, 0x12), IsAntialias = true };
     private static readonly SKPath HillPath;
+
+    // ── Text sprites ──────────────────────────────────────────────────────
+    private readonly TextSprite _title = new() { Text = "CASTLE ATTACK", Size = 68f, Color = ColGold, Align = TextAlign.Center };
+    private readonly TextSprite _subtitle = new() { Text = "Defend the castle until the keep is complete!", Size = 22f, Color = ColHud, Align = TextAlign.Center };
+    private readonly TextSprite _tapLine = new() { Text = "Tap the battlefield to aim & fire", Size = 17f, Color = ColAccent, Align = TextAlign.Center };
+    private readonly TextSprite _btnLine = new() { Text = "Use the on-screen buttons at the bottom for all actions", Size = 16f, Color = ColDim, Align = TextAlign.Center };
+    private readonly TextSprite _kbLine = new() { Text = "Keyboard: ← → aim  |  SPACE fire  |  ↑↓ convert  |  Z X C weapons", Size = 14f, Color = ColDim, Align = TextAlign.Center };
+    private readonly TextSprite _startLine = new() { Text = "Tap or Click to Start", Size = 24f, Color = ColAccent, Align = TextAlign.Center };
 
     static StartScreen()
     {
@@ -36,18 +45,21 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 
         DrawBackground(canvas);
 
-        TextRenderer.DrawOverlay(canvas, GameWidth, GameHeight, 0.6f);
-        TextRenderer.DrawCenteredText(canvas, "CASTLE ATTACK", 68f, ColGold, GameWidth / 2f, 190f);
-        TextRenderer.DrawCenteredText(canvas, "Defend the castle until the keep is complete!", 22f, ColHud, GameWidth / 2f, 258f);
+        OverlayPaint.Color = SKColors.Black.WithAlpha((byte)(255 * 0.6f));
+        canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), OverlayPaint);
+
+        float cx = GameWidth / 2f;
+        _title.Draw(canvas, cx, 190f);
+        _subtitle.Draw(canvas, cx, 258f);
 
         float y = 308f;
-        TextRenderer.DrawCenteredText(canvas, "Tap the battlefield to aim & fire", 17f, ColAccent, GameWidth / 2f, y);
+        _tapLine.Draw(canvas, cx, y);
         y += 26f;
-        TextRenderer.DrawCenteredText(canvas, "Use the on-screen buttons at the bottom for all actions", 16f, ColDim, GameWidth / 2f, y);
+        _btnLine.Draw(canvas, cx, y);
         y += 26f;
-        TextRenderer.DrawCenteredText(canvas, "Keyboard: ← → aim  |  SPACE fire  |  ↑↓ convert  |  Z X C weapons", 14f, ColDim, GameWidth / 2f, y);
+        _kbLine.Draw(canvas, cx, y);
 
-        TextRenderer.DrawCenteredText(canvas, "Tap or Click to Start", 24f, ColAccent, GameWidth / 2f, 420f);
+        _startLine.Draw(canvas, cx, 420f);
     }
 
     public override void OnPointerDown(float x, float y)

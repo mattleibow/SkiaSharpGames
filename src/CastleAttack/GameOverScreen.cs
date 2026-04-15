@@ -10,12 +10,22 @@ namespace SkiaSharpGames.CastleAttack;
 /// </summary>
 internal sealed class GameOverScreen(CastleAttackGameState state, IScreenCoordinator coordinator) : GameScreen
 {
+    private static readonly SKPaint OverlayPaint = new();
+
+    private readonly TextSprite _defeatText = new() { Text = "DEFEAT", Size = 72f, Color = ColRed, Align = TextAlign.Center };
+    private readonly TextSprite _scoreText = new() { Size = 32f, Color = ColHud, Align = TextAlign.Center };
+    private readonly TextSprite _retryText = new() { Text = "Click or Tap to Try Again", Size = 22f, Color = ColAccent, Align = TextAlign.Center };
+
     public override void Draw(SKCanvas canvas, int width, int height)
     {
-        TextRenderer.DrawOverlay(canvas, GameWidth, GameHeight, 0.75f);
-        TextRenderer.DrawCenteredText(canvas, "DEFEAT", 72f, ColRed, GameWidth / 2f, 250f);
-        TextRenderer.DrawCenteredText(canvas, $"Score: {state.Score}", 32f, ColHud, GameWidth / 2f, 315f);
-        TextRenderer.DrawCenteredText(canvas, "Click or Tap to Try Again", 22f, ColAccent, GameWidth / 2f, 370f);
+        OverlayPaint.Color = SKColors.Black.WithAlpha((byte)(255 * 0.75f));
+        canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), OverlayPaint);
+
+        float cx = GameWidth / 2f;
+        _defeatText.Draw(canvas, cx, 250f);
+        _scoreText.Text = $"Score: {state.Score}";
+        _scoreText.Draw(canvas, cx, 315f);
+        _retryText.Draw(canvas, cx, 370f);
     }
 
     public override void OnPointerDown(float x, float y)

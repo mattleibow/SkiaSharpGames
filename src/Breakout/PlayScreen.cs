@@ -18,6 +18,13 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     private readonly List<Brick> _bricks = [];
     private readonly List<FallingPowerUp> _powerUps = [];
 
+    // ── Text sprites ──────────────────────────────────────────────────────
+    private readonly TextSprite _scoreText = new() { Size = 20f, Color = SKColors.White };
+    private readonly TextSprite _livesText = new() { Size = 20f, Color = SKColors.White, Align = TextAlign.Right };
+    private readonly TextSprite _powerUpLabel = new() { Size = 11f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly TextSprite _strongBallText = new() { Size = 14f, Align = TextAlign.Center };
+    private readonly TextSprite _bigPaddleText = new() { Size = 14f, Align = TextAlign.Center };
+
     public override void OnActivated()
     {
         state.Score = 0;
@@ -228,8 +235,8 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         foreach (var pu in _powerUps)
         {
             pu.Sprite.Draw(canvas, pu.X, pu.Y);
-            string label = pu.Type == PowerUpType.StrongBall ? "S" : "B";
-            TextRenderer.DrawCenteredText(canvas, label, 11f, SKColors.White, pu.X, pu.Y + 4f);
+            _powerUpLabel.Text = pu.Type == PowerUpType.StrongBall ? "S" : "B";
+            _powerUpLabel.Draw(canvas, pu.X, pu.Y + 4f);
         }
 
         // Paddle
@@ -243,22 +250,25 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         _ball.Sprite.Draw(canvas, _ball.X, _ball.Y);
 
         // HUD
-        TextRenderer.DrawText(canvas, $"Score: {state.Score}", 20f, SKColors.White, 20f, 30f);
-        string livesText = $"Lives: {state.Lives}";
-        float livesW = TextRenderer.MeasureText(livesText, 20f);
-        TextRenderer.DrawText(canvas, livesText, 20f, SKColors.White, GameWidth - livesW - 20f, 30f);
+        _scoreText.Text = $"Score: {state.Score}";
+        _scoreText.Draw(canvas, 20f, 30f);
+
+        _livesText.Text = $"Lives: {state.Lives}";
+        _livesText.Draw(canvas, GameWidth - 20f, 30f);
 
         float hudY = 52f;
         if (_strongBallTimer.Active)
         {
-            TextRenderer.DrawCenteredText(canvas, $"STRONG BALL {_strongBallTimer.Remaining:F1}s",
-                14f, StrongBallColor, GameWidth / 2f, hudY);
+            _strongBallText.Text = $"STRONG BALL {_strongBallTimer.Remaining:F1}s";
+            _strongBallText.Color = StrongBallColor;
+            _strongBallText.Draw(canvas, GameWidth / 2f, hudY);
             hudY += 18f;
         }
         if (_bigPaddleTimer.Active)
         {
-            TextRenderer.DrawCenteredText(canvas, $"BIG PADDLE {_bigPaddleTimer.Remaining:F1}s",
-                14f, BigPaddleColor, GameWidth / 2f, hudY);
+            _bigPaddleText.Text = $"BIG PADDLE {_bigPaddleTimer.Remaining:F1}s";
+            _bigPaddleText.Color = BigPaddleColor;
+            _bigPaddleText.Draw(canvas, GameWidth / 2f, hudY);
         }
     }
 }

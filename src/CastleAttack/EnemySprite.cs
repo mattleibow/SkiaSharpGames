@@ -27,6 +27,8 @@ internal sealed class EnemySprite : Sprite
     private static readonly SKPaint HpBarBg = new() { Color = new SKColor(0x40, 0x00, 0x00) };
     private static readonly SKPaint HpBarFg = new() { Color = new SKColor(0xFF, 0x44, 0x00) };
 
+    private readonly TextSprite _mooText = new() { Text = "MOO", Size = 10f, Color = new SKColor(0x55, 0x44, 0x22), Align = TextAlign.Center };
+
     public override void Draw(SKCanvas canvas, float x, float y)
     {
         if (!Visible) return;
@@ -111,6 +113,6 @@ internal sealed class EnemySprite : Sprite
         canvas.DrawLine(ex + 4f, ey + Collider.Height - 4f, ex + 4f, GroundY, LegPaint);
         canvas.DrawLine(ex + Collider.Width - 4f, ey + Collider.Height - 4f, ex + Collider.Width - 4f, GroundY, LegPaint);
         canvas.DrawCircle(cx, ey + 8f, 3f, SpotPaint);
-        TextRenderer.DrawCenteredText(canvas, "MOO", 10f, new SKColor(0x55, 0x44, 0x22), cx, ey);
+        _mooText.Draw(canvas, cx, ey);
     }
 }

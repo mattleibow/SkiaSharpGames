@@ -7,6 +7,10 @@ namespace SkiaSharpGames.Breakout;
 /// <summary>Start/title screen: decorative brick grid + instructions. Click to start the game.</summary>
 internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
+    private readonly TextSprite _title = new() { Text = "BREAKOUT", Size = 72f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly TextSprite _startPrompt = new() { Text = "Click or Tap to Start", Size = 28f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly TextSprite _instructions = new() { Text = "Move mouse / finger to control the paddle", Size = 18f, Color = DimColor, Align = TextAlign.Center };
+
     private readonly List<Brick> _bricks = [];
 
     public override void OnActivated()
@@ -42,9 +46,9 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
             brick.Sprite.Draw(canvas, brick.X, brick.Y);
         }
 
-        TextRenderer.DrawCenteredText(canvas, "BREAKOUT", 72f, SKColors.White, GameWidth / 2f, 290f);
-        TextRenderer.DrawCenteredText(canvas, "Click or Tap to Start", 28f, AccentColor, GameWidth / 2f, 360f);
-        TextRenderer.DrawCenteredText(canvas, "Move mouse / finger to control the paddle", 18f, DimColor, GameWidth / 2f, 415f);
+        _title.Draw(canvas, GameWidth / 2f, 290f);
+        _startPrompt.Draw(canvas, GameWidth / 2f, 360f);
+        _instructions.Draw(canvas, GameWidth / 2f, 415f);
     }
 
     public override void OnPointerDown(float x, float y)

@@ -1,24 +1,35 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
 using static SkiaSharpGames.SinkSub.SinkSubConstants;
-using TR = SkiaSharpGames.SinkSub.TextRenderer;
 
 namespace SkiaSharpGames.SinkSub;
 
 internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
+    private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
+
+    private readonly TextSprite _title = new() { Text = "SINK SUB", Size = 72f, Align = TextAlign.Center };
+    private readonly TextSprite _subtitle = new() { Text = "Hunt submarines and avoid rising mines", Size = 26f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly TextSprite _instruction1 = new() { Text = "Move with mouse, touch, or arrow keys", Size = 20f, Color = DimColor, Align = TextAlign.Center };
+    private readonly TextSprite _instruction2 = new() { Text = "Press Z or X to drop depth charges from the ship sides", Size = 20f, Color = DimColor, Align = TextAlign.Center };
+    private readonly TextSprite _instruction3 = new() { Text = "Only four depth charges may be active at once", Size = 20f, Color = DimColor, Align = TextAlign.Center };
+    private readonly TextSprite _startPrompt = new() { Text = "Click, tap, or press Space to begin", Size = 24f, Align = TextAlign.Center };
+
     public override void Draw(SKCanvas canvas, int width, int height)
     {
         canvas.Clear(SkyColor);
-        TR.FillRect(canvas, 0f, WaterlineY, GameWidth, GameHeight - WaterlineY, WaterColor);
-        TR.FillRect(canvas, 0f, WaterlineY + 180f, GameWidth, GameHeight - WaterlineY - 180f, DeepWaterColor, 0.6f);
 
-        TR.DrawCenteredText(canvas, "SINK SUB", 72f, SKColors.White, GameWidth / 2f, 215f);
-        TR.DrawCenteredText(canvas, "Hunt submarines and avoid rising mines", 26f, AccentColor, GameWidth / 2f, 270f);
-        TR.DrawCenteredText(canvas, "Move with mouse, touch, or arrow keys", 20f, DimColor, GameWidth / 2f, 345f);
-        TR.DrawCenteredText(canvas, "Press Z or X to drop depth charges from the ship sides", 20f, DimColor, GameWidth / 2f, 375f);
-        TR.DrawCenteredText(canvas, "Only four depth charges may be active at once", 20f, DimColor, GameWidth / 2f, 405f);
-        TR.DrawCenteredText(canvas, "Click, tap, or press Space to begin", 24f, SKColors.White, GameWidth / 2f, 465f);
+        _fillPaint.Color = WaterColor;
+        canvas.DrawRect(SKRect.Create(0f, WaterlineY, GameWidth, GameHeight - WaterlineY), _fillPaint);
+        _fillPaint.Color = DeepWaterColor.WithAlpha((byte)(255 * 0.6f));
+        canvas.DrawRect(SKRect.Create(0f, WaterlineY + 180f, GameWidth, GameHeight - WaterlineY - 180f), _fillPaint);
+
+        _title.Draw(canvas, GameWidth / 2f, 215f);
+        _subtitle.Draw(canvas, GameWidth / 2f, 270f);
+        _instruction1.Draw(canvas, GameWidth / 2f, 345f);
+        _instruction2.Draw(canvas, GameWidth / 2f, 375f);
+        _instruction3.Draw(canvas, GameWidth / 2f, 405f);
+        _startPrompt.Draw(canvas, GameWidth / 2f, 465f);
     }
 
     public override void OnPointerDown(float x, float y) =>

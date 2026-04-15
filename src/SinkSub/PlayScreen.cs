@@ -1,12 +1,20 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
 using static SkiaSharpGames.SinkSub.SinkSubConstants;
-using TR = SkiaSharpGames.SinkSub.TextRenderer;
 
 namespace SkiaSharpGames.SinkSub;
 
 internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coordinator) : GameScreen
 {
+    private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
+
+    private readonly TextSprite _scoreText = new() { Size = 22f };
+    private readonly TextSprite _livesText = new() { Size = 22f };
+    private readonly TextSprite _waveText = new() { Size = 22f };
+    private readonly TextSprite _chargeText = new() { Size = 22f, Color = AccentColor, Align = TextAlign.Right };
+    private readonly TextSprite _instructionsText = new() { Size = 16f, Color = DimColor, Align = TextAlign.Center, Text = "Z = left charge    X / Space = right charge" };
+    private readonly TextSprite _waveIncomingText = new() { Size = 28f, Color = AccentColor, Align = TextAlign.Center };
+
     private readonly Ship _ship = new();
     private readonly List<Submarine> _submarines = [];
     private readonly List<DepthCharge> _charges = [];
@@ -238,12 +246,16 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
     {
         canvas.Clear(SkyColor);
 
-        TR.FillRect(canvas, 0f, WaterlineY, GameWidth, GameHeight - WaterlineY, WaterColor);
-        TR.FillRect(canvas, 0f, WaterlineY + 180f, GameWidth, GameHeight - WaterlineY - 180f, DeepWaterColor, 0.55f);
-        TR.FillRect(canvas, 0f, WaterlineY - 4f, GameWidth, 4f, SKColors.White, 0.6f);
+        _fillPaint.Color = WaterColor;
+        canvas.DrawRect(SKRect.Create(0f, WaterlineY, GameWidth, GameHeight - WaterlineY), _fillPaint);
+        _fillPaint.Color = DeepWaterColor.WithAlpha((byte)(255 * 0.55f));
+        canvas.DrawRect(SKRect.Create(0f, WaterlineY + 180f, GameWidth, GameHeight - WaterlineY - 180f), _fillPaint);
+        _fillPaint.Color = SKColors.White.WithAlpha((byte)(255 * 0.6f));
+        canvas.DrawRect(SKRect.Create(0f, WaterlineY - 4f, GameWidth, 4f), _fillPaint);
 
+        _fillPaint.Color = SKColors.White.WithAlpha((byte)(255 * 0.18f));
         for (int i = 0; i < 8; i++)
-            TR.FillRect(canvas, 30f + i * 110f, WaterlineY + 20f + (i % 2) * 10f, 60f, 2f, SKColors.White, 0.18f);
+            canvas.DrawRect(SKRect.Create(30f + i * 110f, WaterlineY + 20f + (i % 2) * 10f, 60f, 2f), _fillPaint);
 
         _ship.Draw(canvas);
 
@@ -259,17 +271,24 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
         foreach (var mine in _mines)
             mine.Sprite.Draw(canvas, mine.X, mine.Y);
 
-        TR.DrawText(canvas, $"Score: {state.Score}", 22f, SKColors.White, 20f, 32f);
-        TR.DrawText(canvas, $"Lives: {state.Lives}", 22f, SKColors.White, 20f, 60f);
-        TR.DrawText(canvas, $"Wave: {state.Wave}", 22f, SKColors.White, 20f, 88f);
+        _scoreText.Text = $"Score: {state.Score}";
+        _scoreText.Draw(canvas, 20f, 32f);
 
-        string chargeText = $"Charges: {_charges.Count}/{MaxCharges}";
-        float chargeWidth = TR.MeasureText(chargeText, 22f);
-        TR.DrawText(canvas, chargeText, 22f, AccentColor, GameWidth - chargeWidth - 20f, 32f);
+        _livesText.Text = $"Lives: {state.Lives}";
+        _livesText.Draw(canvas, 20f, 60f);
 
-        TR.DrawCenteredText(canvas, "Z = left charge    X / Space = right charge", 16f, DimColor, GameWidth / 2f, 32f);
+        _waveText.Text = $"Wave: {state.Wave}";
+        _waveText.Draw(canvas, 20f, 88f);
+
+        _chargeText.Text = $"Charges: {_charges.Count}/{MaxCharges}";
+        _chargeText.Draw(canvas, GameWidth - 20f, 32f);
+
+        _instructionsText.Draw(canvas, GameWidth / 2f, 32f);
 
         if (_wavePending)
-            TR.DrawCenteredText(canvas, $"Wave {state.Wave + 1} incoming...", 28f, AccentColor, GameWidth / 2f, 170f);
+        {
+            _waveIncomingText.Text = $"Wave {state.Wave + 1} incoming...";
+            _waveIncomingText.Draw(canvas, GameWidth / 2f, 170f);
+        }
     }
 }

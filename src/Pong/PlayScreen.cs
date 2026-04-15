@@ -17,11 +17,6 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
     private readonly PongEdge _rightGoalEdge = new(GameWidth + EdgeColliderThickness * 0.5f, GameHeight * 0.5f, EdgeColliderThickness, GameHeight);
     private int _serveDirection = 1;
 
-    private bool _leftUpHeld;
-    private bool _leftDownHeld;
-    private bool _rightUpHeld;
-    private bool _rightDownHeld;
-
     private CountdownTimer _serveTimer;
 
     // HUD text sprites
@@ -42,20 +37,21 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
         _rightPaddle.X = GameWidth - PaddleMargin - PaddleWidth * 0.5f;
         _rightPaddle.Y = GameHeight * 0.5f;
 
-        _leftUpHeld = false;
-        _leftDownHeld = false;
-        _rightUpHeld = false;
-        _rightDownHeld = false;
+        _leftPaddle.UpHeld = false;
+        _leftPaddle.DownHeld = false;
+        _rightPaddle.UpHeld = false;
+        _rightPaddle.DownHeld = false;
 
         BeginServe(Random.Shared.Next(2) == 0 ? -1 : 1);
     }
 
     public override void OnPointerMove(float x, float y)
     {
+        float clamped = Math.Clamp(y, PaddleHeight * 0.5f, GameHeight - PaddleHeight * 0.5f);
         if (x < GameWidth * 0.5f)
-            _leftPaddle.Y = ClampPaddleY(y);
+            _leftPaddle.Y = clamped;
         else
-            _rightPaddle.Y = ClampPaddleY(y);
+            _rightPaddle.Y = clamped;
     }
 
     public override void OnKeyDown(string key)
@@ -64,17 +60,17 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
         {
             case "w":
             case "W":
-                _leftUpHeld = true;
+                _leftPaddle.UpHeld = true;
                 break;
             case "s":
             case "S":
-                _leftDownHeld = true;
+                _leftPaddle.DownHeld = true;
                 break;
             case "ArrowUp":
-                _rightUpHeld = true;
+                _rightPaddle.UpHeld = true;
                 break;
             case "ArrowDown":
-                _rightDownHeld = true;
+                _rightPaddle.DownHeld = true;
                 break;
         }
     }
@@ -85,24 +81,25 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
         {
             case "w":
             case "W":
-                _leftUpHeld = false;
+                _leftPaddle.UpHeld = false;
                 break;
             case "s":
             case "S":
-                _leftDownHeld = false;
+                _leftPaddle.DownHeld = false;
                 break;
             case "ArrowUp":
-                _rightUpHeld = false;
+                _rightPaddle.UpHeld = false;
                 break;
             case "ArrowDown":
-                _rightDownHeld = false;
+                _rightPaddle.DownHeld = false;
                 break;
         }
     }
 
     public override void Update(float deltaTime)
     {
-        UpdatePaddles(deltaTime);
+        _leftPaddle.Update(deltaTime);
+        _rightPaddle.Update(deltaTime);
 
         if (_serveTimer.Tick(deltaTime))
         {
@@ -115,7 +112,7 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
         if (_serveTimer.Active)
             return;
 
-        _ball.Rigidbody.Step(_ball, deltaTime);
+        _ball.Update(deltaTime);
 
         ResolveEdgeCollision(_topEdge, _ball.Rigidbody.VelocityY < 0f);
         ResolveEdgeCollision(_bottomEdge, _ball.Rigidbody.VelocityY > 0f);
@@ -123,37 +120,21 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
         ResolvePaddleCollision(isLeft: true);
         ResolvePaddleCollision(isLeft: false);
 
-        if (_ball.Rigidbody.VelocityX < 0f &&
-            CollisionResolver.TryGetHit(_ball.X, _ball.Y, _ball.Collider, _leftGoalEdge.X, _leftGoalEdge.Y, _leftGoalEdge.Collider, out _))
+        if (_ball.Rigidbody.VelocityX < 0f && _ball.TryGetHit(_leftGoalEdge, out _))
         {
             state.RightScore++;
             HandleScore(leftScored: false);
         }
-        else if (_ball.Rigidbody.VelocityX > 0f &&
-            CollisionResolver.TryGetHit(_ball.X, _ball.Y, _ball.Collider, _rightGoalEdge.X, _rightGoalEdge.Y, _rightGoalEdge.Collider, out _))
+        else if (_ball.Rigidbody.VelocityX > 0f && _ball.TryGetHit(_rightGoalEdge, out _))
         {
             state.LeftScore++;
             HandleScore(leftScored: true);
         }
     }
 
-    private void UpdatePaddles(float deltaTime)
-    {
-        float leftMove = 0f;
-        if (_leftUpHeld) leftMove -= PaddleSpeed * deltaTime;
-        if (_leftDownHeld) leftMove += PaddleSpeed * deltaTime;
-        _leftPaddle.Y = ClampPaddleY(_leftPaddle.Y + leftMove);
-
-        float rightMove = 0f;
-        if (_rightUpHeld) rightMove -= PaddleSpeed * deltaTime;
-        if (_rightDownHeld) rightMove += PaddleSpeed * deltaTime;
-        _rightPaddle.Y = ClampPaddleY(_rightPaddle.Y + rightMove);
-    }
-
     private void ResolveEdgeCollision(PongEdge edge, bool movingTowardEdge)
     {
-        if (!movingTowardEdge ||
-            !CollisionResolver.TryGetHit(_ball.X, _ball.Y, _ball.Collider, edge.X, edge.Y, edge.Collider, out var hit))
+        if (!movingTowardEdge || !_ball.TryGetHit(edge, out var hit))
             return;
 
         _ball.X += hit.NormalX * hit.Penetration;
@@ -165,8 +146,7 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
     {
         var paddle = isLeft ? _leftPaddle : _rightPaddle;
         bool movingTowardPaddle = isLeft ? _ball.Rigidbody.VelocityX < 0f : _ball.Rigidbody.VelocityX > 0f;
-        if (!movingTowardPaddle ||
-            !CollisionResolver.TryGetHit(_ball.X, _ball.Y, _ball.Collider, paddle.X, paddle.Y, paddle.Collider, out var hit))
+        if (!movingTowardPaddle || !_ball.TryGetHit(paddle, out var hit))
             return;
 
         _ball.X += hit.NormalX * hit.Penetration;
@@ -209,22 +189,19 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
         _serveTimer.Set(ServeDelay);
     }
 
-    private static float ClampPaddleY(float y) =>
-        Math.Clamp(y, PaddleHeight * 0.5f, GameHeight - PaddleHeight * 0.5f);
-
     public override void Draw(SKCanvas canvas, int width, int height)
     {
         canvas.Clear(BackgroundColor);
 
-        canvas.Save(); canvas.Translate(_leftPaddle.X, _leftPaddle.Y); _leftPaddle.Sprite.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(_rightPaddle.X, _rightPaddle.Y); _rightPaddle.Sprite.Draw(canvas); canvas.Restore();
+        _leftPaddle.Draw(canvas);
+        _rightPaddle.Draw(canvas);
 
         // Center-court dashed line
         _fillPaint.Color = SKColors.White.WithAlpha((byte)(255 * 0.5f));
         for (float y = 18f; y < GameHeight; y += 30f)
             canvas.DrawRect(SKRect.Create(GameWidth / 2f - 3f, y, 6f, 16f), _fillPaint);
 
-        canvas.Save(); canvas.Translate(_ball.X, _ball.Y); _ball.Sprite.Draw(canvas); canvas.Restore();
+        _ball.Draw(canvas);
 
         // Scores
         _leftScoreText.Text = state.LeftScore.ToString();

@@ -1,4 +1,3 @@
-using SkiaSharp;
 using SkiaSharpGames.GameEngine;
 using static SkiaSharpGames.SinkSub.SinkSubConstants;
 
@@ -6,15 +5,12 @@ namespace SkiaSharpGames.SinkSub;
 
 internal sealed class Ship : Entity
 {
-    public readonly RectCollider Collider = new() { Width = ShipWidth, Height = ShipHeight };
-
-    public readonly ShipSprite Sprite = new();
-
-    public void Draw(SKCanvas canvas)
+    public Ship()
     {
-        canvas.Save();
-        canvas.Translate(X, Y);
-        Sprite.Draw(canvas);
-        canvas.Restore();
+        Collider = new RectCollider { Width = ShipWidth, Height = ShipHeight };
+        Sprite = new ShipSprite();
     }
+
+    public new ShipSprite Sprite { get => (ShipSprite)base.Sprite!; init => base.Sprite = value; }
+    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
 }

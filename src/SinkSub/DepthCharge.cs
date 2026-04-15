@@ -5,7 +5,14 @@ namespace SkiaSharpGames.SinkSub;
 
 internal sealed class DepthCharge : Entity
 {
-    public readonly CircleCollider Collider = new() { Radius = ChargeRadius };
-    public readonly Rigidbody2D Rigidbody = new();
-    public readonly DepthChargeSprite Sprite = new();
+    public DepthCharge()
+    {
+        Collider = new CircleCollider { Radius = ChargeRadius };
+        Rigidbody = new Rigidbody2D();
+        Sprite = new DepthChargeSprite();
+    }
+
+    public new DepthChargeSprite Sprite { get => (DepthChargeSprite)base.Sprite!; init => base.Sprite = value; }
+    public new CircleCollider Collider { get => (CircleCollider)base.Collider!; init => base.Collider = value; }
+    public new Rigidbody2D Rigidbody { get => (Rigidbody2D)base.Rigidbody!; init => base.Rigidbody = value; }
 }

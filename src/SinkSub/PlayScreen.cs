@@ -16,9 +16,9 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
     private readonly TextSprite _waveIncomingText = new() { Size = 28f, Color = AccentColor, Align = TextAlign.Center };
 
     private readonly Ship _ship = new();
-    private readonly List<Submarine> _submarines = [];
-    private readonly List<DepthCharge> _charges = [];
-    private readonly List<Mine> _mines = [];
+    private readonly Entity _submarines = new();
+    private readonly Entity _depthCharges = new();
+    private readonly Entity _mines = new();
 
     private bool _leftHeld;
     private bool _rightHeld;
@@ -36,9 +36,9 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
         _rightHeld = false;
         _wavePending = false;
         _gameOverShown = false;
-        _charges.Clear();
-        _mines.Clear();
-        _submarines.Clear();
+        ClearChildren(_depthCharges);
+        ClearChildren(_mines);
+        ClearChildren(_submarines);
         _ship.X = GameWidth / 2f;
         _ship.Y = ShipY;
         StartNextWave();
@@ -98,7 +98,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
         UpdateSubmarines(deltaTime);
         UpdateMines(deltaTime);
 
-        if (!_wavePending && _submarines.All(s => !s.Active))
+        if (!_wavePending && _submarines.Children.All(s => !s.Active))
         {
             _wavePending = true;
             _nextWaveTimer.Set(1.2f);
@@ -123,7 +123,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
 
     private void DropCharge(bool leftSide)
     {
-        if (_charges.Count >= MaxCharges || _gameOverShown)
+        if (_depthCharges.ChildCount >= MaxCharges || _gameOverShown)
             return;
 
         var charge = new DepthCharge
@@ -132,44 +132,42 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
             Y = _ship.Y + ChargeSpawnOffsetY
         };
         charge.Rigidbody.SetVelocity(0f, ChargeSpeed);
-        _charges.Add(charge);
+        _depthCharges.AddChild(charge);
     }
 
     private void UpdateCharges(float deltaTime)
     {
-        for (int i = _charges.Count - 1; i >= 0; i--)
+        _depthCharges.Update(deltaTime);
+
+        var charges = _depthCharges.Children;
+        for (int i = charges.Count - 1; i >= 0; i--)
         {
-            var charge = _charges[i];
-            charge.Rigidbody.Step(charge, deltaTime);
+            var charge = (DepthCharge)charges[i];
+            if (!charge.Active) continue;
 
-            bool consumed = false;
-            for (int s = 0; s < _submarines.Count; s++)
+            if (_submarines.FindChildCollision(charge, out _) is Submarine sub)
             {
-                var sub = _submarines[s];
-                if (!sub.Active ||
-                    !CollisionResolver.TryGetHit(charge.X, charge.Y, charge.Collider, sub.X, sub.Y, sub.Collider, out _))
-                    continue;
-
                 sub.Active = false;
                 state.Score += 100;
-                _charges.RemoveAt(i);
-                consumed = true;
-                break;
+                charge.Active = false;
+                continue;
             }
 
-            if (!consumed && charge.Y > GameHeight + 20f)
-                _charges.RemoveAt(i);
+            if (charge.Y > GameHeight + 20f)
+                charge.Active = false;
         }
+
+        _depthCharges.RemoveInactiveChildren();
     }
 
     private void UpdateSubmarines(float deltaTime)
     {
-        foreach (var sub in _submarines)
-        {
-            if (!sub.Active)
-                continue;
+        _submarines.Update(deltaTime);
 
-            sub.Rigidbody.Step(sub, deltaTime);
+        foreach (var child in _submarines.Children)
+        {
+            if (child is not Submarine sub || !sub.Active)
+                continue;
 
             if (sub.X < SubWidth / 2f)
             {
@@ -182,7 +180,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
                 sub.Reverse();
             }
 
-            if (sub.TickMineTimer(deltaTime) && _mines.Count < 12)
+            if (sub.TickMineTimer(deltaTime) && _mines.ChildCount < 12)
             {
                 var mine = new Mine
                 {
@@ -190,21 +188,24 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
                     Y = sub.Y - 12f
                 };
                 mine.Rigidbody.SetVelocity(0f, -MineSpeed);
-                _mines.Add(mine);
+                _mines.AddChild(mine);
             }
         }
     }
 
     private void UpdateMines(float deltaTime)
     {
-        for (int i = _mines.Count - 1; i >= 0; i--)
-        {
-            var mine = _mines[i];
-            mine.Rigidbody.Step(mine, deltaTime);
+        _mines.Update(deltaTime);
 
-            if (CollisionResolver.TryGetHit(mine.X, mine.Y, mine.Collider, _ship.X, _ship.Y, _ship.Collider, out _))
+        var mines = _mines.Children;
+        for (int i = mines.Count - 1; i >= 0; i--)
+        {
+            var mine = (Mine)mines[i];
+            if (!mine.Active) continue;
+
+            if (mine.Overlaps(_ship))
             {
-                _mines.RemoveAt(i);
+                mine.Active = false;
                 state.Lives--;
 
                 if (state.Lives <= 0 && !_gameOverShown)
@@ -215,16 +216,18 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
             }
             else if (mine.Y < -20f)
             {
-                _mines.RemoveAt(i);
+                mine.Active = false;
             }
         }
+
+        _mines.RemoveInactiveChildren();
     }
 
     private void StartNextWave()
     {
         _wavePending = false;
         state.Wave++;
-        _submarines.Clear();
+        ClearChildren(_submarines);
 
         int subCount = Math.Min(2 + state.Wave, 5);
         for (int i = 0; i < subCount; i++)
@@ -238,7 +241,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
 
             var sub = new Submarine();
             sub.Reset(x, y, speed, direction, 1f + Random.Shared.NextSingle() * 2.4f);
-            _submarines.Add(sub);
+            _submarines.AddChild(sub);
         }
     }
 
@@ -258,22 +261,9 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
             canvas.DrawRect(SKRect.Create(30f + i * 110f, WaterlineY + 20f + (i % 2) * 10f, 60f, 2f), _fillPaint);
 
         _ship.Draw(canvas);
-
-        foreach (var charge in _charges)
-        {
-            canvas.Save(); canvas.Translate(charge.X, charge.Y); charge.Sprite.Draw(canvas); canvas.Restore();
-        }
-
-        foreach (var sub in _submarines)
-        {
-            if (sub.Active)
-                sub.Draw(canvas);
-        }
-
-        foreach (var mine in _mines)
-        {
-            canvas.Save(); canvas.Translate(mine.X, mine.Y); mine.Sprite.Draw(canvas); canvas.Restore();
-        }
+        _depthCharges.Draw(canvas);
+        _submarines.Draw(canvas);
+        _mines.Draw(canvas);
 
         _scoreText.Text = $"Score: {state.Score}";
         canvas.Save(); canvas.Translate(20f, 32f); _scoreText.Draw(canvas); canvas.Restore();
@@ -284,7 +274,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
         _waveText.Text = $"Wave: {state.Wave}";
         canvas.Save(); canvas.Translate(20f, 88f); _waveText.Draw(canvas); canvas.Restore();
 
-        _chargeText.Text = $"Charges: {_charges.Count}/{MaxCharges}";
+        _chargeText.Text = $"Charges: {_depthCharges.ChildCount}/{MaxCharges}";
         canvas.Save(); canvas.Translate(GameWidth - 20f, 32f); _chargeText.Draw(canvas); canvas.Restore();
 
         canvas.Save(); canvas.Translate(GameWidth / 2f, 32f); _instructionsText.Draw(canvas); canvas.Restore();
@@ -294,5 +284,11 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
             _waveIncomingText.Text = $"Wave {state.Wave + 1} incoming...";
             canvas.Save(); canvas.Translate(GameWidth / 2f, 170f); _waveIncomingText.Draw(canvas); canvas.Restore();
         }
+    }
+
+    private static void ClearChildren(Entity parent)
+    {
+        while (parent.ChildCount > 0)
+            parent.RemoveChild(parent.Children[^1]);
     }
 }

@@ -19,6 +19,7 @@
     <ProjectReference Include="..\CastleAttack\SkiaSharpGames.CastleAttack.csproj" />
     <ProjectReference Include="..\SinkSub\SkiaSharpGames.SinkSub.csproj" />
     <ProjectReference Include="..\Pong\SkiaSharpGames.Pong.csproj" />
+    <ProjectReference Include="..\TwoZeroFourEight\SkiaSharpGames.TwoZeroFourEight.csproj" />
   </ItemGroup>
 
 </Project>

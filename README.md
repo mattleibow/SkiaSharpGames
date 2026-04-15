@@ -8,7 +8,7 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 
 📘 **Engine reference:** [docs/game-engine.md](docs/game-engine.md)
 
-🕹️ **Gameplay docs:** [Breakout](docs/games/breakout.md) · [Castle Attack](docs/games/castle-attack.md) · [Sink Sub](docs/games/sink-sub.md)
+🕹️ **Gameplay docs:** [Breakout](docs/games/breakout.md) · [Castle Attack](docs/games/castle-attack.md) · [Sink Sub](docs/games/sink-sub.md) · [2048](docs/games/2048.md)
 
 ## Games
 
@@ -17,6 +17,7 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 | [Breakout](src/BlazorApp/Games/Breakout/) | `/games/breakout` | Classic brick-breaker with power-ups and paddle-angle control. |
 | [Castle Attack](src/BlazorApp/Games/CastleAttack/) | `/games/castle-attack` | Defend layered castle walls with archers, workers, and special weapons. |
 | [Sink Sub](src/BlazorApp/Games/SinkSub/) | `/games/sink-sub` | Patrol the surface, drop depth charges, and sink submarines before their mines hit your ship. |
+| [2048](src/TwoZeroFourEight/) | `/games/2048` | Slide tiles on a 4×4 grid, merge matching numbers, and reach the 2048 tile. |
 
 ### Breakout
 
@@ -44,6 +45,15 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 | ![Desktop - Gameplay](docs/screenshots/sink-sub/desktop-gameplay.png) | ![Mobile - Gameplay](docs/screenshots/sink-sub/mobile-gameplay.png) |
 
 **Highlights:** surface movement, left/right depth-charge drops, wave-based submarine patrols, and rising mine hazards.
+
+### 2048
+
+| Desktop | Mobile |
+|---------|--------|
+| ![Desktop - Start screen](docs/screenshots/2048/desktop-loading.png) | ![Mobile - Start screen](docs/screenshots/2048/mobile-loading.png) |
+| ![Desktop - Gameplay](docs/screenshots/2048/desktop-gameplay.png) | ![Mobile - Gameplay](docs/screenshots/2048/mobile-gameplay.png) |
+
+**Highlights:** sliding tile animations, per-tile colour gradients, swipe input, score tracking, and spawn/merge effects.
 
 ## Project structure
 
@@ -98,6 +108,10 @@ src/
     PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
     TextRenderer.cs
 
+  TwoZeroFourEight/             # SkiaSharpGames.TwoZeroFourEight class library
+    TwoZeroFourEightGame.cs
+    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
+
   BlazorApp/                    # Blazor WebAssembly host
     Pages/
       Home.razor
@@ -105,6 +119,7 @@ src/
         Breakout.razor
         CastleAttack.razor
         SinkSub.razor
+        TwoZeroFourEight.razor
     Shared/
       GameView.razor
 

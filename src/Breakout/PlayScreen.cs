@@ -11,11 +11,12 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     private readonly Ball _ball = new();
     private readonly Paddle _paddle = new();
 
-    // ── Boundary walls (left, top, right — no bottom so ball can fall out) ──
+    // ── Boundary walls ────────────────────────────────────────────────────
     private static readonly float WallThickness = 100f;
-    private readonly Wall _leftWall  = new(-WallThickness / 2f, GameHeight / 2f, WallThickness, GameHeight + WallThickness * 2);
-    private readonly Wall _topWall   = new(GameWidth / 2f, -WallThickness / 2f, GameWidth + WallThickness * 2, WallThickness);
-    private readonly Wall _rightWall = new(GameWidth + WallThickness / 2f, GameHeight / 2f, WallThickness, GameHeight + WallThickness * 2);
+    private readonly Wall _leftWall   = new(-WallThickness / 2f, GameHeight / 2f, WallThickness, GameHeight + WallThickness * 2);
+    private readonly Wall _topWall    = new(GameWidth / 2f, -WallThickness / 2f, GameWidth + WallThickness * 2, WallThickness);
+    private readonly Wall _rightWall  = new(GameWidth + WallThickness / 2f, GameHeight / 2f, WallThickness, GameHeight + WallThickness * 2);
+    private readonly Wall _bottomWall = new(GameWidth / 2f, GameHeight + WallThickness / 2f, GameWidth + WallThickness * 2, WallThickness);
 
     // ── Power-up timers ───────────────────────────────────────────────────
     private CountdownTimer _strongBallTimer;
@@ -104,15 +105,15 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         // Physics step
         _ball.Rigidbody.Step(_ball, deltaTime);
 
-        // Boundary wall collisions (left, top, right — no bottom)
+        // Boundary wall collisions (left, top, right bounce; bottom = life lost)
         foreach (var wall in (ReadOnlySpan<Wall>)[_leftWall, _topWall, _rightWall])
         {
             if (CollisionResolver.TryGetHit(_ball, _ball.Collider, wall, wall.Collider, out var wallHit))
                 _ball.Rigidbody.Bounce(wallHit);
         }
 
-        // Ball lost
-        if (_ball.Y > GameHeight + _ball.Collider.Radius * 2)
+        // Ball hit the bottom wall — lose a life
+        if (CollisionResolver.Overlaps(_ball, _ball.Collider, _bottomWall, _bottomWall.Collider))
         {
             state.Lives--;
             if (state.Lives <= 0)

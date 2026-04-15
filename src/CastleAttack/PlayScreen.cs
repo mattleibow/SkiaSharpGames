@@ -108,7 +108,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     // ── Lifecycle ─────────────────────────────────────────────────────────
 
-    public override void OnActivated()
+    public override void OnActivating()
     {
         state.Score = 0;
         state.Level = 1;

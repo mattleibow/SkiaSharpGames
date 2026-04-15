@@ -42,6 +42,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
             return;
 
         _current = (GameScreen)_services.GetRequiredService(_initialScreenType);
+        _current.OnActivating();
         _current.OnActivated();
     }
 
@@ -53,7 +54,8 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
     {
         EnsureInitialized();
 
-        // Cancel any running transition
+        // Cancel any running transition: both the outgoing (already deactivating) and the
+        // incoming (was activating but never completed) are now fully removed.
         if (_activeTransition != null)
         {
             _activeTransition.Outgoing.OnDeactivated();
@@ -63,22 +65,28 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
 
         // Clear overlay stack
         foreach (var overlay in _overlays)
+        {
+            overlay.OnDeactivating();
             overlay.OnDeactivated();
+        }
         _overlays.Clear();
 
         var incoming = ResolveScreen<TScreen>();
 
         if (transition is null || transition.Duration <= 0f)
         {
-            _current!.OnDeactivated();
+            _current!.OnDeactivating();
+            _current.OnDeactivated();
             _current = incoming;
             _current.IsPaused = false;
+            _current.OnActivating();
             _current.OnActivated();
         }
         else
         {
             _current!.IsPaused = true;
-            incoming.OnActivated();
+            _current.OnDeactivating();
+            incoming.OnActivating();
             _activeTransition = new ActiveTransition(_current, incoming, transition);
         }
     }
@@ -95,6 +103,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
         }
 
         var overlay = ResolveScreen<TOverlay>();
+        overlay.OnActivating();
         overlay.OnActivated();
         _overlays.Add(overlay);
     }
@@ -105,6 +114,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
         if (_overlays.Count == 0)
             return;
 
+        _overlays[^1].OnDeactivating();
         _overlays[^1].OnDeactivated();
         _overlays.RemoveAt(_overlays.Count - 1);
 
@@ -141,11 +151,13 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
 
             if (_activeTransition.Progress >= 1f)
             {
+                var outgoing = _activeTransition.Outgoing;
                 var incoming = _activeTransition.Incoming;
-                _activeTransition.Outgoing.OnDeactivated();
                 _activeTransition = null;
                 _current = incoming;
                 _current.IsPaused = false;
+                outgoing.OnDeactivated();
+                incoming.OnActivated();
             }
             return;
         }

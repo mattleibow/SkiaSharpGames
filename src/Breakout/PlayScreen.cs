@@ -32,7 +32,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     private readonly TextSprite _strongBallText = new() { Size = 14f, Align = TextAlign.Center };
     private readonly TextSprite _bigPaddleText = new() { Size = 14f, Align = TextAlign.Center };
 
-    public override void OnActivated()
+    public override void OnActivating()
     {
         state.Score = 0;
         state.Lives = 3;
@@ -43,6 +43,13 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         _paddle.X = GameWidth / 2f;
         _paddle.Y = PaddleY + PaddleHeight / 2f;
         _paddle.SetWidthImmediate(DefaultPaddleWidth);
+        ResetBall();
+    }
+
+    public override void OnActivated()
+    {
+        // The transition is complete — re-sync the ball to wherever the paddle actually is.
+        // Pointer events during the dissolve-in may have moved the paddle while Update was paused.
         ResetBall();
     }
 
@@ -139,9 +146,14 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     private void ResolvePaddleCollision()
     {
         if (_ball.Rigidbody.VelocityY > 0f &&
-            CollisionResolver.TryGetHit(_ball, _ball.Collider, _paddle, _paddle.Collider, out _))
+            CollisionResolver.TryGetHit(_ball, _ball.Collider, _paddle, _paddle.Collider, out var hit))
         {
-            float hitPos = (_ball.X - _paddle.X) / (_paddle.Width / 2f);
+            // Push the ball out of the paddle so it cannot oscillate inside it.
+            _ball.X += hit.NormalX * hit.Penetration;
+            _ball.Y += hit.NormalY * hit.Penetration;
+
+            // Clamp hitPos to [-1, 1] so corner overlaps don't produce extreme angles.
+            float hitPos = Math.Clamp((_ball.X - _paddle.X) / (_paddle.Width / 2f), -1f, 1f);
             float angle = hitPos * (65f * MathF.PI / 180f);
             _ball.Rigidbody.SetVelocity(
                 BallSpeed * MathF.Sin(angle),

@@ -297,4 +297,47 @@ public class CollisionResolverTests
         body.Bounce(hit);
         Assert.True(body.VelocityX > 0f, "Ball should bounce rightward off the left wall");
     }
+
+    // ── RectCollider.BoundingBox ──────────────────────────────────────────
+
+    [Fact]
+    public void RectCollider_BoundingBox_MatchesWorldRect()
+    {
+        var entity = new TestEntity { X = 100f, Y = 50f };
+        var collider = new RectCollider { Width = 40f, Height = 20f };
+
+        var worldRect = collider.WorldRect(entity);
+        var boundingBox = collider.BoundingBox(entity);
+
+        Assert.Equal(worldRect.Left, boundingBox.Left, precision: 4);
+        Assert.Equal(worldRect.Top, boundingBox.Top, precision: 4);
+        Assert.Equal(worldRect.Right, boundingBox.Right, precision: 4);
+        Assert.Equal(worldRect.Bottom, boundingBox.Bottom, precision: 4);
+    }
+
+    [Fact]
+    public void RectCollider_BoundingBox_WithOffset_IsShifted()
+    {
+        var entity = new TestEntity { X = 100f, Y = 100f };
+        var collider = new RectCollider { Width = 20f, Height = 10f, OffsetX = 5f, OffsetY = -5f };
+
+        var box = collider.BoundingBox(entity);
+
+        Assert.Equal(95f, box.Left, precision: 4);
+        Assert.Equal(90f, box.Top, precision: 4);
+        Assert.Equal(115f, box.Right, precision: 4);
+        Assert.Equal(100f, box.Bottom, precision: 4);
+    }
+
+    [Fact]
+    public void CircleCollider_WithOffset_WorldCenterIsShifted()
+    {
+        var entity = new TestEntity { X = 100f, Y = 100f };
+        var collider = new CircleCollider { Radius = 5f, OffsetX = 10f, OffsetY = -5f };
+
+        var (cx, cy) = collider.WorldCenter(entity);
+
+        Assert.Equal(110f, cx, precision: 4);
+        Assert.Equal(95f, cy, precision: 4);
+    }
 }

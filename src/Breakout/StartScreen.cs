@@ -13,7 +13,7 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 
     private readonly List<Brick> _bricks = [];
 
-    public override void OnActivated()
+    public override void OnActivating()
     {
         _bricks.Clear();
         for (int r = 0; r < BrickRows; r++)

@@ -15,6 +15,9 @@
   <Folder Name="/src/SinkSub/">
     <Project Path="src/SinkSub/SkiaSharpGames.SinkSub.csproj" />
   </Folder>
+  <Folder Name="/src/Pong/">
+    <Project Path="src/Pong/SkiaSharpGames.Pong.csproj" />
+  </Folder>
   <Folder Name="/src/TwoZeroFourEight/">
     <Project Path="src/TwoZeroFourEight/SkiaSharpGames.TwoZeroFourEight.csproj" />
   </Folder>

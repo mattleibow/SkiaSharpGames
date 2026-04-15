@@ -4,6 +4,7 @@ using SkiaSharpGames.BlazorApp;
 using SkiaSharpGames.Breakout;
 using SkiaSharpGames.CastleAttack;
 using SkiaSharpGames.SinkSub;
+using SkiaSharpGames.Pong;
 using SkiaSharpGames.TwoZeroFourEight;
 using SkiaSharpGames.GameEngine;
 
@@ -18,6 +19,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddKeyedTransient<Game>("breakout", (sp, _) => BreakoutGame.Create());
 builder.Services.AddKeyedTransient<Game>("castle-attack", (sp, _) => CastleAttackGame.Create());
 builder.Services.AddKeyedTransient<Game>("sink-sub", (sp, _) => SinkSubGame.Create());
+builder.Services.AddKeyedTransient<Game>("pong", (sp, _) => PongGame.Create());
 builder.Services.AddKeyedTransient<Game>("2048", (sp, _) => TwoZeroFourEightGame.Create());
 
 await builder.Build().RunAsync();

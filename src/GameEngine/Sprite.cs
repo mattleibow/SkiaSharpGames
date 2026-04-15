@@ -24,8 +24,7 @@ public abstract class Sprite
 
     /// <summary>
     /// Advances any animated properties by <paramref name="deltaTime"/> seconds.
-    /// Override in subclasses to drive per-sprite animations (e.g. shimmer, fade-in).
-    /// Call this once per game update tick for any sprites that use animation.
+    /// Override in subclasses to drive per-sprite animations.
     /// </summary>
     public virtual void Update(float deltaTime) { }
 }

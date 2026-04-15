@@ -1,0 +1,56 @@
+using SkiaSharp;
+using SkiaSharpGames.GameEngine;
+using static SkiaSharpGames.Breakout.BreakoutConstants;
+
+namespace SkiaSharpGames.Breakout;
+
+/// <summary>Start/title screen: decorative brick grid + instructions. Click to start the game.</summary>
+internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
+{
+    private readonly TextSprite _title = new() { Text = "BREAKOUT", Size = 72f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly TextSprite _startPrompt = new() { Text = "Click or Tap to Start", Size = 28f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly TextSprite _instructions = new() { Text = "Move mouse / finger to control the paddle", Size = 18f, Color = DimColor, Align = TextAlign.Center };
+
+    private readonly List<Brick> _bricks = [];
+
+    public override void OnActivated()
+    {
+        _bricks.Clear();
+        for (int r = 0; r < BrickRows; r++)
+        {
+            for (int c = 0; c < BrickCols; c++)
+            {
+                float cx = BricksStartX + c * (BrickWidth + BrickGap) + BrickWidth / 2f;
+                float cy = BricksStartY + r * (BrickHeight + BrickGap) + BrickHeight / 2f;
+                var brick = new Brick(r, c, cx, cy);
+                brick.Sprite.Color = BrickColors[r];
+                brick.Sprite.Shimmer.Start(Random.Shared.NextSingle() * brick.Sprite.Shimmer.Period);
+                _bricks.Add(brick);
+            }
+        }
+    }
+
+    public override void Update(float deltaTime)
+    {
+        foreach (var brick in _bricks)
+            brick.Sprite.Update(deltaTime);
+    }
+
+    public override void Draw(SKCanvas canvas, int width, int height)
+    {
+        canvas.Clear(BackgroundColor);
+
+        foreach (var brick in _bricks)
+        {
+            brick.Sprite.Alpha = 0.3f;
+            brick.Sprite.Draw(canvas, brick.X, brick.Y);
+        }
+
+        _title.Draw(canvas, GameWidth / 2f, 290f);
+        _startPrompt.Draw(canvas, GameWidth / 2f, 360f);
+        _instructions.Draw(canvas, GameWidth / 2f, 415f);
+    }
+
+    public override void OnPointerDown(float x, float y)
+        => coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+}

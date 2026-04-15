@@ -6,65 +6,6 @@ namespace SkiaSharpGames.GameEngine;
 /// </summary>
 public static class CollisionResolver
 {
-    // ── Wall / bounds resolution ──────────────────────────────────────────
-
-    /// <summary>
-    /// Resolves left-wall, right-wall, and ceiling collisions for a circle moving through a bounded
-    /// game area. The bottom boundary is intentionally excluded so callers can decide whether that
-    /// means "lose a life", "wrap around", or "bounce".
-    /// </summary>
-    public static void ResolveWalls(Entity entity, CircleCollider collider, Rigidbody2D rigidbody, float gameWidth)
-        => ResolveBounds(entity, collider, rigidbody, new GameBounds(0f, 0f, gameWidth, float.MaxValue), bounceBottom: false);
-
-    /// <summary>
-    /// Keeps a circle inside the supplied playfield bounds. When an enabled boundary is crossed,
-    /// the position is corrected and the velocity is reflected.
-    /// </summary>
-    public static bool ResolveBounds(Entity entity,
-                                     CircleCollider collider,
-                                     Rigidbody2D rigidbody,
-                                     in GameBounds bounds,
-                                     bool bounceLeft = true,
-                                     bool bounceTop = true,
-                                     bool bounceRight = true,
-                                     bool bounceBottom = true)
-    {
-        bool hit = false;
-        float r = collider.Radius;
-
-        if (entity.X - r < bounds.Left)
-        {
-            entity.X = bounds.Left + r;
-            if (bounceLeft && rigidbody.VelocityX < 0f)
-                rigidbody.BounceX();
-            hit = true;
-        }
-        else if (entity.X + r > bounds.Right)
-        {
-            entity.X = bounds.Right - r;
-            if (bounceRight && rigidbody.VelocityX > 0f)
-                rigidbody.BounceX();
-            hit = true;
-        }
-
-        if (entity.Y - r < bounds.Top)
-        {
-            entity.Y = bounds.Top + r;
-            if (bounceTop && rigidbody.VelocityY < 0f)
-                rigidbody.BounceY();
-            hit = true;
-        }
-        else if (entity.Y + r > bounds.Bottom)
-        {
-            entity.Y = bounds.Bottom - r;
-            if (bounceBottom && rigidbody.VelocityY > 0f)
-                rigidbody.BounceY();
-            hit = true;
-        }
-
-        return hit;
-    }
-
     // ── Entity + collider API ─────────────────────────────────────────────
 
     /// <summary>

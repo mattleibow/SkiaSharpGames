@@ -29,22 +29,22 @@ internal sealed class EnemySprite : Sprite
 
     private readonly TextSprite _mooText = new() { Text = "MOO", Size = 10f, Color = new SKColor(0x55, 0x44, 0x22), Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible) return;
 
         SKColor col = CastleAttackConstants.EnemyCol(Type);
         switch (Type)
         {
-            case EnemyType.Catapult: DrawCatapult(canvas, x, y, col); break;
-            case EnemyType.Ram: DrawRam(canvas, x, y, col); break;
-            case EnemyType.Cow: DrawCow(canvas, x, y, col); break;
-            default: DrawHumanoid(canvas, x, y, col); break;
+            case EnemyType.Catapult: DrawCatapult(canvas, 0f, 0f, col); break;
+            case EnemyType.Ram: DrawRam(canvas, 0f, 0f, col); break;
+            case EnemyType.Cow: DrawCow(canvas, 0f, 0f, col); break;
+            default: DrawHumanoid(canvas, 0f, 0f, col); break;
         }
 
         if (MaxHP > 1f)
         {
-            float ex = x - Collider.Width / 2f;
+            float ex = 0f - Collider.Width / 2f;
             float ey = GroundY - Collider.Height;
             float barW = Collider.Width + 4f;
             float ratio = HP / MaxHP;
@@ -113,6 +113,6 @@ internal sealed class EnemySprite : Sprite
         canvas.DrawLine(ex + 4f, ey + Collider.Height - 4f, ex + 4f, GroundY, LegPaint);
         canvas.DrawLine(ex + Collider.Width - 4f, ey + Collider.Height - 4f, ex + Collider.Width - 4f, GroundY, LegPaint);
         canvas.DrawCircle(cx, ey + 8f, 3f, SpotPaint);
-        _mooText.Draw(canvas, cx, ey);
+        canvas.Save(); canvas.Translate(cx, ey); _mooText.Draw(canvas); canvas.Restore();
     }
 }

@@ -682,7 +682,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         foreach (var e in _enemies)
         {
             if (!e.Active) continue;
-            if (!CollisionResolver.Overlaps(a, a.Collider, e, e.Collider)) continue;
+            if (!CollisionResolver.TryGetHit(a.X, a.Y, a.Collider, e.X, e.Y, e.Collider, out _)) continue;
 
             float pts = PointsForEnemy(e.Type);
             e.HP -= 1f;
@@ -846,7 +846,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             _keepProgressText.Text = "COMPLETE!";
             _keepProgressText.Color = ColGold;
         }
-        _keepProgressText.Draw(canvas, (KeepLeft + KeepRight) / 2f, KeepBaseY - KeepFullH - 20f);
+        canvas.Save(); canvas.Translate((KeepLeft + KeepRight) / 2f, KeepBaseY - KeepFullH - 20f); _keepProgressText.Draw(canvas); canvas.Restore();
     }
 
     // ── Walls ─────────────────────────────────────────────────────────────
@@ -866,12 +866,14 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
                 _wallBlockSprite.HPRatio = block.HP / block.MaxHP;
                 _wallBlockSprite.Flash = flash;
-                _wallBlockSprite.Draw(canvas, wall.LeftX, blockY);
+                canvas.Save(); canvas.Translate(wall.LeftX, blockY); _wallBlockSprite.Draw(canvas); canvas.Restore();
                 blockY -= BlockH;
             }
 
             if (wall.HasArcher && !wall.IsDestroyed)
-                _archerSprite.Draw(canvas, wall.ArcherCenterX, wall.ArcherBaseY);
+            {
+                canvas.Save(); canvas.Translate(wall.ArcherCenterX, wall.ArcherBaseY); _archerSprite.Draw(canvas); canvas.Restore();
+            }
         }
     }
 
@@ -882,7 +884,9 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         float workerAreaW = KeepRight - KeepLeft - 10f;
         float spacing = workerAreaW / Math.Max(_workerCount, 1);
         for (int w = 0; w < _workerCount; w++)
-            _workerSprite.Draw(canvas, KeepLeft + 8f + w * spacing, GroundY);
+        {
+            canvas.Save(); canvas.Translate(KeepLeft + 8f + w * spacing, GroundY); _workerSprite.Draw(canvas); canvas.Restore();
+        }
     }
 
     // ── Lord ──────────────────────────────────────────────────────────────
@@ -891,7 +895,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     {
         _lordSprite.Active = _lordActive;
         _lordSprite.HPRatio = _lordHP / 10f;
-        _lordSprite.Draw(canvas, LordStandX, GroundY);
+        canvas.Save(); canvas.Translate(LordStandX, GroundY); _lordSprite.Draw(canvas); canvas.Restore();
     }
 
     // ── Enemies ───────────────────────────────────────────────────────────
@@ -902,7 +906,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         {
             if (!e.Active) continue;
             e.Sprite.HP = e.HP;
-            e.Sprite.Draw(canvas, e.X, e.Y);
+            canvas.Save(); canvas.Translate(e.X, e.Y); e.Sprite.Draw(canvas); canvas.Restore();
         }
     }
 
@@ -916,7 +920,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             a.Sprite.IsEnemy = a.IsEnemy;
             a.Sprite.VelocityX = a.Rigidbody.VelocityX;
             a.Sprite.VelocityY = a.Rigidbody.VelocityY;
-            a.Sprite.Draw(canvas, a.X, a.Y);
+            canvas.Save(); canvas.Translate(a.X, a.Y); a.Sprite.Draw(canvas); canvas.Restore();
         }
     }
 
@@ -925,7 +929,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         foreach (var b in boulders)
         {
             if (!b.Active) continue;
-            b.Sprite.Draw(canvas, b.X, b.Y);
+            canvas.Save(); canvas.Translate(b.X, b.Y); b.Sprite.Draw(canvas); canvas.Restore();
         }
     }
 
@@ -986,29 +990,29 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     private void DrawHud(SKCanvas canvas)
     {
         _scoreText.Text = $"Score: {state.Score}";
-        _scoreText.Draw(canvas, 8f, 26f);
+        canvas.Save(); canvas.Translate(8f, 26f); _scoreText.Draw(canvas); canvas.Restore();
 
         _levelText.Text = $"Level {state.Level}";
-        _levelText.Draw(canvas, GameWidth - 8f, 26f);
+        canvas.Save(); canvas.Translate(GameWidth - 8f, 26f); _levelText.Draw(canvas); canvas.Restore();
 
         _archerText.Text = $"Archers: {_archerCount}";
-        _archerText.Draw(canvas, 8f, 50f);
+        canvas.Save(); canvas.Translate(8f, 50f); _archerText.Draw(canvas); canvas.Restore();
         _workerText.Text = $"Workers: {_workerCount}";
-        _workerText.Draw(canvas, 8f, 70f);
+        canvas.Save(); canvas.Translate(8f, 70f); _workerText.Draw(canvas); canvas.Restore();
 
         float barX = 8f, barY = 82f, barW = 140f, barH = 10f;
         canvas.DrawRect(SKRect.Create(barX, barY, barW, barH), HudBarBg);
         canvas.DrawRect(SKRect.Create(barX, barY, barW * _keepProgress, barH), HudBarFg);
-        _keepLabel.Draw(canvas, barX, barY - 3f);
+        canvas.Save(); canvas.Translate(barX, barY - 3f); _keepLabel.Draw(canvas); canvas.Restore();
 
         _aimText.Text = $"Aim: {_aimAngle:F0}°";
-        _aimText.Draw(canvas, GameWidth / 2f, 20f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 20f); _aimText.Draw(canvas); canvas.Restore();
 
         if (_arrowCooldown.Active)
         {
             float r = _arrowCooldown.Remaining / ArrowCooldownTime;
             _cooldownDot.Color = new SKColor(0xFF, 0xFF, 0xFF, (byte)(r * 200));
-            _cooldownDot.Draw(canvas, GameWidth / 2f, 38f);
+            canvas.Save(); canvas.Translate(GameWidth / 2f, 38f); _cooldownDot.Draw(canvas); canvas.Restore();
         }
 
         if (_lordActive)
@@ -1016,13 +1020,13 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             float ratio = _lordHP / 10f;
             _lordHpText.Text = $"Lord HP: {_lordHP:F0}";
             _lordHpText.Color = ratio < 0.3f ? ColRed : ColGold;
-            _lordHpText.Draw(canvas, GameWidth - 160f, 50f);
+            canvas.Save(); canvas.Translate(GameWidth - 160f, 50f); _lordHpText.Draw(canvas); canvas.Restore();
         }
 
         if (_archerCount == 1 && _accuracyMult > 1)
         {
             _accuracyText.Text = $"Accuracy ×{_accuracyMult}";
-            _accuracyText.Draw(canvas, GameWidth / 2f, 60f);
+            canvas.Save(); canvas.Translate(GameWidth / 2f, 60f); _accuracyText.Draw(canvas); canvas.Restore();
         }
 
         DrawTouchButtons(canvas);
@@ -1055,7 +1059,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         _buttonSprite.LabelColor = labelCol;
         _buttonSprite.Pressed = pressed;
         _buttonSprite.Large = large;
-        _buttonSprite.Draw(canvas, 0f, 0f);
+        _buttonSprite.Draw(canvas);
     }
 
     // ── Float texts ───────────────────────────────────────────────────────
@@ -1067,7 +1071,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             t.Sprite.Text = t.Text;
             t.Sprite.Color = t.Color;
             t.Sprite.Life = t.Life;
-            t.Sprite.Draw(canvas, t.X, t.Y);
+            canvas.Save(); canvas.Translate(t.X, t.Y); t.Sprite.Draw(canvas); canvas.Restore();
         }
     }
 }

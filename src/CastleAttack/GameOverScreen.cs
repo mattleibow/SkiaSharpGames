@@ -22,10 +22,10 @@ internal sealed class GameOverScreen(CastleAttackGameState state, IScreenCoordin
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), OverlayPaint);
 
         float cx = GameWidth / 2f;
-        _defeatText.Draw(canvas, cx, 250f);
+        canvas.Save(); canvas.Translate(cx, 250f); _defeatText.Draw(canvas); canvas.Restore();
         _scoreText.Text = $"Score: {state.Score}";
-        _scoreText.Draw(canvas, cx, 315f);
-        _retryText.Draw(canvas, cx, 370f);
+        canvas.Save(); canvas.Translate(cx, 315f); _scoreText.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(cx, 370f); _retryText.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y)

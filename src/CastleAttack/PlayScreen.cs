@@ -365,9 +365,8 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
         for (int i = _texts.Count - 1; i >= 0; i--)
         {
-            _texts[i].Life -= deltaTime;
-            _texts[i].Rigidbody.Step(_texts[i], deltaTime);
-            if (_texts[i].Life <= 0f) _texts.RemoveAt(i);
+            _texts[i].Update(deltaTime);
+            if (!_texts[i].Active) _texts.RemoveAt(i);
         }
     }
 
@@ -420,7 +419,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             _                    => new Enemy { Type = type, X = SpawnX, HP = 1f,  MaxHP = 1f,  Speed = 50f,  Collider = new() { Width = 12f, Height = 24f } }
         };
         e.Y = GroundY - e.Collider.Height / 2f;
-        // Sync sprite
+        // Initial sprite sync (OnUpdate handles subsequent syncs)
         e.Sprite.Type = e.Type;
         e.Sprite.Collider = e.Collider;
         e.Sprite.HP = e.HP;
@@ -447,7 +446,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         {
             case EnemyType.Cow:
                 e.Rigidbody.VelocityX = -e.Speed;
-                e.Rigidbody.Step(e, dt);
+                e.Update(dt);
                 if (e.X < -e.Collider.Width) e.Active = false;
                 return;
             case EnemyType.Ram: UpdateRam(e, dt, tgtWall); return;
@@ -473,7 +472,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             {
                 e.State = EnemyState.Walking;
                 e.Rigidbody.VelocityX = -e.Speed;
-                e.Rigidbody.Step(e, dt);
+                e.Update(dt);
             }
             else
             {
@@ -496,7 +495,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         {
             e.State = EnemyState.Walking;
             e.Rigidbody.VelocityX = -e.Speed;
-            e.Rigidbody.Step(e, dt);
+            e.Update(dt);
         }
         else
         {
@@ -523,7 +522,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             if (e.X - e.Collider.Width / 2f > KeepRight + 5f)
             {
                 e.Rigidbody.VelocityX = -e.Speed;
-                e.Rigidbody.Step(e, dt);
+                e.Update(dt);
             }
             else
             {
@@ -538,7 +537,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         {
             e.State = EnemyState.Walking;
             e.Rigidbody.VelocityX = -e.Speed;
-            e.Rigidbody.Step(e, dt);
+            e.Update(dt);
         }
         else
         {
@@ -547,13 +546,13 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             UpdateArcherCount();
             SpawnText("WALL BREACHED!", wall.CenterX, wall.TopY - 50f, ColRed);
             e.Rigidbody.VelocityX = -e.Speed * 0.5f;
-            e.Rigidbody.Step(e, dt);
+            e.Update(dt);
         }
     }
 
     private void UpdateCatapult(Enemy e, float dt, int tgtWall)
     {
-        if (tgtWall < 0) { e.Rigidbody.VelocityX = -e.Speed; e.Rigidbody.Step(e, dt); return; }
+        if (tgtWall < 0) { e.Rigidbody.VelocityX = -e.Speed; e.Update(dt); return; }
 
         var wall = _walls[tgtWall];
         float stopX = wall.LeftX + BlockW + e.AttackRange + e.Collider.Width / 2f;
@@ -562,7 +561,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         {
             e.State = EnemyState.Walking;
             e.Rigidbody.VelocityX = -e.Speed;
-            e.Rigidbody.Step(e, dt);
+            e.Update(dt);
         }
         else
         {
@@ -591,7 +590,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         {
             e.State = EnemyState.Walking;
             e.Rigidbody.VelocityX = -e.Speed;
-            e.Rigidbody.Step(e, dt);
+            e.Update(dt);
         }
         else
         {
@@ -662,7 +661,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             if (!a.Active) { _arrows.RemoveAt(i); continue; }
 
             a.Rigidbody.VelocityY += ArrowGravity * dt;
-            a.Rigidbody.Step(a, dt);
+            a.Update(dt);
 
             if (a.X > GameWidth + 20f || a.X < -20f || a.Y > GroundY + 20f)
             {
@@ -682,7 +681,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         foreach (var e in _enemies)
         {
             if (!e.Active) continue;
-            if (!CollisionResolver.TryGetHit(a.X, a.Y, a.Collider, e.X, e.Y, e.Collider, out _)) continue;
+            if (!a.TryGetHit(e, out _)) continue;
 
             float pts = PointsForEnemy(e.Type);
             e.HP -= 1f;
@@ -729,7 +728,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             if (!b.Active) { _boulders.RemoveAt(i); continue; }
 
             b.Rigidbody.VelocityY += ArrowGravity * dt;
-            b.Rigidbody.Step(b, dt);
+            b.Update(dt);
 
             if (b.X < -40f || b.X > GameWidth + 40f || b.Y > GroundY + 20f)
             { b.Active = false; _boulders.RemoveAt(i); continue; }
@@ -905,8 +904,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         foreach (var e in enemies)
         {
             if (!e.Active) continue;
-            e.Sprite.HP = e.HP;
-            canvas.Save(); canvas.Translate(e.X, e.Y); e.Sprite.Draw(canvas); canvas.Restore();
+            e.Draw(canvas);
         }
     }
 
@@ -917,10 +915,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         foreach (var a in arrows)
         {
             if (!a.Active) continue;
-            a.Sprite.IsEnemy = a.IsEnemy;
-            a.Sprite.VelocityX = a.Rigidbody.VelocityX;
-            a.Sprite.VelocityY = a.Rigidbody.VelocityY;
-            canvas.Save(); canvas.Translate(a.X, a.Y); a.Sprite.Draw(canvas); canvas.Restore();
+            a.Draw(canvas);
         }
     }
 
@@ -929,7 +924,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         foreach (var b in boulders)
         {
             if (!b.Active) continue;
-            canvas.Save(); canvas.Translate(b.X, b.Y); b.Sprite.Draw(canvas); canvas.Restore();
+            b.Draw(canvas);
         }
     }
 
@@ -1068,10 +1063,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     {
         foreach (var t in _texts)
         {
-            t.Sprite.Text = t.Text;
-            t.Sprite.Color = t.Color;
-            t.Sprite.Life = t.Life;
-            canvas.Save(); canvas.Translate(t.X, t.Y); t.Sprite.Draw(canvas); canvas.Restore();
+            t.Draw(canvas);
         }
     }
 }

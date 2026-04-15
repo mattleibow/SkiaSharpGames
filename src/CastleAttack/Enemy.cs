@@ -17,11 +17,23 @@ internal sealed class Enemy : Entity
     public float FireCooldown;
     public float FireInterval = 2.5f;
 
-    /// <summary>
-    /// Hitbox. Width and Height are also used for drawing — they define the visual size of the enemy.
-    /// </summary>
-    public RectCollider Collider = new();
-    public readonly Rigidbody2D Rigidbody = new();
+    public Enemy()
+    {
+        Collider = new RectCollider();
+        Rigidbody = new Rigidbody2D();
+        Sprite = new EnemySprite();
+    }
 
-    public readonly EnemySprite Sprite = new();
+    public new EnemySprite Sprite { get => (EnemySprite)base.Sprite!; init => base.Sprite = value; }
+    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
+    public new Rigidbody2D Rigidbody { get => (Rigidbody2D)base.Rigidbody!; init => base.Rigidbody = value; }
+
+    protected override void OnUpdate(float deltaTime)
+    {
+        // Sync sprite with current entity state
+        Sprite.HP = HP;
+        Sprite.MaxHP = MaxHP;
+        Sprite.Type = Type;
+        Sprite.Collider = Collider;
+    }
 }

@@ -18,7 +18,7 @@ internal sealed class CircleSprite : Sprite
 
     public SKColor GlowColor { get; set; } = AccentColor;
 
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible || Alpha <= 0f)
             return;
@@ -27,11 +27,11 @@ internal sealed class CircleSprite : Sprite
         {
             EnsureGlowMask();
             _glowPaint.Color = GlowColor.WithAlpha((byte)(60 * Alpha));
-            canvas.DrawCircle(x, y, Radius + GlowRadius / 2f, _glowPaint);
+            canvas.DrawCircle(0f, 0f, Radius + GlowRadius / 2f, _glowPaint);
         }
 
         _paint.Color = Color.WithAlpha((byte)(255 * Alpha));
-        canvas.DrawCircle(x, y, Radius, _paint);
+        canvas.DrawCircle(0f, 0f, Radius, _paint);
     }
 
     private void EnsureGlowMask()

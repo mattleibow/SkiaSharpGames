@@ -16,12 +16,12 @@ internal sealed class GameOverScreen(CatchGameState state, IScreenCoordinator co
     {
         canvas.DrawRect(0, 0, GameWidth, GameHeight, _overlayPaint);
 
-        _titleText.Draw(canvas, GameWidth / 2f, 250f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 250f); _titleText.Draw(canvas); canvas.Restore();
 
         _scoreText.Text = $"Score: {state.Score}";
-        _scoreText.Draw(canvas, GameWidth / 2f, 325f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 325f); _scoreText.Draw(canvas); canvas.Restore();
 
-        _promptText.Draw(canvas, GameWidth / 2f, 395f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 395f); _promptText.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y) =>

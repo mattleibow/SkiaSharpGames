@@ -44,6 +44,56 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private CountdownTimer[] _wallFlash = new CountdownTimer[3];
 
+    // ── Sprites ───────────────────────────────────────────────────────────
+    private readonly ArcherSprite _archerSprite = new();
+    private readonly WorkerSprite _workerSprite = new();
+    private readonly LordSprite _lordSprite = new();
+    private readonly WallBlockSprite _wallBlockSprite = new();
+    private readonly ButtonSprite _buttonSprite = new();
+
+    // ── Cached paints (background / keep / HUD / aim) ────────────────────
+    private static readonly SKPaint SkyPaint = new();
+    private static readonly SKPaint GroundPaint = new() { Color = ColGround };
+    private static readonly SKPaint GroundEdgePaint = new() { Color = ColGroundEdge };
+    private static readonly SKPaint HillPaint = new() { Color = new SKColor(0x2A, 0x20, 0x12), IsAntialias = true };
+    private static readonly SKPath HillPath;
+
+    private static readonly SKPaint KeepFoundPaint = new() { Color = ColKeepBase, IsAntialias = true };
+    private static readonly SKPaint KeepFillPaint = new() { Color = ColKeepDone };
+    private static readonly SKPaint KeepBorderPaint = new() { Color = ColStoneDmg, Style = SKPaintStyle.Stroke, StrokeWidth = 2f };
+    private static readonly SKPaint KeepMerlonPaint = new() { Color = ColKeepBase };
+
+    private static readonly SKPaint HudBarBg = new() { Color = new SKColor(0x30, 0x30, 0x30) };
+    private static readonly SKPaint HudBarFg = new() { Color = ColKeepProg };
+    private static readonly SKPaint BtnStripPaint = new() { Color = new SKColor(0x00, 0x00, 0x00, 140) };
+
+    private static readonly SKPaint AimDotPaint = new()
+    {
+        Color = new SKColor(0xFF, 0xFF, 0xFF, 100),
+        StrokeWidth = 1.5f,
+        IsAntialias = true,
+        PathEffect = SKPathEffect.CreateDash([4f, 6f], 0f)
+    };
+    private static readonly SKPaint AimLandPaint = new() { Color = new SKColor(0xFF, 0xFF, 0x00, 180), IsAntialias = true };
+
+    static PlayScreen()
+    {
+        // Build the sky shader once
+        var skyShader = SKShader.CreateLinearGradient(
+            new SKPoint(0, 0), new SKPoint(0, GroundY),
+            [ColSky, ColHorizon], [0f, 1f], SKShaderTileMode.Clamp);
+        SkyPaint.Shader = skyShader;
+
+        // Build the hill path once
+        HillPath = new SKPath();
+        HillPath.MoveTo(0, GroundY);
+        HillPath.CubicTo(200, GroundY - 60, 400, GroundY - 80, 600, GroundY - 40);
+        HillPath.CubicTo(800, GroundY, 900, GroundY - 50, 1100, GroundY - 30);
+        HillPath.LineTo(GameWidth, GroundY);
+        HillPath.LineTo(0, GroundY);
+        HillPath.Close();
+    }
+
     // ── Lifecycle ─────────────────────────────────────────────────────────
 
     public override void OnActivated()
@@ -358,6 +408,11 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             _                    => new Enemy { Type = type, X = SpawnX, HP = 1f,  MaxHP = 1f,  Speed = 50f,  Collider = new() { Width = 12f, Height = 24f } }
         };
         e.Y = GroundY - e.Collider.Height / 2f;
+        // Sync sprite
+        e.Sprite.Type = e.Type;
+        e.Sprite.Collider = e.Collider;
+        e.Sprite.HP = e.HP;
+        e.Sprite.MaxHP = e.MaxHP;
         return e;
     }
 
@@ -727,9 +782,9 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         DrawWalls(canvas);
         DrawWorkers(canvas);
         DrawLord(canvas);
-        DrawEnemies(canvas);
-        DrawBoulders(canvas);
-        DrawArrows(canvas);
+        DrawEnemies(canvas, _enemies);
+        DrawBoulders(canvas, _boulders);
+        DrawArrows(canvas, _arrows);
         DrawAimIndicator(canvas);
         DrawFloatTexts(canvas);
         DrawHud(canvas);
@@ -739,26 +794,10 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private static void DrawBackground(SKCanvas canvas)
     {
-        using var skyShader = SKShader.CreateLinearGradient(
-            new SKPoint(0, 0), new SKPoint(0, GroundY),
-            [ColSky, ColHorizon], [0f, 1f], SKShaderTileMode.Clamp);
-        using var skyPaint = new SKPaint { Shader = skyShader };
-        canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GroundY), skyPaint);
-
-        using var gp = new SKPaint { Color = ColGround };
-        canvas.DrawRect(SKRect.Create(0, GroundY, GameWidth, GameHeight - GroundY), gp);
-        using var gep = new SKPaint { Color = ColGroundEdge };
-        canvas.DrawRect(SKRect.Create(0, GroundY, GameWidth, 4f), gep);
-
-        using var hillPaint = new SKPaint { Color = new SKColor(0x2A, 0x20, 0x12), IsAntialias = true };
-        using var hillPath = new SKPath();
-        hillPath.MoveTo(0, GroundY);
-        hillPath.CubicTo(200, GroundY - 60, 400, GroundY - 80, 600, GroundY - 40);
-        hillPath.CubicTo(800, GroundY, 900, GroundY - 50, 1100, GroundY - 30);
-        hillPath.LineTo(GameWidth, GroundY);
-        hillPath.LineTo(0, GroundY);
-        hillPath.Close();
-        canvas.DrawPath(hillPath, hillPaint);
+        canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GroundY), SkyPaint);
+        canvas.DrawRect(SKRect.Create(0, GroundY, GameWidth, GameHeight - GroundY), GroundPaint);
+        canvas.DrawRect(SKRect.Create(0, GroundY, GameWidth, 4f), GroundEdgePaint);
+        canvas.DrawPath(HillPath, HillPaint);
     }
 
     // ── Keep ──────────────────────────────────────────────────────────────
@@ -769,25 +808,19 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         float builtY = KeepBaseY - builtH;
         float keepW = KeepRight - KeepLeft;
 
-        using var foundPaint = new SKPaint { Color = ColKeepBase, IsAntialias = true };
-        canvas.DrawRect(SKRect.Create(KeepLeft, KeepBaseY - KeepFullH, keepW, KeepFullH), foundPaint);
+        canvas.DrawRect(SKRect.Create(KeepLeft, KeepBaseY - KeepFullH, keepW, KeepFullH), KeepFoundPaint);
 
         if (builtH > 0f)
-        {
-            using var fillPaint = new SKPaint { Color = ColKeepDone };
-            canvas.DrawRect(SKRect.Create(KeepLeft, builtY, keepW, builtH), fillPaint);
-        }
+            canvas.DrawRect(SKRect.Create(KeepLeft, builtY, keepW, builtH), KeepFillPaint);
 
-        using var borderPaint = new SKPaint { Color = ColStoneDmg, Style = SKPaintStyle.Stroke, StrokeWidth = 2f };
-        canvas.DrawRect(SKRect.Create(KeepLeft, KeepBaseY - KeepFullH, keepW, KeepFullH), borderPaint);
+        canvas.DrawRect(SKRect.Create(KeepLeft, KeepBaseY - KeepFullH, keepW, KeepFullH), KeepBorderPaint);
 
         float merlonW = 14f, merlonH = 14f, gap = 4f;
         float startX = KeepLeft + 4f;
         float topY = KeepBaseY - KeepFullH;
-        using var mPaint = new SKPaint { Color = ColKeepBase };
         while (startX + merlonW <= KeepRight - 4f)
         {
-            canvas.DrawRect(SKRect.Create(startX, topY - merlonH, merlonW, merlonH), mPaint);
+            canvas.DrawRect(SKRect.Create(startX, topY - merlonH, merlonW, merlonH), KeepMerlonPaint);
             startX += merlonW + gap;
         }
 
@@ -814,39 +847,15 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
                 var block = wall.Blocks[bi];
                 if (!block.Active) continue;
 
-                float ratio = block.HP / block.MaxHP;
-                SKColor col = flash ? ColStoneDmg
-                            : ratio < 0.3f ? ColStoneLow
-                            : ratio < 0.6f ? ColStoneDmg
-                            : ColStone;
-
-                float bx = wall.LeftX;
-                using var bp = new SKPaint { Color = col, IsAntialias = true };
-                canvas.DrawRoundRect(SKRect.Create(bx, blockY, BlockW, BlockH), 3f, 3f, bp);
-
-                if (ratio < 0.6f)
-                {
-                    using var cp = new SKPaint { Color = new SKColor(0x00, 0x00, 0x00, 80), StrokeWidth = 1.5f, IsAntialias = true };
-                    canvas.DrawLine(bx + 8f, blockY + 4f, bx + 18f, blockY + BlockH - 4f, cp);
-                }
-
-                using var shinePaint = new SKPaint { Color = SKColors.White.WithAlpha(40), IsAntialias = true };
-                canvas.DrawRect(SKRect.Create(bx + 2f, blockY + 2f, BlockW - 4f, BlockH / 2f - 2f), shinePaint);
+                _wallBlockSprite.HPRatio = block.HP / block.MaxHP;
+                _wallBlockSprite.Flash = flash;
+                _wallBlockSprite.Draw(canvas, wall.LeftX, blockY);
                 blockY -= BlockH;
             }
 
             if (wall.HasArcher && !wall.IsDestroyed)
-                DrawArcher(canvas, wall.ArcherCenterX, wall.ArcherBaseY);
+                _archerSprite.Draw(canvas, wall.ArcherCenterX, wall.ArcherBaseY);
         }
-    }
-
-    private static void DrawArcher(SKCanvas canvas, float cx, float baseY)
-    {
-        using var bp = new SKPaint { Color = ColArcher, IsAntialias = true };
-        canvas.DrawRect(SKRect.Create(cx - ArcherW / 2f, baseY - ArcherH, ArcherW, ArcherH - 8f), bp);
-        canvas.DrawCircle(cx, baseY - ArcherH - 5f, 6f, bp);
-        using var bowPaint = new SKPaint { Color = ColArrow, StrokeWidth = 2f, IsAntialias = true };
-        canvas.DrawLine(cx + ArcherW / 2f, baseY - ArcherH + 4f, cx + ArcherW / 2f + 8f, baseY - ArcherH / 2f, bowPaint);
     }
 
     // ── Workers ───────────────────────────────────────────────────────────
@@ -856,167 +865,50 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         float workerAreaW = KeepRight - KeepLeft - 10f;
         float spacing = workerAreaW / Math.Max(_workerCount, 1);
         for (int w = 0; w < _workerCount; w++)
-            DrawWorker(canvas, KeepLeft + 8f + w * spacing, GroundY);
-    }
-
-    private static void DrawWorker(SKCanvas canvas, float cx, float baseY)
-    {
-        using var p = new SKPaint { Color = ColWorker, IsAntialias = true };
-        canvas.DrawRect(SKRect.Create(cx - WorkerW / 2f, baseY - WorkerH, WorkerW, WorkerH - 6f), p);
-        canvas.DrawCircle(cx, baseY - WorkerH - 4f, 5f, p);
-        using var tp = new SKPaint { Color = new SKColor(0xCC, 0xCC, 0xCC), StrokeWidth = 2f, IsAntialias = true };
-        canvas.DrawLine(cx + WorkerW / 2f, baseY - WorkerH + 2f, cx + WorkerW / 2f + 10f, baseY - WorkerH + 10f, tp);
+            _workerSprite.Draw(canvas, KeepLeft + 8f + w * spacing, GroundY);
     }
 
     // ── Lord ──────────────────────────────────────────────────────────────
 
     private void DrawLord(SKCanvas canvas)
     {
-        if (!_lordActive) return;
-        float lx = LordStandX, ly = GroundY;
-        float barW = 40f, ratio = _lordHP / 10f;
-        using var barBg = new SKPaint { Color = new SKColor(0x40, 0x00, 0x00) };
-        canvas.DrawRect(SKRect.Create(lx - barW / 2f, ly - LordH - 14f, barW, 6f), barBg);
-        using var barFg = new SKPaint { Color = new SKColor(0xFF, 0x22, 0x22) };
-        canvas.DrawRect(SKRect.Create(lx - barW / 2f, ly - LordH - 14f, barW * ratio, 6f), barFg);
-
-        using var lp = new SKPaint { Color = ColLord, IsAntialias = true };
-        canvas.DrawRect(SKRect.Create(lx - LordW / 2f, ly - LordH, LordW, LordH - 8f), lp);
-        canvas.DrawCircle(lx, ly - LordH - 5f, 7f, lp);
-        using var cp = new SKPaint { Color = ColGold, IsAntialias = true };
-        canvas.DrawRect(SKRect.Create(lx - 7f, ly - LordH - 17f, 4f, 6f), cp);
-        canvas.DrawRect(SKRect.Create(lx - 2f, ly - LordH - 20f, 4f, 9f), cp);
-        canvas.DrawRect(SKRect.Create(lx + 3f, ly - LordH - 17f, 4f, 6f), cp);
-        using var sp = new SKPaint { Color = new SKColor(0xCC, 0xCC, 0xCC), StrokeWidth = 2f, IsAntialias = true };
-        canvas.DrawLine(lx + LordW / 2f, ly - LordH, lx + LordW / 2f + 18f, ly - LordH / 2f, sp);
+        _lordSprite.Active = _lordActive;
+        _lordSprite.HPRatio = _lordHP / 10f;
+        _lordSprite.Draw(canvas, LordStandX, GroundY);
     }
 
     // ── Enemies ───────────────────────────────────────────────────────────
 
-    private void DrawEnemies(SKCanvas canvas)
+    private static void DrawEnemies(SKCanvas canvas, List<Enemy> enemies)
     {
-        foreach (var e in _enemies)
+        foreach (var e in enemies)
         {
             if (!e.Active) continue;
-            DrawEnemy(canvas, e);
+            e.Sprite.HP = e.HP;
+            e.Sprite.Draw(canvas, e.X, e.Y);
         }
-    }
-
-    private static void DrawEnemy(SKCanvas canvas, Enemy e)
-    {
-        SKColor col = CastleAttackConstants.EnemyCol(e.Type);
-        switch (e.Type)
-        {
-            case EnemyType.Catapult: DrawCatapultSprite(canvas, e, col); break;
-            case EnemyType.Ram: DrawRamSprite(canvas, e, col); break;
-            case EnemyType.Cow: DrawCowSprite(canvas, e, col); break;
-            default: DrawHumanoidEnemy(canvas, e, col); break;
-        }
-
-        if (e.MaxHP > 1f)
-        {
-            float ex = e.X - e.Collider.Width / 2f;
-            float ey = GroundY - e.Collider.Height;
-            float barW = e.Collider.Width + 4f;
-            float ratio = e.HP / e.MaxHP;
-            using var bg = new SKPaint { Color = new SKColor(0x40, 0x00, 0x00) };
-            canvas.DrawRect(SKRect.Create(ex - 2f, ey - 8f, barW, 4f), bg);
-            using var fg = new SKPaint { Color = new SKColor(0xFF, 0x44, 0x00) };
-            canvas.DrawRect(SKRect.Create(ex - 2f, ey - 8f, barW * ratio, 4f), fg);
-        }
-    }
-
-    private static void DrawHumanoidEnemy(SKCanvas canvas, Enemy e, SKColor col)
-    {
-        float ex = e.X - e.Collider.Width / 2f, ey = GroundY - e.Collider.Height;
-        using var p = new SKPaint { Color = col, IsAntialias = true };
-        canvas.DrawRect(SKRect.Create(ex, ey, e.Collider.Width, e.Collider.Height - 8f), p);
-        canvas.DrawCircle(e.X, ey - 5f, 6f, p);
-
-        if (e.Type == EnemyType.Crossbowman)
-        {
-            using var wp = new SKPaint { Color = ColArrow, StrokeWidth = 1.5f, IsAntialias = true };
-            canvas.DrawLine(ex - 4f, ey + e.Collider.Height / 3f, ex - 12f, ey + e.Collider.Height / 3f, wp);
-        }
-        else if (e.Type is EnemyType.Spearman or EnemyType.Berserker)
-        {
-            using var wp = new SKPaint { Color = new SKColor(0xCC, 0xCC, 0xCC), StrokeWidth = 2f, IsAntialias = true };
-            canvas.DrawLine(ex - 2f, ey, ex - 14f, ey - 10f, wp);
-        }
-        else
-        {
-            using var wp = new SKPaint { Color = new SKColor(0xCC, 0xCC, 0xCC), StrokeWidth = 3f, IsAntialias = true };
-            canvas.DrawLine(ex - 2f, ey + 2f, ex - 14f, ey + 8f, wp);
-        }
-    }
-
-    private static void DrawCatapultSprite(SKCanvas canvas, Enemy e, SKColor col)
-    {
-        float ex = e.X - e.Collider.Width / 2f, ey = GroundY - e.Collider.Height;
-        using var p = new SKPaint { Color = col, IsAntialias = true };
-        canvas.DrawRoundRect(SKRect.Create(ex, ey + 8f, e.Collider.Width, e.Collider.Height - 8f), 3f, 3f, p);
-        using var arm = new SKPaint { Color = new SKColor(0x8B, 0x5E, 0x2E), StrokeWidth = 3f, IsAntialias = true };
-        canvas.DrawLine(e.X, ey + 14f, e.X - 14f, ey, arm);
-        using var wheel = new SKPaint { Color = new SKColor(0x55, 0x44, 0x22), IsAntialias = true };
-        canvas.DrawCircle(ex + 6f, GroundY - 5f, 5f, wheel);
-        canvas.DrawCircle(ex + e.Collider.Width - 6f, GroundY - 5f, 5f, wheel);
-    }
-
-    private static void DrawRamSprite(SKCanvas canvas, Enemy e, SKColor col)
-    {
-        float ex = e.X - e.Collider.Width / 2f, ey = GroundY - e.Collider.Height;
-        using var p = new SKPaint { Color = col, IsAntialias = true };
-        canvas.DrawRoundRect(SKRect.Create(ex, ey, e.Collider.Width, e.Collider.Height - 6f), 4f, 4f, p);
-        using var tip = new SKPaint { Color = new SKColor(0xCC, 0xCC, 0xCC), IsAntialias = true };
-        canvas.DrawRect(SKRect.Create(ex - 10f, ey + 6f, 14f, 8f), tip);
-        using var wheel = new SKPaint { Color = new SKColor(0x55, 0x44, 0x22), IsAntialias = true };
-        canvas.DrawCircle(ex + 6f, GroundY - 4f, 5f, wheel);
-        canvas.DrawCircle(ex + e.Collider.Width - 6f, GroundY - 4f, 5f, wheel);
-    }
-
-    private static void DrawCowSprite(SKCanvas canvas, Enemy e, SKColor col)
-    {
-        float ex = e.X - e.Collider.Width / 2f, ey = GroundY - e.Collider.Height;
-        using var p = new SKPaint { Color = col, IsAntialias = true };
-        canvas.DrawRoundRect(SKRect.Create(ex, ey + 4f, e.Collider.Width, e.Collider.Height - 8f), 5f, 5f, p);
-        using var head = new SKPaint { Color = col, IsAntialias = true };
-        canvas.DrawRoundRect(SKRect.Create(ex - 8f, ey + 6f, 14f, 10f), 4f, 4f, head);
-        using var leg = new SKPaint { Color = new SKColor(0xDD, 0xDD, 0xCC), StrokeWidth = 3f, IsAntialias = true };
-        canvas.DrawLine(ex + 4f, ey + e.Collider.Height - 4f, ex + 4f, GroundY, leg);
-        canvas.DrawLine(ex + e.Collider.Width - 4f, ey + e.Collider.Height - 4f, ex + e.Collider.Width - 4f, GroundY, leg);
-        using var spot = new SKPaint { Color = new SKColor(0x88, 0x88, 0x77), IsAntialias = true };
-        canvas.DrawCircle(e.X, ey + 8f, 3f, spot);
-        TextRenderer.DrawCenteredText(canvas, "MOO", 10f, new SKColor(0x55, 0x44, 0x22), e.X, ey);
     }
 
     // ── Arrows ────────────────────────────────────────────────────────────
 
-    private void DrawArrows(SKCanvas canvas)
+    private static void DrawArrows(SKCanvas canvas, List<Arrow> arrows)
     {
-        foreach (var a in _arrows)
+        foreach (var a in arrows)
         {
             if (!a.Active) continue;
-            float angle = MathF.Atan2(a.Rigidbody.VelocityY, a.Rigidbody.VelocityX);
-            float len = 14f;
-            float dx = MathF.Cos(angle) * len;
-            float dy = MathF.Sin(angle) * len;
-            using var ap = new SKPaint
-            {
-                Color = a.IsEnemy ? ColFire : ColArrow,
-                StrokeWidth = a.IsEnemy ? 2.5f : 2f,
-                IsAntialias = true
-            };
-            canvas.DrawLine(a.X - dx / 2f, a.Y - dy / 2f, a.X + dx / 2f, a.Y + dy / 2f, ap);
+            a.Sprite.IsEnemy = a.IsEnemy;
+            a.Sprite.VelocityX = a.Rigidbody.VelocityX;
+            a.Sprite.VelocityY = a.Rigidbody.VelocityY;
+            a.Sprite.Draw(canvas, a.X, a.Y);
         }
     }
 
-    private void DrawBoulders(SKCanvas canvas)
+    private static void DrawBoulders(SKCanvas canvas, List<Boulder> boulders)
     {
-        foreach (var b in _boulders)
+        foreach (var b in boulders)
         {
             if (!b.Active) continue;
-            using var p = new SKPaint { Color = ColBoulder, IsAntialias = true };
-            canvas.DrawCircle(b.X, b.Y, 7f, p);
+            b.Sprite.Draw(canvas, b.X, b.Y);
         }
     }
 
@@ -1037,13 +929,6 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         float vx = ArrowSpeed * MathF.Cos(rad);
         float vy = -ArrowSpeed * MathF.Sin(rad);
 
-        using var dotPaint = new SKPaint
-        {
-            Color = new SKColor(0xFF, 0xFF, 0xFF, 100),
-            StrokeWidth = 1.5f,
-            IsAntialias = true,
-            PathEffect = SKPathEffect.CreateDash([4f, 6f], 0f)
-        };
         using var path = new SKPath();
         bool first = true;
         for (float t = 0; t < 3f; t += 0.05f)
@@ -1054,17 +939,14 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             if (first) { path.MoveTo(nx, ny); first = false; }
             else path.LineTo(nx, ny);
         }
-        canvas.DrawPath(path, dotPaint);
+        canvas.DrawPath(path, AimDotPaint);
 
         float landT = FindLandingTime(ay, vy);
         if (landT > 0f)
         {
             float landX = ax + vx * landT;
             if (landX >= 0 && landX <= GameWidth)
-            {
-                using var dotFill = new SKPaint { Color = new SKColor(0xFF, 0xFF, 0x00, 180), IsAntialias = true };
-                canvas.DrawCircle(landX, GroundY - 3f, 5f, dotFill);
-            }
+                canvas.DrawCircle(landX, GroundY - 3f, 5f, AimLandPaint);
         }
     }
 
@@ -1095,10 +977,8 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         TextRenderer.DrawText(canvas, $"Workers: {_workerCount}", 16f, ColWorker, 8f, 70f);
 
         float barX = 8f, barY = 82f, barW = 140f, barH = 10f;
-        using var barBg = new SKPaint { Color = new SKColor(0x30, 0x30, 0x30) };
-        canvas.DrawRect(SKRect.Create(barX, barY, barW, barH), barBg);
-        using var barFg = new SKPaint { Color = ColKeepProg };
-        canvas.DrawRect(SKRect.Create(barX, barY, barW * _keepProgress, barH), barFg);
+        canvas.DrawRect(SKRect.Create(barX, barY, barW, barH), HudBarBg);
+        canvas.DrawRect(SKRect.Create(barX, barY, barW * _keepProgress, barH), HudBarFg);
         TextRenderer.DrawText(canvas, "Keep", 11f, ColDim, barX, barY - 3f);
 
         TextRenderer.DrawCenteredText(canvas, $"Aim: {_aimAngle:F0}°", 15f, ColDim, GameWidth / 2f, 20f);
@@ -1125,8 +1005,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private void DrawTouchButtons(SKCanvas canvas)
     {
-        using var stripPaint = new SKPaint { Color = new SKColor(0x00, 0x00, 0x00, 140) };
-        canvas.DrawRect(SKRect.Create(0, BtnY - 4f, GameWidth, BtnH + 8f), stripPaint);
+        canvas.DrawRect(SKRect.Create(0, BtnY - 4f, GameWidth, BtnH + 8f), BtnStripPaint);
 
         bool canA2W = _workerCount > 1 && _archerCount > 0;
         bool canW2A = _workerCount > 1 && _archerCount < _walls.Count;
@@ -1142,31 +1021,16 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         DrawButton(canvas, BtnLogs, "Logs (C)", _logsAvail, ColFire, false);
     }
 
-    private static void DrawButton(SKCanvas canvas, SKRect rect, string label,
+    private void DrawButton(SKCanvas canvas, SKRect rect, string label,
         bool enabled, SKColor labelCol, bool pressed, bool large = false)
     {
-        float alpha = enabled ? 1f : 0.4f;
-        byte bgA = pressed ? (byte)180 : (byte)110;
-        SKColor bg = pressed ? new SKColor(0xFF, 0xFF, 0xFF, bgA)
-                               : new SKColor(0x22, 0x22, 0x33, bgA);
-        using var bgPaint = new SKPaint { Color = bg, IsAntialias = true };
-        canvas.DrawRoundRect(rect, BtnR, BtnR, bgPaint);
-
-        SKColor border = enabled
-            ? (pressed ? SKColors.White : new SKColor(0x88, 0x88, 0xAA))
-            : new SKColor(0x44, 0x44, 0x55);
-        using var borderPaint = new SKPaint
-        {
-            Color = border.WithAlpha((byte)(200 * alpha)),
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = 1.5f,
-            IsAntialias = true
-        };
-        canvas.DrawRoundRect(rect, BtnR, BtnR, borderPaint);
-
-        float fontSize = large ? 16f : 13f;
-        SKColor col = pressed ? SKColors.Black : labelCol;
-        TextRenderer.DrawCenteredText(canvas, label, fontSize, col, rect.MidX, rect.MidY + fontSize * 0.38f, alpha);
+        _buttonSprite.Rect = rect;
+        _buttonSprite.Label = label;
+        _buttonSprite.Enabled = enabled;
+        _buttonSprite.LabelColor = labelCol;
+        _buttonSprite.Pressed = pressed;
+        _buttonSprite.Large = large;
+        _buttonSprite.Draw(canvas, 0f, 0f);
     }
 
     // ── Float texts ───────────────────────────────────────────────────────
@@ -1175,8 +1039,10 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     {
         foreach (var t in _texts)
         {
-            float alpha = Math.Clamp(t.Life / 1.4f, 0f, 1f);
-            TextRenderer.DrawCenteredText(canvas, t.Text, 16f, t.Color, t.X, t.Y, alpha);
+            t.Sprite.Text = t.Text;
+            t.Sprite.Color = t.Color;
+            t.Sprite.Life = t.Life;
+            t.Sprite.Draw(canvas, t.X, t.Y);
         }
     }
 }

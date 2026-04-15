@@ -4,7 +4,12 @@ namespace SkiaSharpGames.Catch;
 
 internal sealed class PlayerBar : Entity
 {
-    public readonly RectCollider Collider = new() { Width = CatchConstants.BarWidth, Height = CatchConstants.BarHeight };
+    public PlayerBar()
+    {
+        Collider = new RectCollider { Width = CatchConstants.BarWidth, Height = CatchConstants.BarHeight };
+        Sprite = new BarSprite();
+    }
 
-    public readonly BarSprite Sprite = new();
+    public new BarSprite Sprite { get => (BarSprite)base.Sprite!; init => base.Sprite = value; }
+    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
 }

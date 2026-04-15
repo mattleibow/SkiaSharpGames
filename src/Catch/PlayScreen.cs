@@ -73,10 +73,10 @@ internal sealed class PlayScreen(CatchGameState state, IScreenCoordinator coordi
         if (_rightHeld)
             MoveBarTo(_bar.X + BarSpeed * deltaTime);
 
-        _circle.Rigidbody.Step(_circle, deltaTime);
+        _circle.Update(deltaTime);
 
         if (_circle.Rigidbody.VelocityY > 0f &&
-            CollisionResolver.TryGetHit(_circle.X, _circle.Y, _circle.Collider, _bar.X, _bar.Y, _bar.Collider, out _))
+            _circle.TryGetHit(_bar, out _))
         {
             state.Score++;
             _fallSpeed += FallSpeedIncrement;
@@ -107,8 +107,8 @@ internal sealed class PlayScreen(CatchGameState state, IScreenCoordinator coordi
         _fillPaint.Color = SKColors.White.WithAlpha((byte)(255 * 0.09f));
         canvas.DrawRect(SKRect.Create(0f, BarY + BarHeight / 2f + 20f, GameWidth, 3f), _fillPaint);
 
-        canvas.Save(); canvas.Translate(_bar.X, _bar.Y); _bar.Sprite.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(_circle.X, _circle.Y); _circle.Sprite.Draw(canvas); canvas.Restore();
+        _bar.Draw(canvas);
+        _circle.Draw(canvas);
 
         // HUD
         _scoreText.Text = $"Score: {state.Score}";

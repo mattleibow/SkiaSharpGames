@@ -1,18 +1,289 @@
+using SkiaSharp;
+
 namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
-/// Abstract base for all game objects that exist in the game world.
-/// An entity is the single source of truth for position; physics and rendering
-/// components read from it rather than storing their own copy.
+/// Base class for all game objects. An entity carries position (with optional
+/// rotation), nullable rendering/physics/collision components, and an ordered
+/// list of children. Children store local-space positions relative to their
+/// parent; world positions are cached and recalculated whenever any ancestor's
+/// local position or rotation changes.
 /// </summary>
-public abstract class Entity
+public class Entity
 {
-    /// <summary>Horizontal centre position in game-space units.</summary>
-    public float X { get; set; }
+    private float _x, _y, _rotation;
+    private List<Entity>? _children;
 
-    /// <summary>Vertical centre position in game-space units.</summary>
-    public float Y { get; set; }
+    // ── Local position / rotation ─────────────────────────────────────
+
+    /// <summary>Horizontal position in local space (relative to parent, or world if root).</summary>
+    public float X
+    {
+        get => _x;
+        set { _x = value; RecalculateWorld(); }
+    }
+
+    /// <summary>Vertical position in local space (relative to parent, or world if root).</summary>
+    public float Y
+    {
+        get => _y;
+        set { _y = value; RecalculateWorld(); }
+    }
+
+    /// <summary>Local rotation in radians. Positive = clockwise.</summary>
+    public float Rotation
+    {
+        get => _rotation;
+        set { _rotation = value; RecalculateWorld(); }
+    }
 
     /// <summary>When <see langword="false"/> the entity is skipped during update and rendering.</summary>
     public bool Active { get; set; } = true;
+
+    /// <summary>When <see langword="false"/> the entity is not drawn (but still updated).</summary>
+    public bool Visible { get; set; } = true;
+
+    // ── World transform (cached) ──────────────────────────────────────
+
+    /// <summary>World-space X, accounting for all ancestor positions and rotations.</summary>
+    public float WorldX { get; private set; }
+
+    /// <summary>World-space Y, accounting for all ancestor positions and rotations.</summary>
+    public float WorldY { get; private set; }
+
+    /// <summary>Accumulated world rotation in radians.</summary>
+    public float WorldRotation { get; private set; }
+
+    private void RecalculateWorld()
+    {
+        if (Parent is null)
+        {
+            WorldX = _x;
+            WorldY = _y;
+            WorldRotation = _rotation;
+        }
+        else if (Parent.WorldRotation == 0f)
+        {
+            // Fast path: no parent rotation — simple addition
+            WorldX = Parent.WorldX + _x;
+            WorldY = Parent.WorldY + _y;
+            WorldRotation = _rotation;
+        }
+        else
+        {
+            // Parent rotation orbits child position around parent
+            float cos = MathF.Cos(Parent.WorldRotation);
+            float sin = MathF.Sin(Parent.WorldRotation);
+            WorldX = Parent.WorldX + _x * cos - _y * sin;
+            WorldY = Parent.WorldY + _x * sin + _y * cos;
+            WorldRotation = Parent.WorldRotation + _rotation;
+        }
+
+        if (_children is not null)
+            for (int i = 0; i < _children.Count; i++)
+                _children[i].RecalculateWorld();
+    }
+
+    // ── Components (nullable, opt-in) ─────────────────────────────────
+
+    /// <summary>Visual representation. Drawn at the local origin by <see cref="Draw"/>.</summary>
+    public Sprite? Sprite { get; set; }
+
+    /// <summary>Collision shape. Used by <see cref="WorldBoundingBox"/> and collision helpers.</summary>
+    public Collider2D? Collider { get; set; }
+
+    /// <summary>Velocity-driven movement. Stepped automatically by <see cref="Update"/>.</summary>
+    public Rigidbody2D? Rigidbody { get; set; }
+
+    // ── Children ──────────────────────────────────────────────────────
+
+    /// <summary>Parent entity, or null if this is a root entity.</summary>
+    public Entity? Parent { get; private set; }
+
+    /// <summary>Ordered list of child entities.</summary>
+    public IReadOnlyList<Entity> Children => (IReadOnlyList<Entity>?)_children ?? [];
+
+    /// <summary>Number of children.</summary>
+    public int ChildCount => _children?.Count ?? 0;
+
+    /// <summary>
+    /// Adds <paramref name="child"/> to this entity's children. If the child already
+    /// has a parent it is removed from that parent first. World positions are recalculated.
+    /// </summary>
+    public void AddChild(Entity child)
+    {
+        child.Parent?.RemoveChild(child);
+        (_children ??= []).Add(child);
+        child.Parent = this;
+        child.RecalculateWorld();
+    }
+
+    /// <summary>Removes <paramref name="child"/> from this entity's children.</summary>
+    public void RemoveChild(Entity child)
+    {
+        if (_children?.Remove(child) == true)
+        {
+            child.Parent = null;
+            child.RecalculateWorld();
+        }
+    }
+
+    /// <summary>Removes all children where <see cref="Active"/> is false.</summary>
+    public int RemoveInactiveChildren()
+    {
+        if (_children is null) return 0;
+        return _children.RemoveAll(c =>
+        {
+            if (c.Active) return false;
+            c.Parent = null;
+            return true;
+        });
+    }
+
+    // ── Update (recursive) ────────────────────────────────────────────
+
+    /// <summary>
+    /// Advances the entity tree. Steps rigidbody, updates sprite, calls
+    /// <see cref="OnUpdate"/>, then recurses into active children.
+    /// </summary>
+    public void Update(float deltaTime)
+    {
+        if (!Active) return;
+
+        Rigidbody?.Step(this, deltaTime);
+        Sprite?.Update(deltaTime);
+        OnUpdate(deltaTime);
+
+        if (_children is not null)
+            for (int i = 0; i < _children.Count; i++)
+                _children[i].Update(deltaTime);
+    }
+
+    /// <summary>Override for game-specific per-frame logic (timers, AI, etc.).</summary>
+    protected virtual void OnUpdate(float deltaTime) { }
+
+    // ── Draw (recursive) ──────────────────────────────────────────────
+
+    /// <summary>
+    /// Renders the entity tree. Translates (and optionally rotates) the canvas,
+    /// draws the sprite at the local origin, then recurses into visible children.
+    /// </summary>
+    public void Draw(SKCanvas canvas)
+    {
+        if (!Active || !Visible) return;
+
+        canvas.Save();
+        canvas.Translate(_x, _y);
+        if (_rotation != 0f)
+            canvas.RotateRadians(_rotation);
+
+        Sprite?.Draw(canvas);
+
+        if (_children is not null)
+            for (int i = 0; i < _children.Count; i++)
+                _children[i].Draw(canvas);
+
+        canvas.Restore();
+    }
+
+    // ── Collision (world-space) ───────────────────────────────────────
+
+    /// <summary>
+    /// World-space bounding box. Returns a conservative axis-aligned box that
+    /// encloses the collider, accounting for rotation. Null if no collider.
+    /// </summary>
+    public SKRect? WorldBoundingBox
+    {
+        get
+        {
+            if (Collider is null) return null;
+            var local = Collider.BoundingBox(0f, 0f);
+
+            if (WorldRotation == 0f)
+                return SKRect.Create(WorldX + local.Left, WorldY + local.Top,
+                                     local.Width, local.Height);
+
+            // Rotated AABB: compute enclosing axis-aligned box
+            float cos = MathF.Cos(WorldRotation);
+            float sin = MathF.Sin(WorldRotation);
+            float halfW = local.Width / 2f;
+            float halfH = local.Height / 2f;
+            float absW = MathF.Abs(cos) * halfW + MathF.Abs(sin) * halfH;
+            float absH = MathF.Abs(sin) * halfW + MathF.Abs(cos) * halfH;
+            return new SKRect(WorldX - absW, WorldY - absH,
+                              WorldX + absW, WorldY + absH);
+        }
+    }
+
+    /// <summary>Tests overlap with another entity in world space.</summary>
+    public bool Overlaps(Entity other) =>
+        CollisionResolver.Overlaps(this, other);
+
+    /// <summary>Tests overlap and returns collision details for bounce resolution.</summary>
+    public bool TryGetHit(Entity other, out CollisionHit hit) =>
+        CollisionResolver.TryGetHit(this, other, out hit);
+
+    /// <summary>If overlapping, bounces this entity's rigidbody off <paramref name="other"/>.</summary>
+    public bool BounceOff(Entity other)
+    {
+        if (Rigidbody is null || !TryGetHit(other, out var hit)) return false;
+        Rigidbody.Bounce(hit);
+        return true;
+    }
+
+    // ── Child queries ─────────────────────────────────────────────────
+
+    /// <summary>Aggregate world-space bounding box of all active children with colliders.</summary>
+    public SKRect? ChildrenBoundingBox
+    {
+        get
+        {
+            if (_children is null) return null;
+            SKRect? result = null;
+            for (int i = 0; i < _children.Count; i++)
+            {
+                var c = _children[i];
+                if (!c.Active) continue;
+                var bb = c.WorldBoundingBox;
+                if (bb is null) continue;
+                result = result is null ? bb.Value : SKRect.Union(result.Value, bb.Value);
+            }
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// Finds the first active child that collides with <paramref name="other"/>.
+    /// Performs a broad-phase group bounding box check first.
+    /// </summary>
+    public Entity? FindChildCollision(Entity other, out CollisionHit hit)
+    {
+        if (_children is null || other.Collider is null)
+        {
+            hit = default;
+            return null;
+        }
+
+        // Broad-phase: skip all children if other doesn't overlap group bounds
+        var groupBB = ChildrenBoundingBox;
+        var otherBB = other.WorldBoundingBox;
+        if (groupBB is null || otherBB is null
+            || !groupBB.Value.IntersectsWith(otherBB.Value))
+        {
+            hit = default;
+            return null;
+        }
+
+        // Narrow-phase: test each active child
+        for (int i = 0; i < _children.Count; i++)
+        {
+            var c = _children[i];
+            if (!c.Active || c.Collider is null) continue;
+            if (CollisionResolver.TryGetHit(other, c, out hit))
+                return c;
+        }
+
+        hit = default;
+        return null;
+    }
 }

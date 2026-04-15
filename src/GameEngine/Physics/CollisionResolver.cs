@@ -1,43 +1,58 @@
 namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
-/// Static helpers for simple arcade-style 2D collisions between entities, colliders, and
-/// rigidbodies.
+/// Static helpers for simple arcade-style 2D collisions between entities.
 /// </summary>
 public static class CollisionResolver
 {
-    // ── Entity + collider API ─────────────────────────────────────────────
+    // ── Entity API (uses WorldX/WorldY and Collider) ──────────────────
 
     /// <summary>
-    /// Returns <see langword="true"/> when the two colliders overlap.
+    /// Returns <see langword="true"/> when the two entities' colliders overlap
+    /// in world space. Returns false if either entity has no collider.
     /// </summary>
-    public static bool Overlaps(Entity a, Collider2D colliderA, Entity b, Collider2D colliderB) =>
-        TryGetHit(a, colliderA, b, colliderB, out _);
+    public static bool Overlaps(Entity a, Entity b)
+    {
+        if (a.Collider is null || b.Collider is null) return false;
+        return TryGetHit(a.WorldX, a.WorldY, a.Collider,
+                         b.WorldX, b.WorldY, b.Collider, out _);
+    }
 
     /// <summary>
-    /// Returns <see langword="true"/> when the circle described by
-    /// <paramref name="circle"/>/<paramref name="circleOwner"/> overlaps the rectangle described by
-    /// <paramref name="rect"/>/<paramref name="rectOwner"/>.
+    /// Returns <see langword="true"/> when the two entities overlap and outputs
+    /// <paramref name="hit"/> with the collision normal and penetration.
+    /// Returns false if either entity has no collider.
     /// </summary>
-    public static bool Overlaps(Entity circleOwner, CircleCollider circle,
-                                Entity rectOwner,   RectCollider rect)
-        => TryGetHit(circleOwner, circle, rectOwner, rect, out _);
+    public static bool TryGetHit(Entity a, Entity b, out CollisionHit hit)
+    {
+        if (a.Collider is null || b.Collider is null)
+        {
+            hit = default;
+            return false;
+        }
+        return TryGetHit(a.WorldX, a.WorldY, a.Collider,
+                         b.WorldX, b.WorldY, b.Collider, out hit);
+    }
+
+    // ── Position-based API ────────────────────────────────────────────
 
     /// <summary>
-    /// Tries to compute collision information for the two supplied colliders.
+    /// Tries to compute collision information for two colliders at explicit positions.
     /// </summary>
-    public static bool TryGetHit(Entity a, Collider2D colliderA, Entity b, Collider2D colliderB, out CollisionHit hit)
+    public static bool TryGetHit(float ax, float ay, Collider2D colliderA,
+                                 float bx, float by, Collider2D colliderB,
+                                 out CollisionHit hit)
     {
         switch (colliderA)
         {
             case CircleCollider circleA when colliderB is CircleCollider circleB:
-                return TryGetCircleCircleHit(a, circleA, b, circleB, out hit);
+                return TryGetCircleCircleHit(ax, ay, circleA, bx, by, circleB, out hit);
 
             case CircleCollider circle when colliderB is RectCollider rect:
-                return TryGetCircleRectHit(a, circle, b, rect, out hit);
+                return TryGetCircleRectHit(ax, ay, circle, bx, by, rect, out hit);
 
             case RectCollider rectA when colliderB is CircleCollider circleB:
-                if (TryGetCircleRectHit(b, circleB, a, rectA, out var reverseHit))
+                if (TryGetCircleRectHit(bx, by, circleB, ax, ay, rectA, out var reverseHit))
                 {
                     hit = new CollisionHit(-reverseHit.NormalX, -reverseHit.NormalY, reverseHit.Penetration);
                     return true;
@@ -46,47 +61,21 @@ public static class CollisionResolver
                 return false;
 
             case RectCollider rectA when colliderB is RectCollider rectB:
-                return TryGetRectRectHit(a, rectA, b, rectB, out hit);
+                return TryGetRectRectHit(ax, ay, rectA, bx, by, rectB, out hit);
 
             default:
                 throw new NotSupportedException($"Unsupported collider pair: {colliderA.GetType().Name} and {colliderB.GetType().Name}.");
         }
     }
 
-    /// <summary>
-    /// Reflects <paramref name="rigidbody"/>'s velocity off the rectangle
-    /// <paramref name="rect"/>/<paramref name="rectOwner"/> using the smallest-overlap axis.
-    /// Does <b>not</b> check for overlap first.
-    /// </summary>
-    public static void Reflect(Entity circleOwner, CircleCollider circle, Rigidbody2D rigidbody,
-                               Entity rectOwner,   RectCollider rect)
+    private static bool TryGetCircleCircleHit(float ax, float ay, CircleCollider circleA,
+                                               float bx, float by, CircleCollider circleB,
+                                               out CollisionHit hit)
     {
-        if (TryGetHit(circleOwner, circle, rectOwner, rect, out var hit))
-            rigidbody.Bounce(hit);
-    }
-
-    /// <summary>
-    /// If the circle overlaps the rectangle, reflects <paramref name="rigidbody"/>'s velocity
-    /// and returns <see langword="true"/>. Returns <see langword="false"/> when there is no overlap.
-    /// </summary>
-    public static bool ReflectOff(Entity circleOwner, CircleCollider circle, Rigidbody2D rigidbody,
-                                  Entity rectOwner,   RectCollider rect)
-    {
-        if (!TryGetHit(circleOwner, circle, rectOwner, rect, out var hit))
-            return false;
-
-        rigidbody.Bounce(hit);
-        return true;
-    }
-
-    private static bool TryGetCircleCircleHit(Entity a, CircleCollider circleA,
-                                              Entity b, CircleCollider circleB,
-                                              out CollisionHit hit)
-    {
-        var (ax, ay) = circleA.WorldCenter(a);
-        var (bx, by) = circleB.WorldCenter(b);
-        float dx = ax - bx;
-        float dy = ay - by;
+        var (cax, cay) = circleA.WorldCenter(ax, ay);
+        var (cbx, cby) = circleB.WorldCenter(bx, by);
+        float dx = cax - cbx;
+        float dy = cay - cby;
         float distanceSquared = dx * dx + dy * dy;
         float radius = circleA.Radius + circleB.Radius;
         float radiusSquared = radius * radius;
@@ -108,12 +97,12 @@ public static class CollisionResolver
         return true;
     }
 
-    private static bool TryGetRectRectHit(Entity a, RectCollider rectA,
-                                          Entity b, RectCollider rectB,
-                                          out CollisionHit hit)
+    private static bool TryGetRectRectHit(float ax, float ay, RectCollider rectA,
+                                           float bx, float by, RectCollider rectB,
+                                           out CollisionHit hit)
     {
-        var aBounds = rectA.WorldRect(a);
-        var bBounds = rectB.WorldRect(b);
+        var aBounds = rectA.WorldRect(ax, ay);
+        var bBounds = rectB.WorldRect(bx, by);
 
         if (!aBounds.IntersectsWith(bBounds))
         {
@@ -123,25 +112,25 @@ public static class CollisionResolver
 
         float overlapX = MathF.Min(aBounds.Right, bBounds.Right) - MathF.Max(aBounds.Left, bBounds.Left);
         float overlapY = MathF.Min(aBounds.Bottom, bBounds.Bottom) - MathF.Max(aBounds.Top, bBounds.Top);
-        var (ax, ay) = rectA.WorldCenter(a);
-        var (bx, by) = rectB.WorldCenter(b);
+        var (cax, cay) = rectA.WorldCenter(ax, ay);
+        var (cbx, cby) = rectB.WorldCenter(bx, by);
 
         if (overlapX < overlapY)
         {
-            hit = new CollisionHit(ax < bx ? -1f : 1f, 0f, overlapX);
+            hit = new CollisionHit(cax < cbx ? -1f : 1f, 0f, overlapX);
             return true;
         }
 
-        hit = new CollisionHit(0f, ay < by ? -1f : 1f, overlapY);
+        hit = new CollisionHit(0f, cay < cby ? -1f : 1f, overlapY);
         return true;
     }
 
-    private static bool TryGetCircleRectHit(Entity circleOwner, CircleCollider circle,
-                                            Entity rectOwner, RectCollider rect,
-                                            out CollisionHit hit)
+    private static bool TryGetCircleRectHit(float circleX, float circleY, CircleCollider circle,
+                                             float rectX, float rectY, RectCollider rect,
+                                             out CollisionHit hit)
     {
-        var (cx, cy) = circle.WorldCenter(circleOwner);
-        var bounds = rect.WorldRect(rectOwner);
+        var (cx, cy) = circle.WorldCenter(circleX, circleY);
+        var bounds = rect.WorldRect(rectX, rectY);
         float nearX = Math.Clamp(cx, bounds.Left, bounds.Right);
         float nearY = Math.Clamp(cy, bounds.Top, bounds.Bottom);
         float dx = cx - nearX;

@@ -4,9 +4,9 @@ namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
 /// Base class for all drawable game sprites.
-/// A sprite encapsulates visual appearance only — position is not stored here.
-/// Callers pass the position at draw time so that the entity remains the single
-/// source of truth for where things are.
+/// A sprite draws at the canvas origin (0, 0) — the entity's <see cref="Entity.Draw"/>
+/// method translates the canvas to the entity's position before calling
+/// <see cref="Draw(SKCanvas)"/>.
 /// </summary>
 public abstract class Sprite
 {
@@ -17,10 +17,10 @@ public abstract class Sprite
     public bool Visible { get; set; } = true;
 
     /// <summary>
-    /// Renders the sprite onto <paramref name="canvas"/> centred on
-    /// (<paramref name="x"/>, <paramref name="y"/>) in game-space units.
+    /// Renders the sprite onto <paramref name="canvas"/> centred at the canvas origin.
+    /// The canvas has already been translated to the entity's position.
     /// </summary>
-    public abstract void Draw(SKCanvas canvas, float x, float y);
+    public abstract void Draw(SKCanvas canvas);
 
     /// <summary>
     /// Advances any animated properties by <paramref name="deltaTime"/> seconds.

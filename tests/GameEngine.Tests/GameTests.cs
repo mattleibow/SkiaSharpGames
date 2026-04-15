@@ -305,4 +305,98 @@ public class GameTests
         game.Update(0.5f);
         Assert.True(tracker.ADeactivated);
     }
+
+    // ── Game input forwarding ─────────────────────────────────────────────
+
+    [Fact]
+    public void OnPointerMove_ForwardedToActiveScreen()
+    {
+        var (game, tracker) = InputTestFactory.Create();
+        game.OnPointerMove(100f, 200f);
+        Assert.Equal((100f, 200f), tracker.LastPointerMove);
+    }
+
+    [Fact]
+    public void OnPointerDown_ForwardedToActiveScreen()
+    {
+        var (game, tracker) = InputTestFactory.Create();
+        game.OnPointerDown(50f, 60f);
+        Assert.Equal((50f, 60f), tracker.LastPointerDown);
+    }
+
+    [Fact]
+    public void OnPointerUp_ForwardedToActiveScreen()
+    {
+        var (game, tracker) = InputTestFactory.Create();
+        game.OnPointerUp(70f, 80f);
+        Assert.Equal((70f, 80f), tracker.LastPointerUp);
+    }
+
+    [Fact]
+    public void OnKeyDown_ForwardedToActiveScreen()
+    {
+        var (game, tracker) = InputTestFactory.Create();
+        game.OnKeyDown("Space");
+        Assert.Equal("Space", tracker.LastKeyDown);
+    }
+
+    [Fact]
+    public void OnKeyUp_ForwardedToActiveScreen()
+    {
+        var (game, tracker) = InputTestFactory.Create();
+        game.OnKeyUp("Enter");
+        Assert.Equal("Enter", tracker.LastKeyUp);
+    }
+
+    [Fact]
+    public void ActiveInputScreen_DuringTransition_DoesNotThrow()
+    {
+        var (game, _) = InputTestFactory.Create();
+        var coordinator = game.Services.GetRequiredService<IScreenCoordinator>();
+        coordinator.TransitionTo<InputDummyScreen>(new DissolveTransition { Duration = 1f });
+
+        var ex = Record.Exception(() => game.OnPointerMove(0f, 0f));
+        Assert.Null(ex);
+    }
+}
+
+// ── Input-forwarding test helpers ─────────────────────────────────────────
+
+file sealed class InputTracker
+{
+    public (float x, float y)? LastPointerMove { get; set; }
+    public (float x, float y)? LastPointerDown { get; set; }
+    public (float x, float y)? LastPointerUp { get; set; }
+    public string? LastKeyDown { get; set; }
+    public string? LastKeyUp { get; set; }
+}
+
+file sealed class InputCapturingScreen(InputTracker tracker) : GameScreen
+{
+    public override void Draw(SKCanvas c, int w, int h) { }
+    public override void OnPointerMove(float x, float y) => tracker.LastPointerMove = (x, y);
+    public override void OnPointerDown(float x, float y) => tracker.LastPointerDown = (x, y);
+    public override void OnPointerUp(float x, float y) => tracker.LastPointerUp = (x, y);
+    public override void OnKeyDown(string key) => tracker.LastKeyDown = key;
+    public override void OnKeyUp(string key) => tracker.LastKeyUp = key;
+}
+
+file sealed class InputDummyScreen : GameScreen
+{
+    public override void Draw(SKCanvas c, int w, int h) { }
+}
+
+file static class InputTestFactory
+{
+    public static (Game game, InputTracker tracker) Create()
+    {
+        var tracker = new InputTracker();
+        var builder = GameBuilder.CreateDefault();
+        builder.Services.AddSingleton(tracker);
+        builder.Screens
+               .Add<InputCapturingScreen>()
+               .Add<InputDummyScreen>();
+        builder.SetInitialScreen<InputCapturingScreen>();
+        return (builder.Build(), tracker);
+    }
 }

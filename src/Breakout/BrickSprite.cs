@@ -20,13 +20,13 @@ internal sealed class BrickSprite : Sprite
 
     public override void Update(float deltaTime) => Shimmer.Update(deltaTime);
 
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible || Alpha <= 0f)
             return;
 
-        float left = x - Width / 2f;
-        float top = y - Height / 2f;
+        float left = 0 - Width / 2f;
+        float top = 0 - Height / 2f;
         var rect = SKRect.Create(left, top, Width, Height);
 
         _paint.Color = Color.WithAlpha((byte)(255 * Alpha));

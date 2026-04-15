@@ -43,12 +43,12 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
         foreach (var brick in _bricks)
         {
             brick.Sprite.Alpha = 0.3f;
-            brick.Sprite.Draw(canvas, brick.X, brick.Y);
+            canvas.Save(); canvas.Translate(brick.X, brick.Y); brick.Sprite.Draw(canvas); canvas.Restore();
         }
 
-        _title.Draw(canvas, GameWidth / 2f, 290f);
-        _startPrompt.Draw(canvas, GameWidth / 2f, 360f);
-        _instructions.Draw(canvas, GameWidth / 2f, 415f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 290f); _title.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 360f); _startPrompt.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 415f); _instructions.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y)

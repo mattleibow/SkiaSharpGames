@@ -65,4 +65,10 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 
     public override void OnPointerDown(float x, float y)
         => coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+
+    public override void OnKeyDown(string key)
+    {
+        if (key is " " or "Enter")
+            coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+    }
 }

@@ -18,7 +18,21 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
     private bool _thrustInput;
     private bool _rotateLeftInput;
     private bool _rotateRightInput;
-    private bool _touchThrust;
+
+    // ── Touch control pad ────────────────────────────────────────────────
+    private bool _touchActive;
+    private static readonly float PadY = GameHeight - 90f;
+    private static readonly float PadBtnW = 80f;
+    private static readonly float PadBtnH = 60f;
+    private static readonly float PadGap = 12f;
+    // Three buttons: [← rotate] [▲ thrust] [rotate →]
+    private static readonly float PadTotalW = PadBtnW * 3 + PadGap * 2;
+    private static readonly float PadLeft = (GameWidth - PadTotalW) / 2f;
+    private static readonly SKRect LeftBtnRect = SKRect.Create(PadLeft, PadY, PadBtnW, PadBtnH);
+    private static readonly SKRect ThrustBtnRect = SKRect.Create(PadLeft + PadBtnW + PadGap, PadY, PadBtnW, PadBtnH);
+    private static readonly SKRect RightBtnRect = SKRect.Create(PadLeft + 2 * (PadBtnW + PadGap), PadY, PadBtnW, PadBtnH);
+
+    private bool _touchLeft, _touchThrust, _touchRight;
 
     // ── Stars ─────────────────────────────────────────────────────────────
     private readonly SKPoint[] _stars = new SKPoint[StarCount];
@@ -99,22 +113,23 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
         }
     }
 
-    public override void OnPointerDown(float x, float y)
-    {
-        _touchThrust = true;
-
-        // Touch on left/right side of screen for rotation
-        if (x < GameWidth * 0.33f)
-            _rotateLeftInput = true;
-        else if (x > GameWidth * 0.67f)
-            _rotateRightInput = true;
-    }
+    public override void OnPointerDown(float x, float y) => HandleTouch(x, y, true);
+    public override void OnPointerMove(float x, float y) { if (_touchActive) HandleTouch(x, y, true); }
 
     public override void OnPointerUp(float x, float y)
     {
+        _touchActive = false;
+        _touchLeft = false;
         _touchThrust = false;
-        _rotateLeftInput = false;
-        _rotateRightInput = false;
+        _touchRight = false;
+    }
+
+    private void HandleTouch(float x, float y, bool down)
+    {
+        _touchActive = down;
+        _touchLeft = down && LeftBtnRect.Contains(x, y);
+        _touchThrust = down && ThrustBtnRect.Contains(x, y);
+        _touchRight = down && RightBtnRect.Contains(x, y);
     }
 
     // ── Update ────────────────────────────────────────────────────────────
@@ -123,18 +138,29 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
     {
         if (_gameOver) return;
 
-        // Rotation
-        if (_rotateLeftInput)
+        // Combine keyboard + touch inputs
+        bool wantLeft = _rotateLeftInput || _touchLeft;
+        bool wantRight = _rotateRightInput || _touchRight;
+        bool wantThrust = _thrustInput || _touchThrust;
+
+        // Rotation (consumes fuel via side thrusters)
+        if (wantLeft && state.Fuel > 0f)
+        {
             _lander.Rotation -= RotationSpeed * deltaTime;
-        if (_rotateRightInput)
+            state.Fuel = MathF.Max(0f, state.Fuel - FuelBurnRate * 0.3f * deltaTime);
+        }
+        if (wantRight && state.Fuel > 0f)
+        {
             _lander.Rotation += RotationSpeed * deltaTime;
+            state.Fuel = MathF.Max(0f, state.Fuel - FuelBurnRate * 0.3f * deltaTime);
+        }
 
         // Thrust
-        bool thrusting = (_thrustInput || _touchThrust) && state.Fuel > 0f;
+        bool thrusting = wantThrust && state.Fuel > 0f;
         if (thrusting)
         {
             float rot = _lander.Rotation;
-            float thrustX = -MathF.Sin(rot) * ThrustForce * deltaTime;
+            float thrustX = MathF.Sin(rot) * ThrustForce * deltaTime;
             float thrustY = -MathF.Cos(rot) * ThrustForce * deltaTime;
             _lander.Rigidbody.AddVelocity(thrustX, thrustY);
             state.Fuel = MathF.Max(0f, state.Fuel - FuelBurnRate * deltaTime);
@@ -144,9 +170,10 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
         _lander.Rigidbody.AddVelocity(0, Gravity * deltaTime);
 
         // Flame visibility — child entities rotate with the lander automatically!
+        bool hasFuel = state.Fuel > 0f;
         _lander.MainFlame.Visible = thrusting;
-        _lander.LeftFlame.Visible = _rotateRightInput;
-        _lander.RightFlame.Visible = _rotateLeftInput;
+        _lander.LeftFlame.Visible = wantRight && hasFuel;
+        _lander.RightFlame.Visible = wantLeft && hasFuel;
 
         // Update lander (rigidbody step + sprite + children)
         _lander.Update(deltaTime);
@@ -226,6 +253,7 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
 
         // HUD
         DrawHud(canvas);
+        DrawControlPad(canvas);
     }
 
     private void DrawHud(SKCanvas canvas)
@@ -249,5 +277,28 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
         float altitude = MathF.Max(0f, _terrain.GetHeightAt(_lander.X) - _lander.Y - LanderHeight / 2f);
         _altText.Text = $"ALT {altitude:F0}";
         canvas.Save(); canvas.Translate(GameWidth / 2f, 30f); _altText.Draw(canvas); canvas.Restore();
+    }
+
+    private static readonly SKPaint _padBtnPaint = new() { IsAntialias = true };
+    private static readonly SKPaint _padBtnTextPaint = new() { IsAntialias = true, Color = SKColors.White };
+    private static readonly SKFont _padBtnFont = new(SKTypeface.Default, 22f);
+
+    private void DrawControlPad(SKCanvas canvas)
+    {
+        DrawButton(canvas, LeftBtnRect, "◀", _touchLeft);
+        DrawButton(canvas, ThrustBtnRect, "▲", _touchThrust);
+        DrawButton(canvas, RightBtnRect, "▶", _touchRight);
+    }
+
+    private static void DrawButton(SKCanvas canvas, SKRect rect, string label, bool pressed)
+    {
+        byte alpha = pressed ? (byte)120 : (byte)50;
+        _padBtnPaint.Color = SKColors.White.WithAlpha(alpha);
+        canvas.DrawRoundRect(new SKRoundRect(rect, 8f), _padBtnPaint);
+
+        float textW = _padBtnFont.MeasureText(label);
+        float textX = rect.MidX - textW / 2f;
+        float textY = rect.MidY + 7f;
+        canvas.DrawText(label, textX, textY, _padBtnFont, _padBtnTextPaint);
     }
 }

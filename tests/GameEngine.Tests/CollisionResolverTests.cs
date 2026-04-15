@@ -281,60 +281,20 @@ public class CollisionResolverTests
     }
 
     [Fact]
-    public void ResolveBounds_WhenHitLeftWall_ClampsAndBounces()
+    public void CircleVsRectWall_BouncesLikeOldBounds()
     {
-        var entity = new TestEntity { X = 2f, Y = 50f };
-        var collider = new CircleCollider { Radius = 8f };
+        // A ball heading left into a thick wall entity on the left edge — same
+        // scenario that ResolveBounds used to handle, now done via TryGetHit.
+        var ball = new TestEntity { X = 5f, Y = 50f };
+        var circle = new CircleCollider { Radius = 8f };
         var body = new Rigidbody2D { VelocityX = -120f };
 
-        var hit = CollisionResolver.ResolveBounds(entity, collider, body, GameBounds.FromSize(100f, 100f));
+        // Wall sits at x = -50 (centre), width = 100, so its right edge is at x = 0.
+        var wall = new TestEntity { X = -50f, Y = 50f };
+        var wallCollider = new RectCollider { Width = 100f, Height = 200f };
 
-        Assert.True(hit);
-        Assert.Equal(8f, entity.X, precision: 4);
-        Assert.True(body.VelocityX > 0f);
-    }
-
-    [Fact]
-    public void ResolveBounds_WhenBottomBounceDisabled_ClampsWithoutReflecting()
-    {
-        var entity = new TestEntity { X = 50f, Y = 95f };
-        var collider = new CircleCollider { Radius = 10f };
-        var body = new Rigidbody2D { VelocityY = 140f };
-
-        var hit = CollisionResolver.ResolveBounds(
-            entity, collider, body, GameBounds.FromSize(100f, 100f), bounceBottom: false);
-
-        Assert.True(hit);
-        Assert.Equal(90f, entity.Y, precision: 4);
-        Assert.Equal(140f, body.VelocityY, precision: 4);
-    }
-
-    [Fact]
-    public void ResolveBounds_WhenNoBoundaryIsHit_ReturnsFalse()
-    {
-        var entity = new TestEntity { X = 50f, Y = 50f };
-        var collider = new CircleCollider { Radius = 10f };
-        var body = new Rigidbody2D { VelocityX = 1f, VelocityY = 2f };
-
-        var hit = CollisionResolver.ResolveBounds(entity, collider, body, GameBounds.FromSize(100f, 100f));
-
-        Assert.False(hit);
-        Assert.Equal(50f, entity.X, precision: 4);
-        Assert.Equal(50f, entity.Y, precision: 4);
-    }
-
-    [Fact]
-    public void ResolveWalls_WhenHittingRightAndTop_ClampsAndBounces()
-    {
-        var entity = new TestEntity { X = 99f, Y = 1f };
-        var collider = new CircleCollider { Radius = 8f };
-        var body = new Rigidbody2D { VelocityX = 120f, VelocityY = -40f };
-
-        CollisionResolver.ResolveWalls(entity, collider, body, 100f);
-
-        Assert.Equal(92f, entity.X, precision: 4);
-        Assert.Equal(8f, entity.Y, precision: 4);
-        Assert.True(body.VelocityX < 0f);
-        Assert.True(body.VelocityY > 0f);
+        Assert.True(CollisionResolver.TryGetHit(ball, circle, wall, wallCollider, out var hit));
+        body.Bounce(hit);
+        Assert.True(body.VelocityX > 0f, "Ball should bounce rightward off the left wall");
     }
 }

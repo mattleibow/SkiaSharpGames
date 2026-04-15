@@ -24,12 +24,12 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
         _fillPaint.Color = DeepWaterColor.WithAlpha((byte)(255 * 0.6f));
         canvas.DrawRect(SKRect.Create(0f, WaterlineY + 180f, GameWidth, GameHeight - WaterlineY - 180f), _fillPaint);
 
-        _title.Draw(canvas, GameWidth / 2f, 215f);
-        _subtitle.Draw(canvas, GameWidth / 2f, 270f);
-        _instruction1.Draw(canvas, GameWidth / 2f, 345f);
-        _instruction2.Draw(canvas, GameWidth / 2f, 375f);
-        _instruction3.Draw(canvas, GameWidth / 2f, 405f);
-        _startPrompt.Draw(canvas, GameWidth / 2f, 465f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 215f); _title.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 270f); _subtitle.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 345f); _instruction1.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 375f); _instruction2.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 405f); _instruction3.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 465f); _startPrompt.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y) =>

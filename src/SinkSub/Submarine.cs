@@ -42,5 +42,11 @@ internal sealed class Submarine : Entity
         Rigidbody.SetVelocity(CruiseSpeed * Direction, 0f);
     }
 
-    public void Draw(SKCanvas canvas) => Sprite.Draw(canvas, X, Y);
+    public void Draw(SKCanvas canvas)
+    {
+        canvas.Save();
+        canvas.Translate(X, Y);
+        Sprite.Draw(canvas);
+        canvas.Restore();
+    }
 }

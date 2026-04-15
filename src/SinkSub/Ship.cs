@@ -10,5 +10,11 @@ internal sealed class Ship : Entity
 
     public readonly ShipSprite Sprite = new();
 
-    public void Draw(SKCanvas canvas) => Sprite.Draw(canvas, X, Y);
+    public void Draw(SKCanvas canvas)
+    {
+        canvas.Save();
+        canvas.Translate(X, Y);
+        Sprite.Draw(canvas);
+        canvas.Restore();
+    }
 }

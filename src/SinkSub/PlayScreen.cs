@@ -147,7 +147,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
             {
                 var sub = _submarines[s];
                 if (!sub.Active ||
-                    !CollisionResolver.Overlaps(charge, charge.Collider, sub, sub.Collider))
+                    !CollisionResolver.TryGetHit(charge.X, charge.Y, charge.Collider, sub.X, sub.Y, sub.Collider, out _))
                     continue;
 
                 sub.Active = false;
@@ -202,7 +202,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
             var mine = _mines[i];
             mine.Rigidbody.Step(mine, deltaTime);
 
-            if (CollisionResolver.Overlaps(mine, mine.Collider, _ship, _ship.Collider))
+            if (CollisionResolver.TryGetHit(mine.X, mine.Y, mine.Collider, _ship.X, _ship.Y, _ship.Collider, out _))
             {
                 _mines.RemoveAt(i);
                 state.Lives--;
@@ -260,7 +260,9 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
         _ship.Draw(canvas);
 
         foreach (var charge in _charges)
-            charge.Sprite.Draw(canvas, charge.X, charge.Y);
+        {
+            canvas.Save(); canvas.Translate(charge.X, charge.Y); charge.Sprite.Draw(canvas); canvas.Restore();
+        }
 
         foreach (var sub in _submarines)
         {
@@ -269,26 +271,28 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
         }
 
         foreach (var mine in _mines)
-            mine.Sprite.Draw(canvas, mine.X, mine.Y);
+        {
+            canvas.Save(); canvas.Translate(mine.X, mine.Y); mine.Sprite.Draw(canvas); canvas.Restore();
+        }
 
         _scoreText.Text = $"Score: {state.Score}";
-        _scoreText.Draw(canvas, 20f, 32f);
+        canvas.Save(); canvas.Translate(20f, 32f); _scoreText.Draw(canvas); canvas.Restore();
 
         _livesText.Text = $"Lives: {state.Lives}";
-        _livesText.Draw(canvas, 20f, 60f);
+        canvas.Save(); canvas.Translate(20f, 60f); _livesText.Draw(canvas); canvas.Restore();
 
         _waveText.Text = $"Wave: {state.Wave}";
-        _waveText.Draw(canvas, 20f, 88f);
+        canvas.Save(); canvas.Translate(20f, 88f); _waveText.Draw(canvas); canvas.Restore();
 
         _chargeText.Text = $"Charges: {_charges.Count}/{MaxCharges}";
-        _chargeText.Draw(canvas, GameWidth - 20f, 32f);
+        canvas.Save(); canvas.Translate(GameWidth - 20f, 32f); _chargeText.Draw(canvas); canvas.Restore();
 
-        _instructionsText.Draw(canvas, GameWidth / 2f, 32f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 32f); _instructionsText.Draw(canvas); canvas.Restore();
 
         if (_wavePending)
         {
             _waveIncomingText.Text = $"Wave {state.Wave + 1} incoming...";
-            _waveIncomingText.Draw(canvas, GameWidth / 2f, 170f);
+            canvas.Save(); canvas.Translate(GameWidth / 2f, 170f); _waveIncomingText.Draw(canvas); canvas.Restore();
         }
     }
 }

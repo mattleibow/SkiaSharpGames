@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SkiaSharp;
+using SkiaSharpGames.GameEngine.UI;
 
 namespace SkiaSharpGames.GameEngine;
 
@@ -150,6 +152,7 @@ public sealed class GameBuilder
         // Build the IConfiguration and make it injectable inside screens.
         var config = Configuration.Build();
         _serviceCollection.AddSingleton<IConfiguration>(config);
+        _serviceCollection.TryAddSingleton<IUiThemeProvider>(_ => new UiThemeProvider(UiThemes.Simple));
 
         // Bind game options so any service can inject IOptions<GameOptions>.
         _serviceCollection.Configure<GameOptions>(opts =>

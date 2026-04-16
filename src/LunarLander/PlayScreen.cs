@@ -286,7 +286,7 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,
-            BevelFontSize = 1.5f,
+            BevelSize = 1.5f,
         };
         UiControls.DrawButton(canvas, LeftBtnRect, "<", buttonStyle, _touchLeft, fontSize: 22f);
         UiControls.DrawButton(canvas, ThrustBtnRect, "^", buttonStyle, _touchThrust, fontSize: 22f);

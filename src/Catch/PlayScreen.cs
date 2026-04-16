@@ -113,13 +113,13 @@ internal sealed class PlayScreen(CatchGameState state, IScreenCoordinator coordi
 
         // HUD
         _scoreText.Text = $"Score: {state.Score}";
-        canvas.Save(); canvas.Translate(20f, 35f); _scoreText.Draw(canvas); canvas.Restore();
+        _scoreText.Draw(canvas);
 
         _livesText.Text = $"Lives: {state.Lives}";
         _livesText.Color = state.Lives == 1 ? DangerColor : SKColors.White;
-        canvas.Save(); canvas.Translate(GameWidth - 20f, 35f); _livesText.Draw(canvas); canvas.Restore();
+        _livesText.Draw(canvas);
 
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 34f); _instructionsText.Draw(canvas); canvas.Restore();
+        _instructionsText.Draw(canvas);
     }
 
     private void MoveBarTo(float x)

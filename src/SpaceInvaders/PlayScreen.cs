@@ -215,7 +215,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         for (int i = 0; i < invaders.Count; i++)
         {
             if (invaders[i] is Invader inv)
-                inv.Sprite.FrameB = _invaderFrameB;
+                inv.FrameB = _invaderFrameB;
         }
     }
 
@@ -482,7 +482,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,
-            BevelFontSize = 1.5f,
+            BevelSize = 1.5f,
         };
         UiControls.DrawButton(canvas, LeftBtnRect, "<", buttonStyle, _touchLeft, fontSize: 22f);
         UiControls.DrawButton(canvas, FireBtnRect, "FIRE", buttonStyle, _touchFire, fontSize: 22f);

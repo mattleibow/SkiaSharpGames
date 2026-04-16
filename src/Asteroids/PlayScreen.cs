@@ -398,7 +398,6 @@ internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator co
 
         if (_shipAlive)
         {
-            _ship.DrawThrust(canvas);
             _ship.Draw(canvas);
         }
 

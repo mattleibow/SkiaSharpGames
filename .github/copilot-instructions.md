@@ -105,38 +105,36 @@ shimmer.Update(deltaTime);
 if (shimmer.IsActive) DrawEffect(shimmer.Progress);
 ```
 
-`RectSprite` has a built-in `Shimmer` property. Call `sprite.Update(dt)` to advance it.
+`LoopedAnimation` can be used directly on entities. For example, `Brick` in Breakout has a `Shimmer` property.
 
-### Physics (`PhysicsBody`)
+### Entity Rendering (`OnDraw`)
 
-`PhysicsBody` supports rect and circle shapes.
+Entities render themselves by overriding `OnDraw(SKCanvas canvas)`. The canvas is already translated to the entity's position. Entities also carry an `Alpha` property (0–1) for opacity.
 
 ```csharp
-var ball  = new PhysicsBody(PhysicsShape.Circle) { Radius = 8f };
-var brick = new PhysicsBody(PhysicsShape.Rect)   { Width = 72f, Height = 22f, IsStatic = true };
+public class Brick : Entity
+{
+    public SKColor Color { get; set; }
+    public LoopedAnimation Shimmer { get; } = new(period: 8f, duration: 0.8f);
 
-ball.Step(deltaTime);
+    protected override void OnUpdate(float deltaTime) => Shimmer.Update(deltaTime);
 
-// Test overlap and reflect velocity:
-if (ball.Overlaps(brick)) ball.Reflect(brick);
-
-// Or combined check + reflect:
-ball.ReflectOff(paddle);
+    protected override void OnDraw(SKCanvas canvas)
+    {
+        // Draw at local origin — Entity.Draw() handles the transform
+    }
+}
 ```
 
-### Sprites
+### `UiLabel`
 
-Use engine sprites to reduce drawing boilerplate. Call `Update(dt)` to advance sprite animations.
-
-| Class | Use for |
-|-------|---------|
-| `RectSprite` | Bricks, paddle, panels. Properties: X, Y, Width, Height, Color, CornerRadius, ShowShine, Alpha, Shimmer |
-| `CircleSprite` | Ball, particles. Properties: X, Y, Radius, Color, GlowRadius, GlowColor, Alpha |
+A shared text entity in `GameEngine.UI`. Used for HUD text, titles, and labels in all screens.
 
 ```csharp
-brick.Sprite.Shimmer.Start(Random.Shared.NextSingle() * brick.Sprite.Shimmer.Period);
-brick.Sprite.Update(deltaTime);  // advances shimmer
-brick.Sprite.Draw(canvas);
+var label = new UiLabel { Text = "Score: 0", FontSize = 24f, Color = SKColors.White, Align = TextAlign.Center };
+label.X = 400f; label.Y = 30f;
+label.Draw(canvas);
+float w = label.MeasureWidth();
 ```
 
 ### Drawing utilities

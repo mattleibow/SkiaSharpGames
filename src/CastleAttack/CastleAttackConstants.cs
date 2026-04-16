@@ -102,7 +102,7 @@ internal static class CastleAttackConstants
     public const float OilDamage = 100f;
 
     public const float MangonelDamage = 5f;
-    public const int MangonelStoneCount = 6;
+    public const int MangonelStoneCount = 12;
     public const float MangonelLaunchSpeed = 600f;
 
     public const float LogSpeed = 300f;

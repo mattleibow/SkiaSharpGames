@@ -75,9 +75,11 @@ public sealed class Game
         float offsetX = (width - gw * scale) / 2f;
         float offsetY = (height - gh * scale) / 2f;
 
+        var viewport = SKMatrix44.CreateTranslation(offsetX, offsetY, 0f)
+            .PostConcat(SKMatrix44.CreateScale(scale, scale, 1f));
+
         canvas.Save();
-        canvas.Translate(offsetX, offsetY);
-        canvas.Scale(scale, scale);
+        canvas.Concat(viewport);
 
         _drawable.Draw(canvas, (int)gw, (int)gh);
 

@@ -73,7 +73,12 @@ public class EntityTests
     public void RootEntity_WorldRotation_EqualsLocalRotation()
     {
         var entity = new Entity { Rotation = MathF.PI / 4f };
-        Assert.Equal(MathF.PI / 4f, entity.WorldRotation);
+        // WorldMatrix should rotate (1,0) by 45°
+        var mapped = entity.WorldMatrix.MapPoint(1f, 0f);
+        float expectedX = MathF.Cos(MathF.PI / 4f);
+        float expectedY = MathF.Sin(MathF.PI / 4f);
+        Assert.Equal(expectedX, mapped.X, 1e-5f);
+        Assert.Equal(expectedY, mapped.Y, 1e-5f);
     }
 
     [Fact]
@@ -95,20 +100,21 @@ public class EntityTests
         var child = new Entity { Rotation = MathF.PI / 4f };
         parent.AddChild(child);
 
-        Assert.Equal(MathF.PI / 2f, child.WorldRotation, 1e-5f);
+        // 45° + 45° = 90°: WorldMatrix should rotate (1,0) to (0,1)
+        var mapped = child.WorldMatrix.MapPoint(1f, 0f);
+        Assert.Equal(0f, mapped.X, 1e-3f);
+        Assert.Equal(1f, mapped.Y, 1e-3f);
     }
 
     [Fact]
     public void NoParentRotation_UsesSimpleAddition()
     {
-        // Tests the fast path (no trig)
         var parent = new Entity { X = 100f, Y = 100f }; // rotation = 0
         var child = new Entity { X = 50f, Y = 50f };
         parent.AddChild(child);
 
         Assert.Equal(150f, child.WorldX);
         Assert.Equal(150f, child.WorldY);
-        Assert.Equal(0f, child.WorldRotation);
     }
 
     // ── Children ──────────────────────────────────────────────────────
@@ -512,6 +518,47 @@ public class EntityTests
         var noCollider = new Entity { X = 0f, Y = 0f };
 
         Assert.Null(parent.FindChildCollision(noCollider, out _));
+    }
+
+    // ── WorldMatrix ─────────────────────────────────────────────────
+
+    [Fact]
+    public void DefaultEntity_WorldMatrix_IsIdentity()
+    {
+        var entity = new Entity();
+        Assert.Equal(SKMatrix44.Identity, entity.WorldMatrix);
+    }
+
+    [Fact]
+    public void WorldMatrix_ComposesParentAndChild()
+    {
+        var parent = new Entity { X = 100f, Y = 200f };
+        var child = new Entity { X = 10f, Y = 20f };
+        parent.AddChild(child);
+
+        // WorldMatrix should map origin to child's world position
+        var worldPos = child.WorldMatrix.MapPoint(0f, 0f);
+        Assert.Equal(110f, worldPos.X, 1e-3f);
+        Assert.Equal(220f, worldPos.Y, 1e-3f);
+    }
+
+    [Fact]
+    public void LocalMatrix_MapPoint_ReturnsLocalPosition()
+    {
+        var entity = new Entity { X = 42f, Y = 99f };
+        var mapped = entity.LocalMatrix.MapPoint(0f, 0f);
+        Assert.Equal(42f, mapped.X, 1e-3f);
+        Assert.Equal(99f, mapped.Y, 1e-3f);
+    }
+
+    [Fact]
+    public void LocalMatrix_WithRotation_RotatesPoints()
+    {
+        var entity = new Entity { X = 0f, Y = 0f, Rotation = MathF.PI / 2f };
+        // Rotating (10, 0) by 90° should give (0, 10)
+        var mapped = entity.LocalMatrix.MapPoint(10f, 0f);
+        Assert.Equal(0f, mapped.X, 1e-3f);
+        Assert.Equal(10f, mapped.Y, 1e-3f);
     }
 
     // ── Test helpers ──────────────────────────────────────────────────

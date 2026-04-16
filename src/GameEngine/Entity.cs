@@ -9,9 +9,17 @@ namespace SkiaSharpGames.GameEngine;
 /// parent; world positions are cached and recalculated whenever any ancestor's
 /// local position or rotation changes.
 /// </summary>
+/// <remarks>
+/// Transforms are stored as <see cref="SKMatrix44"/> matrices. The
+/// <see cref="LocalMatrix"/> is built from <see cref="X"/>, <see cref="Y"/>,
+/// and <see cref="Rotation"/>, and the <see cref="WorldMatrix"/> is the
+/// concatenation of all ancestor local matrices.
+/// </remarks>
 public class Entity
 {
-    private float _x, _y, _rotation;
+    private float _x, _y;
+    private float _rotation;
+    private SKMatrix44 _worldMatrix = SKMatrix44.Identity;
     private List<Entity>? _children;
 
     // ── Local position / rotation ─────────────────────────────────────
@@ -43,41 +51,41 @@ public class Entity
     /// <summary>When <see langword="false"/> the entity is not drawn (but still updated).</summary>
     public bool Visible { get; set; } = true;
 
-    // ── World transform (cached) ──────────────────────────────────────
+    // ── Transform matrices ────────────────────────────────────────────
+
+    /// <summary>
+    /// The local transform matrix built from <see cref="X"/>, <see cref="Y"/>,
+    /// and <see cref="Rotation"/>. Composed as Translate × RotZ.
+    /// </summary>
+    public SKMatrix44 LocalMatrix
+    {
+        get
+        {
+            var matrix = SKMatrix44.CreateTranslation(_x, _y, 0f);
+            if (_rotation != 0f)
+                matrix = matrix.PostConcat(SKMatrix44.CreateRotation(0f, 0f, 1f, _rotation));
+            return matrix;
+        }
+    }
+
+    /// <summary>
+    /// The accumulated world transform matrix, accounting for all ancestor local matrices.
+    /// </summary>
+    public SKMatrix44 WorldMatrix => _worldMatrix;
+
+    // ── World transform (derived from WorldMatrix) ────────────────────
 
     /// <summary>World-space X, accounting for all ancestor positions and rotations.</summary>
-    public float WorldX { get; private set; }
+    public float WorldX => _worldMatrix.MapPoint(0f, 0f).X;
 
     /// <summary>World-space Y, accounting for all ancestor positions and rotations.</summary>
-    public float WorldY { get; private set; }
-
-    /// <summary>Accumulated world rotation in radians.</summary>
-    public float WorldRotation { get; private set; }
+    public float WorldY => _worldMatrix.MapPoint(0f, 0f).Y;
 
     private void RecalculateWorld()
     {
-        if (Parent is null)
-        {
-            WorldX = _x;
-            WorldY = _y;
-            WorldRotation = _rotation;
-        }
-        else if (Parent.WorldRotation == 0f)
-        {
-            // Fast path: no parent rotation — simple addition
-            WorldX = Parent.WorldX + _x;
-            WorldY = Parent.WorldY + _y;
-            WorldRotation = _rotation;
-        }
-        else
-        {
-            // Parent rotation orbits child position around parent
-            float cos = MathF.Cos(Parent.WorldRotation);
-            float sin = MathF.Sin(Parent.WorldRotation);
-            WorldX = Parent.WorldX + _x * cos - _y * sin;
-            WorldY = Parent.WorldY + _x * sin + _y * cos;
-            WorldRotation = Parent.WorldRotation + _rotation;
-        }
+        _worldMatrix = Parent is null
+            ? LocalMatrix
+            : SKMatrix44.Concat(LocalMatrix, Parent._worldMatrix);
 
         if (_children is not null)
             for (int i = 0; i < _children.Count; i++)
@@ -173,9 +181,7 @@ public class Entity
         if (!Active || !Visible) return;
 
         canvas.Save();
-        canvas.Translate(_x, _y);
-        if (_rotation != 0f)
-            canvas.RotateRadians(_rotation);
+        canvas.Concat(LocalMatrix);
 
         Sprite?.Draw(canvas);
 
@@ -190,7 +196,7 @@ public class Entity
 
     /// <summary>
     /// World-space bounding box. Returns a conservative axis-aligned box that
-    /// encloses the collider, accounting for rotation. Null if no collider.
+    /// encloses the collider, accounting for the full world transform. Null if no collider.
     /// </summary>
     public SKRect? WorldBoundingBox
     {
@@ -199,19 +205,19 @@ public class Entity
             if (Collider is null) return null;
             var local = Collider.BoundingBox(0f, 0f);
 
-            if (WorldRotation == 0f)
-                return SKRect.Create(WorldX + local.Left, WorldY + local.Top,
-                                     local.Width, local.Height);
+            // Map the four corners through the world matrix and find the enclosing AABB
+            var m = _worldMatrix;
+            var p1 = m.MapPoint(local.Left, local.Top);
+            var p2 = m.MapPoint(local.Right, local.Top);
+            var p3 = m.MapPoint(local.Right, local.Bottom);
+            var p4 = m.MapPoint(local.Left, local.Bottom);
 
-            // Rotated AABB: compute enclosing axis-aligned box
-            float cos = MathF.Cos(WorldRotation);
-            float sin = MathF.Sin(WorldRotation);
-            float halfW = local.Width / 2f;
-            float halfH = local.Height / 2f;
-            float absW = MathF.Abs(cos) * halfW + MathF.Abs(sin) * halfH;
-            float absH = MathF.Abs(sin) * halfW + MathF.Abs(cos) * halfH;
-            return new SKRect(WorldX - absW, WorldY - absH,
-                              WorldX + absW, WorldY + absH);
+            float minX = MathF.Min(MathF.Min(p1.X, p2.X), MathF.Min(p3.X, p4.X));
+            float minY = MathF.Min(MathF.Min(p1.Y, p2.Y), MathF.Min(p3.Y, p4.Y));
+            float maxX = MathF.Max(MathF.Max(p1.X, p2.X), MathF.Max(p3.X, p4.X));
+            float maxY = MathF.Max(MathF.Max(p1.Y, p2.Y), MathF.Max(p3.Y, p4.Y));
+
+            return new SKRect(minX, minY, maxX, maxY);
         }
     }
 

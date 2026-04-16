@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Snake.SnakeConstants;
 
 namespace SkiaSharpGames.Snake;
@@ -8,10 +9,10 @@ internal sealed class GameOverScreen(SnakeGameState state, IScreenCoordinator co
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)) };
 
-    private readonly TextSprite _titleText = new() { Text = "GAME OVER", Size = 72f, Color = DangerColor, Align = TextAlign.Center };
-    private readonly TextSprite _scoreText = new() { Size = 34f, Align = TextAlign.Center };
-    private readonly TextSprite _highScoreText = new() { Size = 24f, Color = DimColor, Align = TextAlign.Center };
-    private readonly TextSprite _promptText = new() { Text = "Click, tap, or press Space to try again", Size = 24f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _titleText = new() { Text = "GAME OVER", FontSize = 72f, Color = DangerColor, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 34f, Align = TextAlign.Center };
+    private readonly UiLabel _highScoreText = new() { FontSize = 24f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _promptText = new() { Text = "Click, tap, or press Space to try again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {

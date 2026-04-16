@@ -1,17 +1,15 @@
+using SkiaSharp;
 using SkiaSharpGames.GameEngine;
 using static SkiaSharpGames.Snake.SnakeConstants;
 
 namespace SkiaSharpGames.Snake;
 
-/// <summary>The snake entity. Owns the body segment list and a sprite that renders it.</summary>
+/// <summary>The snake entity. Owns the body segment list and renders the chain of segments.</summary>
 internal sealed class SnakeEntity : Entity
 {
-    private readonly LinkedList<GridPoint> _body = new();
+    private static readonly SKPaint _paint = new() { IsAntialias = true };
 
-    public SnakeEntity()
-    {
-        Sprite = new SnakeSprite { Body = _body };
-    }
+    private readonly LinkedList<GridPoint> _body = new();
 
     public IReadOnlyCollection<GridPoint> Body => _body;
 
@@ -19,7 +17,22 @@ internal sealed class SnakeEntity : Entity
 
     public int Length => _body.Count;
 
-    public new SnakeSprite Sprite { get => (SnakeSprite)base.Sprite!; init => base.Sprite = value; }
+    protected override void OnDraw(SKCanvas canvas)
+    {
+        if (Alpha <= 0f)
+            return;
+
+        bool isHead = true;
+        foreach (var seg in _body)
+        {
+            _paint.Color = (isHead ? SnakeHeadColor : SnakeBodyColor).WithAlpha((byte)(255 * Alpha));
+            float cx = seg.Col * CellSize + CellSize / 2f;
+            float cy = seg.Row * CellSize + CellSize / 2f;
+            canvas.DrawRoundRect(cx - CellSize / 2f + 1f, cy - CellSize / 2f + 1f,
+                                 CellSize - 2f, CellSize - 2f, 4f, 4f, _paint);
+            isHead = false;
+        }
+    }
 
     /// <summary>Reset the snake to its starting position in the centre of the grid.</summary>
     public void Reset()

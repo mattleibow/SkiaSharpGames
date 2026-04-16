@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
 namespace SkiaSharpGames.CastleAttack;
@@ -12,10 +13,10 @@ internal sealed class VictoryScreen(CastleAttackGameState state, IScreenCoordina
 {
     private static readonly SKPaint OverlayPaint = new();
 
-    private readonly TextSprite _victoryText = new() { Text = "VICTORY!", Size = 72f, Color = ColGold, Align = TextAlign.Center };
-    private readonly TextSprite _scoreText = new() { Size = 32f, Color = ColHud, Align = TextAlign.Center };
-    private readonly TextSprite _keepText = new() { Text = "The keep is complete!", Size = 22f, Color = ColAccent, Align = TextAlign.Center };
-    private readonly TextSprite _playAgainText = new() { Text = "Click or Tap to Play Again", Size = 22f, Color = ColDim, Align = TextAlign.Center };
+    private readonly UiLabel _victoryText = new() { Text = "VICTORY!", FontSize = 72f, Color = ColGold, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 32f, Color = ColHud, Align = TextAlign.Center };
+    private readonly UiLabel _keepText = new() { Text = "The keep is complete!", FontSize = 22f, Color = ColAccent, Align = TextAlign.Center };
+    private readonly UiLabel _playAgainText = new() { Text = "Click or Tap to Play Again", FontSize = 22f, Color = ColDim, Align = TextAlign.Center };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {

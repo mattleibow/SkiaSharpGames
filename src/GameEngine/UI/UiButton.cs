@@ -37,7 +37,6 @@ public class UiButton : Entity
         Height = height;
         ThemeProvider = themeProvider;
         Collider = new RectCollider { Width = width, Height = height };
-        Sprite = new UiButtonSprite(this);
     }
 
     /// <summary>The theme provider used for rendering.</summary>
@@ -77,13 +76,11 @@ public class UiButton : Entity
 
     internal SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
 
-    private sealed class UiButtonSprite(UiButton button) : GameEngine.Sprite
+    /// <inheritdoc />
+    protected override void OnDraw(SKCanvas canvas)
     {
-        public override void Draw(SKCanvas canvas)
-        {
-            UiControls.DrawButton(canvas, button.LocalRect, button.Label,
-                button.EffectiveStyle, button.IsPressed, button.IsEnabled,
-                button.FontSize, button.CustomDraw);
-        }
+        UiControls.DrawButton(canvas, LocalRect, Label,
+            EffectiveStyle, IsPressed, IsEnabled,
+            FontSize, CustomDraw);
     }
 }

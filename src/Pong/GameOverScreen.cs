@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;
@@ -8,9 +9,9 @@ internal sealed class GameOverScreen(PongGameState state, IScreenCoordinator coo
 {
     private static readonly SKPaint _overlayPaint = new() { IsAntialias = true };
 
-    private readonly TextSprite _winnerText = new() { Size = 58f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _scoreText = new() { Size = 42f, Align = TextAlign.Center };
-    private readonly TextSprite _restartText = new() { Text = "Click, tap, or press Space to play again", Size = 24f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _winnerText = new() { FontSize = 58f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 42f, Align = TextAlign.Center };
+    private readonly UiLabel _restartText = new() { Text = "Click, tap, or press Space to play again", FontSize = 24f, Color = DimColor, Align = TextAlign.Center };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {

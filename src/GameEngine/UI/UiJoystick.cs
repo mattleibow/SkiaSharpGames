@@ -38,7 +38,6 @@ public class UiJoystick : Entity
         Radius = radius;
         ThemeProvider = themeProvider;
         Collider = new CircleCollider { Radius = radius };
-        Sprite = new UiJoystickSprite(this);
     }
 
     /// <summary>The theme provider used for rendering.</summary>
@@ -100,12 +99,10 @@ public class UiJoystick : Entity
     /// <summary>Resets the knob to the center position.</summary>
     public void ResetDelta() => Delta = SKPoint.Empty;
 
-    private sealed class UiJoystickSprite(UiJoystick joystick) : GameEngine.Sprite
+    /// <inheritdoc />
+    protected override void OnDraw(SKCanvas canvas)
     {
-        public override void Draw(SKCanvas canvas)
-        {
-            UiControls.DrawJoystick(canvas, SKPoint.Empty, joystick.Radius,
-                joystick.Delta, joystick.EffectiveStyle, joystick.CustomDraw);
-        }
+        UiControls.DrawJoystick(canvas, SKPoint.Empty, Radius,
+            Delta, EffectiveStyle, CustomDraw);
     }
 }

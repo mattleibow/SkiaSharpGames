@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
 namespace SkiaSharpGames.CastleAttack;
@@ -16,12 +17,12 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     private static readonly SKPath HillPath;
 
     // ── Text sprites ──────────────────────────────────────────────────────
-    private readonly TextSprite _title = new() { Text = "CASTLE ATTACK", Size = 68f, Color = ColGold, Align = TextAlign.Center };
-    private readonly TextSprite _subtitle = new() { Text = "Defend the castle until the keep is complete!", Size = 22f, Color = ColHud, Align = TextAlign.Center };
-    private readonly TextSprite _tapLine = new() { Text = "Tap the battlefield to aim & fire", Size = 17f, Color = ColAccent, Align = TextAlign.Center };
-    private readonly TextSprite _btnLine = new() { Text = "Use the on-screen buttons at the bottom for all actions", Size = 16f, Color = ColDim, Align = TextAlign.Center };
-    private readonly TextSprite _kbLine = new() { Text = "Keyboard: LEFT RIGHT aim  |  SPACE fire  |  UP DN convert  |  Z X C weapons", Size = 14f, Color = ColDim, Align = TextAlign.Center };
-    private readonly TextSprite _startLine = new() { Text = "Tap or Click to Start", Size = 24f, Color = ColAccent, Align = TextAlign.Center };
+    private readonly UiLabel _title = new() { Text = "CASTLE ATTACK", FontSize = 68f, Color = ColGold, Align = TextAlign.Center };
+    private readonly UiLabel _subtitle = new() { Text = "Defend the castle until the keep is complete!", FontSize = 22f, Color = ColHud, Align = TextAlign.Center };
+    private readonly UiLabel _tapLine = new() { Text = "Tap the battlefield to aim & fire", FontSize = 17f, Color = ColAccent, Align = TextAlign.Center };
+    private readonly UiLabel _btnLine = new() { Text = "Use the on-screen buttons at the bottom for all actions", FontSize = 16f, Color = ColDim, Align = TextAlign.Center };
+    private readonly UiLabel _kbLine = new() { Text = "Keyboard: LEFT RIGHT aim  |  SPACE fire  |  UP DN convert  |  Z X C weapons", FontSize = 14f, Color = ColDim, Align = TextAlign.Center };
+    private readonly UiLabel _startLine = new() { Text = "Tap or Click to Start", FontSize = 24f, Color = ColAccent, Align = TextAlign.Center };
 
     static StartScreen()
     {

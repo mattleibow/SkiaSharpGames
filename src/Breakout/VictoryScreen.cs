@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Breakout.BreakoutConstants;
 
 namespace SkiaSharpGames.Breakout;
@@ -12,9 +13,9 @@ internal sealed class VictoryScreen(BreakoutGameState state, IScreenCoordinator 
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha(186) };
 
-    private readonly TextSprite _titleText = new() { Text = "YOU WIN!", Size = 64f, Color = new SKColor(0xFF, 0xD6, 0x0A), Align = TextAlign.Center };
-    private readonly TextSprite _scoreText = new() { Size = 32f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly TextSprite _promptText = new() { Text = "Click or Tap to Play Again", Size = 24f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _titleText = new() { Text = "YOU WIN!", FontSize = 64f, Color = new SKColor(0xFF, 0xD6, 0x0A), Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 32f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly UiLabel _promptText = new() { Text = "Click or Tap to Play Again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {

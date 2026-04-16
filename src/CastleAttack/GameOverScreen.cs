@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
 namespace SkiaSharpGames.CastleAttack;
@@ -12,9 +13,9 @@ internal sealed class GameOverScreen(CastleAttackGameState state, IScreenCoordin
 {
     private static readonly SKPaint OverlayPaint = new();
 
-    private readonly TextSprite _defeatText = new() { Text = "DEFEAT", Size = 72f, Color = ColRed, Align = TextAlign.Center };
-    private readonly TextSprite _scoreText = new() { Size = 32f, Color = ColHud, Align = TextAlign.Center };
-    private readonly TextSprite _retryText = new() { Text = "Click or Tap to Try Again", Size = 22f, Color = ColAccent, Align = TextAlign.Center };
+    private readonly UiLabel _defeatText = new() { Text = "DEFEAT", FontSize = 72f, Color = ColRed, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 32f, Color = ColHud, Align = TextAlign.Center };
+    private readonly UiLabel _retryText = new() { Text = "Click or Tap to Try Again", FontSize = 22f, Color = ColAccent, Align = TextAlign.Center };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {

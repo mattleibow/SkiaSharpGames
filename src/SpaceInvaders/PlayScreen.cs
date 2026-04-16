@@ -9,9 +9,9 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
 {
     private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha((byte)(255 * 0.5f)), IsAntialias = true };
 
-    private readonly TextSprite _scoreText = new() { Size = 24f, Color = SKColors.White };
-    private readonly TextSprite _livesText = new() { Size = 24f, Color = AccentColor };
-    private readonly TextSprite _controlsText = new() { Text = "LEFT RIGHT move    SPACE / ENTER fire", Size = 18f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 24f, Color = SKColors.White };
+    private readonly UiLabel _livesText = new() { FontSize = 24f, Color = AccentColor };
+    private readonly UiLabel _controlsText = new() { Text = "LEFT RIGHT move    SPACE / ENTER fire", FontSize = 18f, Color = HudDimColor, Align = TextAlign.Center };
 
     private readonly Entity _formation = new();
     private readonly Entity _shields = new();
@@ -482,7 +482,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,
-            BevelSize = 1.5f,
+            BevelFontSize = 1.5f,
         };
         UiControls.DrawButton(canvas, LeftBtnRect, "<", buttonStyle, _touchLeft, fontSize: 22f);
         UiControls.DrawButton(canvas, FireBtnRect, "FIRE", buttonStyle, _touchFire, fontSize: 22f);

@@ -34,7 +34,6 @@ public class UiSlider : Entity
         Height = height;
         ThemeProvider = themeProvider;
         Collider = new RectCollider { Width = width, Height = height };
-        Sprite = new UiSliderSprite(this);
     }
 
     /// <summary>The theme provider used for rendering.</summary>
@@ -75,12 +74,10 @@ public class UiSlider : Entity
         Value = Math.Clamp((worldX - left) / Width, 0f, 1f);
     }
 
-    private sealed class UiSliderSprite(UiSlider slider) : GameEngine.Sprite
+    /// <inheritdoc />
+    protected override void OnDraw(SKCanvas canvas)
     {
-        public override void Draw(SKCanvas canvas)
-        {
-            UiControls.DrawSlider(canvas, slider.LocalRect, slider.Value,
-                slider.EffectiveStyle, slider.CustomDraw);
-        }
+        UiControls.DrawSlider(canvas, LocalRect, Value,
+            EffectiveStyle, CustomDraw);
     }
 }

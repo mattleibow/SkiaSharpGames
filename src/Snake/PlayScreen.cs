@@ -1,17 +1,18 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Snake.SnakeConstants;
 
 namespace SkiaSharpGames.Snake;
 
 internal sealed class PlayScreen(SnakeGameState state, IScreenCoordinator coordinator) : GameScreen
 {
-    private readonly Entity _grid = new() { Sprite = new GridSprite() };
+    private readonly GridEntity _grid = new();
     private readonly SnakeEntity _snake = new();
     private readonly FoodEntity _food = new();
 
-    private readonly TextSprite _scoreText = new() { Size = 22f };
-    private readonly TextSprite _highScoreText = new() { Size = 18f, Color = DimColor, Align = TextAlign.Right };
+    private readonly UiLabel _scoreText = new() { FontSize = 22f };
+    private readonly UiLabel _highScoreText = new() { FontSize = 18f, Color = DimColor, Align = TextAlign.Right };
 
     private Direction _direction;
     private Direction _nextDirection;

@@ -1,17 +1,18 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.SpaceInvaders.SpaceInvadersConstants;
 
 namespace SkiaSharpGames.SpaceInvaders;
 
 internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
-    private readonly TextSprite _title = new() { Text = "SPACE INVADERS", Size = 72f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _subtitle = new() { Text = "Classic arcade invasion defense", Size = 26f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly TextSprite _moveHint = new() { Text = "Move: Arrow keys or mouse / touch", Size = 22f, Color = HudDimColor, Align = TextAlign.Center };
-    private readonly TextSprite _fireHint = new() { Text = "Fire: Space, Enter, or tap", Size = 22f, Color = HudDimColor, Align = TextAlign.Center };
-    private readonly TextSprite _goal = new() { Text = "Stop the aliens before they land", Size = 24f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly TextSprite _startPrompt = new() { Text = "Click, tap, or press Space to start", Size = 24f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _title = new() { Text = "SPACE INVADERS", FontSize = 72f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _subtitle = new() { Text = "Classic arcade invasion defense", FontSize = 26f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly UiLabel _moveHint = new() { Text = "Move: Arrow keys or mouse / touch", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly UiLabel _fireHint = new() { Text = "Fire: Space, Enter, or tap", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly UiLabel _goal = new() { Text = "Stop the aliens before they land", FontSize = 24f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly UiLabel _startPrompt = new() { Text = "Click, tap, or press Space to start", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {

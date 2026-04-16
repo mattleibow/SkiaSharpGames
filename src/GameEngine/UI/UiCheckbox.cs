@@ -34,7 +34,6 @@ public class UiCheckbox : Entity
         Height = height;
         ThemeProvider = themeProvider;
         Collider = new RectCollider { Width = width, Height = height };
-        Sprite = new UiCheckboxSprite(this);
     }
 
     /// <summary>The theme provider used for rendering.</summary>
@@ -64,12 +63,10 @@ public class UiCheckbox : Entity
 
     internal SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
 
-    private sealed class UiCheckboxSprite(UiCheckbox checkbox) : GameEngine.Sprite
+    /// <inheritdoc />
+    protected override void OnDraw(SKCanvas canvas)
     {
-        public override void Draw(SKCanvas canvas)
-        {
-            UiControls.DrawCheckbox(canvas, checkbox.LocalRect, checkbox.IsChecked,
-                checkbox.EffectiveStyle, checkbox.CustomDraw);
-        }
+        UiControls.DrawCheckbox(canvas, LocalRect, IsChecked,
+            EffectiveStyle, CustomDraw);
     }
 }

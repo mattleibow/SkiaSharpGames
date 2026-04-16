@@ -1,14 +1,26 @@
 using SkiaSharp;
 
-namespace SkiaSharpGames.GameEngine;
+namespace SkiaSharpGames.GameEngine.UI;
+
+/// <summary>Horizontal alignment for text rendering.</summary>
+public enum TextAlign
+{
+    /// <summary>Text is drawn starting at the given X position.</summary>
+    Left,
+
+    /// <summary>Text is horizontally centred on the given X position.</summary>
+    Center,
+
+    /// <summary>Text ends at the given X position.</summary>
+    Right
+}
 
 /// <summary>
-/// A sprite that draws a single line of text. Handles font caching,
+/// A text label entity that draws a single line of text. Handles font caching,
 /// alignment, colour, and alpha internally.
 /// <para>
-/// Set <see cref="Text"/> each frame (or once for static labels) and call
-/// <see cref="Draw"/>. The position passed to <c>Draw</c> is interpreted
-/// according to <see cref="Align"/>:
+/// Position the label using <see cref="Entity.X"/> and <see cref="Entity.Y"/>.
+/// The text is drawn at the local origin according to <see cref="Align"/>:
 /// <list type="bullet">
 ///   <item><see cref="TextAlign.Left"/> — text starts at X</item>
 ///   <item><see cref="TextAlign.Center"/> — text is centred on X</item>
@@ -17,7 +29,7 @@ namespace SkiaSharpGames.GameEngine;
 /// Y is always the text baseline.
 /// </para>
 /// </summary>
-public sealed class TextSprite : Sprite
+public sealed class UiLabel : Entity
 {
     // Shared font cache — safe because rendering is single-threaded.
     private static readonly Dictionary<float, SKFont> FontCache = [];
@@ -27,28 +39,28 @@ public sealed class TextSprite : Sprite
     public string Text { get; set; } = "";
 
     /// <summary>Font size in game-space units.</summary>
-    public float Size { get; set; } = 16f;
+    public float FontSize { get; set; } = 16f;
 
     /// <summary>Text colour.</summary>
     public SKColor Color { get; set; } = SKColors.White;
 
-    /// <summary>Horizontal alignment relative to the X passed to <see cref="Draw"/>.</summary>
+    /// <summary>Horizontal alignment relative to the entity's X position.</summary>
     public TextAlign Align { get; set; } = TextAlign.Left;
 
-    /// <summary>Returns the rendered width of <see cref="Text"/> at the current <see cref="Size"/>.</summary>
+    /// <summary>Returns the rendered width of <see cref="Text"/> at the current <see cref="FontSize"/>.</summary>
     public float MeasureWidth()
     {
         if (string.IsNullOrEmpty(Text)) return 0f;
-        return GetFont(Size).MeasureText(Text);
+        return GetFont(FontSize).MeasureText(Text);
     }
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas)
+    protected override void OnDraw(SKCanvas canvas)
     {
-        if (!Visible || Alpha <= 0f || string.IsNullOrEmpty(Text))
+        if (Alpha <= 0f || string.IsNullOrEmpty(Text))
             return;
 
-        var font = GetFont(Size);
+        var font = GetFont(FontSize);
         _paint.Color = Color.WithAlpha((byte)(255 * Math.Clamp(Alpha, 0f, 1f)));
 
         float drawX = Align switch

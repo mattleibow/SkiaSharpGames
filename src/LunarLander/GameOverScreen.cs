@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.LunarLander.LunarLanderConstants;
 
 namespace SkiaSharpGames.LunarLander;
@@ -12,9 +13,9 @@ internal sealed class GameOverScreen(LunarLanderGameState state, IScreenCoordina
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha(186) };
 
-    private readonly TextSprite _titleText = new() { Size = 56f, Align = TextAlign.Center };
-    private readonly TextSprite _detailText = new() { Size = 24f, Color = DimColor, Align = TextAlign.Center };
-    private readonly TextSprite _promptText = new() { Text = "Click or Tap to Play Again", Size = 24f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _titleText = new() { FontSize = 56f, Align = TextAlign.Center };
+    private readonly UiLabel _detailText = new() { FontSize = 24f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _promptText = new() { Text = "Click or Tap to Play Again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {

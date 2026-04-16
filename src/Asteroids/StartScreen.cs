@@ -1,18 +1,19 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Asteroids.AsteroidsConstants;
 
 namespace SkiaSharpGames.Asteroids;
 
 internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
-    private readonly TextSprite _title = new() { Text = "ASTEROIDS", Size = 72f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _subtitle = new() { Text = "Classic arcade space shooter", Size = 26f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly TextSprite _moveHint = new() { Text = "Rotate: Arrow keys or A/D", Size = 22f, Color = HudDimColor, Align = TextAlign.Center };
-    private readonly TextSprite _thrustHint = new() { Text = "Thrust: Up arrow or W", Size = 22f, Color = HudDimColor, Align = TextAlign.Center };
-    private readonly TextSprite _fireHint = new() { Text = "Fire: Space or Enter", Size = 22f, Color = HudDimColor, Align = TextAlign.Center };
-    private readonly TextSprite _goal = new() { Text = "Destroy all asteroids to survive", Size = 24f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly TextSprite _startPrompt = new() { Text = "Click, tap, or press Space to start", Size = 24f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _title = new() { Text = "ASTEROIDS", FontSize = 72f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _subtitle = new() { Text = "Classic arcade space shooter", FontSize = 26f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly UiLabel _moveHint = new() { Text = "Rotate: Arrow keys or A/D", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly UiLabel _thrustHint = new() { Text = "Thrust: Up arrow or W", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly UiLabel _fireHint = new() { Text = "Fire: Space or Enter", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly UiLabel _goal = new() { Text = "Destroy all asteroids to survive", FontSize = 24f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly UiLabel _startPrompt = new() { Text = "Click, tap, or press Space to start", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
 
     // Decorative asteroids drifting in the background
     private readonly List<(float x, float y, float vx, float vy, float r, SKPath path)> _bgAsteroids = [];

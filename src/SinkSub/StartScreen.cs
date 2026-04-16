@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.SinkSub.SinkSubConstants;
 
 namespace SkiaSharpGames.SinkSub;
@@ -8,12 +9,12 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
 
-    private readonly TextSprite _title = new() { Text = "SINK SUB", Size = 72f, Align = TextAlign.Center };
-    private readonly TextSprite _subtitle = new() { Text = "Hunt submarines and avoid rising mines", Size = 26f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _instruction1 = new() { Text = "Move with mouse, touch, or arrow keys", Size = 20f, Color = DimColor, Align = TextAlign.Center };
-    private readonly TextSprite _instruction2 = new() { Text = "Press Z or X to drop depth charges from the ship sides", Size = 20f, Color = DimColor, Align = TextAlign.Center };
-    private readonly TextSprite _instruction3 = new() { Text = "Only four depth charges may be active at once", Size = 20f, Color = DimColor, Align = TextAlign.Center };
-    private readonly TextSprite _startPrompt = new() { Text = "Click, tap, or press Space to begin", Size = 24f, Align = TextAlign.Center };
+    private readonly UiLabel _title = new() { Text = "SINK SUB", FontSize = 72f, Align = TextAlign.Center };
+    private readonly UiLabel _subtitle = new() { Text = "Hunt submarines and avoid rising mines", FontSize = 26f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _instruction1 = new() { Text = "Move with mouse, touch, or arrow keys", FontSize = 20f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _instruction2 = new() { Text = "Press Z or X to drop depth charges from the ship sides", FontSize = 20f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _instruction3 = new() { Text = "Only four depth charges may be active at once", FontSize = 20f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _startPrompt = new() { Text = "Click, tap, or press Space to begin", FontSize = 24f, Align = TextAlign.Center };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {

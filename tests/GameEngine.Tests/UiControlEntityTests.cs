@@ -11,11 +11,10 @@ public class UiControlEntityTests
     // ── UiButton ──────────────────────────────────────────────────────
 
     [Fact]
-    public void UiButton_HasColliderAndSprite()
+    public void UiButton_HasCollider()
     {
         var button = new UiButton(100f, 40f, ThemeProvider);
         Assert.NotNull(button.Collider);
-        Assert.NotNull(button.Sprite);
         Assert.IsType<RectCollider>(button.Collider);
     }
 
@@ -105,11 +104,10 @@ public class UiControlEntityTests
     // ── UiCheckbox ────────────────────────────────────────────────────
 
     [Fact]
-    public void UiCheckbox_HasColliderAndSprite()
+    public void UiCheckbox_HasCollider()
     {
         var cb = new UiCheckbox(30f, 30f, ThemeProvider);
         Assert.NotNull(cb.Collider);
-        Assert.NotNull(cb.Sprite);
     }
 
     [Fact]
@@ -167,11 +165,10 @@ public class UiControlEntityTests
     // ── UiSwitch ──────────────────────────────────────────────────────
 
     [Fact]
-    public void UiSwitch_HasColliderAndSprite()
+    public void UiSwitch_HasCollider()
     {
         var sw = new UiSwitch(100f, 40f, ThemeProvider);
         Assert.NotNull(sw.Collider);
-        Assert.NotNull(sw.Sprite);
     }
 
     [Fact]
@@ -229,11 +226,10 @@ public class UiControlEntityTests
     // ── UiSlider ──────────────────────────────────────────────────────
 
     [Fact]
-    public void UiSlider_HasColliderAndSprite()
+    public void UiSlider_HasCollider()
     {
         var slider = new UiSlider(200f, 20f, ThemeProvider);
         Assert.NotNull(slider.Collider);
-        Assert.NotNull(slider.Sprite);
     }
 
     [Fact]
@@ -304,11 +300,10 @@ public class UiControlEntityTests
     // ── UiJoystick ────────────────────────────────────────────────────
 
     [Fact]
-    public void UiJoystick_HasColliderAndSprite()
+    public void UiJoystick_HasCollider()
     {
         var js = new UiJoystick(80f, ThemeProvider);
         Assert.NotNull(js.Collider);
-        Assert.NotNull(js.Sprite);
         Assert.IsType<CircleCollider>(js.Collider);
     }
 

@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
 namespace SkiaSharpGames.CastleAttack;
@@ -55,16 +56,16 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     private readonly ButtonSprite _buttonSprite = new();
 
     // ── HUD text sprites ─────────────────────────────────────────────────
-    private readonly TextSprite _scoreText = new() { Size = 20f, Color = ColHud };
-    private readonly TextSprite _levelText = new() { Size = 20f, Color = ColHud, Align = TextAlign.Right };
-    private readonly TextSprite _archerText = new() { Size = 16f, Color = ColArcher };
-    private readonly TextSprite _workerText = new() { Size = 16f, Color = ColWorker };
-    private readonly TextSprite _keepLabel = new() { Text = "Keep", Size = 11f, Color = ColDim };
-    private readonly TextSprite _aimText = new() { Size = 15f, Color = ColDim, Align = TextAlign.Center };
-    private readonly TextSprite _cooldownDot = new() { Text = "*", Size = 12f, Align = TextAlign.Center };
-    private readonly TextSprite _lordHpText = new() { Size = 16f };
-    private readonly TextSprite _accuracyText = new() { Size = 15f, Color = ColGold, Align = TextAlign.Center };
-    private readonly TextSprite _keepProgressText = new() { Size = 13f, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 20f, Color = ColHud };
+    private readonly UiLabel _levelText = new() { FontSize = 20f, Color = ColHud, Align = TextAlign.Right };
+    private readonly UiLabel _archerText = new() { FontSize = 16f, Color = ColArcher };
+    private readonly UiLabel _workerText = new() { FontSize = 16f, Color = ColWorker };
+    private readonly UiLabel _keepLabel = new() { Text = "Keep", FontSize = 11f, Color = ColDim };
+    private readonly UiLabel _aimText = new() { FontSize = 15f, Color = ColDim, Align = TextAlign.Center };
+    private readonly UiLabel _cooldownDot = new() { Text = "*", FontSize = 12f, Align = TextAlign.Center };
+    private readonly UiLabel _lordHpText = new() { FontSize = 16f };
+    private readonly UiLabel _accuracyText = new() { FontSize = 15f, Color = ColGold, Align = TextAlign.Center };
+    private readonly UiLabel _keepProgressText = new() { FontSize = 13f, Align = TextAlign.Center };
 
     // ── Cached paints (background / keep / HUD / aim) ────────────────────
     private static readonly SKPaint SkyPaint = new();

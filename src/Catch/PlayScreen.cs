@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Catch.CatchConstants;
 
 namespace SkiaSharpGames.Catch;
@@ -11,9 +12,9 @@ internal sealed class PlayScreen(CatchGameState state, IScreenCoordinator coordi
     private readonly PlayerBar _bar = new();
     private readonly FallingCircle _circle = new();
 
-    private readonly TextSprite _scoreText = new() { Size = 24f };
-    private readonly TextSprite _livesText = new() { Size = 24f, Align = TextAlign.Right };
-    private readonly TextSprite _instructionsText = new() { Text = "Move with mouse, touch, or arrow keys", Size = 16f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 24f };
+    private readonly UiLabel _livesText = new() { FontSize = 24f, Align = TextAlign.Right };
+    private readonly UiLabel _instructionsText = new() { Text = "Move with mouse, touch, or arrow keys", FontSize = 16f, Color = DimColor, Align = TextAlign.Center };
 
     private float _fallSpeed;
     private bool _leftHeld;

@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.SinkSub.SinkSubConstants;
 
 namespace SkiaSharpGames.SinkSub;
@@ -8,12 +9,12 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
 {
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
 
-    private readonly TextSprite _scoreText = new() { Size = 22f };
-    private readonly TextSprite _livesText = new() { Size = 22f };
-    private readonly TextSprite _waveText = new() { Size = 22f };
-    private readonly TextSprite _chargeText = new() { Size = 22f, Color = AccentColor, Align = TextAlign.Right };
-    private readonly TextSprite _instructionsText = new() { Size = 16f, Color = DimColor, Align = TextAlign.Center, Text = "Z = left charge    X / Space = right charge" };
-    private readonly TextSprite _waveIncomingText = new() { Size = 28f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 22f };
+    private readonly UiLabel _livesText = new() { FontSize = 22f };
+    private readonly UiLabel _waveText = new() { FontSize = 22f };
+    private readonly UiLabel _chargeText = new() { FontSize = 22f, Color = AccentColor, Align = TextAlign.Right };
+    private readonly UiLabel _instructionsText = new() { FontSize = 16f, Color = DimColor, Align = TextAlign.Center, Text = "Z = left charge    X / Space = right charge" };
+    private readonly UiLabel _waveIncomingText = new() { FontSize = 28f, Color = AccentColor, Align = TextAlign.Center };
 
     private readonly Ship _ship = new();
     private readonly Entity _submarines = new();

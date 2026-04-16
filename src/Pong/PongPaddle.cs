@@ -6,26 +6,26 @@ namespace SkiaSharpGames.Pong;
 
 internal sealed class PongPaddle : Entity
 {
+    private readonly SKPaint _paint = new() { IsAntialias = true };
+
+    public float Width { get; set; } = PaddleWidth;
+    public float Height { get; set; } = PaddleHeight;
+    public SKColor Color { get; set; }
+    public float CornerRadius { get; set; } = 5f;
+
     public PongPaddle(SKColor color)
     {
+        Color = color;
         Collider = new RectCollider
         {
             Width = PaddleWidth,
             Height = PaddleHeight,
-        };
-        Sprite = new PaddleSprite
-        {
-            Width = PaddleWidth,
-            Height = PaddleHeight,
-            Color = color,
-            CornerRadius = 5f,
         };
     }
 
     public bool UpHeld { get; set; }
     public bool DownHeld { get; set; }
 
-    public new PaddleSprite Sprite { get => (PaddleSprite)base.Sprite!; init => base.Sprite = value; }
     public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
 
     protected override void OnUpdate(float deltaTime)
@@ -35,6 +35,16 @@ internal sealed class PongPaddle : Entity
         if (DownHeld) move += PaddleSpeed * deltaTime;
         if (move != 0f)
             Y = ClampPaddleY(Y + move);
+    }
+
+    protected override void OnDraw(SKCanvas canvas)
+    {
+        if (Alpha <= 0f)
+            return;
+
+        _paint.Color = Color.WithAlpha((byte)(255 * Alpha));
+        var rect = SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
+        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _paint);
     }
 
     private static float ClampPaddleY(float y) =>

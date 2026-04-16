@@ -4,8 +4,12 @@ using static SkiaSharpGames.LunarLander.LunarLanderConstants;
 
 namespace SkiaSharpGames.LunarLander;
 
-/// <summary>Draws a flickering thruster flame at origin pointing downward in local space.</summary>
-internal sealed class FlameSprite : Sprite
+/// <summary>
+/// A thruster flame entity that draws a flickering flame at its local origin
+/// pointing downward. Replaces the former FlameSprite — animation state and
+/// rendering now live directly on the entity.
+/// </summary>
+internal sealed class FlameEntity : Entity
 {
     private readonly SKPaint _outerPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _innerPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
@@ -15,14 +19,14 @@ internal sealed class FlameSprite : Sprite
     /// <summary>Controls the size of the flame (0–1).</summary>
     public float Intensity { get; set; } = 1f;
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         _flicker = 0.8f + 0.2f * MathF.Sin(Environment.TickCount * 0.03f + GetHashCode());
     }
 
-    public override void Draw(SKCanvas canvas)
+    protected override void OnDraw(SKCanvas canvas)
     {
-        if (!Visible || Alpha <= 0f || Intensity <= 0f)
+        if (Alpha <= 0f || Intensity <= 0f)
             return;
 
         byte alpha = (byte)(220 * Alpha);

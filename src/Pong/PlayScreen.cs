@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;
@@ -19,12 +20,12 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
 
     private CountdownTimer _serveTimer;
 
-    // HUD text sprites
-    private readonly TextSprite _leftScoreText = new() { Size = 64f, Align = TextAlign.Center };
-    private readonly TextSprite _rightScoreText = new() { Size = 64f, Align = TextAlign.Center };
-    private readonly TextSprite _leftControlsText = new() { Text = "W / S", Size = 18f, Color = LeftPaddleColor };
-    private readonly TextSprite _rightControlsText = new() { Text = "Up / Dn", Size = 18f, Color = RightPaddleColor, Align = TextAlign.Right };
-    private readonly TextSprite _serveText = new() { Text = "Serve!", Size = 26f, Color = AccentColor, Align = TextAlign.Center };
+    // HUD text labels
+    private readonly UiLabel _leftScoreText = new() { FontSize = 64f, Align = TextAlign.Center };
+    private readonly UiLabel _rightScoreText = new() { FontSize = 64f, Align = TextAlign.Center };
+    private readonly UiLabel _leftControlsText = new() { Text = "W / S", FontSize = 18f, Color = LeftPaddleColor };
+    private readonly UiLabel _rightControlsText = new() { Text = "Up / Dn", FontSize = 18f, Color = RightPaddleColor, Align = TextAlign.Right };
+    private readonly UiLabel _serveText = new() { Text = "Serve!", FontSize = 26f, Color = AccentColor, Align = TextAlign.Center };
 
     public override void OnActivated()
     {

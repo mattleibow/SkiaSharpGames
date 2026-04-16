@@ -40,9 +40,9 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
     private readonly float[] _starBrightness = new float[StarCount];
 
     // ── HUD text ──────────────────────────────────────────────────────────
-    private readonly TextSprite _fuelText = new() { Size = 18f, Color = HudColor };
-    private readonly TextSprite _speedText = new() { Size = 18f, Color = HudColor, Align = TextAlign.Right };
-    private readonly TextSprite _altText = new() { Size = 18f, Color = HudColor, Align = TextAlign.Center };
+    private readonly UiLabel _fuelText = new() { FontSize = 18f, Color = HudColor };
+    private readonly UiLabel _speedText = new() { FontSize = 18f, Color = HudColor, Align = TextAlign.Right };
+    private readonly UiLabel _altText = new() { FontSize = 18f, Color = HudColor, Align = TextAlign.Center };
 
     // ── Paints ────────────────────────────────────────────────────────────
     private readonly SKPaint _fuelBarBg = new() { Color = new SKColor(0x33, 0x33, 0x44), Style = SKPaintStyle.Fill };
@@ -286,7 +286,7 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,
-            BevelSize = 1.5f,
+            BevelFontSize = 1.5f,
         };
         UiControls.DrawButton(canvas, LeftBtnRect, "<", buttonStyle, _touchLeft, fontSize: 22f);
         UiControls.DrawButton(canvas, ThrustBtnRect, "^", buttonStyle, _touchThrust, fontSize: 22f);

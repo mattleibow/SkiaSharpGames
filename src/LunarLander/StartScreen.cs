@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.LunarLander.LunarLanderConstants;
 
 namespace SkiaSharpGames.LunarLander;
@@ -7,11 +8,11 @@ namespace SkiaSharpGames.LunarLander;
 /// <summary>Title screen: game title, instructions, click to start.</summary>
 internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
-    private readonly TextSprite _title = new() { Text = "LUNAR LANDER", Size = 64f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly TextSprite _subtitle = new() { Text = "Entity Rotation & Child Entities Demo", Size = 18f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _startPrompt = new() { Text = "Click or Tap to Start", Size = 28f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _instructions1 = new() { Text = "LEFT RIGHT rotate    UP / SPACE thrust", Size = 18f, Color = DimColor, Align = TextAlign.Center };
-    private readonly TextSprite _instructions2 = new() { Text = "Land gently on the green pad", Size = 18f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _title = new() { Text = "LUNAR LANDER", FontSize = 64f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly UiLabel _subtitle = new() { Text = "Entity Rotation & Child Entities Demo", FontSize = 18f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _startPrompt = new() { Text = "Click or Tap to Start", FontSize = 28f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _instructions1 = new() { Text = "LEFT RIGHT rotate    UP / SPACE thrust", FontSize = 18f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _instructions2 = new() { Text = "Land gently on the green pad", FontSize = 18f, Color = DimColor, Align = TextAlign.Center };
 
     private readonly SKPoint[] _stars = new SKPoint[StarCount];
     private readonly float[] _starBrightness = new float[StarCount];

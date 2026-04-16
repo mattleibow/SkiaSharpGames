@@ -1,17 +1,18 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;
 
 internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
-    private readonly TextSprite _title = new() { Text = "2 PLAYER PONG", Size = 70f, Align = TextAlign.Center };
-    private readonly TextSprite _leftControls = new() { Text = "Left: W / S", Size = 26f, Color = LeftPaddleColor, Align = TextAlign.Center };
-    private readonly TextSprite _rightControls = new() { Text = "Right: Up / Dn", Size = 26f, Color = RightPaddleColor, Align = TextAlign.Center };
-    private readonly TextSprite _touchHint = new() { Text = "Touch or mouse: move the paddle on that side", Size = 20f, Color = DimColor, Align = TextAlign.Center };
-    private readonly TextSprite _scoreHint = new() { Text = "First to 7 points wins", Size = 22f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _startPrompt = new() { Text = "Click, tap, or press Space to start", Size = 24f, Align = TextAlign.Center };
+    private readonly UiLabel _title = new() { Text = "2 PLAYER PONG", FontSize = 70f, Align = TextAlign.Center };
+    private readonly UiLabel _leftControls = new() { Text = "Left: W / S", FontSize = 26f, Color = LeftPaddleColor, Align = TextAlign.Center };
+    private readonly UiLabel _rightControls = new() { Text = "Right: Up / Dn", FontSize = 26f, Color = RightPaddleColor, Align = TextAlign.Center };
+    private readonly UiLabel _touchHint = new() { Text = "Touch or mouse: move the paddle on that side", FontSize = 20f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _scoreHint = new() { Text = "First to 7 points wins", FontSize = 22f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _startPrompt = new() { Text = "Click, tap, or press Space to start", FontSize = 24f, Align = TextAlign.Center };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {

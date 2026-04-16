@@ -251,42 +251,40 @@ public class EntityTests
     [Fact]
     public void Draw_SkipsInvisibleEntity()
     {
-        var entity = new Entity { Visible = false, Sprite = new TrackingSprite() };
+        var entity = new TrackingEntity { Visible = false };
         using var surface = SKSurface.Create(new SKImageInfo(100, 100));
         entity.Draw(surface.Canvas);
-        Assert.False(((TrackingSprite)entity.Sprite).DrawCalled);
+        Assert.False(entity.DrawCalled);
     }
 
     [Fact]
     public void Draw_SkipsInactiveEntity()
     {
-        var entity = new Entity { Active = false, Sprite = new TrackingSprite() };
+        var entity = new TrackingEntity { Active = false };
         using var surface = SKSurface.Create(new SKImageInfo(100, 100));
         entity.Draw(surface.Canvas);
-        Assert.False(((TrackingSprite)entity.Sprite).DrawCalled);
+        Assert.False(entity.DrawCalled);
     }
 
     [Fact]
-    public void Draw_DrawsSprite()
+    public void Draw_CallsOnDraw()
     {
-        var sprite = new TrackingSprite();
-        var entity = new Entity { Sprite = sprite };
+        var entity = new TrackingEntity();
         using var surface = SKSurface.Create(new SKImageInfo(100, 100));
         entity.Draw(surface.Canvas);
-        Assert.True(sprite.DrawCalled);
+        Assert.True(entity.DrawCalled);
     }
 
     [Fact]
     public void Draw_RecursesIntoChildren()
     {
-        var childSprite = new TrackingSprite();
+        var child = new TrackingEntity();
         var parent = new Entity();
-        var child = new Entity { Sprite = childSprite };
         parent.AddChild(child);
 
         using var surface = SKSurface.Create(new SKImageInfo(100, 100));
         parent.Draw(surface.Canvas);
-        Assert.True(childSprite.DrawCalled);
+        Assert.True(child.DrawCalled);
     }
 
     // ── Collision Helpers ─────────────────────────────────────────────
@@ -575,9 +573,9 @@ public class EntityTests
         }
     }
 
-    private sealed class TrackingSprite : Sprite
+    private sealed class TrackingEntity : Entity
     {
         public bool DrawCalled;
-        public override void Draw(SKCanvas canvas) => DrawCalled = true;
+        protected override void OnDraw(SKCanvas canvas) => DrawCalled = true;
     }
 }

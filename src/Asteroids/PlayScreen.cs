@@ -10,9 +10,9 @@ internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator co
     private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha(80), IsAntialias = true };
     private static readonly SKPaint _livesShipPaint = new() { Color = ShipColor, IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
 
-    private readonly TextSprite _scoreText = new() { Size = 24f, Color = SKColors.White };
-    private readonly TextSprite _levelText = new() { Size = 18f, Color = HudDimColor, Align = TextAlign.Center };
-    private readonly TextSprite _controlsText = new() { Text = "ARROWS rotate/thrust  SPACE fire", Size = 16f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 24f, Color = SKColors.White };
+    private readonly UiLabel _levelText = new() { FontSize = 18f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly UiLabel _controlsText = new() { Text = "ARROWS rotate/thrust  SPACE fire", FontSize = 16f, Color = HudDimColor, Align = TextAlign.Center };
 
     private readonly Ship _ship = new();
     private readonly Entity _bullets = new();

@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Asteroids.AsteroidsConstants;
 
 namespace SkiaSharpGames.Asteroids;
@@ -8,10 +9,10 @@ internal sealed class GameOverScreen(AsteroidsGameState state, IScreenCoordinato
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)), IsAntialias = true };
 
-    private readonly TextSprite _titleText = new() { Text = "GAME OVER", Size = 76f, Color = new SKColor(0xFF, 0x6B, 0x6B), Align = TextAlign.Center };
-    private readonly TextSprite _scoreText = new() { Size = 32f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly TextSprite _levelText = new() { Size = 24f, Color = HudDimColor, Align = TextAlign.Center };
-    private readonly TextSprite _restartText = new() { Text = "Click, tap, or press Space to play again", Size = 24f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly UiLabel _titleText = new() { Text = "GAME OVER", FontSize = 76f, Color = new SKColor(0xFF, 0x6B, 0x6B), Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 32f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly UiLabel _levelText = new() { FontSize = 24f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly UiLabel _restartText = new() { Text = "Click, tap, or press Space to play again", FontSize = 24f, Color = HudDimColor, Align = TextAlign.Center };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {

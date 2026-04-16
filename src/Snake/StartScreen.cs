@@ -1,17 +1,18 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Snake.SnakeConstants;
 
 namespace SkiaSharpGames.Snake;
 
 internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
-    private readonly TextSprite _title = new() { Text = "SNAKE", Size = 78f, Align = TextAlign.Center };
-    private readonly TextSprite _subtitle = new() { Text = "Eat, grow, survive", Size = 30f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _instruction1 = new() { Text = "Arrow keys or WASD to steer", Size = 22f, Color = DimColor, Align = TextAlign.Center };
-    private readonly TextSprite _instruction2 = new() { Text = "Eat the red food to grow", Size = 22f, Color = DimColor, Align = TextAlign.Center };
-    private readonly TextSprite _instruction3 = new() { Text = "Don't hit the walls or yourself", Size = 22f, Color = DimColor, Align = TextAlign.Center };
-    private readonly TextSprite _startPrompt = new() { Text = "Click, tap, or press Space to start", Size = 24f, Align = TextAlign.Center };
+    private readonly UiLabel _title = new() { Text = "SNAKE", FontSize = 78f, Align = TextAlign.Center };
+    private readonly UiLabel _subtitle = new() { Text = "Eat, grow, survive", FontSize = 30f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _instruction1 = new() { Text = "Arrow keys or WASD to steer", FontSize = 22f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _instruction2 = new() { Text = "Eat the red food to grow", FontSize = 22f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _instruction3 = new() { Text = "Don't hit the walls or yourself", FontSize = 22f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _startPrompt = new() { Text = "Click, tap, or press Space to start", FontSize = 24f, Align = TextAlign.Center };
 
     // Decorative snake preview
     private static readonly SKPaint _previewPaint = new() { IsAntialias = true };

@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Breakout.BreakoutConstants;
 
 namespace SkiaSharpGames.Breakout;
@@ -30,11 +31,11 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     private readonly Entity _powerUps = new();
 
     // ── Text sprites ──────────────────────────────────────────────────────
-    private readonly TextSprite _scoreText = new() { Size = 20f, Color = SKColors.White };
-    private readonly TextSprite _livesText = new() { Size = 20f, Color = SKColors.White, Align = TextAlign.Right };
-    private readonly TextSprite _powerUpLabel = new() { Size = 11f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly TextSprite _strongBallText = new() { Size = 14f, Align = TextAlign.Center };
-    private readonly TextSprite _bigPaddleText = new() { Size = 14f, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 20f, Color = SKColors.White };
+    private readonly UiLabel _livesText = new() { FontSize = 20f, Color = SKColors.White, Align = TextAlign.Right };
+    private readonly UiLabel _powerUpLabel = new() { FontSize = 11f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly UiLabel _strongBallText = new() { FontSize = 14f, Align = TextAlign.Center };
+    private readonly UiLabel _bigPaddleText = new() { FontSize = 14f, Align = TextAlign.Center };
 
     public override void OnActivating()
     {
@@ -74,8 +75,8 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
                 float cx = BricksStartX + c * (BrickWidth + BrickGap) + BrickWidth / 2f;
                 float cy = BricksStartY + r * (BrickHeight + BrickGap) + BrickHeight / 2f;
                 var brick = new Brick(r, c, cx, cy);
-                brick.Sprite.Color = BrickColors[r];
-                brick.Sprite.Shimmer.Start(Random.Shared.NextSingle() * brick.Sprite.Shimmer.Period);
+                brick.Color = BrickColors[r];
+                brick.Shimmer.Start(Random.Shared.NextSingle() * brick.Shimmer.Period);
                 _bricks.AddChild(brick);
             }
         }
@@ -215,7 +216,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         if (Random.Shared.NextDouble() >= PowerUpChance) return;
         var type = Random.Shared.NextDouble() < 0.5 ? PowerUpType.StrongBall : PowerUpType.BigPaddle;
         var pu = new FallingPowerUp { X = cx, Y = cy, Type = type };
-        pu.Sprite.Color = type == PowerUpType.StrongBall ? StrongBallColor : BigPaddleColor;
+        pu.Color = type == PowerUpType.StrongBall ? StrongBallColor : BigPaddleColor;
         _powerUps.AddChild(pu);
     }
 
@@ -270,7 +271,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         _bricks.Draw(canvas);
         _powerUps.Draw(canvas);
 
-        // Draw power-up labels on top of power-up sprites
+        // Draw power-up labels on top of power-up entities
         foreach (var child in _powerUps.Children)
         {
             if (child is not FallingPowerUp pu || !pu.Active) continue;
@@ -279,13 +280,13 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         }
 
         // Paddle
-        _paddle.Sprite.Color = _bigPaddleTimer.Active || _paddle.IsWidthAnimating
+        _paddle.Color = _bigPaddleTimer.Active || _paddle.IsWidthAnimating
             ? BigPaddleColor : PaddleColor;
         _paddle.Draw(canvas);
 
         // Ball
-        _ball.Sprite.Color = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
-        _ball.Sprite.GlowColor = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
+        _ball.Color = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
+        _ball.GlowColor = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
         _ball.Draw(canvas);
 
         // HUD

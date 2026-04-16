@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.TwoZeroFourEight.TwoZeroFourEightConstants;
 
 namespace SkiaSharpGames.TwoZeroFourEight;
@@ -13,12 +14,12 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IScreenCoordin
     private static readonly SKPaint _boardPaint = new() { Color = BoardColor, IsAntialias = true };
     private static readonly SKPaint _tilePaint = new() { IsAntialias = true };
 
-    private readonly TextSprite _headerText = new() { Text = "2048", Size = 68f, Color = HeaderColor };
-    private readonly TextSprite _scoreText = new() { Size = 24f, Color = HeaderColor };
-    private readonly TextSprite _bestText = new() { Size = 24f, Color = HeaderColor };
-    private readonly TextSprite _controlsText = new() { Text = "Arrow keys / WASD / swipe to move", Size = 20f, Color = HeaderColor, Align = TextAlign.Center };
-    private readonly TextSprite _footerText = new() { Size = 22f, Color = HeaderColor, Align = TextAlign.Center };
-    private readonly TextSprite _tileText = new();
+    private readonly UiLabel _headerText = new() { Text = "2048", FontSize = 68f, Color = HeaderColor };
+    private readonly UiLabel _scoreText = new() { FontSize = 24f, Color = HeaderColor };
+    private readonly UiLabel _bestText = new() { FontSize = 24f, Color = HeaderColor };
+    private readonly UiLabel _controlsText = new() { Text = "Arrow keys / WASD / swipe to move", FontSize = 20f, Color = HeaderColor, Align = TextAlign.Center };
+    private readonly UiLabel _footerText = new() { FontSize = 22f, Color = HeaderColor, Align = TextAlign.Center };
+    private readonly UiLabel _tileText = new();
 
     private readonly int[,] _board = new int[GridSize, GridSize];
     private readonly Random _random = Random.Shared;
@@ -233,7 +234,7 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IScreenCoordin
         textSize *= clampedScale;
 
         _tileText.Text = text;
-        _tileText.Size = textSize;
+        _tileText.FontSize = textSize;
         _tileText.Color = value <= 4 ? DarkTextColor : LightTextColor;
         _tileText.Align = TextAlign.Center;
         canvas.Save(); canvas.Translate(left + size / 2f, top + size / 2f + textSize / 3f); _tileText.Draw(canvas); canvas.Restore();

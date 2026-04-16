@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Breakout.BreakoutConstants;
 
 namespace SkiaSharpGames.Breakout;
@@ -7,9 +8,9 @@ namespace SkiaSharpGames.Breakout;
 /// <summary>Start/title screen: decorative brick grid + instructions. Click to start the game.</summary>
 internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
-    private readonly TextSprite _title = new() { Text = "BREAKOUT", Size = 72f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly TextSprite _startPrompt = new() { Text = "Click or Tap to Start", Size = 28f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _instructions = new() { Text = "Move mouse / finger / arrow keys to control the paddle", Size = 18f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _title = new() { Text = "BREAKOUT", FontSize = 72f, Color = SKColors.White, Align = TextAlign.Center };
+    private readonly UiLabel _startPrompt = new() { Text = "Click or Tap to Start", FontSize = 28f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _instructions = new() { Text = "Move mouse / finger / arrow keys to control the paddle", FontSize = 18f, Color = DimColor, Align = TextAlign.Center };
 
     private readonly List<Brick> _bricks = [];
 

@@ -35,7 +35,6 @@ public class UiSwitch : Entity
         ThemeProvider = themeProvider;
         Variant = variant;
         Collider = new RectCollider { Width = width, Height = height };
-        Sprite = new UiSwitchSprite(this);
     }
 
     /// <summary>The theme provider used for rendering.</summary>
@@ -68,12 +67,10 @@ public class UiSwitch : Entity
 
     internal SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
 
-    private sealed class UiSwitchSprite(UiSwitch sw) : GameEngine.Sprite
+    /// <inheritdoc />
+    protected override void OnDraw(SKCanvas canvas)
     {
-        public override void Draw(SKCanvas canvas)
-        {
-            UiControls.DrawSwitch(canvas, sw.LocalRect, sw.IsOn,
-                sw.EffectiveStyle, sw.Variant, sw.CustomDraw);
-        }
+        UiControls.DrawSwitch(canvas, LocalRect, IsOn,
+            EffectiveStyle, Variant, CustomDraw);
     }
 }

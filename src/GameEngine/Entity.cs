@@ -94,8 +94,8 @@ public class Entity
 
     // ── Components (nullable, opt-in) ─────────────────────────────────
 
-    /// <summary>Visual representation. Drawn at the local origin by <see cref="Draw"/>.</summary>
-    public Sprite? Sprite { get; set; }
+    /// <summary>Opacity from 0 (invisible) to 1 (fully opaque).</summary>
+    public float Alpha { get; set; } = 1f;
 
     /// <summary>Collision shape. Used by <see cref="WorldBoundingBox"/> and collision helpers.</summary>
     public Collider2D? Collider { get; set; }
@@ -151,7 +151,7 @@ public class Entity
     // ── Update (recursive) ────────────────────────────────────────────
 
     /// <summary>
-    /// Advances the entity tree. Steps rigidbody, updates sprite, calls
+    /// Advances the entity tree. Steps rigidbody, calls
     /// <see cref="OnUpdate"/>, then recurses into active children.
     /// </summary>
     public void Update(float deltaTime)
@@ -159,7 +159,6 @@ public class Entity
         if (!Active) return;
 
         Rigidbody?.Step(this, deltaTime);
-        Sprite?.Update(deltaTime);
         OnUpdate(deltaTime);
 
         if (_children is not null)
@@ -174,7 +173,7 @@ public class Entity
 
     /// <summary>
     /// Renders the entity tree. Translates (and optionally rotates) the canvas,
-    /// draws the sprite at the local origin, then recurses into visible children.
+    /// calls <see cref="OnDraw"/>, then recurses into visible children.
     /// </summary>
     public void Draw(SKCanvas canvas)
     {
@@ -183,7 +182,7 @@ public class Entity
         canvas.Save();
         canvas.Concat(LocalMatrix);
 
-        Sprite?.Draw(canvas);
+        OnDraw(canvas);
 
         if (_children is not null)
             for (int i = 0; i < _children.Count; i++)
@@ -191,6 +190,10 @@ public class Entity
 
         canvas.Restore();
     }
+
+    /// <summary>Override to render the entity at the local origin. The canvas
+    /// is already translated to the entity's position.</summary>
+    protected virtual void OnDraw(SKCanvas canvas) { }
 
     // ── Collision (world-space) ───────────────────────────────────────
 

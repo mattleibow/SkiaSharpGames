@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.TwoZeroFourEight.TwoZeroFourEightConstants;
 
 namespace SkiaSharpGames.TwoZeroFourEight;
@@ -8,10 +9,10 @@ internal sealed class GameOverScreen(TwoZeroFourEightGameState state, IScreenCoo
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.65f)), IsAntialias = true };
 
-    private readonly TextSprite _titleText = new() { Text = "GAME OVER", Size = 72f, Color = LightTextColor, Align = TextAlign.Center };
-    private readonly TextSprite _scoreText = new() { Size = 30f, Color = LightTextColor, Align = TextAlign.Center };
-    private readonly TextSprite _bestText = new() { Size = 28f, Color = LightTextColor, Align = TextAlign.Center };
-    private readonly TextSprite _restartText = new() { Text = "Click, tap, Enter, or Space to restart", Size = 22f, Color = LightTextColor, Align = TextAlign.Center };
+    private readonly UiLabel _titleText = new() { Text = "GAME OVER", FontSize = 72f, Color = LightTextColor, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 30f, Color = LightTextColor, Align = TextAlign.Center };
+    private readonly UiLabel _bestText = new() { FontSize = 28f, Color = LightTextColor, Align = TextAlign.Center };
+    private readonly UiLabel _restartText = new() { Text = "Click, tap, Enter, or Space to restart", FontSize = 22f, Color = LightTextColor, Align = TextAlign.Center };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {

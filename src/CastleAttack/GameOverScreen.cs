@@ -30,4 +30,10 @@ internal sealed class GameOverScreen(CastleAttackGameState state, IScreenCoordin
 
     public override void OnPointerDown(float x, float y)
         => coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+
+    public override void OnKeyDown(string key)
+    {
+        if (key is " " or "Enter")
+            coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+    }
 }

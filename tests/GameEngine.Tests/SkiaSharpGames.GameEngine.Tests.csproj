@@ -11,6 +11,7 @@
     <CoverletOutput>../../coverage/</CoverletOutput>
     <Threshold>80</Threshold>
     <ThresholdType>line,branch</ThresholdType>
+    <Include>[SkiaSharpGames.GameEngine]*</Include>
     <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
   </PropertyGroup>
 
@@ -34,6 +35,17 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/GameEngine/SkiaSharpGames.GameEngine.csproj" />
+    <ProjectReference Include="../../src/Asteroids/SkiaSharpGames.Asteroids.csproj" />
+    <ProjectReference Include="../../src/Breakout/SkiaSharpGames.Breakout.csproj" />
+    <ProjectReference Include="../../src/CastleAttack/SkiaSharpGames.CastleAttack.csproj" />
+    <ProjectReference Include="../../src/Catch/SkiaSharpGames.Catch.csproj" />
+    <ProjectReference Include="../../src/LunarLander/SkiaSharpGames.LunarLander.csproj" />
+    <ProjectReference Include="../../src/Pong/SkiaSharpGames.Pong.csproj" />
+    <ProjectReference Include="../../src/SinkSub/SkiaSharpGames.SinkSub.csproj" />
+    <ProjectReference Include="../../src/Snake/SkiaSharpGames.Snake.csproj" />
+    <ProjectReference Include="../../src/SpaceInvaders/SkiaSharpGames.SpaceInvaders.csproj" />
+    <ProjectReference Include="../../src/TwoZeroFourEight/SkiaSharpGames.TwoZeroFourEight.csproj" />
+    <ProjectReference Include="../../src/UIGallery/SkiaSharpGames.UIGallery.csproj" />
   </ItemGroup>
 
 </Project>

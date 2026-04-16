@@ -166,7 +166,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         if (BtnW2A.Contains(x, y)) { ConvertWorkerToArcher(); return; }
         if (BtnFire.Contains(x, y)) { FireVolley(); return; }
         if (BtnOil.Contains(x, y)) { UseOil(); return; }
-        if (BtnCannon.Contains(x, y)) { UseMangonel(); return; }
+        if (BtnMangonel.Contains(x, y)) { UseMangonel(); return; }
         if (BtnLogs.Contains(x, y)) { UseLogs(); return; }
 
         if (y < BtnY && x > KeepRight + 20f)
@@ -259,12 +259,13 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     {
         if (!_mangonelAvail) return;
         _mangonelAvail = false;
-        float launchX = KeepLeft + 40f;
-        float launchY = GroundY - 60f;
+        // Launch from behind the outer wall — a mangonel on the battlements
+        float launchX = OuterWallX;
+        float launchY = GroundY - 80f;
         for (int i = 0; i < MangonelStoneCount; i++)
         {
-            float angleDeg = 45f + Random.Shared.NextSingle() * 30f; // 45-75 degrees
-            float speed = MangonelLaunchSpeed * (0.8f + Random.Shared.NextSingle() * 0.4f);
+            float angleDeg = 30f + Random.Shared.NextSingle() * 25f; // 30-55 degrees
+            float speed = MangonelLaunchSpeed * (0.85f + Random.Shared.NextSingle() * 0.3f);
             float rad = angleDeg * MathF.PI / 180f;
             float vx = speed * MathF.Cos(rad);
             float vy = -speed * MathF.Sin(rad);
@@ -1206,7 +1207,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         DrawButton(canvas, BtnW2A, "Up W>A", canW2A, ColArcher, false);
         DrawButton(canvas, BtnFire, "FIRE", ready, SKColors.White, false, large: true);
         DrawButton(canvas, BtnOil, "Oil (Z)", _oilAvail, ColOil, false);
-        DrawButton(canvas, BtnCannon, "Cannon (X)", _mangonelAvail, ColBoulder, false);
+        DrawButton(canvas, BtnMangonel, "Mangonel (X)", _mangonelAvail, ColBoulder, false);
         DrawButton(canvas, BtnLogs, "Logs (C)", _logsAvail, ColFire, false);
     }
 

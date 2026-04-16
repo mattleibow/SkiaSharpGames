@@ -66,7 +66,7 @@ internal static class CastleAttackConstants
     public static readonly SKRect BtnW2A = SKRect.Create(338f, BtnY, 116f, BtnH);
     public static readonly SKRect BtnFire = SKRect.Create(470f, BtnY, 260f, BtnH);
     public static readonly SKRect BtnOil = SKRect.Create(750f, BtnY, 140f, BtnH);
-    public static readonly SKRect BtnCannon = SKRect.Create(898f, BtnY, 148f, BtnH);
+    public static readonly SKRect BtnMangonel = SKRect.Create(898f, BtnY, 148f, BtnH);
     public static readonly SKRect BtnLogs = SKRect.Create(1054f, BtnY, 140f, BtnH);
 
     // ── Colours ───────────────────────────────────────────────────────────
@@ -101,9 +101,9 @@ internal static class CastleAttackConstants
     public const float OilPuddleDuration = 3f;
     public const float OilDamage = 100f;
 
-    public const float MangonelDamage = 3f;
+    public const float MangonelDamage = 5f;
     public const int MangonelStoneCount = 6;
-    public const float MangonelLaunchSpeed = 350f;
+    public const float MangonelLaunchSpeed = 600f;
 
     public const float LogSpeed = 300f;
     public const float LogWidth = 30f;

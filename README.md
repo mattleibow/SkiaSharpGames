@@ -8,7 +8,7 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 
 📘 **Engine reference:** [docs/game-engine.md](docs/game-engine.md)
 
-🕹️ **Gameplay docs:** [Breakout](docs/games/breakout.md) · [Castle Attack](docs/games/castle-attack.md) · [Sink Sub](docs/games/sink-sub.md) · [2048](docs/games/2048.md)
+🕹️ **Gameplay docs:** [Breakout](docs/games/breakout.md) · [Castle Attack](docs/games/castle-attack.md) · [Sink Sub](docs/games/sink-sub.md) · [Snake](docs/games/snake.md) · [2048](docs/games/2048.md)
 
 ## Games
 
@@ -17,6 +17,7 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 | [Breakout](src/BlazorApp/Games/Breakout/) | `/games/breakout` | Classic brick-breaker with power-ups and paddle-angle control. |
 | [Castle Attack](src/BlazorApp/Games/CastleAttack/) | `/games/castle-attack` | Defend layered castle walls with archers, workers, and special weapons. |
 | [Sink Sub](src/BlazorApp/Games/SinkSub/) | `/games/sink-sub` | Patrol the surface, drop depth charges, and sink submarines before their mines hit your ship. |
+| [Snake](src/Snake/) | `/games/snake` | Guide the snake to eat food and grow. Don't crash into walls or your own tail! |
 | [2048](src/TwoZeroFourEight/) | `/games/2048` | Slide tiles on a 4×4 grid, merge matching numbers, and reach the 2048 tile. |
 
 ### Breakout
@@ -108,6 +109,11 @@ src/
     PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
     TextRenderer.cs
 
+  Snake/                        # SkiaSharpGames.Snake class library
+    SnakeGame.cs
+    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
+    Direction.cs, GridPoint.cs, SnakeConstants.cs, SnakeGameState.cs
+
   TwoZeroFourEight/             # SkiaSharpGames.TwoZeroFourEight class library
     TwoZeroFourEightGame.cs
     PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
@@ -119,6 +125,7 @@ src/
         Breakout.razor
         CastleAttack.razor
         SinkSub.razor
+        Snake.razor
         TwoZeroFourEight.razor
     Shared/
       GameView.razor

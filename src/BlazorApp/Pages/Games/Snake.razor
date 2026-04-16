@@ -1,0 +1,15 @@
+@page "/games/snake"
+@layout GameLayout
+
+<PageTitle>Snake – SkiaSharp Games</PageTitle>
+
+<GameView Game="_game" />
+
+@code {
+    private readonly Game _game;
+
+    public Snake([FromKeyedServices("snake")] Game game)
+    {
+        _game = game;
+    }
+}

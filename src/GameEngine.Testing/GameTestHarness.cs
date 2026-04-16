@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
 
-namespace SkiaSharpGames.GameEngine;
+namespace SkiaSharpGames.GameEngine.Testing;
 
 /// <summary>
 /// A rendered frame captured by <see cref="GameTestHarness"/>. Provides pixel-level

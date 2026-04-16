@@ -1,8 +1,9 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.Testing;
 using Xunit;
 
-namespace SkiaSharpGames.GameEngine.Tests;
+namespace SkiaSharpGames.Games.Tests;
 
 /// <summary>
 /// Smoke tests for every game: run the start screen for 3 seconds,

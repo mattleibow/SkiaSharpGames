@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.*" />
+    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/GameEngine.Testing/SkiaSharpGames.GameEngine.Testing.csproj" />
+    <ProjectReference Include="../../src/Asteroids/SkiaSharpGames.Asteroids.csproj" />
+    <ProjectReference Include="../../src/Breakout/SkiaSharpGames.Breakout.csproj" />
+    <ProjectReference Include="../../src/CastleAttack/SkiaSharpGames.CastleAttack.csproj" />
+    <ProjectReference Include="../../src/Catch/SkiaSharpGames.Catch.csproj" />
+    <ProjectReference Include="../../src/LunarLander/SkiaSharpGames.LunarLander.csproj" />
+    <ProjectReference Include="../../src/Pong/SkiaSharpGames.Pong.csproj" />
+    <ProjectReference Include="../../src/SinkSub/SkiaSharpGames.SinkSub.csproj" />
+    <ProjectReference Include="../../src/Snake/SkiaSharpGames.Snake.csproj" />
+    <ProjectReference Include="../../src/SpaceInvaders/SkiaSharpGames.SpaceInvaders.csproj" />
+    <ProjectReference Include="../../src/TwoZeroFourEight/SkiaSharpGames.TwoZeroFourEight.csproj" />
+    <ProjectReference Include="../../src/UIGallery/SkiaSharpGames.UIGallery.csproj" />
+  </ItemGroup>
+
+</Project>

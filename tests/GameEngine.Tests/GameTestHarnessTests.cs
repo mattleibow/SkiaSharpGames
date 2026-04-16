@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.Testing;
 using SkiaSharpGames.GameEngine.UI;
 using Xunit;
 

@@ -10,7 +10,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
 
     private readonly TextSprite _scoreText = new() { Size = 24f, Color = SKColors.White };
     private readonly TextSprite _livesText = new() { Size = 24f, Color = AccentColor };
-    private readonly TextSprite _controlsText = new() { Text = "← → move    SPACE / ENTER fire", Size = 18f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly TextSprite _controlsText = new() { Text = "LEFT RIGHT move    SPACE / ENTER fire", Size = 18f, Color = HudDimColor, Align = TextAlign.Center };
 
     private readonly Entity _formation = new();
     private readonly Entity _shields = new();
@@ -18,6 +18,24 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
     private readonly Entity _enemyBullets = new();
     private readonly PlayerCannon _player = new();
     private readonly List<SKPoint> _stars = [];
+
+    // ── Touch control pad ────────────────────────────────────────────────
+    private bool _touchActive;
+    private bool _touchLeft, _touchRight, _touchFire;
+
+    private const float PadY = GameHeight - 80f;
+    private const float PadBtnW = 90f;
+    private const float PadBtnH = 50f;
+    private const float PadGap = 16f;
+    private static readonly float PadTotalW = PadBtnW * 3 + PadGap * 2;
+    private static readonly float PadLeft = (GameWidth - PadTotalW) / 2f;
+    private static readonly SKRect LeftBtnRect = SKRect.Create(PadLeft, PadY, PadBtnW, PadBtnH);
+    private static readonly SKRect FireBtnRect = SKRect.Create(PadLeft + PadBtnW + PadGap, PadY, PadBtnW, PadBtnH);
+    private static readonly SKRect RightBtnRect = SKRect.Create(PadLeft + 2 * (PadBtnW + PadGap), PadY, PadBtnW, PadBtnH);
+
+    private static readonly SKPaint _padBtnPaint = new() { IsAntialias = true };
+    private static readonly SKPaint _padBtnTextPaint = new() { IsAntialias = true, Color = SKColors.White };
+    private static readonly SKFont _padBtnFont = new(SKTypeface.Default, 22f);
 
     private bool _leftHeld;
     private bool _rightHeld;
@@ -41,6 +59,10 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         state.Lives = 3;
         _leftHeld = false;
         _rightHeld = false;
+        _touchActive = false;
+        _touchLeft = false;
+        _touchRight = false;
+        _touchFire = false;
         _invaderFrameB = false;
         _endTriggered = false;
         _invaderDirection = 1f;
@@ -58,12 +80,26 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         BuildShields();
     }
 
-    public override void OnPointerMove(float x, float y) => MovePlayerTo(x);
+    public override void OnPointerDown(float x, float y) => HandleTouch(x, y, true);
+    public override void OnPointerMove(float x, float y) { if (_touchActive) HandleTouch(x, y, true); }
 
-    public override void OnPointerDown(float x, float y)
+    public override void OnPointerUp(float x, float y)
     {
-        MovePlayerTo(x);
-        TryFirePlayerBullet();
+        _touchActive = false;
+        _touchLeft = false;
+        _touchRight = false;
+        _touchFire = false;
+    }
+
+    private void HandleTouch(float x, float y, bool down)
+    {
+        _touchActive = down;
+        _touchLeft = down && LeftBtnRect.Contains(x, y);
+        _touchRight = down && RightBtnRect.Contains(x, y);
+        bool wasFire = _touchFire;
+        _touchFire = down && FireBtnRect.Contains(x, y);
+        if (_touchFire && !wasFire)
+            TryFirePlayerBullet();
     }
 
     public override void OnKeyDown(string key)
@@ -101,9 +137,11 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         if (_endTriggered)
             return;
 
-        if (_leftHeld ^ _rightHeld)
+        bool moveLeft = _leftHeld || _touchLeft;
+        bool moveRight = _rightHeld || _touchRight;
+        if (moveLeft ^ moveRight)
         {
-            float direction = _leftHeld ? -1f : 1f;
+            float direction = moveLeft ? -1f : 1f;
             MovePlayerTo(_player.X + direction * PlayerSpeed * deltaTime);
         }
 
@@ -437,6 +475,27 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         canvas.Save(); canvas.Translate(GameWidth - livesWidth - 20f, 34f); _livesText.Draw(canvas); canvas.Restore();
 
         canvas.Save(); canvas.Translate(GameWidth / 2f, GameHeight - 12f); _controlsText.Draw(canvas); canvas.Restore();
+
+        DrawControlPad(canvas);
+    }
+
+    private void DrawControlPad(SKCanvas canvas)
+    {
+        DrawButton(canvas, LeftBtnRect, "◀", _touchLeft);
+        DrawButton(canvas, FireBtnRect, "FIRE", _touchFire);
+        DrawButton(canvas, RightBtnRect, "▶", _touchRight);
+    }
+
+    private static void DrawButton(SKCanvas canvas, SKRect rect, string label, bool pressed)
+    {
+        byte alpha = pressed ? (byte)120 : (byte)50;
+        _padBtnPaint.Color = SKColors.White.WithAlpha(alpha);
+        canvas.DrawRoundRect(new SKRoundRect(rect, 8f), _padBtnPaint);
+
+        float textW = _padBtnFont.MeasureText(label);
+        float textX = rect.MidX - textW / 2f;
+        float textY = rect.MidY + 7f;
+        canvas.DrawText(label, textX, textY, _padBtnFont, _padBtnTextPaint);
     }
 
     private static void ClearChildren(Entity parent)

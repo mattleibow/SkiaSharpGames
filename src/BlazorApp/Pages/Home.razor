@@ -1,4 +1,5 @@
 @page "/"
+@inject IEnumerable<IGalleryGame> GalleryGames
 
 <PageTitle>SkiaSharp Games</PageTitle>
 
@@ -8,114 +9,17 @@
 </div>
 
 <div class="games-grid">
-    <a class="game-card" href="games/breakout">
-        <div class="game-card-banner">
-            <span class="game-card-emoji">🧱</span>
-        </div>
-        <div class="game-card-info">
-            <h2 class="game-card-title">Breakout</h2>
-            <p class="game-card-desc">Classic brick-breaker. Move the paddle with mouse or touch to keep the ball in play and clear all the bricks.</p>
-            <span class="game-card-play">▶ Play</span>
-        </div>
-    </a>
-    <a class="game-card" href="games/catch">
-        <div class="game-card-banner">
-            <span class="game-card-emoji">🟡</span>
-        </div>
-        <div class="game-card-info">
-            <h2 class="game-card-title">Catch</h2>
-            <p class="game-card-desc">Catch falling circles with a moving bar. Each catch raises your score and speeds up the next drop.</p>
-            <span class="game-card-play">▶ Play</span>
-        </div>
-    </a>
-    <a class="game-card" href="games/castle-attack">
-        <div class="game-card-banner">
-            <span class="game-card-emoji">🏰</span>
-        </div>
-        <div class="game-card-info">
-            <h2 class="game-card-title">Castle Attack</h2>
-            <p class="game-card-desc">Defend the castle walls from waves of enemies using archers, workers, and special weapons while the keep is being built.</p>
-            <span class="game-card-play">▶ Play</span>
-        </div>
-    </a>
-    <a class="game-card" href="games/sink-sub">
-        <div class="game-card-banner">
-            <span class="game-card-emoji">🚢</span>
-        </div>
-        <div class="game-card-info">
-            <h2 class="game-card-title">Sink Sub</h2>
-            <p class="game-card-desc">Arcade naval survival. Patrol the surface, drop depth charges, and sink submarines before their floating mines reach your ship.</p>
-            <span class="game-card-play">▶ Play</span>
-        </div>
-    </a>
-    <a class="game-card" href="games/pong">
-        <div class="game-card-banner">
-            <span class="game-card-emoji">🏓</span>
-        </div>
-        <div class="game-card-info">
-            <h2 class="game-card-title">Pong</h2>
-            <p class="game-card-desc">Classic 2-player Pong. Use W/S and arrow keys or touch to control paddles. First to 7 points wins!</p>
-            <span class="game-card-play">▶ Play</span>
-        </div>
-    </a>
-    <a class="game-card" href="games/2048">
-        <div class="game-card-banner">
-            <span class="game-card-emoji">🔢</span>
-        </div>
-        <div class="game-card-info">
-            <h2 class="game-card-title">2048</h2>
-            <p class="game-card-desc">Slide numbered tiles on a grid. Combine matching tiles to reach 2048!</p>
-            <span class="game-card-play">▶ Play</span>
-        </div>
-    </a>
-    <a class="game-card" href="games/space-invaders">
-        <div class="game-card-banner">
-            <span class="game-card-emoji">👾</span>
-        </div>
-        <div class="game-card-info">
-            <h2 class="game-card-title">Space Invaders</h2>
-            <p class="game-card-desc">Classic alien invasion. Move your cannon and fire to destroy waves of descending invaders before they reach the ground.</p>
-            <span class="game-card-play">▶ Play</span>
-        </div>
-    </a>
-    <a class="game-card" href="games/snake">
-        <div class="game-card-banner">
-            <span class="game-card-emoji">🐍</span>
-        </div>
-        <div class="game-card-info">
-            <h2 class="game-card-title">Snake</h2>
-            <p class="game-card-desc">Guide the snake to eat food and grow longer. Don't crash into the walls or your own tail!</p>
-            <span class="game-card-play">▶ Play</span>
-        </div>
-    </a>
-    <a class="game-card" href="games/lunar-lander">
-        <div class="game-card-banner">
-            <span class="game-card-emoji">🚀</span>
-        </div>
-        <div class="game-card-info">
-            <h2 class="game-card-title">Lunar Lander</h2>
-            <p class="game-card-desc">Guide your lander safely to the pad. Use thrust and rotation to control descent — land gently or crash!</p>
-            <span class="game-card-play">▶ Play</span>
-        </div>
-    </a>
-    <a class="game-card" href="games/asteroids">
-        <div class="game-card-banner">
-            <span class="game-card-emoji">☄️</span>
-        </div>
-        <div class="game-card-info">
-            <h2 class="game-card-title">Asteroids</h2>
-            <p class="game-card-desc">Pilot your ship through an asteroid field. Rotate, thrust, and shoot to survive wave after wave of space rocks.</p>
-            <span class="game-card-play">▶ Play</span>
-        </div>
-    </a>
-    <a class="game-card" href="games/ui-gallery">
-        <div class="game-card-banner">
-            <span class="game-card-emoji">🧩</span>
-        </div>
-        <div class="game-card-info">
-            <h2 class="game-card-title">UI Gallery</h2>
-            <p class="game-card-desc">Try shared game UI controls with global themes, per-control overrides, and custom canvas drawing hooks.</p>
-            <span class="game-card-play">▶ Play</span>
-        </div>
-    </a>
+    @foreach (var game in GalleryGames)
+    {
+        <a class="game-card" href="games/@game.Slug">
+            <div class="game-card-banner">
+                <span class="game-card-emoji">@game.Emoji</span>
+            </div>
+            <div class="game-card-info">
+                <h2 class="game-card-title">@game.Title</h2>
+                <p class="game-card-desc">@game.Description</p>
+                <span class="game-card-play">▶ Play</span>
+            </div>
+        </a>
+    }
 </div>

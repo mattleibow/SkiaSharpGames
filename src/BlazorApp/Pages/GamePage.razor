@@ -1,0 +1,28 @@
+@page "/games/{Slug}"
+@layout GameLayout
+@inject IEnumerable<IGalleryGame> GalleryGames
+
+@if (_game is not null)
+{
+    <PageTitle>@_entry!.Title – SkiaSharp Games</PageTitle>
+    <GameView Game="_game" />
+}
+else
+{
+    <PageTitle>Game Not Found – SkiaSharp Games</PageTitle>
+    <p>Game "@Slug" not found.</p>
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = "";
+
+    private IGalleryGame? _entry;
+    private Game? _game;
+
+    protected override void OnParametersSet()
+    {
+        _entry = GalleryGames.FirstOrDefault(g =>
+            string.Equals(g.Slug, Slug, StringComparison.OrdinalIgnoreCase));
+        _game = _entry?.CreateGame();
+    }
+}

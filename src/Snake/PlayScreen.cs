@@ -6,16 +6,15 @@ namespace SkiaSharpGames.Snake;
 
 internal sealed class PlayScreen(SnakeGameState state, IScreenCoordinator coordinator) : GameScreen
 {
-    private static readonly SKPaint _cellPaint = new() { IsAntialias = true };
-    private static readonly SKPaint _gridPaint = new() { Color = GridLineColor, StrokeWidth = 1f, IsAntialias = true };
+    private readonly Entity _grid = new() { Sprite = new GridSprite() };
+    private readonly SnakeEntity _snake = new();
+    private readonly FoodEntity _food = new();
 
     private readonly TextSprite _scoreText = new() { Size = 22f };
     private readonly TextSprite _highScoreText = new() { Size = 18f, Color = DimColor, Align = TextAlign.Right };
 
-    private readonly LinkedList<GridPoint> _body = new();
     private Direction _direction;
     private Direction _nextDirection;
-    private GridPoint _food;
     private float _stepTimer;
     private float _stepInterval;
     private bool _gameOverShown;
@@ -27,13 +26,7 @@ internal sealed class PlayScreen(SnakeGameState state, IScreenCoordinator coordi
         _stepTimer = 0f;
         _gameOverShown = false;
 
-        _body.Clear();
-        int startCol = GridCols / 2;
-        int startRow = GridRows / 2;
-        _body.AddFirst(new GridPoint(startCol, startRow));
-        _body.AddLast(new GridPoint(startCol - 1, startRow));
-        _body.AddLast(new GridPoint(startCol - 2, startRow));
-
+        _snake.Reset();
         _direction = Direction.Right;
         _nextDirection = Direction.Right;
 
@@ -59,9 +52,8 @@ internal sealed class PlayScreen(SnakeGameState state, IScreenCoordinator coordi
 
     public override void OnPointerDown(float x, float y)
     {
-        var head = _body.First!.Value;
-        float hx = head.Col * CellSize + CellSize / 2f;
-        float hy = head.Row * CellSize + CellSize / 2f;
+        float hx = _snake.X;
+        float hy = _snake.Y;
 
         float dx = x - hx;
         float dy = y - hy;
@@ -88,33 +80,15 @@ internal sealed class PlayScreen(SnakeGameState state, IScreenCoordinator coordi
         _stepTimer -= _stepInterval;
         _direction = _nextDirection;
 
-        var head = _body.First!.Value;
-        var next = _direction switch
-        {
-            Direction.Up => new GridPoint(head.Col, head.Row - 1),
-            Direction.Down => new GridPoint(head.Col, head.Row + 1),
-            Direction.Left => new GridPoint(head.Col - 1, head.Row),
-            Direction.Right => new GridPoint(head.Col + 1, head.Row),
-            _ => head,
-        };
+        _snake.Advance(_direction);
 
-        // Wall collision
-        if (next.Col < 0 || next.Col >= GridCols || next.Row < 0 || next.Row >= GridRows)
+        if (_snake.IsOutOfBounds() || _snake.HasSelfCollision())
         {
             Die();
             return;
         }
 
-        // Self collision
-        if (BodyContains(next))
-        {
-            Die();
-            return;
-        }
-
-        _body.AddFirst(next);
-
-        if (next == _food)
+        if (_snake.Head == _food.Cell)
         {
             state.Score++;
             _stepInterval = MathF.Max(MinStepInterval, _stepInterval - SpeedIncrement);
@@ -122,7 +96,7 @@ internal sealed class PlayScreen(SnakeGameState state, IScreenCoordinator coordi
         }
         else
         {
-            _body.RemoveLast();
+            _snake.TrimTail();
         }
     }
 
@@ -132,49 +106,11 @@ internal sealed class PlayScreen(SnakeGameState state, IScreenCoordinator coordi
     {
         canvas.Clear(BackgroundColor);
 
-        DrawGrid(canvas);
-        DrawFood(canvas);
-        DrawSnake(canvas);
-        DrawHud(canvas);
-    }
+        _grid.Draw(canvas);
+        _food.Draw(canvas);
+        _snake.Draw(canvas);
 
-    private static void DrawGrid(SKCanvas canvas)
-    {
-        for (int c = 1; c < GridCols; c++)
-        {
-            float x = c * CellSize;
-            canvas.DrawLine(x, 0, x, GameHeight, _gridPaint);
-        }
-        for (int r = 1; r < GridRows; r++)
-        {
-            float y = r * CellSize;
-            canvas.DrawLine(0, y, GameWidth, y, _gridPaint);
-        }
-    }
-
-    private void DrawFood(SKCanvas canvas)
-    {
-        _cellPaint.Color = FoodColor;
-        float fx = _food.Col * CellSize + 2f;
-        float fy = _food.Row * CellSize + 2f;
-        canvas.DrawRoundRect(fx, fy, CellSize - 4f, CellSize - 4f, 6f, 6f, _cellPaint);
-    }
-
-    private void DrawSnake(SKCanvas canvas)
-    {
-        bool isHead = true;
-        foreach (var seg in _body)
-        {
-            _cellPaint.Color = isHead ? SnakeHeadColor : SnakeBodyColor;
-            float sx = seg.Col * CellSize + 1f;
-            float sy = seg.Row * CellSize + 1f;
-            canvas.DrawRoundRect(sx, sy, CellSize - 2f, CellSize - 2f, 4f, 4f, _cellPaint);
-            isHead = false;
-        }
-    }
-
-    private void DrawHud(SKCanvas canvas)
-    {
+        // HUD
         _scoreText.Text = $"Score: {state.Score}";
         canvas.Save(); canvas.Translate(10f, -6f); _scoreText.Draw(canvas); canvas.Restore();
 
@@ -198,16 +134,6 @@ internal sealed class PlayScreen(SnakeGameState state, IScreenCoordinator coordi
         coordinator.PushOverlay<GameOverScreen>();
     }
 
-    private bool BodyContains(GridPoint point)
-    {
-        foreach (var seg in _body)
-        {
-            if (seg == point)
-                return true;
-        }
-        return false;
-    }
-
     private void SpawnFood()
     {
         GridPoint candidate;
@@ -217,9 +143,9 @@ internal sealed class PlayScreen(SnakeGameState state, IScreenCoordinator coordi
                 Random.Shared.Next(GridCols),
                 Random.Shared.Next(GridRows));
         }
-        while (BodyContains(candidate));
+        while (_snake.Occupies(candidate));
 
-        _food = candidate;
+        _food.PlaceAt(candidate);
     }
 
     private static bool IsOpposite(Direction a, Direction b) =>

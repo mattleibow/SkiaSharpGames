@@ -8,7 +8,7 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 
 📘 **Engine reference:** [docs/game-engine.md](docs/game-engine.md)
 
-🕹️ **Gameplay docs:** [Breakout](docs/games/breakout.md) · [Castle Attack](docs/games/castle-attack.md) · [Sink Sub](docs/games/sink-sub.md) · [Snake](docs/games/snake.md) · [2048](docs/games/2048.md) · [Asteroids](src/Asteroids/)
+🕹️ **Gameplay docs:** [Breakout](docs/games/breakout.md) · [Castle Attack](docs/games/castle-attack.md) · [Sink Sub](docs/games/sink-sub.md) · [Snake](docs/games/snake.md) · [2048](docs/games/2048.md)
 
 ## Games
 

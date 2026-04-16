@@ -6,19 +6,6 @@ namespace SkiaSharpGames.UIGallery;
 
 internal sealed class PlayScreen : GameScreen
 {
-    private const string ThemeBoldId = "theme-bold";
-    private const string ThemeRetroId = "theme-retro";
-    private const string ThemeSimpleId = "theme-simple";
-
-    private const string PrimaryButtonId = "primary-button";
-    private const string OverrideButtonId = "override-button";
-    private const string CheckboxId = "checkbox";
-    private const string SlideSwitchId = "slide-switch";
-    private const string ToggleSwitchId = "toggle-switch";
-    private const string SliderId = "slider";
-    private const string CustomButtonId = "custom-button";
-    private const string JoystickId = "joystick";
-
     private static readonly UiTheme[] ThemeOptions = [UiThemes.BoldCute, UiThemes.Retro, UiThemes.Simple];
 
     private readonly UIGalleryState _state;
@@ -28,18 +15,18 @@ internal sealed class PlayScreen : GameScreen
     private readonly Entity _controls = new();
     private readonly Entity _pointerProbe = new() { Collider = new CircleCollider { Radius = 2f } };
 
-    private readonly UiControlEntity _themeBoldButton;
-    private readonly UiControlEntity _themeRetroButton;
-    private readonly UiControlEntity _themeSimpleButton;
+    private readonly UiButton _themeBoldButton;
+    private readonly UiButton _themeRetroButton;
+    private readonly UiButton _themeSimpleButton;
 
-    private readonly UiControlEntity _primaryButton;
-    private readonly UiControlEntity _overrideButton;
-    private readonly UiControlEntity _checkbox;
-    private readonly UiControlEntity _slideSwitch;
-    private readonly UiControlEntity _toggleSwitch;
-    private readonly UiControlEntity _slider;
-    private readonly UiControlEntity _customButton;
-    private readonly UiControlEntity _joystick;
+    private readonly UiButton _primaryButton;
+    private readonly UiButton _overrideButton;
+    private readonly UiCheckbox _checkbox;
+    private readonly UiSwitch _slideSwitch;
+    private readonly UiSwitch _toggleSwitch;
+    private readonly UiSlider _slider;
+    private readonly UiButton _customButton;
+    private readonly UiJoystick _joystick;
 
     private bool _draggingSlider;
     private bool _draggingJoystick;
@@ -49,29 +36,43 @@ internal sealed class PlayScreen : GameScreen
         _state = state;
         _themes = themes;
 
-        _themeBoldButton = CreateRectControl(_themeButtons, ThemeBoldId, SKRect.Create(24f, 20f, 160f, 42f));
-        _themeRetroButton = CreateRectControl(_themeButtons, ThemeRetroId, SKRect.Create(194f, 20f, 160f, 42f));
-        _themeSimpleButton = CreateRectControl(_themeButtons, ThemeSimpleId, SKRect.Create(364f, 20f, 160f, 42f));
+        // Theme selector buttons
+        _themeBoldButton = new UiButton(160f, 42f, themes) { X = 104f, Y = 41f, Label = "Bold/Cute", FontSize = 14f };
+        _themeRetroButton = new UiButton(160f, 42f, themes) { X = 274f, Y = 41f, Label = "Retro", FontSize = 14f };
+        _themeSimpleButton = new UiButton(160f, 42f, themes) { X = 444f, Y = 41f, Label = "Simple", FontSize = 14f };
+        _themeButtons.AddChild(_themeBoldButton);
+        _themeButtons.AddChild(_themeRetroButton);
+        _themeButtons.AddChild(_themeSimpleButton);
 
-        _primaryButton = CreateRectControl(_controls, PrimaryButtonId, SKRect.Create(40f, 110f, 190f, 56f));
-        _overrideButton = CreateRectControl(_controls, OverrideButtonId, SKRect.Create(250f, 110f, 190f, 56f));
-        _checkbox = CreateRectControl(_controls, CheckboxId, SKRect.Create(40f, 204f, 34f, 34f));
-        _slideSwitch = CreateRectControl(_controls, SlideSwitchId, SKRect.Create(40f, 268f, 110f, 42f));
-        _toggleSwitch = CreateRectControl(_controls, ToggleSwitchId, SKRect.Create(168f, 268f, 130f, 42f));
-        _slider = CreateRectControl(_controls, SliderId, SKRect.Create(40f, 350f, 320f, 26f));
-        _customButton = CreateRectControl(_controls, CustomButtonId, SKRect.Create(40f, 416f, 260f, 58f));
-        _joystick = CreateCircleControl(_controls, JoystickId, 620f, 360f, 86f);
+        // Demo controls — state lives on each entity
+        _primaryButton = new UiButton(190f, 56f, themes) { X = 135f, Y = 138f, Label = "Button" };
+        _overrideButton = new UiButton(190f, 56f, themes) { X = 345f, Y = 138f, Label = "Override" };
+        _checkbox = new UiCheckbox(34f, 34f, themes) { X = 57f, Y = 221f, IsChecked = true };
+        _slideSwitch = new UiSwitch(110f, 42f, themes, UiSwitchVariant.Sliding) { X = 95f, Y = 289f };
+        _toggleSwitch = new UiSwitch(130f, 42f, themes, UiSwitchVariant.ToggleButton) { X = 233f, Y = 289f };
+        _slider = new UiSlider(320f, 26f, themes) { X = 200f, Y = 363f, Value = 0.45f };
+        _customButton = new UiButton(260f, 58f, themes) { X = 170f, Y = 445f };
+        _joystick = new UiJoystick(86f, themes) { X = 620f, Y = 360f };
 
-        ConfigureSprites();
+        _controls.AddChild(_primaryButton);
+        _controls.AddChild(_overrideButton);
+        _controls.AddChild(_checkbox);
+        _controls.AddChild(_slideSwitch);
+        _controls.AddChild(_toggleSwitch);
+        _controls.AddChild(_slider);
+        _controls.AddChild(_customButton);
+        _controls.AddChild(_joystick);
+
+        ConfigureOverrides();
     }
 
     public override void OnActivated()
     {
-        _state.PrimaryPressed = false;
-        _state.OverridePressed = false;
+        _primaryButton.IsPressed = false;
+        _overrideButton.IsPressed = false;
         _draggingSlider = false;
         _draggingJoystick = false;
-        _state.JoystickDelta = SKPoint.Empty;
+        _joystick.ResetDelta();
         ApplyTheme(_state.ThemeIndex);
     }
 
@@ -80,45 +81,42 @@ internal sealed class PlayScreen : GameScreen
         _pointerProbe.X = x;
         _pointerProbe.Y = y;
 
-        if (_themeButtons.FindChildCollision(_pointerProbe, out _) is UiControlEntity themeButton)
+        if (_themeButtons.FindChildCollision(_pointerProbe, out _) is UiButton themeButton)
         {
-            switch (themeButton.Id)
-            {
-                case ThemeBoldId: ApplyTheme(0); return;
-                case ThemeRetroId: ApplyTheme(1); return;
-                case ThemeSimpleId: ApplyTheme(2); return;
-            }
+            if (themeButton == _themeBoldButton) { ApplyTheme(0); return; }
+            if (themeButton == _themeRetroButton) { ApplyTheme(1); return; }
+            if (themeButton == _themeSimpleButton) { ApplyTheme(2); return; }
         }
 
-        _state.PrimaryPressed = false;
-        _state.OverridePressed = false;
+        _primaryButton.IsPressed = false;
+        _overrideButton.IsPressed = false;
 
-        var hit = _controls.FindChildCollision(_pointerProbe, out _) as UiControlEntity;
-        if (hit is null)
-            return;
+        var hit = _controls.FindChildCollision(_pointerProbe, out _);
 
-        switch (hit.Id)
+        switch (hit)
         {
-            case PrimaryButtonId:
-                _state.PrimaryPressed = true;
+            case UiButton btn when btn == _primaryButton:
+                _primaryButton.IsPressed = true;
                 break;
-            case OverrideButtonId:
-                _state.OverridePressed = true;
+            case UiButton btn when btn == _overrideButton:
+                _overrideButton.IsPressed = true;
                 break;
-            case CheckboxId:
-                _state.CheckboxChecked = !_state.CheckboxChecked;
+            case UiCheckbox cb:
+                cb.IsChecked = !cb.IsChecked;
                 break;
-            case SlideSwitchId:
-            case ToggleSwitchId:
-                _state.SwitchOn = !_state.SwitchOn;
+            case UiSwitch sw:
+                sw.IsOn = !sw.IsOn;
+                // Keep both switches in sync for the demo
+                _slideSwitch.IsOn = sw.IsOn;
+                _toggleSwitch.IsOn = sw.IsOn;
                 break;
-            case SliderId:
+            case UiSlider sl:
                 _draggingSlider = true;
-                UpdateSliderValue(x);
+                sl.UpdateValueFromPointer(x);
                 break;
-            case JoystickId:
+            case UiJoystick js:
                 _draggingJoystick = true;
-                UpdateJoystick(x, y);
+                js.UpdateFromPointer(x, y);
                 break;
         }
     }
@@ -126,19 +124,19 @@ internal sealed class PlayScreen : GameScreen
     public override void OnPointerMove(float x, float y)
     {
         if (_draggingSlider)
-            UpdateSliderValue(x);
+            _slider.UpdateValueFromPointer(x);
 
         if (_draggingJoystick)
-            UpdateJoystick(x, y);
+            _joystick.UpdateFromPointer(x, y);
     }
 
     public override void OnPointerUp(float x, float y)
     {
-        _state.PrimaryPressed = false;
-        _state.OverridePressed = false;
+        _primaryButton.IsPressed = false;
+        _overrideButton.IsPressed = false;
         _draggingSlider = false;
         _draggingJoystick = false;
-        _state.JoystickDelta = SKPoint.Empty;
+        _joystick.ResetDelta();
     }
 
     public override void Draw(SKCanvas canvas, int width, int height)
@@ -155,113 +153,61 @@ internal sealed class PlayScreen : GameScreen
         DrawText(canvas, textPaint, headerFont, "UI Gallery", SKColors.White, 24f, 90f);
         DrawText(canvas, textPaint, labelFont, $"Theme: {theme.Name}", new SKColor(0xD0, 0xDC, 0xEA), 620f, 46f);
 
+        // Update theme button styles to show selection
+        UpdateThemeButtonStyles();
+
         _themeButtons.Draw(canvas);
         _controls.Draw(canvas);
 
         DrawText(canvas, textPaint, labelFont, "Checkbox", SKColors.White, 86f, 229f);
         DrawText(canvas, textPaint, labelFont, "Switch (slide + toggle)", SKColors.White, 40f, 332f);
-        DrawText(canvas, textPaint, labelFont, $"Slider: {(int)(_state.SliderValue * 100f)}", SKColors.White, 40f, 402f);
+        DrawText(canvas, textPaint, labelFont, $"Slider: {(int)(_slider.Value * 100f)}", SKColors.White, 40f, 402f);
         DrawText(canvas, textPaint, labelFont, "Custom draw hook", SKColors.White, 40f, 494f);
 
-        float joyX = _state.JoystickDelta.X / (_joystick.Radius * 0.6f);
-        float joyY = _state.JoystickDelta.Y / (_joystick.Radius * 0.6f);
-        DrawText(canvas, textPaint, labelFont, $"Joystick X:{joyX:F2} Y:{joyY:F2}", new SKColor(0xD0, 0xDC, 0xEA), 500f, 500f);
+        var norm = _joystick.NormalizedDelta;
+        DrawText(canvas, textPaint, labelFont, $"Joystick X:{norm.X:F2} Y:{norm.Y:F2}", new SKColor(0xD0, 0xDC, 0xEA), 500f, 500f);
     }
 
-    private void ConfigureSprites()
+    private void ConfigureOverrides()
     {
-        _themeBoldButton.Sprite = new DelegateSprite(canvas => DrawThemeButton(canvas, _themeBoldButton, "Bold/Cute", UiThemes.BoldCute.Button, _themes.Theme.Name == UiThemes.BoldCute.Name));
-        _themeRetroButton.Sprite = new DelegateSprite(canvas => DrawThemeButton(canvas, _themeRetroButton, "Retro", UiThemes.Retro.Button, _themes.Theme.Name == UiThemes.Retro.Name));
-        _themeSimpleButton.Sprite = new DelegateSprite(canvas => DrawThemeButton(canvas, _themeSimpleButton, "Simple", UiThemes.Simple.Button, _themes.Theme.Name == UiThemes.Simple.Name));
-
-        _primaryButton.Sprite = new DelegateSprite(canvas =>
-            UiControls.DrawButton(canvas, RectFor(_primaryButton), "Button", _themes.Theme.Button, _state.PrimaryPressed));
-
-        _overrideButton.Sprite = new DelegateSprite(canvas =>
+        // Override button uses a custom green style
+        _overrideButton.StyleOverride = _themes.Theme.Button with
         {
-            var style = _themes.Theme.Button with
-            {
-                FillColor = new SKColor(0x39, 0xC6, 0x91),
-                PressedFillColor = new SKColor(0x1F, 0x8A, 0x64),
-                BevelLightColor = new SKColor(0x9A, 0xFF, 0xD8),
-                BevelShadowColor = new SKColor(0x0F, 0x4F, 0x3A),
-                CornerRadius = 22f,
-                BorderColor = SKColors.White,
-            };
-            UiControls.DrawButton(canvas, RectFor(_overrideButton), "Override", style, _state.OverridePressed);
-        });
+            FillColor = new SKColor(0x39, 0xC6, 0x91),
+            PressedFillColor = new SKColor(0x1F, 0x8A, 0x64),
+            BevelLightColor = new SKColor(0x9A, 0xFF, 0xD8),
+            BevelShadowColor = new SKColor(0x0F, 0x4F, 0x3A),
+            CornerRadius = 22f,
+            BorderColor = SKColors.White,
+        };
 
-        _checkbox.Sprite = new DelegateSprite(canvas =>
-            UiControls.DrawCheckbox(canvas, RectFor(_checkbox), _state.CheckboxChecked, _themes.Theme.Checkbox));
-
-        _slideSwitch.Sprite = new DelegateSprite(canvas =>
-            UiControls.DrawSwitch(canvas, RectFor(_slideSwitch), _state.SwitchOn, _themes.Theme.Switch, UiSwitchVariant.Sliding));
-
-        _toggleSwitch.Sprite = new DelegateSprite(canvas =>
-            UiControls.DrawSwitch(canvas, RectFor(_toggleSwitch), _state.SwitchOn, _themes.Theme.Switch, UiSwitchVariant.ToggleButton));
-
-        _slider.Sprite = new DelegateSprite(canvas =>
-            UiControls.DrawSlider(canvas, RectFor(_slider), _state.SliderValue, _themes.Theme.Slider));
-
-        _customButton.Sprite = new DelegateSprite(canvas =>
-            UiControls.DrawButton(
-                canvas,
-                RectFor(_customButton),
-                "",
-                _themes.Theme.Button,
-                false,
-                customDraw: static (c, rect, style, _, _) =>
-                {
-                    using var fill = new SKPaint { IsAntialias = true, Color = new SKColor(0x4A, 0x2E, 0xFF) };
-                    using var ring = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, Color = SKColors.White, StrokeWidth = 3f };
-                    c.DrawRoundRect(rect, 10f, 10f, fill);
-                    c.DrawRoundRect(rect, 10f, 10f, ring);
-                    using var labelPaint = new SKPaint { IsAntialias = true, Color = style.TextColor };
-                    using var labelFont = new SKFont(SKTypeface.Default, 16f);
-                    c.DrawText("Custom canvas draw", rect.MidX, rect.MidY + 6f, SKTextAlign.Center, labelFont, labelPaint);
-                }));
-
-        _joystick.Sprite = new DelegateSprite(canvas =>
-            UiControls.DrawJoystick(canvas, SKPoint.Empty, _joystick.Radius, _state.JoystickDelta, _themes.Theme.Joystick));
+        // Custom button uses a completely custom draw callback
+        _customButton.CustomDraw = static (c, rect, style, _, _) =>
+        {
+            using var fill = new SKPaint { IsAntialias = true, Color = new SKColor(0x4A, 0x2E, 0xFF) };
+            using var ring = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, Color = SKColors.White, StrokeWidth = 3f };
+            c.DrawRoundRect(rect, 10f, 10f, fill);
+            c.DrawRoundRect(rect, 10f, 10f, ring);
+            using var labelPaint = new SKPaint { IsAntialias = true, Color = style.TextColor };
+            using var labelFont = new SKFont(SKTypeface.Default, 16f);
+            c.DrawText("Custom canvas draw", rect.MidX, rect.MidY + 6f, SKTextAlign.Center, labelFont, labelPaint);
+        };
     }
 
-    private static void DrawThemeButton(SKCanvas canvas, UiControlEntity entity, string label, UiButtonStyle style, bool selected)
+    private void UpdateThemeButtonStyles()
     {
-        var themedStyle = selected
-            ? style with { BorderColor = SKColors.White, BorderWidth = style.BorderWidth + 1f }
-            : style;
-
-        UiControls.DrawButton(canvas, RectFor(entity), label, themedStyle, pressed: selected, fontSize: 14f);
+        var themeName = _themes.Theme.Name;
+        UpdateThemeButtonStyle(_themeBoldButton, UiThemes.BoldCute, themeName == UiThemes.BoldCute.Name);
+        UpdateThemeButtonStyle(_themeRetroButton, UiThemes.Retro, themeName == UiThemes.Retro.Name);
+        UpdateThemeButtonStyle(_themeSimpleButton, UiThemes.Simple, themeName == UiThemes.Simple.Name);
     }
 
-    private static UiControlEntity CreateRectControl(Entity parent, string id, SKRect rect)
+    private static void UpdateThemeButtonStyle(UiButton button, UiTheme theme, bool selected)
     {
-        var entity = new UiControlEntity(id, rect.MidX, rect.MidY, rect.Width, rect.Height);
-        parent.AddChild(entity);
-        return entity;
-    }
-
-    private static UiControlEntity CreateCircleControl(Entity parent, string id, float x, float y, float radius)
-    {
-        var entity = new UiControlEntity(id, x, y, radius);
-        parent.AddChild(entity);
-        return entity;
-    }
-
-    private static SKRect RectFor(UiControlEntity entity) =>
-        SKRect.Create(-entity.Width / 2f, -entity.Height / 2f, entity.Width, entity.Height);
-
-    private void UpdateSliderValue(float x)
-    {
-        float left = _slider.WorldX - _slider.Width / 2f;
-        _state.SliderValue = Math.Clamp((x - left) / _slider.Width, 0f, 1f);
-    }
-
-    private void UpdateJoystick(float x, float y)
-    {
-        _state.JoystickDelta = UiControls.ClampJoystick(
-            new SKPoint(x - _joystick.WorldX, y - _joystick.WorldY),
-            _joystick.Radius * 0.6f);
+        button.StyleOverride = selected
+            ? theme.Button with { BorderColor = SKColors.White, BorderWidth = theme.Button.BorderWidth + 1f }
+            : theme.Button;
+        button.IsPressed = selected;
     }
 
     private void ApplyTheme(int index)

@@ -93,6 +93,25 @@ internal static class CastleAttackConstants
     public static readonly SKColor ColGold = new(0xFF, 0xD7, 0x00);
     public static readonly SKColor ColRed = new(0xFF, 0x2D, 0x55);
 
+    // ── Special weapons ─────────────────────────────────────────────────
+    public const float OilDropRadius = 5f;
+    public const float OilDropSpeed = 300f;
+    public const float OilPuddleWidth = 60f;
+    public const float OilPuddleHeight = 6f;
+    public const float OilPuddleDuration = 3f;
+    public const float OilDamage = 100f;
+
+    public const float MangonelDamage = 3f;
+    public const int MangonelStoneCount = 6;
+    public const float MangonelLaunchSpeed = 350f;
+
+    public const float LogSpeed = 300f;
+    public const float LogWidth = 30f;
+    public const float LogHeight = 12f;
+    public const float LogDamageSmall = 100f;
+    public const float LogDamageLarge = 3f;
+    public static readonly SKColor ColLog = new(0x8B, 0x5E, 0x2E);
+
     public static SKColor EnemyCol(EnemyType t) => t switch
     {
         EnemyType.Spearman => new(0xE7, 0x4C, 0x3C),

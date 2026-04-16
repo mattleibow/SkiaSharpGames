@@ -13,6 +13,9 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     private readonly List<Arrow> _arrows = [];
     private readonly List<Boulder> _boulders = [];
     private readonly List<FloatText> _texts = [];
+    private readonly List<OilDrop> _oilDrops = [];
+    private readonly List<OilPuddle> _oilPuddles = [];
+    private readonly List<RollingLog> _logs = [];
 
     private int _archerCount = 3;
     private int _workerCount = 3;
@@ -139,6 +142,9 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         _arrows.Clear();
         _boulders.Clear();
         _texts.Clear();
+        _oilDrops.Clear();
+        _oilPuddles.Clear();
+        _logs.Clear();
         InitWalls();
     }
 
@@ -240,12 +246,11 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     {
         if (!_oilAvail) return;
         _oilAvail = false;
-        float maxRange = OuterWallX + BlockW + 80f;
-        foreach (var e in _enemies)
+        foreach (var wall in _walls)
         {
-            if (!e.Active || e.X > maxRange) continue;
-            if (e.Type is EnemyType.Catapult or EnemyType.Ram) continue;
-            KillEnemy(e, 0f, 0f);
+            if (!wall.HasArcher || wall.IsDestroyed) continue;
+            _oilDrops.Add(new OilDrop(wall.CenterX - 10f, wall.TopY));
+            _oilDrops.Add(new OilDrop(wall.CenterX + 10f, wall.TopY));
         }
         SpawnText("BOILING OIL!", GameWidth / 2f, 120f, ColOil);
     }
@@ -254,11 +259,19 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     {
         if (!_mangonelAvail) return;
         _mangonelAvail = false;
-        float minX = OuterWallX + BlockW + 200f;
-        foreach (var e in _enemies)
+        float launchX = KeepLeft + 40f;
+        float launchY = GroundY - 60f;
+        for (int i = 0; i < MangonelStoneCount; i++)
         {
-            if (!e.Active || e.X < minX) continue;
-            KillEnemy(e, 0f, 0f);
+            float angleDeg = 45f + Random.Shared.NextSingle() * 30f; // 45-75 degrees
+            float speed = MangonelLaunchSpeed * (0.8f + Random.Shared.NextSingle() * 0.4f);
+            float rad = angleDeg * MathF.PI / 180f;
+            float vx = speed * MathF.Cos(rad);
+            float vy = -speed * MathF.Sin(rad);
+            var stone = new Boulder { X = launchX + Random.Shared.NextSingle() * 20f, Y = launchY, TargetWallIdx = -1 };
+            stone.Rigidbody.VelocityX = vx;
+            stone.Rigidbody.VelocityY = vy;
+            _boulders.Add(stone);
         }
         SpawnText("MANGONEL FIRES!", GameWidth / 2f, 120f, ColBoulder);
     }
@@ -267,11 +280,18 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     {
         if (!_logsAvail) return;
         _logsAvail = false;
-        foreach (var e in _enemies)
+        // Spawn from outermost standing wall
+        float spawnX = OuterWallX + BlockW;
+        for (int i = _walls.Count - 1; i >= 0; i--)
         {
-            if (!e.Active) continue;
-            KillEnemy(e, 0f, 0f);
+            if (!_walls[i].IsDestroyed)
+            {
+                spawnX = _walls[i].LeftX + BlockW;
+                break;
+            }
         }
+        for (int i = 0; i < 3; i++)
+            _logs.Add(new RollingLog(spawnX + i * 20f));
         SpawnText("FLAMING LOGS!", GameWidth / 2f, 120f, ColFire);
     }
 
@@ -361,6 +381,8 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         if (_lordActive) UpdateLord(deltaTime);
         UpdateArrows(deltaTime);
         UpdateBoulders(deltaTime);
+        UpdateOil(deltaTime);
+        UpdateLogs(deltaTime);
 
         for (int i = _texts.Count - 1; i >= 0; i--)
         {
@@ -734,6 +756,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
             if (b.TargetWallIdx >= 0 && b.TargetWallIdx < _walls.Count)
             {
+                // Enemy catapult boulder — hits walls
                 var wall = _walls[b.TargetWallIdx];
                 if (!wall.IsDestroyed && b.X >= wall.LeftX - 10f && b.X <= wall.LeftX + BlockW + 10f)
                 {
@@ -743,6 +766,100 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
                     b.Active = false;
                     _boulders.RemoveAt(i);
                 }
+            }
+            else
+            {
+                // Player mangonel stone — hits enemies
+                bool hit = false;
+                foreach (var e in _enemies)
+                {
+                    if (!e.Active) continue;
+                    if (!b.TryGetHit(e, out _)) continue;
+
+                    e.HP -= MangonelDamage;
+                    if (e.HP <= 0f) KillEnemy(e, b.X, b.Y);
+                    else SpawnText($"-{MangonelDamage:0}", e.X, GroundY - e.Collider.Height - 5f, ColBoulder);
+                    hit = true;
+                    break;
+                }
+                if (hit || b.Y >= GroundY - 4f)
+                {
+                    b.Active = false;
+                    _boulders.RemoveAt(i);
+                }
+            }
+        }
+    }
+
+    // ── Oil update ────────────────────────────────────────────────────────
+
+    private void UpdateOil(float dt)
+    {
+        // Update oil drops — fall and create puddles on ground impact
+        for (int i = _oilDrops.Count - 1; i >= 0; i--)
+        {
+            var drop = _oilDrops[i];
+            if (!drop.Active) { _oilDrops.RemoveAt(i); continue; }
+
+            drop.Update(dt);
+
+            if (drop.Y >= GroundY - OilPuddleHeight)
+            {
+                _oilPuddles.Add(new OilPuddle(drop.X));
+                drop.Active = false;
+                _oilDrops.RemoveAt(i);
+            }
+        }
+
+        // Update puddles — damage enemies that walk through
+        for (int i = _oilPuddles.Count - 1; i >= 0; i--)
+        {
+            var puddle = _oilPuddles[i];
+            if (!puddle.Active) { _oilPuddles.RemoveAt(i); continue; }
+
+            puddle.Update(dt);
+
+            foreach (var e in _enemies)
+            {
+                if (!e.Active) continue;
+                if (e.Type is EnemyType.Catapult or EnemyType.Ram) continue;
+                if (!puddle.Overlaps(e)) continue;
+
+                e.HP -= OilDamage;
+                if (e.HP <= 0f) KillEnemy(e, e.X, GroundY - e.Collider.Height);
+            }
+        }
+    }
+
+    // ── Logs update ───────────────────────────────────────────────────────
+
+    private void UpdateLogs(float dt)
+    {
+        for (int i = _logs.Count - 1; i >= 0; i--)
+        {
+            var log = _logs[i];
+            if (!log.Active) { _logs.RemoveAt(i); continue; }
+
+            log.Update(dt);
+
+            // Off-screen removal
+            if (log.X > GameWidth + LogWidth)
+            {
+                log.Active = false;
+                _logs.RemoveAt(i);
+                continue;
+            }
+
+            // Check enemy collisions
+            foreach (var e in _enemies)
+            {
+                if (!e.Active) continue;
+                if (!log.Overlaps(e)) continue;
+
+                float dmg = e.Type is EnemyType.Ram or EnemyType.Catapult ? LogDamageLarge : LogDamageSmall;
+                e.HP -= dmg;
+                if (e.HP <= 0f) KillEnemy(e, e.X, GroundY - e.Collider.Height);
+                else SpawnText($"-{dmg:0}", e.X, GroundY - e.Collider.Height - 5f, ColFire);
             }
         }
     }
@@ -792,8 +909,11 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         DrawWalls(canvas);
         DrawWorkers(canvas);
         DrawLord(canvas);
+        DrawOilPuddles(canvas);
         DrawEnemies(canvas, _enemies);
+        DrawOilDrops(canvas);
         DrawBoulders(canvas, _boulders);
+        DrawLogs(canvas);
         DrawArrows(canvas, _arrows);
         DrawAimIndicator(canvas);
         DrawFloatTexts(canvas);
@@ -924,6 +1044,35 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         {
             if (!b.Active) continue;
             b.Draw(canvas);
+        }
+    }
+
+    // ── Oil / Logs draw ──────────────────────────────────────────────────
+
+    private void DrawOilDrops(SKCanvas canvas)
+    {
+        foreach (var d in _oilDrops)
+        {
+            if (!d.Active) continue;
+            d.Draw(canvas);
+        }
+    }
+
+    private void DrawOilPuddles(SKCanvas canvas)
+    {
+        foreach (var p in _oilPuddles)
+        {
+            if (!p.Active) continue;
+            p.Draw(canvas);
+        }
+    }
+
+    private void DrawLogs(SKCanvas canvas)
+    {
+        foreach (var log in _logs)
+        {
+            if (!log.Active) continue;
+            log.Draw(canvas);
         }
     }
 

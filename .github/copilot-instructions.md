@@ -186,6 +186,24 @@ Usage: `<GameView Game="_game" />`
 
 These screenshots must be linked from the game's entry in `README.md`.
 
+### Screenshot capture policy (required)
+
+- **Do not use placeholders, empty, or synthetic 1x1 files.** Screenshots must be real captures of the running app.
+- **Use Playwright to capture screenshots** from the actual game page (`games/<slug>`) after starting the Blazor app.
+- For every code change that affects behavior or visuals, **recapture and update screenshots** for impacted games before finishing.
+- Missing or invalid screenshots are considered a **failed change**.
+
+Required capture workflow:
+
+1. Start the app locally (for example: `dotnet run --project src/BlazorApp/SkiaSharpGames.BlazorApp.csproj`).
+2. Open `games/<slug>` (ensure the correct game is selected).
+3. Capture:
+   - `desktop-loading.png` at desktop size (>=1280 wide) on start/loading state
+   - `desktop-gameplay.png` at desktop size during active gameplay/interaction
+   - `mobile-loading.png` at mobile size (<=430 wide) on start/loading state
+   - `mobile-gameplay.png` at mobile size during active gameplay/interaction
+4. Verify files are valid PNG images and visually match the intended game state.
+
 ## Documentation
 
 **Always update `README.md` when you change the code.** Specifically:

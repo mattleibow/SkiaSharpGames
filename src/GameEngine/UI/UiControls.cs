@@ -4,11 +4,6 @@ namespace SkiaSharpGames.GameEngine.UI;
 
 public static class UiControls
 {
-    private static readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private static readonly SKPaint _strokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
-    private static readonly SKPaint _textPaint = new() { IsAntialias = true };
-    private static readonly SKFont _font = new(SKTypeface.Default, 18f);
-
     public static bool HitTest(SKRect rect, float x, float y) => rect.Contains(x, y);
 
     public static void DrawButton(
@@ -29,30 +24,34 @@ public static class UiControls
 
         byte alpha = enabled ? (byte)255 : style.DisabledAlpha;
 
-        _fillPaint.Color = (pressed ? style.PressedFillColor : style.FillColor).WithAlpha(alpha);
-        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, _fillPaint);
+        using var fillPaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
+        using var strokePaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke };
+        using var textPaint = new SKPaint { IsAntialias = true };
+        using var font = new SKFont(SKTypeface.Default, fontSize);
+
+        fillPaint.Color = (pressed ? style.PressedFillColor : style.FillColor).WithAlpha(alpha);
+        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, fillPaint);
 
         if (style.BevelSize > 0f)
         {
-            _strokePaint.StrokeWidth = style.BevelSize;
-            _strokePaint.Color = (pressed ? style.BevelShadowColor : style.BevelLightColor).WithAlpha(alpha);
+            strokePaint.StrokeWidth = style.BevelSize;
+            strokePaint.Color = (pressed ? style.BevelShadowColor : style.BevelLightColor).WithAlpha(alpha);
             var inset = SKRect.Inflate(rect, -style.BevelSize * 0.5f, -style.BevelSize * 0.5f);
-            canvas.DrawLine(inset.Left, inset.Top, inset.Right, inset.Top, _strokePaint);
-            canvas.DrawLine(inset.Left, inset.Top, inset.Left, inset.Bottom, _strokePaint);
+            canvas.DrawLine(inset.Left, inset.Top, inset.Right, inset.Top, strokePaint);
+            canvas.DrawLine(inset.Left, inset.Top, inset.Left, inset.Bottom, strokePaint);
 
-            _strokePaint.Color = (pressed ? style.BevelLightColor : style.BevelShadowColor).WithAlpha(alpha);
-            canvas.DrawLine(inset.Left, inset.Bottom, inset.Right, inset.Bottom, _strokePaint);
-            canvas.DrawLine(inset.Right, inset.Top, inset.Right, inset.Bottom, _strokePaint);
+            strokePaint.Color = (pressed ? style.BevelLightColor : style.BevelShadowColor).WithAlpha(alpha);
+            canvas.DrawLine(inset.Left, inset.Bottom, inset.Right, inset.Bottom, strokePaint);
+            canvas.DrawLine(inset.Right, inset.Top, inset.Right, inset.Bottom, strokePaint);
         }
 
-        _strokePaint.StrokeWidth = style.BorderWidth;
-        _strokePaint.Color = style.BorderColor.WithAlpha(alpha);
-        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, _strokePaint);
+        strokePaint.StrokeWidth = style.BorderWidth;
+        strokePaint.Color = style.BorderColor.WithAlpha(alpha);
+        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, strokePaint);
 
-        _textPaint.Color = style.TextColor.WithAlpha(alpha);
-        _font.Size = fontSize;
+        textPaint.Color = style.TextColor.WithAlpha(alpha);
         float baselineY = rect.MidY + fontSize * 0.35f;
-        canvas.DrawText(label, rect.MidX, baselineY, SKTextAlign.Center, _font, _textPaint);
+        canvas.DrawText(label, rect.MidX, baselineY, SKTextAlign.Center, font, textPaint);
     }
 
     public static void DrawCheckbox(
@@ -68,22 +67,24 @@ public static class UiControls
             return;
         }
 
-        _fillPaint.Color = style.FillColor;
-        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, _fillPaint);
+        using var fillPaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
+        using var strokePaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke };
 
-        _strokePaint.StrokeWidth = style.BorderWidth;
-        _strokePaint.Color = style.BorderColor;
-        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, _strokePaint);
+        fillPaint.Color = style.FillColor;
+        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, fillPaint);
+
+        strokePaint.StrokeWidth = style.BorderWidth;
+        strokePaint.Color = style.BorderColor;
+        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, strokePaint);
 
         if (!isChecked)
             return;
 
-        _strokePaint.Color = style.CheckColor;
-        _strokePaint.StrokeCap = SKStrokeCap.Round;
-        _strokePaint.StrokeWidth = MathF.Max(2f, rect.Width * 0.12f);
-        canvas.DrawLine(rect.Left + rect.Width * 0.2f, rect.MidY, rect.Left + rect.Width * 0.45f, rect.Bottom - rect.Height * 0.2f, _strokePaint);
-        canvas.DrawLine(rect.Left + rect.Width * 0.45f, rect.Bottom - rect.Height * 0.2f, rect.Right - rect.Width * 0.2f, rect.Top + rect.Height * 0.2f, _strokePaint);
-        _strokePaint.StrokeCap = SKStrokeCap.Butt;
+        strokePaint.Color = style.CheckColor;
+        strokePaint.StrokeCap = SKStrokeCap.Round;
+        strokePaint.StrokeWidth = MathF.Max(2f, rect.Width * 0.12f);
+        canvas.DrawLine(rect.Left + rect.Width * 0.2f, rect.MidY, rect.Left + rect.Width * 0.45f, rect.Bottom - rect.Height * 0.2f, strokePaint);
+        canvas.DrawLine(rect.Left + rect.Width * 0.45f, rect.Bottom - rect.Height * 0.2f, rect.Right - rect.Width * 0.2f, rect.Top + rect.Height * 0.2f, strokePaint);
     }
 
     public static void DrawSwitch(
@@ -120,22 +121,25 @@ public static class UiControls
             return;
         }
 
-        _fillPaint.Color = isOn ? style.TrackOnColor : style.TrackOffColor;
-        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, _fillPaint);
+        using var fillPaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
+        using var strokePaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke };
 
-        _strokePaint.StrokeWidth = style.BorderWidth;
-        _strokePaint.Color = style.BorderColor;
-        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, _strokePaint);
+        fillPaint.Color = isOn ? style.TrackOnColor : style.TrackOffColor;
+        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, fillPaint);
+
+        strokePaint.StrokeWidth = style.BorderWidth;
+        strokePaint.Color = style.BorderColor;
+        canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, strokePaint);
 
         float margin = 4f;
         float knobRadius = MathF.Max(6f, rect.Height * 0.5f - margin);
         float knobX = isOn ? rect.Right - margin - knobRadius : rect.Left + margin + knobRadius;
 
-        _fillPaint.Color = style.KnobColor;
-        canvas.DrawCircle(knobX, rect.MidY, knobRadius, _fillPaint);
-        _strokePaint.Color = style.BorderColor;
-        _strokePaint.StrokeWidth = MathF.Max(1f, style.BorderWidth * 0.75f);
-        canvas.DrawCircle(knobX, rect.MidY, knobRadius, _strokePaint);
+        fillPaint.Color = style.KnobColor;
+        canvas.DrawCircle(knobX, rect.MidY, knobRadius, fillPaint);
+        strokePaint.Color = style.BorderColor;
+        strokePaint.StrokeWidth = MathF.Max(1f, style.BorderWidth * 0.75f);
+        canvas.DrawCircle(knobX, rect.MidY, knobRadius, strokePaint);
     }
 
     public static void DrawSlider(
@@ -158,21 +162,24 @@ public static class UiControls
         float right = rect.Right;
         float knobX = left + (right - left) * value;
 
-        _strokePaint.StrokeCap = SKStrokeCap.Round;
-        _strokePaint.StrokeWidth = style.TrackHeight;
-        _strokePaint.Color = style.TrackColor;
-        canvas.DrawLine(left, cy, right, cy, _strokePaint);
+        using var fillPaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
+        using var strokePaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke };
 
-        _strokePaint.Color = style.FillColor;
-        canvas.DrawLine(left, cy, knobX, cy, _strokePaint);
+        strokePaint.StrokeCap = SKStrokeCap.Round;
+        strokePaint.StrokeWidth = style.TrackHeight;
+        strokePaint.Color = style.TrackColor;
+        canvas.DrawLine(left, cy, right, cy, strokePaint);
 
-        _fillPaint.Color = style.KnobColor;
-        canvas.DrawCircle(knobX, cy, style.KnobRadius, _fillPaint);
+        strokePaint.Color = style.FillColor;
+        canvas.DrawLine(left, cy, knobX, cy, strokePaint);
 
-        _strokePaint.StrokeCap = SKStrokeCap.Butt;
-        _strokePaint.StrokeWidth = style.BorderWidth;
-        _strokePaint.Color = style.BorderColor;
-        canvas.DrawCircle(knobX, cy, style.KnobRadius, _strokePaint);
+        fillPaint.Color = style.KnobColor;
+        canvas.DrawCircle(knobX, cy, style.KnobRadius, fillPaint);
+
+        strokePaint.StrokeCap = SKStrokeCap.Butt;
+        strokePaint.StrokeWidth = style.BorderWidth;
+        strokePaint.Color = style.BorderColor;
+        canvas.DrawCircle(knobX, cy, style.KnobRadius, strokePaint);
     }
 
     public static float SliderValueFromX(SKRect rect, float x) => Math.Clamp((x - rect.Left) / rect.Width, 0f, 1f);
@@ -201,19 +208,22 @@ public static class UiControls
             return;
         }
 
-        _fillPaint.Color = style.BaseColor;
-        canvas.DrawCircle(center.X, center.Y, baseRadius, _fillPaint);
+        using var fillPaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
+        using var strokePaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke };
 
-        _strokePaint.Color = style.BaseBorderColor;
-        _strokePaint.StrokeWidth = style.BorderWidth;
-        canvas.DrawCircle(center.X, center.Y, baseRadius, _strokePaint);
+        fillPaint.Color = style.BaseColor;
+        canvas.DrawCircle(center.X, center.Y, baseRadius, fillPaint);
+
+        strokePaint.Color = style.BaseBorderColor;
+        strokePaint.StrokeWidth = style.BorderWidth;
+        canvas.DrawCircle(center.X, center.Y, baseRadius, strokePaint);
 
         float knobRadius = baseRadius * 0.42f;
         var knobCenter = new SKPoint(center.X + knobDelta.X, center.Y + knobDelta.Y);
-        _fillPaint.Color = style.KnobColor;
-        canvas.DrawCircle(knobCenter.X, knobCenter.Y, knobRadius, _fillPaint);
+        fillPaint.Color = style.KnobColor;
+        canvas.DrawCircle(knobCenter.X, knobCenter.Y, knobRadius, fillPaint);
 
-        _strokePaint.Color = style.KnobBorderColor;
-        canvas.DrawCircle(knobCenter.X, knobCenter.Y, knobRadius, _strokePaint);
+        strokePaint.Color = style.KnobBorderColor;
+        canvas.DrawCircle(knobCenter.X, knobCenter.Y, knobRadius, strokePaint);
     }
 }

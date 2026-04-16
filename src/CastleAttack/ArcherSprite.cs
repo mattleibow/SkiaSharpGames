@@ -10,14 +10,12 @@ internal sealed class ArcherSprite : Sprite
     private static readonly SKPaint BodyPaint = new() { Color = ColArcher, IsAntialias = true };
     private static readonly SKPaint BowPaint = new() { Color = ColArrow, StrokeWidth = 2f, IsAntialias = true };
 
-    /// <param name="x">Centre X of the archer.</param>
-    /// <param name="y">Base Y (feet) of the archer.</param>
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible) return;
 
-        canvas.DrawRect(SKRect.Create(x - ArcherW / 2f, y - ArcherH, ArcherW, ArcherH - 8f), BodyPaint);
-        canvas.DrawCircle(x, y - ArcherH - 5f, 6f, BodyPaint);
-        canvas.DrawLine(x + ArcherW / 2f, y - ArcherH + 4f, x + ArcherW / 2f + 8f, y - ArcherH / 2f, BowPaint);
+        canvas.DrawRect(SKRect.Create(0f - ArcherW / 2f, 0f - ArcherH, ArcherW, ArcherH - 8f), BodyPaint);
+        canvas.DrawCircle(0f, 0f - ArcherH - 5f, 6f, BodyPaint);
+        canvas.DrawLine(0f + ArcherW / 2f, 0f - ArcherH + 4f, 0f + ArcherW / 2f + 8f, 0f - ArcherH / 2f, BowPaint);
     }
 }

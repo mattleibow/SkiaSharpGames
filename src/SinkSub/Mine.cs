@@ -5,7 +5,14 @@ namespace SkiaSharpGames.SinkSub;
 
 internal sealed class Mine : Entity
 {
-    public readonly CircleCollider Collider = new() { Radius = MineRadius };
-    public readonly Rigidbody2D Rigidbody = new();
-    public readonly MineSprite Sprite = new();
+    public Mine()
+    {
+        Collider = new CircleCollider { Radius = MineRadius };
+        Rigidbody = new Rigidbody2D();
+        Sprite = new MineSprite();
+    }
+
+    public new MineSprite Sprite { get => (MineSprite)base.Sprite!; init => base.Sprite = value; }
+    public new CircleCollider Collider { get => (CircleCollider)base.Collider!; init => base.Collider = value; }
+    public new Rigidbody2D Rigidbody { get => (Rigidbody2D)base.Rigidbody!; init => base.Rigidbody = value; }
 }

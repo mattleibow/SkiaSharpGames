@@ -20,10 +20,10 @@ internal sealed class GameOverScreen(BreakoutGameState state, IScreenCoordinator
     {
         canvas.DrawRect(0, 0, GameWidth, GameHeight, _overlayPaint);
 
-        _titleText.Draw(canvas, GameWidth / 2f, 270f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 270f); _titleText.Draw(canvas); canvas.Restore();
         _scoreText.Text = $"Score: {state.Score}";
-        _scoreText.Draw(canvas, GameWidth / 2f, 335f);
-        _promptText.Draw(canvas, GameWidth / 2f, 395f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 335f); _scoreText.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 395f); _promptText.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y)

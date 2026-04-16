@@ -22,8 +22,12 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     private CountdownTimer _strongBallTimer;
     private CountdownTimer _bigPaddleTimer;
 
-    private readonly List<Brick> _bricks = [];
-    private readonly List<FallingPowerUp> _powerUps = [];
+    // ── Keyboard tracking ──────────────────────────────────────────────────
+    private bool _leftHeld, _rightHeld;
+
+    // ── Entity groups (parenting) ─────────────────────────────────────────
+    private readonly Entity _bricks = new();
+    private readonly Entity _powerUps = new();
 
     // ── Text sprites ──────────────────────────────────────────────────────
     private readonly TextSprite _scoreText = new() { Size = 20f, Color = SKColors.White };
@@ -38,7 +42,11 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         state.Lives = 3;
         _strongBallTimer = default;
         _bigPaddleTimer = default;
-        _powerUps.Clear();
+
+        // Clear and rebuild power-ups
+        foreach (var child in _powerUps.Children.ToArray())
+            _powerUps.RemoveChild(child);
+
         InitBricks();
         _paddle.X = GameWidth / 2f;
         _paddle.Y = PaddleY + PaddleHeight / 2f;
@@ -48,8 +56,6 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
 
     public override void OnActivated()
     {
-        // The transition is complete — re-sync the ball to wherever the paddle actually is.
-        // Pointer events during the dissolve-in may have moved the paddle while Update was paused.
         ResetBall();
     }
 
@@ -57,7 +63,10 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
 
     private void InitBricks()
     {
-        _bricks.Clear();
+        // Remove all existing brick children
+        foreach (var child in _bricks.Children.ToArray())
+            _bricks.RemoveChild(child);
+
         for (int r = 0; r < BrickRows; r++)
         {
             for (int c = 0; c < BrickCols; c++)
@@ -67,7 +76,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
                 var brick = new Brick(r, c, cx, cy);
                 brick.Sprite.Color = BrickColors[r];
                 brick.Sprite.Shimmer.Start(Random.Shared.NextSingle() * brick.Sprite.Shimmer.Period);
-                _bricks.Add(brick);
+                _bricks.AddChild(brick);
             }
         }
     }
@@ -90,14 +99,40 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         _paddle.X = Math.Clamp(x, halfW, GameWidth - halfW);
     }
 
+    public override void OnKeyDown(string key)
+    {
+        switch (key)
+        {
+            case "ArrowLeft": _leftHeld = true; break;
+            case "ArrowRight": _rightHeld = true; break;
+        }
+    }
+
+    public override void OnKeyUp(string key)
+    {
+        switch (key)
+        {
+            case "ArrowLeft": _leftHeld = false; break;
+            case "ArrowRight": _rightHeld = false; break;
+        }
+    }
+
     // ── Update ────────────────────────────────────────────────────────────
 
     public override void Update(float deltaTime)
     {
-        _paddle.Update(deltaTime);
+        // Keyboard-driven paddle movement
+        if (_leftHeld ^ _rightHeld)
+        {
+            float direction = _leftHeld ? -1f : 1f;
+            float halfW = _paddle.Width / 2f;
+            _paddle.X = Math.Clamp(_paddle.X + direction * PaddleSpeed * deltaTime, halfW, GameWidth - halfW);
+        }
 
-        foreach (var brick in _bricks)
-            brick.Sprite.Update(deltaTime);
+        // Entity.Update handles rigidbody step + sprite update via OnUpdate
+        _paddle.Update(deltaTime);
+        _ball.Update(deltaTime);
+        _bricks.Update(deltaTime);
 
         // Power-up timers
         _strongBallTimer.Tick(deltaTime);
@@ -109,18 +144,13 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
             _paddle.X = Math.Clamp(_paddle.X, halfW, GameWidth - halfW);
         }
 
-        // Physics step
-        _ball.Rigidbody.Step(_ball, deltaTime);
-
-        // Boundary wall collisions (left, top, right bounce; bottom = life lost)
-        foreach (var wall in (ReadOnlySpan<Wall>)[_leftWall, _topWall, _rightWall])
-        {
-            if (CollisionResolver.TryGetHit(_ball, _ball.Collider, wall, wall.Collider, out var wallHit))
-                _ball.Rigidbody.Bounce(wallHit);
-        }
+        // Boundary wall collisions
+        _ball.BounceOff(_leftWall);
+        _ball.BounceOff(_topWall);
+        _ball.BounceOff(_rightWall);
 
         // Ball hit the bottom wall — lose a life
-        if (CollisionResolver.Overlaps(_ball, _ball.Collider, _bottomWall, _bottomWall.Collider))
+        if (_ball.Overlaps(_bottomWall))
         {
             state.Lives--;
             if (state.Lives <= 0)
@@ -139,21 +169,18 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         // Falling power-ups
         UpdateFallingPowerUps(deltaTime);
 
-        if (!_bricks.Any(b => b.Active))
+        if (!_bricks.Children.Any(b => b.Active))
             coordinator.PushOverlay<VictoryScreen>();
     }
 
     private void ResolvePaddleCollision()
     {
-        if (_ball.Rigidbody.VelocityY > 0f &&
-            CollisionResolver.TryGetHit(_ball, _ball.Collider, _paddle, _paddle.Collider, out var hit))
+        if (_ball.Rigidbody.VelocityY > 0f && _ball.TryGetHit(_paddle, out var hit))
         {
-            // Push the ball out of the paddle so it cannot oscillate inside it.
             _ball.X += hit.NormalX * hit.Penetration;
             _ball.Y += hit.NormalY * hit.Penetration;
 
-            // Clamp hitPos to [-1, 1] so corner overlaps don't produce extreme angles.
-            float hitPos = Math.Clamp((_ball.X - _paddle.X) / (_paddle.Width / 2f), -1f, 1f);
+            float hitPos = Math.Clamp((_ball.WorldX - _paddle.WorldX) / (_paddle.Width / 2f), -1f, 1f);
             float angle = hitPos * (65f * MathF.PI / 180f);
             _ball.Rigidbody.SetVelocity(
                 BallSpeed * MathF.Sin(angle),
@@ -165,11 +192,11 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     {
         bool piercing = _strongBallTimer.Active;
 
-        foreach (var brick in _bricks)
+        // Use FindChildCollision for broad-phase + narrow-phase
+        while (true)
         {
-            if (!brick.Active ||
-                !CollisionResolver.TryGetHit(_ball, _ball.Collider, brick, brick.Collider, out var hit))
-                continue;
+            if (_bricks.FindChildCollision(_ball, out var hit) is not Brick brick)
+                break;
 
             brick.Active = false;
             state.Score += 10 * (BrickRows - brick.Row);
@@ -178,7 +205,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
             if (!piercing)
             {
                 _ball.Rigidbody.Bounce(hit);
-                return;
+                break;
             }
         }
     }
@@ -189,30 +216,28 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         var type = Random.Shared.NextDouble() < 0.5 ? PowerUpType.StrongBall : PowerUpType.BigPaddle;
         var pu = new FallingPowerUp { X = cx, Y = cy, Type = type };
         pu.Sprite.Color = type == PowerUpType.StrongBall ? StrongBallColor : BigPaddleColor;
-        _powerUps.Add(pu);
+        _powerUps.AddChild(pu);
     }
 
     private void UpdateFallingPowerUps(float deltaTime)
     {
+        _powerUps.Update(deltaTime);
         float halfPaddleW = _paddle.Width / 2f;
 
-        for (int i = _powerUps.Count - 1; i >= 0; i--)
+        foreach (var child in _powerUps.Children.ToArray())
         {
-            var pu = _powerUps[i];
+            if (child is not FallingPowerUp pu || !pu.Active) continue;
 
-            pu.Rigidbody.Step(pu, deltaTime);
-
-            // Paddle collision: power-up centre Y within paddle vertical range, X within paddle width
             if (pu.Y + PowerUpH / 2f >= PaddleY &&
                 pu.Y - PowerUpH / 2f <= PaddleY + PaddleHeight &&
                 pu.X >= _paddle.X - halfPaddleW && pu.X <= _paddle.X + halfPaddleW)
             {
                 ApplyPowerUp(pu.Type);
-                _powerUps.RemoveAt(i);
+                _powerUps.RemoveChild(pu);
             }
             else if (pu.Y > GameHeight + 30f)
             {
-                _powerUps.RemoveAt(i);
+                _powerUps.RemoveChild(pu);
             }
         }
     }
@@ -241,52 +266,48 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
 
     internal void DrawGameContent(SKCanvas canvas)
     {
-        // Bricks
-        foreach (var brick in _bricks)
-        {
-            if (!brick.Active) continue;
-            brick.Sprite.Alpha = 1f;
-            brick.Sprite.Draw(canvas, brick.X, brick.Y);
-        }
+        // Entity groups draw all children recursively
+        _bricks.Draw(canvas);
+        _powerUps.Draw(canvas);
 
-        // Falling power-ups
-        foreach (var pu in _powerUps)
+        // Draw power-up labels on top of power-up sprites
+        foreach (var child in _powerUps.Children)
         {
-            pu.Sprite.Draw(canvas, pu.X, pu.Y);
+            if (child is not FallingPowerUp pu || !pu.Active) continue;
             _powerUpLabel.Text = pu.Type == PowerUpType.StrongBall ? "S" : "B";
-            _powerUpLabel.Draw(canvas, pu.X, pu.Y + 4f);
+            canvas.Save(); canvas.Translate(pu.X, pu.Y + 4f); _powerUpLabel.Draw(canvas); canvas.Restore();
         }
 
         // Paddle
         _paddle.Sprite.Color = _bigPaddleTimer.Active || _paddle.IsWidthAnimating
             ? BigPaddleColor : PaddleColor;
-        _paddle.Sprite.Draw(canvas, _paddle.X, _paddle.Y);
+        _paddle.Draw(canvas);
 
         // Ball
         _ball.Sprite.Color = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
         _ball.Sprite.GlowColor = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
-        _ball.Sprite.Draw(canvas, _ball.X, _ball.Y);
+        _ball.Draw(canvas);
 
         // HUD
         _scoreText.Text = $"Score: {state.Score}";
-        _scoreText.Draw(canvas, 20f, 30f);
+        canvas.Save(); canvas.Translate(20f, 30f); _scoreText.Draw(canvas); canvas.Restore();
 
         _livesText.Text = $"Lives: {state.Lives}";
-        _livesText.Draw(canvas, GameWidth - 20f, 30f);
+        canvas.Save(); canvas.Translate(GameWidth - 20f, 30f); _livesText.Draw(canvas); canvas.Restore();
 
         float hudY = 52f;
         if (_strongBallTimer.Active)
         {
             _strongBallText.Text = $"STRONG BALL {_strongBallTimer.Remaining:F1}s";
             _strongBallText.Color = StrongBallColor;
-            _strongBallText.Draw(canvas, GameWidth / 2f, hudY);
+            canvas.Save(); canvas.Translate(GameWidth / 2f, hudY); _strongBallText.Draw(canvas); canvas.Restore();
             hudY += 18f;
         }
         if (_bigPaddleTimer.Active)
         {
             _bigPaddleText.Text = $"BIG PADDLE {_bigPaddleTimer.Remaining:F1}s";
             _bigPaddleText.Color = BigPaddleColor;
-            _bigPaddleText.Draw(canvas, GameWidth / 2f, hudY);
+            canvas.Save(); canvas.Translate(GameWidth / 2f, hudY); _bigPaddleText.Draw(canvas); canvas.Restore();
         }
     }
 }

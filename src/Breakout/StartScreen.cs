@@ -9,7 +9,7 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
     private readonly TextSprite _title = new() { Text = "BREAKOUT", Size = 72f, Color = SKColors.White, Align = TextAlign.Center };
     private readonly TextSprite _startPrompt = new() { Text = "Click or Tap to Start", Size = 28f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _instructions = new() { Text = "Move mouse / finger to control the paddle", Size = 18f, Color = DimColor, Align = TextAlign.Center };
+    private readonly TextSprite _instructions = new() { Text = "Move mouse / finger / arrow keys to control the paddle", Size = 18f, Color = DimColor, Align = TextAlign.Center };
 
     private readonly List<Brick> _bricks = [];
 
@@ -43,12 +43,12 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
         foreach (var brick in _bricks)
         {
             brick.Sprite.Alpha = 0.3f;
-            brick.Sprite.Draw(canvas, brick.X, brick.Y);
+            canvas.Save(); canvas.Translate(brick.X, brick.Y); brick.Sprite.Draw(canvas); canvas.Restore();
         }
 
-        _title.Draw(canvas, GameWidth / 2f, 290f);
-        _startPrompt.Draw(canvas, GameWidth / 2f, 360f);
-        _instructions.Draw(canvas, GameWidth / 2f, 415f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 290f); _title.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 360f); _startPrompt.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 415f); _instructions.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y)

@@ -6,27 +6,18 @@ namespace SkiaSharpGames.Breakout;
 internal sealed class Brick : Entity
 {
     public readonly int Row, Col;
-    public readonly RectCollider Collider = new()
-    {
-        Width = BrickWidth,
-        Height = BrickHeight,
-    };
-    public readonly BrickSprite Sprite = new()
-    {
-        Width = BrickWidth,
-        Height = BrickHeight,
-    };
 
-    /// <param name="row">Row index.</param>
-    /// <param name="col">Column index.</param>
-    /// <param name="cx">Centre X in game-space units.</param>
-    /// <param name="cy">Centre Y in game-space units.</param>
     public Brick(int row, int col, float cx, float cy)
     {
         Row = row;
         Col = col;
         X = cx;
         Y = cy;
+        Collider = new RectCollider { Width = BrickWidth, Height = BrickHeight };
+        Sprite = new BrickSprite { Width = BrickWidth, Height = BrickHeight };
     }
+
+    public new BrickSprite Sprite { get => (BrickSprite)base.Sprite!; init => base.Sprite = value; }
+    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
 }
 

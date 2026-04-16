@@ -18,15 +18,15 @@ internal sealed class GameOverScreen(SinkSubGameState state, IScreenCoordinator 
         _fillPaint.Color = SKColors.Black.WithAlpha((byte)(255 * 0.78f));
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), _fillPaint);
 
-        _titleText.Draw(canvas, GameWidth / 2f, 250f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 250f); _titleText.Draw(canvas); canvas.Restore();
 
         _scoreText.Text = $"Score: {state.Score}";
-        _scoreText.Draw(canvas, GameWidth / 2f, 320f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 320f); _scoreText.Draw(canvas); canvas.Restore();
 
         _waveText.Text = $"Wave reached: {state.Wave}";
-        _waveText.Draw(canvas, GameWidth / 2f, 360f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 360f); _waveText.Draw(canvas); canvas.Restore();
 
-        _restartText.Draw(canvas, GameWidth / 2f, 420f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 420f); _restartText.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y) =>

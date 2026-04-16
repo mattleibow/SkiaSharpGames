@@ -19,10 +19,9 @@ internal sealed class ButtonSprite : Sprite
     private readonly TextSprite _labelText = new() { Align = TextAlign.Center };
 
     /// <summary>
-    /// Draws the button. The <paramref name="x"/> and <paramref name="y"/> parameters are ignored;
-    /// the button position comes from <see cref="Rect"/>.
+    /// Draws the button. The button position comes from <see cref="Rect"/>.
     /// </summary>
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible) return;
 
@@ -45,6 +44,6 @@ internal sealed class ButtonSprite : Sprite
         _labelText.Size = fontSize;
         _labelText.Color = col;
         _labelText.Alpha = alpha;
-        _labelText.Draw(canvas, Rect.MidX, Rect.MidY + fontSize * 0.38f);
+        canvas.Save(); canvas.Translate(Rect.MidX, Rect.MidY + fontSize * 0.38f); _labelText.Draw(canvas); canvas.Restore();
     }
 }

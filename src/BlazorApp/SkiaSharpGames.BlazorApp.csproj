@@ -22,6 +22,7 @@
     <ProjectReference Include="..\TwoZeroFourEight\SkiaSharpGames.TwoZeroFourEight.csproj" />
     <ProjectReference Include="..\SpaceInvaders\SkiaSharpGames.SpaceInvaders.csproj" />
     <ProjectReference Include="..\Catch\SkiaSharpGames.Catch.csproj" />
+    <ProjectReference Include="..\LunarLander\SkiaSharpGames.LunarLander.csproj" />
   </ItemGroup>
 
 </Project>

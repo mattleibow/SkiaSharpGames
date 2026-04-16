@@ -16,12 +16,12 @@ internal sealed class GameOverScreen(SpaceInvadersGameState state, IScreenCoordi
     {
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), _overlayPaint);
 
-        _titleText.Draw(canvas, GameWidth / 2f, 255f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 255f); _titleText.Draw(canvas); canvas.Restore();
 
         _scoreText.Text = $"Score: {state.Score}";
-        _scoreText.Draw(canvas, GameWidth / 2f, 325f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 325f); _scoreText.Draw(canvas); canvas.Restore();
 
-        _restartText.Draw(canvas, GameWidth / 2f, 410f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 410f); _restartText.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y) =>

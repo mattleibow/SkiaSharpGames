@@ -10,14 +10,32 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
 
     private readonly TextSprite _scoreText = new() { Size = 24f, Color = SKColors.White };
     private readonly TextSprite _livesText = new() { Size = 24f, Color = AccentColor };
-    private readonly TextSprite _controlsText = new() { Text = "← → move    SPACE / ENTER fire", Size = 18f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly TextSprite _controlsText = new() { Text = "LEFT RIGHT move    SPACE / ENTER fire", Size = 18f, Color = HudDimColor, Align = TextAlign.Center };
 
+    private readonly Entity _formation = new();
+    private readonly Entity _shields = new();
+    private readonly Entity _playerBullets = new();
+    private readonly Entity _enemyBullets = new();
     private readonly PlayerCannon _player = new();
-    private readonly List<Invader> _invaders = [];
-    private readonly List<Bullet> _playerBullets = [];
-    private readonly List<Bullet> _enemyBullets = [];
-    private readonly List<ShieldBlock> _shieldBlocks = [];
     private readonly List<SKPoint> _stars = [];
+
+    // ── Touch control pad ────────────────────────────────────────────────
+    private bool _touchActive;
+    private bool _touchLeft, _touchRight, _touchFire;
+
+    private const float PadY = GameHeight - 80f;
+    private const float PadBtnW = 90f;
+    private const float PadBtnH = 50f;
+    private const float PadGap = 16f;
+    private static readonly float PadTotalW = PadBtnW * 3 + PadGap * 2;
+    private static readonly float PadLeft = (GameWidth - PadTotalW) / 2f;
+    private static readonly SKRect LeftBtnRect = SKRect.Create(PadLeft, PadY, PadBtnW, PadBtnH);
+    private static readonly SKRect FireBtnRect = SKRect.Create(PadLeft + PadBtnW + PadGap, PadY, PadBtnW, PadBtnH);
+    private static readonly SKRect RightBtnRect = SKRect.Create(PadLeft + 2 * (PadBtnW + PadGap), PadY, PadBtnW, PadBtnH);
+
+    private static readonly SKPaint _padBtnPaint = new() { IsAntialias = true };
+    private static readonly SKPaint _padBtnTextPaint = new() { IsAntialias = true, Color = SKColors.White };
+    private static readonly SKFont _padBtnFont = new(SKTypeface.Default, 22f);
 
     private bool _leftHeld;
     private bool _rightHeld;
@@ -41,16 +59,20 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         state.Lives = 3;
         _leftHeld = false;
         _rightHeld = false;
+        _touchActive = false;
+        _touchLeft = false;
+        _touchRight = false;
+        _touchFire = false;
         _invaderFrameB = false;
         _endTriggered = false;
         _invaderDirection = 1f;
         _playerFireCooldown = 0f;
         _invaderMoveTimer = InvaderMoveStartInterval;
         _enemyFireTimer = 0.8f;
-        _playerBullets.Clear();
-        _enemyBullets.Clear();
-        _invaders.Clear();
-        _shieldBlocks.Clear();
+        ClearChildren(_formation);
+        ClearChildren(_shields);
+        ClearChildren(_playerBullets);
+        ClearChildren(_enemyBullets);
 
         _player.X = GameWidth / 2f;
         _player.Y = PlayerY;
@@ -58,12 +80,26 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         BuildShields();
     }
 
-    public override void OnPointerMove(float x, float y) => MovePlayerTo(x);
+    public override void OnPointerDown(float x, float y) => HandleTouch(x, y, true);
+    public override void OnPointerMove(float x, float y) { if (_touchActive) HandleTouch(x, y, true); }
 
-    public override void OnPointerDown(float x, float y)
+    public override void OnPointerUp(float x, float y)
     {
-        MovePlayerTo(x);
-        TryFirePlayerBullet();
+        _touchActive = false;
+        _touchLeft = false;
+        _touchRight = false;
+        _touchFire = false;
+    }
+
+    private void HandleTouch(float x, float y, bool down)
+    {
+        _touchActive = down;
+        _touchLeft = down && LeftBtnRect.Contains(x, y);
+        _touchRight = down && RightBtnRect.Contains(x, y);
+        bool wasFire = _touchFire;
+        _touchFire = down && FireBtnRect.Contains(x, y);
+        if (_touchFire && !wasFire)
+            TryFirePlayerBullet();
     }
 
     public override void OnKeyDown(string key)
@@ -101,9 +137,11 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         if (_endTriggered)
             return;
 
-        if (_leftHeld ^ _rightHeld)
+        bool moveLeft = _leftHeld || _touchLeft;
+        bool moveRight = _rightHeld || _touchRight;
+        if (moveLeft ^ moveRight)
         {
-            float direction = _leftHeld ? -1f : 1f;
+            float direction = moveLeft ? -1f : 1f;
             MovePlayerTo(_player.X + direction * PlayerSpeed * deltaTime);
         }
 
@@ -120,17 +158,17 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
 
     private void TryFirePlayerBullet()
     {
-        if (_playerFireCooldown > 0f || _playerBullets.Count > 0 || _endTriggered)
+        if (_playerFireCooldown > 0f || _playerBullets.ChildCount > 0 || _endTriggered)
             return;
 
         _playerFireCooldown = PlayerFireCooldown;
 
-        _playerBullets.Add(new Bullet(fromEnemy: false)
+        var bullet = new Bullet(fromEnemy: false, speedY: -PlayerBulletSpeed)
         {
             X = _player.X,
             Y = _player.Y - PlayerHeight / 2f - BulletHeight / 2f - 2f,
-            SpeedY = -PlayerBulletSpeed
-        });
+        };
+        _playerBullets.AddChild(bullet);
     }
 
     private void UpdateInvaderFormation(float deltaTime)
@@ -139,35 +177,49 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         if (_invaderMoveTimer > 0f)
             return;
 
-        int alive = _invaders.Count(i => i.Active);
+        var invaders = _formation.Children;
+        int alive = 0;
+        for (int i = 0; i < invaders.Count; i++)
+            if (invaders[i].Active) alive++;
+
         if (alive <= 0)
             return;
 
         float progress = 1f - alive / (float)(InvaderRows * InvaderCols);
         _invaderMoveTimer = InvaderMoveStartInterval + (InvaderMoveMinInterval - InvaderMoveStartInterval) * progress;
 
-        float minX = _invaders.Where(i => i.Active).Min(i => i.X);
-        float maxX = _invaders.Where(i => i.Active).Max(i => i.X);
+        float minX = float.MaxValue, maxX = float.MinValue;
+        for (int i = 0; i < invaders.Count; i++)
+        {
+            if (!invaders[i].Active) continue;
+            if (invaders[i].X < minX) minX = invaders[i].X;
+            if (invaders[i].X > maxX) maxX = invaders[i].X;
+        }
+
         float nextLeft = minX - InvaderWidth / 2f + InvaderStepX * _invaderDirection;
         float nextRight = maxX + InvaderWidth / 2f + InvaderStepX * _invaderDirection;
 
         bool hitSide = nextLeft <= InvaderSideMargin || nextRight >= GameWidth - InvaderSideMargin;
 
-        foreach (var invader in _invaders)
+        for (int i = 0; i < invaders.Count; i++)
         {
-            if (!invader.Active)
-                continue;
+            if (!invaders[i].Active) continue;
 
             if (hitSide)
-                invader.Y += InvaderStepDown;
+                invaders[i].Y += InvaderStepDown;
             else
-                invader.X += InvaderStepX * _invaderDirection;
+                invaders[i].X += InvaderStepX * _invaderDirection;
         }
 
         if (hitSide)
             _invaderDirection = -_invaderDirection;
 
         _invaderFrameB = !_invaderFrameB;
+        for (int i = 0; i < invaders.Count; i++)
+        {
+            if (invaders[i] is Invader inv)
+                inv.Sprite.FrameB = _invaderFrameB;
+        }
     }
 
     private void UpdateEnemyFire(float deltaTime)
@@ -176,7 +228,11 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         if (_enemyFireTimer > 0f)
             return;
 
-        int alive = _invaders.Count(i => i.Active);
+        var invaders = _formation.Children;
+        int alive = 0;
+        for (int i = 0; i < invaders.Count; i++)
+            if (invaders[i].Active) alive++;
+
         float threat = alive / (float)(InvaderRows * InvaderCols);
         float fireWindow = EnemyFireMinInterval + (EnemyFireMaxInterval - EnemyFireMinInterval) * threat;
         _enemyFireTimer = Random.Shared.NextSingle() * fireWindow + EnemyFireMinInterval;
@@ -185,120 +241,130 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         if (shooter is null)
             return;
 
-        _enemyBullets.Add(new Bullet(fromEnemy: true)
+        var bullet = new Bullet(fromEnemy: true, speedY: EnemyBulletSpeed)
         {
             X = shooter.X,
             Y = shooter.Y + InvaderHeight / 2f + BulletHeight / 2f + 2f,
-            SpeedY = EnemyBulletSpeed
-        });
+        };
+        _enemyBullets.AddChild(bullet);
     }
 
     private Invader? SelectEnemyShooter()
     {
-        List<int> columnsWithEnemies = [.. _invaders.Where(i => i.Active).Select(i => i.Col).Distinct()];
+        var invaders = _formation.Children;
+        List<int> columnsWithEnemies = [];
+        for (int i = 0; i < invaders.Count; i++)
+        {
+            if (invaders[i] is Invader inv && inv.Active && !columnsWithEnemies.Contains(inv.Col))
+                columnsWithEnemies.Add(inv.Col);
+        }
+
         if (columnsWithEnemies.Count == 0)
             return null;
 
         int column = columnsWithEnemies[Random.Shared.Next(columnsWithEnemies.Count)];
-        return _invaders
-            .Where(i => i.Active && i.Col == column)
-            .OrderByDescending(i => i.Row)
-            .FirstOrDefault();
+        Invader? best = null;
+        for (int i = 0; i < invaders.Count; i++)
+        {
+            if (invaders[i] is Invader inv && inv.Active && inv.Col == column)
+            {
+                if (best is null || inv.Row > best.Row)
+                    best = inv;
+            }
+        }
+
+        return best;
     }
 
     private void UpdateBullets(float deltaTime)
     {
-        for (int i = _playerBullets.Count - 1; i >= 0; i--)
+        // Update bullet positions via rigidbody
+        _playerBullets.Update(deltaTime);
+        _enemyBullets.Update(deltaTime);
+
+        // Player bullets vs invaders, shields, and enemy bullets
+        var playerBulletList = _playerBullets.Children;
+        for (int i = playerBulletList.Count - 1; i >= 0; i--)
         {
-            var bullet = _playerBullets[i];
-            bullet.Y += bullet.SpeedY * deltaTime;
+            var bullet = (Bullet)playerBulletList[i];
+            if (!bullet.Active) continue;
 
-            bool consumed = false;
-            for (int invaderIndex = 0; invaderIndex < _invaders.Count; invaderIndex++)
+            // vs invaders
+            var hitInvader = _formation.FindChildCollision(bullet, out _);
+            if (hitInvader is Invader invader)
             {
-                var invader = _invaders[invaderIndex];
-                if (!invader.Active ||
-                    !CollisionResolver.Overlaps(bullet, bullet.Collider, invader, invader.Collider))
-                    continue;
-
                 invader.Active = false;
                 state.Score += invader.ScoreValue;
-                _playerBullets.RemoveAt(i);
-                consumed = true;
-                break;
+                bullet.Active = false;
+                continue;
             }
 
-            if (consumed)
-                continue;
-
-            for (int shieldIndex = 0; shieldIndex < _shieldBlocks.Count; shieldIndex++)
+            // vs shields
+            var hitShield = _shields.FindChildCollision(bullet, out _);
+            if (hitShield is ShieldBlock block)
             {
-                var block = _shieldBlocks[shieldIndex];
-                if (!block.Active ||
-                    !CollisionResolver.Overlaps(bullet, bullet.Collider, block, block.Collider))
-                    continue;
-
                 block.Hit();
-                _playerBullets.RemoveAt(i);
-                consumed = true;
-                break;
-            }
-
-            if (consumed)
+                bullet.Active = false;
                 continue;
-
-            for (int enemyIndex = _enemyBullets.Count - 1; enemyIndex >= 0; enemyIndex--)
-            {
-                var enemyBullet = _enemyBullets[enemyIndex];
-                if (!CollisionResolver.Overlaps(bullet, bullet.Collider, enemyBullet, enemyBullet.Collider))
-                    continue;
-
-                _enemyBullets.RemoveAt(enemyIndex);
-                _playerBullets.RemoveAt(i);
-                consumed = true;
-                break;
             }
 
-            if (!consumed && bullet.Y < -20f)
-                _playerBullets.RemoveAt(i);
+            // vs enemy bullets
+            var enemyBulletList = _enemyBullets.Children;
+            for (int j = enemyBulletList.Count - 1; j >= 0; j--)
+            {
+                var enemyBullet = enemyBulletList[j];
+                if (!enemyBullet.Active) continue;
+                if (bullet.Overlaps(enemyBullet))
+                {
+                    enemyBullet.Active = false;
+                    bullet.Active = false;
+                    break;
+                }
+            }
+
+            if (!bullet.Active) continue;
+
+            if (bullet.Y < -20f)
+                bullet.Active = false;
         }
 
-        for (int i = _enemyBullets.Count - 1; i >= 0; i--)
+        // Enemy bullets vs shields and player
+        var enemyBullets = _enemyBullets.Children;
+        for (int i = enemyBullets.Count - 1; i >= 0; i--)
         {
-            var bullet = _enemyBullets[i];
-            bullet.Y += bullet.SpeedY * deltaTime;
+            var bullet = (Bullet)enemyBullets[i];
+            if (!bullet.Active) continue;
 
-            bool consumed = false;
-            for (int shieldIndex = 0; shieldIndex < _shieldBlocks.Count; shieldIndex++)
+            // vs shields
+            var hitShield = _shields.FindChildCollision(bullet, out _);
+            if (hitShield is ShieldBlock block)
             {
-                var block = _shieldBlocks[shieldIndex];
-                if (!block.Active ||
-                    !CollisionResolver.Overlaps(bullet, bullet.Collider, block, block.Collider))
-                    continue;
-
                 block.Hit();
-                _enemyBullets.RemoveAt(i);
-                consumed = true;
-                break;
+                bullet.Active = false;
+                continue;
             }
 
-            if (consumed)
-                continue;
-
-            if (CollisionResolver.Overlaps(bullet, bullet.Collider, _player, _player.Collider))
+            // vs player
+            if (bullet.Overlaps(_player))
             {
-                _enemyBullets.RemoveAt(i);
+                bullet.Active = false;
                 state.Lives--;
-                _playerBullets.Clear();
+
+                // Clear all player bullets
+                for (int j = 0; j < playerBulletList.Count; j++)
+                    playerBulletList[j].Active = false;
 
                 if (state.Lives <= 0)
                     TriggerGameOver();
             }
             else if (bullet.Y > GameHeight + 20f)
             {
-                _enemyBullets.RemoveAt(i);
+                bullet.Active = false;
             }
         }
+
+        _playerBullets.RemoveInactiveChildren();
+        _enemyBullets.RemoveInactiveChildren();
     }
 
     private void CheckEndConditions()
@@ -306,13 +372,20 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         if (_endTriggered)
             return;
 
-        if (_invaders.Any(invader => invader.Active && invader.Y + InvaderHeight / 2f >= PlayerY - 24f))
+        var invaders = _formation.Children;
+        bool anyAlive = false;
+        for (int i = 0; i < invaders.Count; i++)
         {
-            TriggerGameOver();
-            return;
+            if (!invaders[i].Active) continue;
+            anyAlive = true;
+            if (invaders[i].Y + InvaderHeight / 2f >= PlayerY - 24f)
+            {
+                TriggerGameOver();
+                return;
+            }
         }
 
-        if (_invaders.All(invader => !invader.Active))
+        if (!anyAlive)
             TriggerVictory();
     }
 
@@ -343,11 +416,12 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         {
             for (int col = 0; col < InvaderCols; col++)
             {
-                _invaders.Add(new Invader(row, col)
+                var invader = new Invader(row, col)
                 {
                     X = startX + col * (InvaderWidth + InvaderSpacingX),
                     Y = InvaderStartY + row * (InvaderHeight + InvaderSpacingY),
-                });
+                };
+                _formation.AddChild(invader);
             }
         }
     }
@@ -369,11 +443,12 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
                     if (row == ShieldRows - 1 && col is 3 or 4)
                         continue;
 
-                    _shieldBlocks.Add(new ShieldBlock
+                    var block = new ShieldBlock
                     {
                         X = topLeftX + col * (ShieldBlockSize + ShieldBlockGap) + ShieldBlockSize / 2f,
                         Y = ShieldY + row * (ShieldBlockSize + ShieldBlockGap) + ShieldBlockSize / 2f
-                    });
+                    };
+                    _shields.AddChild(block);
                 }
             }
         }
@@ -386,30 +461,46 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         foreach (var star in _stars)
             canvas.DrawRect(star.X, star.Y, 2f, 2f, _starPaint);
 
-        foreach (var invader in _invaders)
-        {
-            if (invader.Active)
-                invader.Draw(canvas, _invaderFrameB);
-        }
-
-        foreach (var shield in _shieldBlocks)
-            shield.Draw(canvas);
-
-        foreach (var bullet in _playerBullets)
-            bullet.Draw(canvas);
-
-        foreach (var bullet in _enemyBullets)
-            bullet.Draw(canvas);
-
+        _formation.Draw(canvas);
+        _shields.Draw(canvas);
+        _playerBullets.Draw(canvas);
+        _enemyBullets.Draw(canvas);
         _player.Draw(canvas);
 
         _scoreText.Text = $"SCORE: {state.Score:0000}";
-        _scoreText.Draw(canvas, 20f, 34f);
+        canvas.Save(); canvas.Translate(20f, 34f); _scoreText.Draw(canvas); canvas.Restore();
 
         _livesText.Text = $"LIVES: {state.Lives}";
         float livesWidth = _livesText.MeasureWidth();
-        _livesText.Draw(canvas, GameWidth - livesWidth - 20f, 34f);
+        canvas.Save(); canvas.Translate(GameWidth - livesWidth - 20f, 34f); _livesText.Draw(canvas); canvas.Restore();
 
-        _controlsText.Draw(canvas, GameWidth / 2f, GameHeight - 12f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, GameHeight - 12f); _controlsText.Draw(canvas); canvas.Restore();
+
+        DrawControlPad(canvas);
+    }
+
+    private void DrawControlPad(SKCanvas canvas)
+    {
+        DrawButton(canvas, LeftBtnRect, "<", _touchLeft);
+        DrawButton(canvas, FireBtnRect, "FIRE", _touchFire);
+        DrawButton(canvas, RightBtnRect, ">", _touchRight);
+    }
+
+    private static void DrawButton(SKCanvas canvas, SKRect rect, string label, bool pressed)
+    {
+        byte alpha = pressed ? (byte)120 : (byte)50;
+        _padBtnPaint.Color = SKColors.White.WithAlpha(alpha);
+        canvas.DrawRoundRect(new SKRoundRect(rect, 8f), _padBtnPaint);
+
+        float textW = _padBtnFont.MeasureText(label);
+        float textX = rect.MidX - textW / 2f;
+        float textY = rect.MidY + 7f;
+        canvas.DrawText(label, textX, textY, _padBtnFont, _padBtnTextPaint);
+    }
+
+    private static void ClearChildren(Entity parent)
+    {
+        while (parent.ChildCount > 0)
+            parent.RemoveChild(parent.Children[^1]);
     }
 }

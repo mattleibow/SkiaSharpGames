@@ -43,7 +43,7 @@ public sealed class TextSprite : Sprite
     }
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible || Alpha <= 0f || string.IsNullOrEmpty(Text))
             return;
@@ -53,12 +53,12 @@ public sealed class TextSprite : Sprite
 
         float drawX = Align switch
         {
-            TextAlign.Center => x - font.MeasureText(Text) / 2f,
-            TextAlign.Right => x - font.MeasureText(Text),
-            _ => x
+            TextAlign.Center => -font.MeasureText(Text) / 2f,
+            TextAlign.Right => -font.MeasureText(Text),
+            _ => 0f
         };
 
-        canvas.DrawText(Text, drawX, y, font, _paint);
+        canvas.DrawText(Text, drawX, 0f, font, _paint);
     }
 
     private static SKFont GetFont(float size)

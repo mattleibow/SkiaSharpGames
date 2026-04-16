@@ -29,90 +29,90 @@ internal sealed class EnemySprite : Sprite
 
     private readonly TextSprite _mooText = new() { Text = "MOO", Size = 10f, Color = new SKColor(0x55, 0x44, 0x22), Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible) return;
 
         SKColor col = CastleAttackConstants.EnemyCol(Type);
         switch (Type)
         {
-            case EnemyType.Catapult: DrawCatapult(canvas, x, y, col); break;
-            case EnemyType.Ram: DrawRam(canvas, x, y, col); break;
-            case EnemyType.Cow: DrawCow(canvas, x, y, col); break;
-            default: DrawHumanoid(canvas, x, y, col); break;
+            case EnemyType.Catapult: DrawCatapult(canvas, col); break;
+            case EnemyType.Ram: DrawRam(canvas, col); break;
+            case EnemyType.Cow: DrawCow(canvas, col); break;
+            default: DrawHumanoid(canvas, col); break;
         }
 
         if (MaxHP > 1f)
         {
-            float ex = x - Collider.Width / 2f;
-            float ey = GroundY - Collider.Height;
             float barW = Collider.Width + 4f;
             float ratio = HP / MaxHP;
-            canvas.DrawRect(SKRect.Create(ex - 2f, ey - 8f, barW, 4f), HpBarBg);
+            float barX = -barW / 2f;
+            float barY = -Collider.Height / 2f - 10f;
+            canvas.DrawRect(SKRect.Create(barX, barY, barW, 4f), HpBarBg);
             HpBarFg.Color = new SKColor(0xFF, 0x44, 0x00);
-            canvas.DrawRect(SKRect.Create(ex - 2f, ey - 8f, barW * ratio, 4f), HpBarFg);
+            canvas.DrawRect(SKRect.Create(barX, barY, barW * ratio, 4f), HpBarFg);
         }
     }
 
-    private void DrawHumanoid(SKCanvas canvas, float cx, float cy, SKColor col)
+    private void DrawHumanoid(SKCanvas canvas, SKColor col)
     {
-        float ex = cx - Collider.Width / 2f;
-        float ey = GroundY - Collider.Height;
+        float hw = Collider.Width / 2f;
+        float hh = Collider.Height / 2f;
 
         BodyPaint.Color = col;
-        canvas.DrawRect(SKRect.Create(ex, ey, Collider.Width, Collider.Height - 8f), BodyPaint);
-        canvas.DrawCircle(cx, ey - 5f, 6f, BodyPaint);
+        canvas.DrawRect(SKRect.Create(-hw, -hh, Collider.Width, Collider.Height - 8f), BodyPaint);
+        canvas.DrawCircle(0f, -hh - 5f, 6f, BodyPaint);
 
         if (Type == EnemyType.Crossbowman)
         {
-            canvas.DrawLine(ex - 4f, ey + Collider.Height / 3f, ex - 12f, ey + Collider.Height / 3f, CrossbowPaint);
+            canvas.DrawLine(-hw - 4f, -hh + Collider.Height / 3f, -hw - 12f, -hh + Collider.Height / 3f, CrossbowPaint);
         }
         else if (Type is EnemyType.Spearman or EnemyType.Berserker)
         {
-            canvas.DrawLine(ex - 2f, ey, ex - 14f, ey - 10f, SpearPaint);
+            canvas.DrawLine(-hw - 2f, -hh, -hw - 14f, -hh - 10f, SpearPaint);
         }
         else
         {
-            canvas.DrawLine(ex - 2f, ey + 2f, ex - 14f, ey + 8f, SwordPaint);
+            canvas.DrawLine(-hw - 2f, -hh + 2f, -hw - 14f, -hh + 8f, SwordPaint);
         }
     }
 
-    private void DrawCatapult(SKCanvas canvas, float cx, float cy, SKColor col)
+    private void DrawCatapult(SKCanvas canvas, SKColor col)
     {
-        float ex = cx - Collider.Width / 2f;
-        float ey = GroundY - Collider.Height;
+        float hw = Collider.Width / 2f;
+        float hh = Collider.Height / 2f;
 
         BodyPaint.Color = col;
-        canvas.DrawRoundRect(SKRect.Create(ex, ey + 8f, Collider.Width, Collider.Height - 8f), 3f, 3f, BodyPaint);
-        canvas.DrawLine(cx, ey + 14f, cx - 14f, ey, ArmPaint);
-        canvas.DrawCircle(ex + 6f, GroundY - 5f, 5f, WheelPaint);
-        canvas.DrawCircle(ex + Collider.Width - 6f, GroundY - 5f, 5f, WheelPaint);
+        canvas.DrawRoundRect(SKRect.Create(-hw, -hh + 8f, Collider.Width, Collider.Height - 8f), 3f, 3f, BodyPaint);
+        canvas.DrawLine(0f, -hh + 14f, -14f, -hh, ArmPaint);
+        canvas.DrawCircle(-hw + 6f, hh - 5f, 5f, WheelPaint);
+        canvas.DrawCircle(hw - 6f, hh - 5f, 5f, WheelPaint);
     }
 
-    private void DrawRam(SKCanvas canvas, float cx, float cy, SKColor col)
+    private void DrawRam(SKCanvas canvas, SKColor col)
     {
-        float ex = cx - Collider.Width / 2f;
-        float ey = GroundY - Collider.Height;
+        float hw = Collider.Width / 2f;
+        float hh = Collider.Height / 2f;
 
         BodyPaint.Color = col;
-        canvas.DrawRoundRect(SKRect.Create(ex, ey, Collider.Width, Collider.Height - 6f), 4f, 4f, BodyPaint);
-        canvas.DrawRect(SKRect.Create(ex - 10f, ey + 6f, 14f, 8f), TipPaint);
-        canvas.DrawCircle(ex + 6f, GroundY - 4f, 5f, WheelPaint);
-        canvas.DrawCircle(ex + Collider.Width - 6f, GroundY - 4f, 5f, WheelPaint);
+        canvas.DrawRoundRect(SKRect.Create(-hw, -hh, Collider.Width, Collider.Height - 6f), 4f, 4f, BodyPaint);
+        canvas.DrawRect(SKRect.Create(-hw - 10f, -hh + 6f, 14f, 8f), TipPaint);
+        canvas.DrawCircle(-hw + 6f, hh - 4f, 5f, WheelPaint);
+        canvas.DrawCircle(hw - 6f, hh - 4f, 5f, WheelPaint);
     }
 
-    private void DrawCow(SKCanvas canvas, float cx, float cy, SKColor col)
+    private void DrawCow(SKCanvas canvas, SKColor col)
     {
-        float ex = cx - Collider.Width / 2f;
-        float ey = GroundY - Collider.Height;
+        float hw = Collider.Width / 2f;
+        float hh = Collider.Height / 2f;
 
         BodyPaint.Color = col;
-        canvas.DrawRoundRect(SKRect.Create(ex, ey + 4f, Collider.Width, Collider.Height - 8f), 5f, 5f, BodyPaint);
+        canvas.DrawRoundRect(SKRect.Create(-hw, -hh + 4f, Collider.Width, Collider.Height - 8f), 5f, 5f, BodyPaint);
         HeadPaint.Color = col;
-        canvas.DrawRoundRect(SKRect.Create(ex - 8f, ey + 6f, 14f, 10f), 4f, 4f, HeadPaint);
-        canvas.DrawLine(ex + 4f, ey + Collider.Height - 4f, ex + 4f, GroundY, LegPaint);
-        canvas.DrawLine(ex + Collider.Width - 4f, ey + Collider.Height - 4f, ex + Collider.Width - 4f, GroundY, LegPaint);
-        canvas.DrawCircle(cx, ey + 8f, 3f, SpotPaint);
-        _mooText.Draw(canvas, cx, ey);
+        canvas.DrawRoundRect(SKRect.Create(-hw - 8f, -hh + 6f, 14f, 10f), 4f, 4f, HeadPaint);
+        canvas.DrawLine(-hw + 4f, hh - 4f, -hw + 4f, hh, LegPaint);
+        canvas.DrawLine(hw - 4f, hh - 4f, hw - 4f, hh, LegPaint);
+        canvas.DrawCircle(0f, -hh + 8f, 3f, SpotPaint);
+        canvas.Save(); canvas.Translate(0f, -hh); _mooText.Draw(canvas); canvas.Restore();
     }
 }

@@ -20,7 +20,7 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     private readonly TextSprite _subtitle = new() { Text = "Defend the castle until the keep is complete!", Size = 22f, Color = ColHud, Align = TextAlign.Center };
     private readonly TextSprite _tapLine = new() { Text = "Tap the battlefield to aim & fire", Size = 17f, Color = ColAccent, Align = TextAlign.Center };
     private readonly TextSprite _btnLine = new() { Text = "Use the on-screen buttons at the bottom for all actions", Size = 16f, Color = ColDim, Align = TextAlign.Center };
-    private readonly TextSprite _kbLine = new() { Text = "Keyboard: ← → aim  |  SPACE fire  |  ↑↓ convert  |  Z X C weapons", Size = 14f, Color = ColDim, Align = TextAlign.Center };
+    private readonly TextSprite _kbLine = new() { Text = "Keyboard: LEFT RIGHT aim  |  SPACE fire  |  UP DN convert  |  Z X C weapons", Size = 14f, Color = ColDim, Align = TextAlign.Center };
     private readonly TextSprite _startLine = new() { Text = "Tap or Click to Start", Size = 24f, Color = ColAccent, Align = TextAlign.Center };
 
     static StartScreen()
@@ -49,17 +49,17 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), OverlayPaint);
 
         float cx = GameWidth / 2f;
-        _title.Draw(canvas, cx, 190f);
-        _subtitle.Draw(canvas, cx, 258f);
+        canvas.Save(); canvas.Translate(cx, 190f); _title.Draw(canvas); canvas.Restore();
+        canvas.Save(); canvas.Translate(cx, 258f); _subtitle.Draw(canvas); canvas.Restore();
 
         float y = 308f;
-        _tapLine.Draw(canvas, cx, y);
+        canvas.Save(); canvas.Translate(cx, y); _tapLine.Draw(canvas); canvas.Restore();
         y += 26f;
-        _btnLine.Draw(canvas, cx, y);
+        canvas.Save(); canvas.Translate(cx, y); _btnLine.Draw(canvas); canvas.Restore();
         y += 26f;
-        _kbLine.Draw(canvas, cx, y);
+        canvas.Save(); canvas.Translate(cx, y); _kbLine.Draw(canvas); canvas.Restore();
 
-        _startLine.Draw(canvas, cx, 420f);
+        canvas.Save(); canvas.Translate(cx, 420f); _startLine.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y)

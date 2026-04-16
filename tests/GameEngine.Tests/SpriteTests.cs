@@ -10,11 +10,11 @@ file sealed class TestSprite : Sprite
 
     public bool DrawCalled { get; private set; }
 
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         DrawCalled = true;
         FillPaint.Color = SKColors.White;
-        canvas.DrawCircle(x, y, 4f, FillPaint);
+        canvas.DrawCircle(0f, 0f, 4f, FillPaint);
     }
 }
 
@@ -27,7 +27,7 @@ public class SpriteTests
         using var bitmap = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bitmap);
 
-        sprite.Draw(canvas, 20f, 20f);
+        sprite.Draw(canvas);
 
         Assert.True(sprite.DrawCalled);
     }
@@ -69,7 +69,7 @@ public class SpriteTests
         var ts = new TextSprite { Text = "Score: 100", Size = 20f, Color = SKColors.White };
         using var bmp = new SKBitmap(400, 200);
         using var canvas = new SKCanvas(bmp);
-        var ex = Record.Exception(() => ts.Draw(canvas, 10f, 30f));
+        var ex = Record.Exception(() => ts.Draw(canvas));
         Assert.Null(ex);
     }
 
@@ -79,7 +79,7 @@ public class SpriteTests
         var ts = new TextSprite { Text = "TITLE", Size = 32f, Align = TextAlign.Center };
         using var bmp = new SKBitmap(400, 200);
         using var canvas = new SKCanvas(bmp);
-        var ex = Record.Exception(() => ts.Draw(canvas, 200f, 100f));
+        var ex = Record.Exception(() => ts.Draw(canvas));
         Assert.Null(ex);
     }
 
@@ -89,7 +89,7 @@ public class SpriteTests
         var ts = new TextSprite { Text = "Lives: 3", Size = 20f, Align = TextAlign.Right };
         using var bmp = new SKBitmap(400, 200);
         using var canvas = new SKCanvas(bmp);
-        var ex = Record.Exception(() => ts.Draw(canvas, 380f, 30f));
+        var ex = Record.Exception(() => ts.Draw(canvas));
         Assert.Null(ex);
     }
 
@@ -99,7 +99,7 @@ public class SpriteTests
         var ts = new TextSprite { Text = "", Size = 16f };
         using var bmp = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bmp);
-        var ex = Record.Exception(() => ts.Draw(canvas, 10f, 10f));
+        var ex = Record.Exception(() => ts.Draw(canvas));
         Assert.Null(ex);
     }
 
@@ -109,7 +109,7 @@ public class SpriteTests
         var ts = new TextSprite { Text = null!, Size = 16f };
         using var bmp = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bmp);
-        var ex = Record.Exception(() => ts.Draw(canvas, 10f, 10f));
+        var ex = Record.Exception(() => ts.Draw(canvas));
         Assert.Null(ex);
     }
 
@@ -119,7 +119,7 @@ public class SpriteTests
         var ts = new TextSprite { Text = "Hello", Size = 16f, Visible = false };
         using var bmp = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bmp);
-        var ex = Record.Exception(() => ts.Draw(canvas, 10f, 10f));
+        var ex = Record.Exception(() => ts.Draw(canvas));
         Assert.Null(ex);
     }
 
@@ -129,7 +129,7 @@ public class SpriteTests
         var ts = new TextSprite { Text = "Hello", Size = 16f, Alpha = 0f };
         using var bmp = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bmp);
-        var ex = Record.Exception(() => ts.Draw(canvas, 10f, 10f));
+        var ex = Record.Exception(() => ts.Draw(canvas));
         Assert.Null(ex);
     }
 
@@ -154,7 +154,7 @@ public class SpriteTests
         var ts = new TextSprite { Text = "Hi", Size = 16f, Alpha = 2f };
         using var bmp = new SKBitmap(200, 200);
         using var canvas = new SKCanvas(bmp);
-        var ex = Record.Exception(() => ts.Draw(canvas, 10f, 10f));
+        var ex = Record.Exception(() => ts.Draw(canvas));
         Assert.Null(ex);
     }
 }

@@ -73,10 +73,10 @@ internal sealed class PlayScreen(CatchGameState state, IScreenCoordinator coordi
         if (_rightHeld)
             MoveBarTo(_bar.X + BarSpeed * deltaTime);
 
-        _circle.Rigidbody.Step(_circle, deltaTime);
+        _circle.Update(deltaTime);
 
         if (_circle.Rigidbody.VelocityY > 0f &&
-            CollisionResolver.TryGetHit(_circle, _circle.Collider, _bar, _bar.Collider, out _))
+            _circle.TryGetHit(_bar, out _))
         {
             state.Score++;
             _fallSpeed += FallSpeedIncrement;
@@ -107,18 +107,18 @@ internal sealed class PlayScreen(CatchGameState state, IScreenCoordinator coordi
         _fillPaint.Color = SKColors.White.WithAlpha((byte)(255 * 0.09f));
         canvas.DrawRect(SKRect.Create(0f, BarY + BarHeight / 2f + 20f, GameWidth, 3f), _fillPaint);
 
-        _bar.Sprite.Draw(canvas, _bar.X, _bar.Y);
-        _circle.Sprite.Draw(canvas, _circle.X, _circle.Y);
+        _bar.Draw(canvas);
+        _circle.Draw(canvas);
 
         // HUD
         _scoreText.Text = $"Score: {state.Score}";
-        _scoreText.Draw(canvas, 20f, 35f);
+        canvas.Save(); canvas.Translate(20f, 35f); _scoreText.Draw(canvas); canvas.Restore();
 
         _livesText.Text = $"Lives: {state.Lives}";
         _livesText.Color = state.Lives == 1 ? DangerColor : SKColors.White;
-        _livesText.Draw(canvas, GameWidth - 20f, 35f);
+        canvas.Save(); canvas.Translate(GameWidth - 20f, 35f); _livesText.Draw(canvas); canvas.Restore();
 
-        _instructionsText.Draw(canvas, GameWidth / 2f, 34f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 34f); _instructionsText.Draw(canvas); canvas.Restore();
     }
 
     private void MoveBarTo(float x)

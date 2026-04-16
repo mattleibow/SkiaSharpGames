@@ -14,7 +14,7 @@ internal sealed class ArrowSprite : Sprite
     private static readonly SKPaint FriendlyPaint = new() { Color = ColArrow, StrokeWidth = 2f, IsAntialias = true };
     private static readonly SKPaint EnemyPaint = new() { Color = ColFire, StrokeWidth = 2.5f, IsAntialias = true };
 
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible) return;
 
@@ -23,6 +23,6 @@ internal sealed class ArrowSprite : Sprite
         float dx = MathF.Cos(angle) * len;
         float dy = MathF.Sin(angle) * len;
         var paint = IsEnemy ? EnemyPaint : FriendlyPaint;
-        canvas.DrawLine(x - dx / 2f, y - dy / 2f, x + dx / 2f, y + dy / 2f, paint);
+        canvas.DrawLine(0f - dx / 2f, 0f - dy / 2f, 0f + dx / 2f, 0f + dy / 2f, paint);
     }
 }

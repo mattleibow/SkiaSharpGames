@@ -4,15 +4,13 @@ namespace SkiaSharpGames.GameEngine.Tests;
 
 public class CollisionResolverTests
 {
-    private sealed class TestEntity : Entity { }
-
     [Fact]
     public void CircleCollider_BoundingBox_CentredOnEntity()
     {
-        var entity = new TestEntity { X = 100f, Y = 200f };
+        var entity = new Entity { X = 100f, Y = 200f };
         var collider = new CircleCollider { Radius = 10f };
 
-        var bounds = collider.BoundingBox(entity);
+        var bounds = collider.BoundingBox(entity.X, entity.Y);
 
         Assert.Equal(90f, bounds.Left, precision: 4);
         Assert.Equal(190f, bounds.Top, precision: 4);
@@ -23,10 +21,10 @@ public class CollisionResolverTests
     [Fact]
     public void RectCollider_WorldRect_IsCentredOnEntity()
     {
-        var entity = new TestEntity { X = 50f, Y = 30f };
+        var entity = new Entity { X = 50f, Y = 30f };
         var collider = new RectCollider { Width = 20f, Height = 10f };
 
-        var bounds = collider.WorldRect(entity);
+        var bounds = collider.WorldRect(entity.X, entity.Y);
 
         Assert.Equal(40f, bounds.Left, precision: 4);
         Assert.Equal(25f, bounds.Top, precision: 4);
@@ -37,7 +35,7 @@ public class CollisionResolverTests
     [Fact]
     public void Rigidbody2D_Step_MovesEntity()
     {
-        var entity = new TestEntity { X = 10f, Y = 20f };
+        var entity = new Entity { X = 10f, Y = 20f };
         var body = new Rigidbody2D();
         body.SetVelocity(100f, -50f);
 
@@ -105,25 +103,21 @@ public class CollisionResolverTests
     [Fact]
     public void Overlaps_CircleCircle_WhenOverlapping_ReturnsTrue()
     {
-        var a = new TestEntity { X = 0f, Y = 0f };
-        var b = new TestEntity { X = 5f, Y = 0f };
-        var aCollider = new CircleCollider { Radius = 10f };
-        var bCollider = new CircleCollider { Radius = 10f };
+        var a = new Entity { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
+        var b = new Entity { X = 5f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
 
-        Assert.True(CollisionResolver.Overlaps(a, aCollider, b, bCollider));
-        Assert.True(CollisionResolver.TryGetHit(a, aCollider, b, bCollider, out var hit));
+        Assert.True(CollisionResolver.Overlaps(a, b));
+        Assert.True(CollisionResolver.TryGetHit(a, b, out var hit));
         Assert.True(hit.NormalX < 0f);
     }
 
     [Fact]
     public void TryGetHit_CircleCircle_SamePosition_UsesFallbackNormal()
     {
-        var a = new TestEntity { X = 0f, Y = 0f };
-        var b = new TestEntity { X = 0f, Y = 0f };
-        var aCollider = new CircleCollider { Radius = 10f };
-        var bCollider = new CircleCollider { Radius = 10f };
+        var a = new Entity { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
+        var b = new Entity { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
 
-        var result = CollisionResolver.TryGetHit(a, aCollider, b, bCollider, out var hit);
+        var result = CollisionResolver.TryGetHit(a, b, out var hit);
 
         Assert.True(result);
         Assert.Equal(0f, hit.NormalX, precision: 4);
@@ -133,23 +127,19 @@ public class CollisionResolverTests
     [Fact]
     public void Overlaps_CircleRect_WhenCircleInsideRect_ReturnsTrue()
     {
-        var circleOwner = new TestEntity { X = 50f, Y = 50f };
-        var rectOwner = new TestEntity { X = 50f, Y = 50f };
-        var circle = new CircleCollider { Radius = 5f };
-        var rect = new RectCollider { Width = 100f, Height = 100f };
+        var circleOwner = new Entity { X = 50f, Y = 50f, Collider = new CircleCollider { Radius = 5f } };
+        var rectOwner = new Entity { X = 50f, Y = 50f, Collider = new RectCollider { Width = 100f, Height = 100f } };
 
-        Assert.True(CollisionResolver.Overlaps(circleOwner, circle, rectOwner, rect));
+        Assert.True(CollisionResolver.Overlaps(circleOwner, rectOwner));
     }
 
     [Fact]
     public void TryGetHit_CircleRect_FromTop_ReturnsUpwardNormal()
     {
-        var ball = new TestEntity { X = 50f, Y = 19f };
-        var brick = new TestEntity { X = 50f, Y = 31f };
-        var circle = new CircleCollider { Radius = 8f };
-        var rect = new RectCollider { Width = 100f, Height = 22f };
+        var ball = new Entity { X = 50f, Y = 19f, Collider = new CircleCollider { Radius = 8f } };
+        var brick = new Entity { X = 50f, Y = 31f, Collider = new RectCollider { Width = 100f, Height = 22f } };
 
-        var result = CollisionResolver.TryGetHit(ball, circle, brick, rect, out var hit);
+        var result = CollisionResolver.TryGetHit(ball, brick, out var hit);
 
         Assert.True(result);
         Assert.True(hit.IsVertical);
@@ -159,12 +149,10 @@ public class CollisionResolverTests
     [Fact]
     public void TryGetHit_CircleRect_FromSide_ReturnsHorizontalNormal()
     {
-        var ball = new TestEntity { X = 3f, Y = 50f };
-        var wall = new TestEntity { X = 50f, Y = 100f };
-        var circle = new CircleCollider { Radius = 8f };
-        var rect = new RectCollider { Width = 100f, Height = 200f };
+        var ball = new Entity { X = 3f, Y = 50f, Collider = new CircleCollider { Radius = 8f } };
+        var wall = new Entity { X = 50f, Y = 100f, Collider = new RectCollider { Width = 100f, Height = 200f } };
 
-        var result = CollisionResolver.TryGetHit(ball, circle, wall, rect, out var hit);
+        var result = CollisionResolver.TryGetHit(ball, wall, out var hit);
 
         Assert.True(result);
         Assert.True(hit.IsHorizontal);
@@ -174,12 +162,10 @@ public class CollisionResolverTests
     [Fact]
     public void TryGetHit_CircleRect_WhenSeparated_ReturnsFalse()
     {
-        var circleOwner = new TestEntity { X = 500f, Y = 500f };
-        var rectOwner = new TestEntity { X = 50f, Y = 50f };
-        var circle = new CircleCollider { Radius = 5f };
-        var rect = new RectCollider { Width = 100f, Height = 100f };
+        var circleOwner = new Entity { X = 500f, Y = 500f, Collider = new CircleCollider { Radius = 5f } };
+        var rectOwner = new Entity { X = 50f, Y = 50f, Collider = new RectCollider { Width = 100f, Height = 100f } };
 
-        var result = CollisionResolver.TryGetHit(circleOwner, circle, rectOwner, rect, out _);
+        var result = CollisionResolver.TryGetHit(circleOwner, rectOwner, out _);
 
         Assert.False(result);
     }
@@ -187,25 +173,23 @@ public class CollisionResolverTests
     [Fact]
     public void Overlaps_RectCircle_AgreesWithCircleRect()
     {
-        var circleOwner = new TestEntity { X = 50f, Y = 50f };
-        var rectOwner = new TestEntity { X = 50f, Y = 50f };
         var circle = new CircleCollider { Radius = 5f };
         var rect = new RectCollider { Width = 100f, Height = 100f };
+        var circleOwner = new Entity { X = 50f, Y = 50f, Collider = circle };
+        var rectOwner = new Entity { X = 50f, Y = 50f, Collider = rect };
 
         Assert.Equal(
-            CollisionResolver.Overlaps(circleOwner, circle, rectOwner, rect),
-            CollisionResolver.Overlaps(rectOwner, rect, circleOwner, circle));
+            CollisionResolver.Overlaps(circleOwner, rectOwner),
+            CollisionResolver.Overlaps(rectOwner, circleOwner));
     }
 
     [Fact]
     public void TryGetHit_RectVsCircle_InvertsNormalForFirstCollider()
     {
-        var circleOwner = new TestEntity { X = 3f, Y = 50f };
-        var rectOwner = new TestEntity { X = 50f, Y = 100f };
-        var circle = new CircleCollider { Radius = 8f };
-        var rect = new RectCollider { Width = 100f, Height = 200f };
+        var circleOwner = new Entity { X = 3f, Y = 50f, Collider = new CircleCollider { Radius = 8f } };
+        var rectOwner = new Entity { X = 50f, Y = 100f, Collider = new RectCollider { Width = 100f, Height = 200f } };
 
-        var result = CollisionResolver.TryGetHit(rectOwner, rect, circleOwner, circle, out var hit);
+        var result = CollisionResolver.TryGetHit(rectOwner, circleOwner, out var hit);
 
         Assert.True(result);
         Assert.True(hit.NormalX > 0f);
@@ -214,23 +198,19 @@ public class CollisionResolverTests
     [Fact]
     public void Overlaps_RectRect_WhenSeparated_ReturnsFalse()
     {
-        var a = new TestEntity { X = 0f, Y = 0f };
-        var b = new TestEntity { X = 200f, Y = 200f };
-        var rectA = new RectCollider { Width = 50f, Height = 50f };
-        var rectB = new RectCollider { Width = 50f, Height = 50f };
+        var a = new Entity { X = 0f, Y = 0f, Collider = new RectCollider { Width = 50f, Height = 50f } };
+        var b = new Entity { X = 200f, Y = 200f, Collider = new RectCollider { Width = 50f, Height = 50f } };
 
-        Assert.False(CollisionResolver.Overlaps(a, rectA, b, rectB));
+        Assert.False(CollisionResolver.Overlaps(a, b));
     }
 
     [Fact]
     public void TryGetHit_RectRect_WhenOverlapping_ReturnsCollision()
     {
-        var a = new TestEntity { X = 20f, Y = 20f };
-        var b = new TestEntity { X = 40f, Y = 25f };
-        var rectA = new RectCollider { Width = 50f, Height = 50f };
-        var rectB = new RectCollider { Width = 50f, Height = 50f };
+        var a = new Entity { X = 20f, Y = 20f, Collider = new RectCollider { Width = 50f, Height = 50f } };
+        var b = new Entity { X = 40f, Y = 25f, Collider = new RectCollider { Width = 50f, Height = 50f } };
 
-        var result = CollisionResolver.TryGetHit(a, rectA, b, rectB, out var hit);
+        var result = CollisionResolver.TryGetHit(a, b, out var hit);
 
         Assert.True(result);
         Assert.True(hit.Penetration > 0f);
@@ -239,12 +219,10 @@ public class CollisionResolverTests
     [Fact]
     public void TryGetHit_RectRect_WhenVerticalOverlapIsSmaller_ReturnsVerticalNormal()
     {
-        var a = new TestEntity { X = 20f, Y = 20f };
-        var b = new TestEntity { X = 20f, Y = 55f };
-        var rectA = new RectCollider { Width = 50f, Height = 50f };
-        var rectB = new RectCollider { Width = 50f, Height = 50f };
+        var a = new Entity { X = 20f, Y = 20f, Collider = new RectCollider { Width = 50f, Height = 50f } };
+        var b = new Entity { X = 20f, Y = 55f, Collider = new RectCollider { Width = 50f, Height = 50f } };
 
-        var result = CollisionResolver.TryGetHit(a, rectA, b, rectB, out var hit);
+        var result = CollisionResolver.TryGetHit(a, b, out var hit);
 
         Assert.True(result);
         Assert.True(hit.IsVertical);
@@ -254,13 +232,11 @@ public class CollisionResolverTests
     [Fact]
     public void ReflectOff_CircleRect_BouncesVelocity()
     {
-        var ball = new TestEntity { X = 50f, Y = 19f };
-        var brick = new TestEntity { X = 50f, Y = 31f };
-        var circle = new CircleCollider { Radius = 8f };
-        var rect = new RectCollider { Width = 100f, Height = 22f };
         var body = new Rigidbody2D { VelocityY = 200f };
+        var ball = new Entity { X = 50f, Y = 19f, Collider = new CircleCollider { Radius = 8f }, Rigidbody = body };
+        var brick = new Entity { X = 50f, Y = 31f, Collider = new RectCollider { Width = 100f, Height = 22f } };
 
-        var result = CollisionResolver.ReflectOff(ball, circle, body, brick, rect);
+        var result = ball.BounceOff(brick);
 
         Assert.True(result);
         Assert.True(body.VelocityY < 0f);
@@ -269,13 +245,11 @@ public class CollisionResolverTests
     [Fact]
     public void Reflect_CircleRect_BouncesVelocity()
     {
-        var ball = new TestEntity { X = 50f, Y = 19f };
-        var brick = new TestEntity { X = 50f, Y = 31f };
-        var circle = new CircleCollider { Radius = 8f };
-        var rect = new RectCollider { Width = 100f, Height = 22f };
         var body = new Rigidbody2D { VelocityY = 200f };
+        var ball = new Entity { X = 50f, Y = 19f, Collider = new CircleCollider { Radius = 8f }, Rigidbody = body };
+        var brick = new Entity { X = 50f, Y = 31f, Collider = new RectCollider { Width = 100f, Height = 22f } };
 
-        CollisionResolver.Reflect(ball, circle, body, brick, rect);
+        ball.BounceOff(brick);
 
         Assert.True(body.VelocityY < 0f);
     }
@@ -285,15 +259,15 @@ public class CollisionResolverTests
     {
         // A ball heading left into a thick wall entity on the left edge — same
         // scenario that ResolveBounds used to handle, now done via TryGetHit.
-        var ball = new TestEntity { X = 5f, Y = 50f };
         var circle = new CircleCollider { Radius = 8f };
         var body = new Rigidbody2D { VelocityX = -120f };
+        var ball = new Entity { X = 5f, Y = 50f, Collider = circle };
 
         // Wall sits at x = -50 (centre), width = 100, so its right edge is at x = 0.
-        var wall = new TestEntity { X = -50f, Y = 50f };
         var wallCollider = new RectCollider { Width = 100f, Height = 200f };
+        var wall = new Entity { X = -50f, Y = 50f, Collider = wallCollider };
 
-        Assert.True(CollisionResolver.TryGetHit(ball, circle, wall, wallCollider, out var hit));
+        Assert.True(CollisionResolver.TryGetHit(ball, wall, out var hit));
         body.Bounce(hit);
         Assert.True(body.VelocityX > 0f, "Ball should bounce rightward off the left wall");
     }
@@ -303,11 +277,11 @@ public class CollisionResolverTests
     [Fact]
     public void RectCollider_BoundingBox_MatchesWorldRect()
     {
-        var entity = new TestEntity { X = 100f, Y = 50f };
+        var entity = new Entity { X = 100f, Y = 50f };
         var collider = new RectCollider { Width = 40f, Height = 20f };
 
-        var worldRect = collider.WorldRect(entity);
-        var boundingBox = collider.BoundingBox(entity);
+        var worldRect = collider.WorldRect(entity.X, entity.Y);
+        var boundingBox = collider.BoundingBox(entity.X, entity.Y);
 
         Assert.Equal(worldRect.Left, boundingBox.Left, precision: 4);
         Assert.Equal(worldRect.Top, boundingBox.Top, precision: 4);
@@ -318,10 +292,10 @@ public class CollisionResolverTests
     [Fact]
     public void RectCollider_BoundingBox_WithOffset_IsShifted()
     {
-        var entity = new TestEntity { X = 100f, Y = 100f };
+        var entity = new Entity { X = 100f, Y = 100f };
         var collider = new RectCollider { Width = 20f, Height = 10f, OffsetX = 5f, OffsetY = -5f };
 
-        var box = collider.BoundingBox(entity);
+        var box = collider.BoundingBox(entity.X, entity.Y);
 
         Assert.Equal(95f, box.Left, precision: 4);
         Assert.Equal(90f, box.Top, precision: 4);
@@ -332,10 +306,10 @@ public class CollisionResolverTests
     [Fact]
     public void CircleCollider_WithOffset_WorldCenterIsShifted()
     {
-        var entity = new TestEntity { X = 100f, Y = 100f };
+        var entity = new Entity { X = 100f, Y = 100f };
         var collider = new CircleCollider { Radius = 5f, OffsetX = 10f, OffsetY = -5f };
 
-        var (cx, cy) = collider.WorldCenter(entity);
+        var (cx, cy) = collider.WorldCenter(entity.X, entity.Y);
 
         Assert.Equal(110f, cx, precision: 4);
         Assert.Equal(95f, cy, precision: 4);

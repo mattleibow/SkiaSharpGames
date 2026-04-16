@@ -18,12 +18,12 @@ internal sealed class GameOverScreen(PongGameState state, IScreenCoordinator coo
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), _overlayPaint);
 
         _winnerText.Text = state.WinnerText;
-        _winnerText.Draw(canvas, GameWidth / 2f, 260f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 260f); _winnerText.Draw(canvas); canvas.Restore();
 
         _scoreText.Text = $"{state.LeftScore} : {state.RightScore}";
-        _scoreText.Draw(canvas, GameWidth / 2f, 325f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 325f); _scoreText.Draw(canvas); canvas.Restore();
 
-        _restartText.Draw(canvas, GameWidth / 2f, 395f);
+        canvas.Save(); canvas.Translate(GameWidth / 2f, 395f); _restartText.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y) =>

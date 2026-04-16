@@ -16,14 +16,14 @@ internal sealed class PaddleSprite : Sprite
 
     public float CornerRadius { get; set; } = 6f;
 
-    public override void Draw(SKCanvas canvas, float x, float y)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Visible || Alpha <= 0f)
             return;
 
         _paint.Color = Color.WithAlpha((byte)(255 * Alpha));
         canvas.DrawRoundRect(
-            new SKRoundRect(SKRect.Create(x - Width / 2f, y - Height / 2f, Width, Height), CornerRadius),
+            new SKRoundRect(SKRect.Create(0 - Width / 2f, 0 - Height / 2f, Width, Height), CornerRadius),
             _paint);
     }
 }

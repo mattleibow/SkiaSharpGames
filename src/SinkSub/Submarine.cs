@@ -1,4 +1,3 @@
-using SkiaSharp;
 using SkiaSharpGames.GameEngine;
 using static SkiaSharpGames.SinkSub.SinkSubConstants;
 
@@ -6,9 +5,16 @@ namespace SkiaSharpGames.SinkSub;
 
 internal sealed class Submarine : Entity
 {
-    public readonly RectCollider Collider = new() { Width = SubWidth, Height = SubHeight };
-    public readonly Rigidbody2D Rigidbody = new();
-    public readonly SubmarineSprite Sprite = new();
+    public Submarine()
+    {
+        Collider = new RectCollider { Width = SubWidth, Height = SubHeight };
+        Rigidbody = new Rigidbody2D();
+        Sprite = new SubmarineSprite();
+    }
+
+    public new SubmarineSprite Sprite { get => (SubmarineSprite)base.Sprite!; init => base.Sprite = value; }
+    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
+    public new Rigidbody2D Rigidbody { get => (Rigidbody2D)base.Rigidbody!; init => base.Rigidbody = value; }
 
     public float CruiseSpeed { get; private set; }
 
@@ -41,6 +47,4 @@ internal sealed class Submarine : Entity
         Direction = -Direction;
         Rigidbody.SetVelocity(CruiseSpeed * Direction, 0f);
     }
-
-    public void Draw(SKCanvas canvas) => Sprite.Draw(canvas, X, Y);
 }

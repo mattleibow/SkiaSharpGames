@@ -23,7 +23,7 @@ internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordin
     private readonly TextSprite _leftScoreText = new() { Size = 64f, Align = TextAlign.Center };
     private readonly TextSprite _rightScoreText = new() { Size = 64f, Align = TextAlign.Center };
     private readonly TextSprite _leftControlsText = new() { Text = "W / S", Size = 18f, Color = LeftPaddleColor };
-    private readonly TextSprite _rightControlsText = new() { Text = "\u2191 / \u2193", Size = 18f, Color = RightPaddleColor, Align = TextAlign.Right };
+    private readonly TextSprite _rightControlsText = new() { Text = "Up / Dn", Size = 18f, Color = RightPaddleColor, Align = TextAlign.Right };
     private readonly TextSprite _serveText = new() { Text = "Serve!", Size = 26f, Color = AccentColor, Align = TextAlign.Center };
 
     public override void OnActivated()

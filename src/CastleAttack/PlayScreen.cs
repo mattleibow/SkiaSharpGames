@@ -58,7 +58,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     private readonly TextSprite _workerText = new() { Size = 16f, Color = ColWorker };
     private readonly TextSprite _keepLabel = new() { Text = "Keep", Size = 11f, Color = ColDim };
     private readonly TextSprite _aimText = new() { Size = 15f, Color = ColDim, Align = TextAlign.Center };
-    private readonly TextSprite _cooldownDot = new() { Text = "●", Size = 12f, Align = TextAlign.Center };
+    private readonly TextSprite _cooldownDot = new() { Text = "*", Size = 12f, Align = TextAlign.Center };
     private readonly TextSprite _lordHpText = new() { Size = 16f };
     private readonly TextSprite _accuracyText = new() { Size = 15f, Color = ColGold, Align = TextAlign.Center };
     private readonly TextSprite _keepProgressText = new() { Size = 13f, Align = TextAlign.Center };
@@ -212,7 +212,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
                 _walls[i].HasArcher = false;
                 _archerCount--;
                 _workerCount++;
-                SpawnText("Archer → Worker", _walls[i].CenterX, _walls[i].TopY - 40f, ColWorker);
+                SpawnText("Archer > Worker", _walls[i].CenterX, _walls[i].TopY - 40f, ColWorker);
                 return;
             }
         }
@@ -228,7 +228,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
                 _walls[i].HasArcher = true;
                 _archerCount++;
                 _workerCount--;
-                SpawnText("Worker → Archer", _walls[i].CenterX, _walls[i].TopY - 40f, ColArcher);
+                SpawnText("Worker > Archer", _walls[i].CenterX, _walls[i].TopY - 40f, ColArcher);
                 return;
             }
         }
@@ -1016,7 +1016,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         canvas.DrawRect(SKRect.Create(barX, barY, barW * _keepProgress, barH), HudBarFg);
         canvas.Save(); canvas.Translate(barX, barY - 3f); _keepLabel.Draw(canvas); canvas.Restore();
 
-        _aimText.Text = $"Aim: {_aimAngle:F0}°";
+        _aimText.Text = $"Aim: {_aimAngle:F0} deg";
         canvas.Save(); canvas.Translate(GameWidth / 2f, 20f); _aimText.Draw(canvas); canvas.Restore();
 
         if (_arrowCooldown.Active)
@@ -1036,7 +1036,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
         if (_archerCount == 1 && _accuracyMult > 1)
         {
-            _accuracyText.Text = $"Accuracy ×{_accuracyMult}";
+            _accuracyText.Text = $"Accuracy x{_accuracyMult}";
             canvas.Save(); canvas.Translate(GameWidth / 2f, 60f); _accuracyText.Draw(canvas); canvas.Restore();
         }
 
@@ -1051,10 +1051,10 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         bool canW2A = _workerCount > 1 && _archerCount < _walls.Count;
         bool ready = !_arrowCooldown.Active && _archerCount > 0;
 
-        DrawButton(canvas, BtnAimLeft, "← Aim", true, ColDim, _touchAimLeft);
-        DrawButton(canvas, BtnAimRight, "Aim →", true, ColDim, _touchAimRight);
-        DrawButton(canvas, BtnA2W, "↓ A→W", canA2W, ColWorker, false);
-        DrawButton(canvas, BtnW2A, "↑ W→A", canW2A, ColArcher, false);
+        DrawButton(canvas, BtnAimLeft, "< Aim", true, ColDim, _touchAimLeft);
+        DrawButton(canvas, BtnAimRight, "Aim >", true, ColDim, _touchAimRight);
+        DrawButton(canvas, BtnA2W, "Dn A>W", canA2W, ColWorker, false);
+        DrawButton(canvas, BtnW2A, "Up W>A", canW2A, ColArcher, false);
         DrawButton(canvas, BtnFire, "FIRE", ready, SKColors.White, false, large: true);
         DrawButton(canvas, BtnOil, "Oil (Z)", _oilAvail, ColOil, false);
         DrawButton(canvas, BtnCannon, "Cannon (X)", _mangonelAvail, ColBoulder, false);

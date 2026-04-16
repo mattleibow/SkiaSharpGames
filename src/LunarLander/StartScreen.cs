@@ -10,7 +10,7 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     private readonly TextSprite _title = new() { Text = "LUNAR LANDER", Size = 64f, Color = SKColors.White, Align = TextAlign.Center };
     private readonly TextSprite _subtitle = new() { Text = "Entity Rotation & Child Entities Demo", Size = 18f, Color = AccentColor, Align = TextAlign.Center };
     private readonly TextSprite _startPrompt = new() { Text = "Click or Tap to Start", Size = 28f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _instructions1 = new() { Text = "← → rotate     ↑ / SPACE thrust", Size = 18f, Color = DimColor, Align = TextAlign.Center };
+    private readonly TextSprite _instructions1 = new() { Text = "LEFT RIGHT rotate    UP / SPACE thrust", Size = 18f, Color = DimColor, Align = TextAlign.Center };
     private readonly TextSprite _instructions2 = new() { Text = "Land gently on the green pad", Size = 18f, Color = DimColor, Align = TextAlign.Center };
 
     private readonly SKPoint[] _stars = new SKPoint[StarCount];

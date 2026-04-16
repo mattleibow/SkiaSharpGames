@@ -8,7 +8,7 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
     private readonly TextSprite _title = new() { Text = "2 PLAYER PONG", Size = 70f, Align = TextAlign.Center };
     private readonly TextSprite _leftControls = new() { Text = "Left: W / S", Size = 26f, Color = LeftPaddleColor, Align = TextAlign.Center };
-    private readonly TextSprite _rightControls = new() { Text = "Right: \u2191 / \u2193", Size = 26f, Color = RightPaddleColor, Align = TextAlign.Center };
+    private readonly TextSprite _rightControls = new() { Text = "Right: Up / Dn", Size = 26f, Color = RightPaddleColor, Align = TextAlign.Center };
     private readonly TextSprite _touchHint = new() { Text = "Touch or mouse: move the paddle on that side", Size = 20f, Color = DimColor, Align = TextAlign.Center };
     private readonly TextSprite _scoreHint = new() { Text = "First to 7 points wins", Size = 22f, Color = AccentColor, Align = TextAlign.Center };
     private readonly TextSprite _startPrompt = new() { Text = "Click, tap, or press Space to start", Size = 24f, Align = TextAlign.Center };

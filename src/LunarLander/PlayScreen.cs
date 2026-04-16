@@ -285,9 +285,9 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        DrawButton(canvas, LeftBtnRect, "◀", _touchLeft);
-        DrawButton(canvas, ThrustBtnRect, "▲", _touchThrust);
-        DrawButton(canvas, RightBtnRect, "▶", _touchRight);
+        DrawButton(canvas, LeftBtnRect, "<", _touchLeft);
+        DrawButton(canvas, ThrustBtnRect, "^", _touchThrust);
+        DrawButton(canvas, RightBtnRect, ">", _touchRight);
     }
 
     private static void DrawButton(SKCanvas canvas, SKRect rect, string label, bool pressed)

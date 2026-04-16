@@ -20,7 +20,7 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     private readonly TextSprite _subtitle = new() { Text = "Defend the castle until the keep is complete!", Size = 22f, Color = ColHud, Align = TextAlign.Center };
     private readonly TextSprite _tapLine = new() { Text = "Tap the battlefield to aim & fire", Size = 17f, Color = ColAccent, Align = TextAlign.Center };
     private readonly TextSprite _btnLine = new() { Text = "Use the on-screen buttons at the bottom for all actions", Size = 16f, Color = ColDim, Align = TextAlign.Center };
-    private readonly TextSprite _kbLine = new() { Text = "Keyboard: ← → aim  |  SPACE fire  |  ↑↓ convert  |  Z X C weapons", Size = 14f, Color = ColDim, Align = TextAlign.Center };
+    private readonly TextSprite _kbLine = new() { Text = "Keyboard: LEFT RIGHT aim  |  SPACE fire  |  UP DN convert  |  Z X C weapons", Size = 14f, Color = ColDim, Align = TextAlign.Center };
     private readonly TextSprite _startLine = new() { Text = "Tap or Click to Start", Size = 24f, Color = ColAccent, Align = TextAlign.Center };
 
     static StartScreen()

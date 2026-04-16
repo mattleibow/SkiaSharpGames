@@ -4,139 +4,6 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine.Testing;
 
 /// <summary>
-/// A rendered frame captured by <see cref="GameTestHarness"/>. Provides pixel-level
-/// inspection, region assertions, and PNG export for debugging.
-/// </summary>
-public sealed class FrameSnapshot : IDisposable
-{
-    private readonly SKBitmap _bitmap;
-
-    internal FrameSnapshot(SKBitmap bitmap, int frameNumber, float elapsedTime)
-    {
-        _bitmap = bitmap;
-        FrameNumber = frameNumber;
-        ElapsedTime = elapsedTime;
-    }
-
-    /// <summary>The frame number (0-based) in the test run.</summary>
-    public int FrameNumber { get; }
-
-    /// <summary>Total elapsed game time at the point this frame was captured.</summary>
-    public float ElapsedTime { get; }
-
-    /// <summary>Bitmap width in pixels.</summary>
-    public int Width => _bitmap.Width;
-
-    /// <summary>Bitmap height in pixels.</summary>
-    public int Height => _bitmap.Height;
-
-    /// <summary>Gets the color of a single pixel.</summary>
-    public SKColor GetPixel(int x, int y) => _bitmap.GetPixel(x, y);
-
-    /// <summary>
-    /// Returns true if any pixel in the given rectangle is not the specified color.
-    /// Useful for asserting "something was drawn in this region".
-    /// </summary>
-    public bool HasNonBackgroundPixel(SKRectI region, SKColor background)
-    {
-        int left = Math.Max(0, region.Left);
-        int top = Math.Max(0, region.Top);
-        int right = Math.Min(Width, region.Right);
-        int bottom = Math.Min(Height, region.Bottom);
-
-        for (int y = top; y < bottom; y++)
-            for (int x = left; x < right; x++)
-                if (_bitmap.GetPixel(x, y) != background)
-                    return true;
-        return false;
-    }
-
-    /// <summary>
-    /// Returns true if all pixels in the given rectangle are the specified color.
-    /// </summary>
-    public bool IsRegionSolidColor(SKRectI region, SKColor color)
-    {
-        int left = Math.Max(0, region.Left);
-        int top = Math.Max(0, region.Top);
-        int right = Math.Min(Width, region.Right);
-        int bottom = Math.Min(Height, region.Bottom);
-
-        for (int y = top; y < bottom; y++)
-            for (int x = left; x < right; x++)
-                if (_bitmap.GetPixel(x, y) != color)
-                    return false;
-        return true;
-    }
-
-    /// <summary>
-    /// Counts pixels in the region that match the given color (with optional alpha tolerance).
-    /// </summary>
-    public int CountPixels(SKRectI region, SKColor color, byte tolerance = 0)
-    {
-        int left = Math.Max(0, region.Left);
-        int top = Math.Max(0, region.Top);
-        int right = Math.Min(Width, region.Right);
-        int bottom = Math.Min(Height, region.Bottom);
-        int count = 0;
-
-        for (int y = top; y < bottom; y++)
-        {
-            for (int x = left; x < right; x++)
-            {
-                var px = _bitmap.GetPixel(x, y);
-                if (tolerance == 0)
-                {
-                    if (px == color) count++;
-                }
-                else
-                {
-                    if (Math.Abs(px.Red - color.Red) <= tolerance &&
-                        Math.Abs(px.Green - color.Green) <= tolerance &&
-                        Math.Abs(px.Blue - color.Blue) <= tolerance &&
-                        Math.Abs(px.Alpha - color.Alpha) <= tolerance)
-                        count++;
-                }
-            }
-        }
-
-        return count;
-    }
-
-    /// <summary>
-    /// Computes the fraction of pixels that differ between this frame and another.
-    /// Returns 0.0 for identical frames, 1.0 if every pixel changed.
-    /// </summary>
-    public float DiffRatio(FrameSnapshot other)
-    {
-        if (Width != other.Width || Height != other.Height)
-            throw new ArgumentException("Frame dimensions must match for comparison.");
-
-        int diffCount = 0;
-        int total = Width * Height;
-        for (int y = 0; y < Height; y++)
-            for (int x = 0; x < Width; x++)
-                if (_bitmap.GetPixel(x, y) != other._bitmap.GetPixel(x, y))
-                    diffCount++;
-
-        return total == 0 ? 0f : (float)diffCount / total;
-    }
-
-    /// <summary>
-    /// Saves the frame as a PNG file for visual debugging.
-    /// </summary>
-    public void SavePng(string path)
-    {
-        using var image = SKImage.FromBitmap(_bitmap);
-        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
-        using var stream = File.OpenWrite(path);
-        data.SaveTo(stream);
-    }
-
-    /// <inheritdoc />
-    public void Dispose() => _bitmap.Dispose();
-}
-
-/// <summary>
 /// Headless test harness for running a <see cref="Game"/> without a UI host.
 /// Simulates frames, input, and captures rendered output for inspection.
 /// </summary>
@@ -189,9 +56,6 @@ public sealed class GameTestHarness : IDisposable
     /// <summary>
     /// Creates a harness by configuring a <see cref="GameBuilder"/>.
     /// </summary>
-    /// <param name="configure">Action to configure screens, services, dimensions.</param>
-    /// <param name="width">Render surface width (default: 800).</param>
-    /// <param name="height">Render surface height (default: 600).</param>
     public static GameTestHarness Create(Action<GameBuilder> configure, int width = 800, int height = 600)
     {
         var builder = GameBuilder.CreateDefault();
@@ -208,10 +72,7 @@ public sealed class GameTestHarness : IDisposable
 
     // ── Frame simulation ─────────────────────────────────────────────
 
-    /// <summary>
-    /// Advances the game by one frame: calls Update then Draw.
-    /// </summary>
-    /// <param name="deltaTime">Time step in seconds (default: ~60fps).</param>
+    /// <summary>Advances the game by one frame: calls Update then Draw.</summary>
     public void RunFrame(float deltaTime = 1f / 60f)
     {
         Game.Update(deltaTime);
@@ -220,22 +81,14 @@ public sealed class GameTestHarness : IDisposable
         _elapsedTime += deltaTime;
     }
 
-    /// <summary>
-    /// Advances the game by N frames at the given time step.
-    /// </summary>
-    /// <param name="count">Number of frames to simulate.</param>
-    /// <param name="deltaTime">Time step per frame in seconds.</param>
+    /// <summary>Advances the game by N frames at the given time step.</summary>
     public void RunFrames(int count, float deltaTime = 1f / 60f)
     {
         for (int i = 0; i < count; i++)
             RunFrame(deltaTime);
     }
 
-    /// <summary>
-    /// Advances the game for the specified duration at the given time step.
-    /// </summary>
-    /// <param name="seconds">Total time to simulate.</param>
-    /// <param name="deltaTime">Time step per frame in seconds.</param>
+    /// <summary>Advances the game for the specified duration at the given time step.</summary>
     public void RunFor(float seconds, float deltaTime = 1f / 60f)
     {
         float t = 0f;
@@ -288,20 +141,15 @@ public sealed class GameTestHarness : IDisposable
     /// </summary>
     public FrameSnapshot CaptureFrame()
     {
-        // Draw current state to get a fresh frame
         Game.Draw(_canvas, _bitmap.Width, _bitmap.Height);
         var copy = _bitmap.Copy();
         return new FrameSnapshot(copy, _frameNumber, _elapsedTime);
     }
 
-    /// <summary>
-    /// Gets the pixel color at the given coordinates from the most recently rendered frame.
-    /// </summary>
+    /// <summary>Gets the pixel color at the given coordinates from the last rendered frame.</summary>
     public SKColor GetPixel(int x, int y) => _bitmap.GetPixel(x, y);
 
-    /// <summary>
-    /// Saves the current frame as a PNG for visual debugging.
-    /// </summary>
+    /// <summary>Saves the current frame as a PNG for visual debugging.</summary>
     public void SaveFrame(string path)
     {
         using var image = SKImage.FromBitmap(_bitmap);
@@ -312,9 +160,7 @@ public sealed class GameTestHarness : IDisposable
 
     // ── Screen navigation ────────────────────────────────────────────
 
-    /// <summary>
-    /// Transitions to a different screen. Shortcut for accessing the coordinator.
-    /// </summary>
+    /// <summary>Transitions to a different screen.</summary>
     public void TransitionTo<TScreen>(IScreenTransition? transition = null) where TScreen : GameScreen
     {
         var coordinator = Game.Services.GetRequiredService<IScreenCoordinator>();

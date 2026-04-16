@@ -52,8 +52,9 @@ internal sealed class PlayScreen(SnakeGameState state, IScreenCoordinator coordi
 
     public override void OnPointerDown(float x, float y)
     {
-        float hx = _snake.X;
-        float hy = _snake.Y;
+        var head = _snake.Head;
+        float hx = head.Col * CellSize + CellSize / 2f;
+        float hy = head.Row * CellSize + CellSize / 2f;
 
         float dx = x - hx;
         float dy = y - hy;

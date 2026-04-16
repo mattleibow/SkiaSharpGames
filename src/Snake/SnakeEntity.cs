@@ -11,7 +11,6 @@ internal sealed class SnakeEntity : Entity
     public SnakeEntity()
     {
         Sprite = new SnakeSprite { Body = _body };
-        Collider = new RectCollider { Width = CellSize, Height = CellSize };
     }
 
     public IReadOnlyCollection<GridPoint> Body => _body;
@@ -21,7 +20,6 @@ internal sealed class SnakeEntity : Entity
     public int Length => _body.Count;
 
     public new SnakeSprite Sprite { get => (SnakeSprite)base.Sprite!; init => base.Sprite = value; }
-    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
 
     /// <summary>Reset the snake to its starting position in the centre of the grid.</summary>
     public void Reset()
@@ -32,7 +30,6 @@ internal sealed class SnakeEntity : Entity
         _body.AddFirst(new GridPoint(startCol, startRow));
         _body.AddLast(new GridPoint(startCol - 1, startRow));
         _body.AddLast(new GridPoint(startCol - 2, startRow));
-        SyncPosition();
     }
 
     /// <summary>Advance the head in <paramref name="direction"/> and grow by one cell.</summary>
@@ -48,7 +45,6 @@ internal sealed class SnakeEntity : Entity
             _ => head,
         };
         _body.AddFirst(next);
-        SyncPosition();
     }
 
     /// <summary>Remove the tail segment (called when no food was eaten).</summary>
@@ -78,12 +74,5 @@ internal sealed class SnakeEntity : Entity
                 return true;
         }
         return false;
-    }
-
-    private void SyncPosition()
-    {
-        // Keep the entity position on the head for collider/world-space queries
-        X = Head.Col * CellSize + CellSize / 2f;
-        Y = Head.Row * CellSize + CellSize / 2f;
     }
 }

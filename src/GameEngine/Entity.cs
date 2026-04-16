@@ -295,4 +295,39 @@ public class Entity
         hit = default;
         return null;
     }
+
+    // ── Debug / inspection ───────────────────────────────────────────
+
+    /// <summary>
+    /// Returns a human-readable tree representation of this entity and all descendants.
+    /// Useful for debugging and test assertions.
+    /// </summary>
+    /// <param name="indent">Current indentation prefix (used for recursion).</param>
+    public string Dump(string indent = "")
+    {
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        var sb = new System.Text.StringBuilder();
+        sb.Append(indent).Append(GetType().Name)
+          .Append(" @ (").Append(X.ToString("F1", inv)).Append(", ").Append(Y.ToString("F1", inv)).Append(')')
+          .Append(" world=(").Append(WorldX.ToString("F1", inv)).Append(", ").Append(WorldY.ToString("F1", inv)).Append(')')
+          .Append(" a=").Append(Alpha.ToString("F2", inv));
+        if (!Active) sb.Append(" INACTIVE");
+        if (!Visible) sb.Append(" HIDDEN");
+        if (Rotation != 0f) sb.Append(" rot=").Append(Rotation.ToString("F2", inv));
+        sb.AppendLine();
+
+        if (Collider is RectCollider rc)
+            sb.Append(indent).Append("  collider: Rect ").Append(rc.Width.ToString("F0", inv)).Append('x').Append(rc.Height.ToString("F0", inv)).AppendLine();
+        else if (Collider is CircleCollider cc)
+            sb.Append(indent).Append("  collider: Circle r=").Append(cc.Radius.ToString("F0", inv)).AppendLine();
+
+        if (Rigidbody is { } rb && (rb.VelocityX != 0f || rb.VelocityY != 0f))
+            sb.Append(indent).Append("  velocity: (").Append(rb.VelocityX.ToString("F1", inv)).Append(", ").Append(rb.VelocityY.ToString("F1", inv)).Append(')').AppendLine();
+
+        if (_children is not null)
+            for (int i = 0; i < _children.Count; i++)
+                sb.Append(_children[i].Dump(indent + "  "));
+
+        return sb.ToString();
+    }
 }

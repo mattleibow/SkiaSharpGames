@@ -1,3 +1,4 @@
+using SkiaSharp;
 using SkiaSharpGames.GameEngine;
 using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
@@ -8,21 +9,36 @@ internal sealed class OilPuddle : Entity
 {
     public float Life = OilPuddleDuration;
 
+    private static readonly SKColor CoreColor = new(0xFF, 0x6B, 0x00);
+    private static readonly SKColor GlowColor = new(0xFF, 0x44, 0x00, 80);
+
     public OilPuddle(float x)
     {
         X = x;
         Y = GroundY - OilPuddleHeight / 2f;
         Collider = new RectCollider { Width = OilPuddleWidth, Height = OilPuddleHeight };
-        Sprite = new OilPuddleSprite();
     }
 
-    public new OilPuddleSprite Sprite { get => (OilPuddleSprite)base.Sprite!; init => base.Sprite = value; }
     public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
 
     protected override void OnUpdate(float deltaTime)
     {
         Life -= deltaTime;
-        Sprite.Life = Life;
         if (Life <= 0f) Active = false;
+    }
+
+    protected override void OnDraw(SKCanvas canvas)
+    {
+        byte alpha = (byte)(255 * Math.Clamp(Life / OilPuddleDuration, 0f, 1f));
+        using var corePaint = new SKPaint { Color = CoreColor.WithAlpha(alpha), IsAntialias = true };
+        using var glowPaint = new SKPaint { Color = GlowColor.WithAlpha((byte)(alpha / 3)), IsAntialias = true };
+
+        float hw = OilPuddleWidth / 2f;
+        float hh = OilPuddleHeight / 2f;
+
+        // Glow underneath
+        canvas.DrawRoundRect(-hw - 4f, -hh - 2f, OilPuddleWidth + 8f, OilPuddleHeight + 4f, 4f, 2f, glowPaint);
+        // Core puddle
+        canvas.DrawRoundRect(-hw, -hh, OilPuddleWidth, OilPuddleHeight, 3f, 2f, corePaint);
     }
 }

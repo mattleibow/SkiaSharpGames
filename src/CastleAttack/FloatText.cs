@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 
 namespace SkiaSharpGames.CastleAttack;
 
@@ -9,21 +10,27 @@ internal sealed class FloatText : Entity
     public string Text = "";
     public SKColor Color = SKColors.White;
 
+    private readonly UiLabel _label = new() { FontSize = 16f, Align = TextAlign.Center };
+
     public FloatText()
     {
         Rigidbody = new Rigidbody2D { VelocityY = -28f };
-        Sprite = new FloatTextSprite();
     }
 
-    public new FloatTextSprite Sprite { get => (FloatTextSprite)base.Sprite!; init => base.Sprite = value; }
     public new Rigidbody2D Rigidbody { get => (Rigidbody2D)base.Rigidbody!; init => base.Rigidbody = value; }
 
     protected override void OnUpdate(float deltaTime)
     {
         Life -= deltaTime;
-        Sprite.Text = Text;
-        Sprite.Color = Color;
-        Sprite.Life = Life;
         if (Life <= 0f) Active = false;
+    }
+
+    protected override void OnDraw(SKCanvas canvas)
+    {
+        if (string.IsNullOrEmpty(Text)) return;
+        _label.Text = Text;
+        _label.Color = Color;
+        _label.Alpha = Math.Clamp(Life / 1.4f, 0f, 1f);
+        _label.Draw(canvas);
     }
 }

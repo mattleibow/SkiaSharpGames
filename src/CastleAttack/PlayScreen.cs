@@ -48,12 +48,26 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private CountdownTimer[] _wallFlash = new CountdownTimer[3];
 
-    // ── Sprites ───────────────────────────────────────────────────────────
-    private readonly ArcherSprite _archerSprite = new();
-    private readonly WorkerSprite _workerSprite = new();
-    private readonly LordSprite _lordSprite = new();
-    private readonly WallBlockSprite _wallBlockSprite = new();
-    private readonly ButtonSprite _buttonSprite = new();
+    // ── Shared drawing paints (archer, worker, lord, wall block, button) ─
+    private static readonly SKPaint ArcherBodyPaint = new() { Color = ColArcher, IsAntialias = true };
+    private static readonly SKPaint ArcherBowPaint = new() { Color = ColArrow, StrokeWidth = 2f, IsAntialias = true };
+
+    private static readonly SKPaint WorkerBodyPaint = new() { Color = ColWorker, IsAntialias = true };
+    private static readonly SKPaint WorkerToolPaint = new() { Color = new SKColor(0xCC, 0xCC, 0xCC), StrokeWidth = 2f, IsAntialias = true };
+
+    private static readonly SKPaint LordBodyPaint = new() { Color = ColLord, IsAntialias = true };
+    private static readonly SKPaint LordCrownPaint = new() { Color = ColGold, IsAntialias = true };
+    private static readonly SKPaint LordSwordPaint = new() { Color = new SKColor(0xCC, 0xCC, 0xCC), StrokeWidth = 2f, IsAntialias = true };
+    private static readonly SKPaint LordHpBarBg = new() { Color = new SKColor(0x40, 0x00, 0x00) };
+    private static readonly SKPaint LordHpBarFg = new() { Color = new SKColor(0xFF, 0x22, 0x22) };
+
+    private static readonly SKPaint WallBlockPaint = new() { IsAntialias = true };
+    private static readonly SKPaint WallCrackPaint = new() { Color = new SKColor(0x00, 0x00, 0x00, 80), StrokeWidth = 1.5f, IsAntialias = true };
+    private static readonly SKPaint WallShinePaint = new() { Color = SKColors.White.WithAlpha(40), IsAntialias = true };
+
+    private static readonly SKPaint BtnBgPaint = new() { IsAntialias = true };
+    private static readonly SKPaint BtnBorderPaint = new() { Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, IsAntialias = true };
+    private readonly UiLabel _btnLabel = new() { Align = TextAlign.Center };
 
     // ── HUD text sprites ─────────────────────────────────────────────────
     private readonly UiLabel _scoreText = new() { FontSize = 20f, Color = ColHud };
@@ -442,11 +456,6 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             _                    => new Enemy { Type = type, X = SpawnX, HP = 1f,  MaxHP = 1f,  Speed = 50f,  Collider = new() { Width = 12f, Height = 24f } }
         };
         e.Y = GroundY - e.Collider.Height / 2f;
-        // Initial sprite sync (OnUpdate handles subsequent syncs)
-        e.Sprite.Type = e.Type;
-        e.Sprite.Collider = e.Collider;
-        e.Sprite.HP = e.HP;
-        e.Sprite.MaxHP = e.MaxHP;
         return e;
     }
 
@@ -984,15 +993,20 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
                 var block = wall.Blocks[bi];
                 if (!block.Active) continue;
 
-                _wallBlockSprite.HPRatio = block.HP / block.MaxHP;
-                _wallBlockSprite.Flash = flash;
-                canvas.Save(); canvas.Translate(wall.LeftX, blockY); _wallBlockSprite.Draw(canvas); canvas.Restore();
+                float hpRatio = block.HP / block.MaxHP;
+                canvas.Save();
+                canvas.Translate(wall.LeftX, blockY);
+                DrawWallBlock(canvas, hpRatio, flash);
+                canvas.Restore();
                 blockY -= BlockH;
             }
 
             if (wall.HasArcher && !wall.IsDestroyed)
             {
-                canvas.Save(); canvas.Translate(wall.ArcherCenterX, wall.ArcherBaseY); _archerSprite.Draw(canvas); canvas.Restore();
+                canvas.Save();
+                canvas.Translate(wall.ArcherCenterX, wall.ArcherBaseY);
+                DrawArcher(canvas);
+                canvas.Restore();
             }
         }
     }
@@ -1005,7 +1019,10 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         float spacing = workerAreaW / Math.Max(_workerCount, 1);
         for (int w = 0; w < _workerCount; w++)
         {
-            canvas.Save(); canvas.Translate(KeepLeft + 8f + w * spacing, GroundY); _workerSprite.Draw(canvas); canvas.Restore();
+            canvas.Save();
+            canvas.Translate(KeepLeft + 8f + w * spacing, GroundY);
+            DrawWorker(canvas);
+            canvas.Restore();
         }
     }
 
@@ -1013,9 +1030,12 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private void DrawLord(SKCanvas canvas)
     {
-        _lordSprite.Active = _lordActive;
-        _lordSprite.HPRatio = _lordHP / 10f;
-        canvas.Save(); canvas.Translate(LordStandX, GroundY); _lordSprite.Draw(canvas); canvas.Restore();
+        if (!_lordActive) return;
+        float hpRatio = _lordHP / 10f;
+        canvas.Save();
+        canvas.Translate(LordStandX, GroundY);
+        DrawLordFigure(canvas, hpRatio);
+        canvas.Restore();
     }
 
     // ── Enemies ───────────────────────────────────────────────────────────
@@ -1215,13 +1235,26 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     private void DrawButton(SKCanvas canvas, SKRect rect, string label,
         bool enabled, SKColor labelCol, bool pressed, bool large = false)
     {
-        _buttonSprite.Rect = rect;
-        _buttonSprite.Label = label;
-        _buttonSprite.Enabled = enabled;
-        _buttonSprite.LabelColor = labelCol;
-        _buttonSprite.Pressed = pressed;
-        _buttonSprite.Large = large;
-        _buttonSprite.Draw(canvas);
+        float alpha = enabled ? 1f : 0.4f;
+        byte bgA = pressed ? (byte)180 : (byte)110;
+        SKColor bg = pressed ? new SKColor(0xFF, 0xFF, 0xFF, bgA)
+                               : new SKColor(0x22, 0x22, 0x33, bgA);
+        BtnBgPaint.Color = bg;
+        canvas.DrawRoundRect(rect, BtnR, BtnR, BtnBgPaint);
+
+        SKColor border = enabled
+            ? (pressed ? SKColors.White : new SKColor(0x88, 0x88, 0xAA))
+            : new SKColor(0x44, 0x44, 0x55);
+        BtnBorderPaint.Color = border.WithAlpha((byte)(200 * alpha));
+        canvas.DrawRoundRect(rect, BtnR, BtnR, BtnBorderPaint);
+
+        float fontSize = large ? 16f : 13f;
+        SKColor col = pressed ? SKColors.Black : labelCol;
+        _btnLabel.Text = label;
+        _btnLabel.FontSize = fontSize;
+        _btnLabel.Color = col;
+        _btnLabel.Alpha = alpha;
+        canvas.Save(); canvas.Translate(rect.MidX, rect.MidY + fontSize * 0.38f); _btnLabel.Draw(canvas); canvas.Restore();
     }
 
     // ── Float texts ───────────────────────────────────────────────────────
@@ -1232,5 +1265,56 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         {
             t.Draw(canvas);
         }
+    }
+
+    // ── Inline drawing helpers (migrated from sprites) ───────────────────
+
+    private static void DrawArcher(SKCanvas canvas)
+    {
+        canvas.DrawRect(SKRect.Create(0f - ArcherW / 2f, 0f - ArcherH, ArcherW, ArcherH - 8f), ArcherBodyPaint);
+        canvas.DrawCircle(0f, 0f - ArcherH - 5f, 6f, ArcherBodyPaint);
+        canvas.DrawLine(0f + ArcherW / 2f, 0f - ArcherH + 4f, 0f + ArcherW / 2f + 8f, 0f - ArcherH / 2f, ArcherBowPaint);
+    }
+
+    private static void DrawWorker(SKCanvas canvas)
+    {
+        canvas.DrawRect(SKRect.Create(0f - WorkerW / 2f, 0f - WorkerH, WorkerW, WorkerH - 6f), WorkerBodyPaint);
+        canvas.DrawCircle(0f, 0f - WorkerH - 4f, 5f, WorkerBodyPaint);
+        canvas.DrawLine(0f + WorkerW / 2f, 0f - WorkerH + 2f, 0f + WorkerW / 2f + 10f, 0f - WorkerH + 10f, WorkerToolPaint);
+    }
+
+    private static void DrawLordFigure(SKCanvas canvas, float hpRatio)
+    {
+        const float barW = 40f;
+        canvas.DrawRect(SKRect.Create(0f - barW / 2f, 0f - LordH - 14f, barW, 6f), LordHpBarBg);
+        LordHpBarFg.Color = new SKColor(0xFF, 0x22, 0x22);
+        canvas.DrawRect(SKRect.Create(0f - barW / 2f, 0f - LordH - 14f, barW * hpRatio, 6f), LordHpBarFg);
+
+        canvas.DrawRect(SKRect.Create(0f - LordW / 2f, 0f - LordH, LordW, LordH - 8f), LordBodyPaint);
+        canvas.DrawCircle(0f, 0f - LordH - 5f, 7f, LordBodyPaint);
+
+        // Crown
+        canvas.DrawRect(SKRect.Create(0f - 7f, 0f - LordH - 17f, 4f, 6f), LordCrownPaint);
+        canvas.DrawRect(SKRect.Create(0f - 2f, 0f - LordH - 20f, 4f, 9f), LordCrownPaint);
+        canvas.DrawRect(SKRect.Create(0f + 3f, 0f - LordH - 17f, 4f, 6f), LordCrownPaint);
+
+        // Sword
+        canvas.DrawLine(0f + LordW / 2f, 0f - LordH, 0f + LordW / 2f + 18f, 0f - LordH / 2f, LordSwordPaint);
+    }
+
+    private static void DrawWallBlock(SKCanvas canvas, float hpRatio, bool flash)
+    {
+        SKColor col = flash ? ColStoneDmg
+                    : hpRatio < 0.3f ? ColStoneLow
+                    : hpRatio < 0.6f ? ColStoneDmg
+                    : ColStone;
+
+        WallBlockPaint.Color = col;
+        canvas.DrawRoundRect(SKRect.Create(0f, 0f, BlockW, BlockH), 3f, 3f, WallBlockPaint);
+
+        if (hpRatio < 0.6f)
+            canvas.DrawLine(0f + 8f, 0f + 4f, 0f + 18f, 0f + BlockH - 4f, WallCrackPaint);
+
+        canvas.DrawRect(SKRect.Create(0f + 2f, 0f + 2f, BlockW - 4f, BlockH / 2f - 2f), WallShinePaint);
     }
 }

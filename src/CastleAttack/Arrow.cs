@@ -1,4 +1,6 @@
+using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
 namespace SkiaSharpGames.CastleAttack;
 
@@ -7,22 +9,25 @@ internal sealed class Arrow : Entity
     public bool IsEnemy;
     public int EnemyTargetWall;
 
+    private static readonly SKPaint FriendlyPaint = new() { Color = ColArrow, StrokeWidth = 2f, IsAntialias = true };
+    private static readonly SKPaint EnemyPaint = new() { Color = ColFire, StrokeWidth = 2.5f, IsAntialias = true };
+
     public Arrow()
     {
         Collider = new CircleCollider { Radius = 2f };
         Rigidbody = new Rigidbody2D();
-        Sprite = new ArrowSprite();
     }
 
-    public new ArrowSprite Sprite { get => (ArrowSprite)base.Sprite!; init => base.Sprite = value; }
     public new CircleCollider Collider { get => (CircleCollider)base.Collider!; init => base.Collider = value; }
     public new Rigidbody2D Rigidbody { get => (Rigidbody2D)base.Rigidbody!; init => base.Rigidbody = value; }
 
-    protected override void OnUpdate(float deltaTime)
+    protected override void OnDraw(SKCanvas canvas)
     {
-        // Sync sprite with current velocity for angle-based drawing
-        Sprite.IsEnemy = IsEnemy;
-        Sprite.VelocityX = Rigidbody.VelocityX;
-        Sprite.VelocityY = Rigidbody.VelocityY;
+        float angle = MathF.Atan2(Rigidbody.VelocityY, Rigidbody.VelocityX);
+        const float len = 14f;
+        float dx = MathF.Cos(angle) * len;
+        float dy = MathF.Sin(angle) * len;
+        var paint = IsEnemy ? EnemyPaint : FriendlyPaint;
+        canvas.DrawLine(-dx / 2f, -dy / 2f, dx / 2f, dy / 2f, paint);
     }
 }

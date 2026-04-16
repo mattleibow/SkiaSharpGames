@@ -481,9 +481,9 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        DrawButton(canvas, LeftBtnRect, "◀", _touchLeft);
+        DrawButton(canvas, LeftBtnRect, "<", _touchLeft);
         DrawButton(canvas, FireBtnRect, "FIRE", _touchFire);
-        DrawButton(canvas, RightBtnRect, "▶", _touchRight);
+        DrawButton(canvas, RightBtnRect, ">", _touchRight);
     }
 
     private static void DrawButton(SKCanvas canvas, SKRect rect, string label, bool pressed)

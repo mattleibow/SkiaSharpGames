@@ -12,9 +12,9 @@ internal sealed class PlayScreen(CatchGameState state, IScreenCoordinator coordi
     private readonly PlayerBar _bar = new();
     private readonly FallingCircle _circle = new();
 
-    private readonly UiLabel _scoreText = new() { FontSize = 24f };
-    private readonly UiLabel _livesText = new() { FontSize = 24f, Align = TextAlign.Right };
-    private readonly UiLabel _instructionsText = new() { Text = "Move with mouse, touch, or arrow keys", FontSize = 16f, Color = DimColor, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { FontSize = 24f, X = 20f, Y = 35f };
+    private readonly UiLabel _livesText = new() { FontSize = 24f, Align = TextAlign.Right, X = GameWidth - 20f, Y = 35f };
+    private readonly UiLabel _instructionsText = new() { Text = "Move with mouse, touch, or arrow keys", FontSize = 16f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 34f };
 
     private float _fallSpeed;
     private bool _leftHeld;

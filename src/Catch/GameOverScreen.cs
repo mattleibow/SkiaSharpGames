@@ -9,20 +9,20 @@ internal sealed class GameOverScreen(CatchGameState state, IScreenCoordinator co
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)) };
 
-    private readonly UiLabel _titleText = new() { Text = "GAME OVER", FontSize = 72f, Color = DangerColor, Align = TextAlign.Center };
-    private readonly UiLabel _scoreText = new() { FontSize = 34f, Align = TextAlign.Center };
-    private readonly UiLabel _promptText = new() { Text = "Click, tap, or press Space to try again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly UiLabel _titleText = new() { Text = "GAME OVER", FontSize = 72f, Color = DangerColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 250f };
+    private readonly UiLabel _scoreText = new() { FontSize = 34f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 325f };
+    private readonly UiLabel _promptText = new() { Text = "Click, tap, or press Space to try again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 395f };
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {
         canvas.DrawRect(0, 0, GameWidth, GameHeight, _overlayPaint);
 
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 250f); _titleText.Draw(canvas); canvas.Restore();
+        _titleText.Draw(canvas);
 
         _scoreText.Text = $"Score: {state.Score}";
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 325f); _scoreText.Draw(canvas); canvas.Restore();
+        _scoreText.Draw(canvas);
 
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 395f); _promptText.Draw(canvas); canvas.Restore();
+        _promptText.Draw(canvas);
     }
 
     public override void OnPointerDown(float x, float y) =>

@@ -19,6 +19,7 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 | [Sink Sub](src/BlazorApp/Games/SinkSub/) | `/games/sink-sub` | Patrol the surface, drop depth charges, and sink submarines before their mines hit your ship. |
 | [Snake](src/Snake/) | `/games/snake` | Guide the snake to eat food and grow. Don't crash into walls or your own tail! |
 | [2048](src/TwoZeroFourEight/) | `/games/2048` | Slide tiles on a 4×4 grid, merge matching numbers, and reach the 2048 tile. |
+| [Asteroids](src/Asteroids/) | `/games/asteroids` | Pilot your ship through an asteroid field — rotate, thrust, and shoot to survive. |
 
 ### Breakout
 
@@ -55,6 +56,15 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 | ![Desktop - Gameplay](docs/screenshots/2048/desktop-gameplay.png) | ![Mobile - Gameplay](docs/screenshots/2048/mobile-gameplay.png) |
 
 **Highlights:** sliding tile animations, per-tile colour gradients, swipe input, score tracking, and spawn/merge effects.
+
+### Asteroids
+
+| Desktop | Mobile |
+|---------|--------|
+| ![Desktop - Start screen](docs/screenshots/asteroids/desktop-loading.png) | ![Mobile - Start screen](docs/screenshots/asteroids/mobile-loading.png) |
+| ![Desktop - Gameplay](docs/screenshots/asteroids/desktop-gameplay.png) | ![Mobile - Gameplay](docs/screenshots/asteroids/mobile-gameplay.png) |
+
+**Highlights:** vector-style ship and asteroid rendering, screen wrapping, thrust physics with drag, asteroid splitting, debris particles, and progressive difficulty.
 
 ## Project structure
 
@@ -114,6 +124,15 @@ src/
     PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
     Direction.cs, GridPoint.cs, SnakeConstants.cs, SnakeGameState.cs
 
+  Asteroids/                    # SkiaSharpGames.Asteroids class library
+    AsteroidsGame.cs
+    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
+    Ship.cs, ShipSprite.cs, ThrustSprite.cs
+    Asteroid.cs, AsteroidSprite.cs
+    Bullet.cs, BulletSprite.cs
+    Debris.cs, DebrisSprite.cs
+    AsteroidsConstants.cs, AsteroidsGameState.cs, TextRenderer.cs
+
   TwoZeroFourEight/             # SkiaSharpGames.TwoZeroFourEight class library
     TwoZeroFourEightGame.cs
     PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
@@ -127,6 +146,7 @@ src/
         SinkSub.razor
         Snake.razor
         TwoZeroFourEight.razor
+        Asteroids.razor
     Shared/
       GameView.razor
 

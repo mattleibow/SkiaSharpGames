@@ -1,0 +1,15 @@
+@page "/games/asteroids"
+@layout GameLayout
+
+<PageTitle>Asteroids – SkiaSharp Games</PageTitle>
+
+<GameView Game="_game" />
+
+@code {
+    private readonly Game _game;
+
+    public Asteroids([FromKeyedServices("asteroids")] Game game)
+    {
+        _game = game;
+    }
+}

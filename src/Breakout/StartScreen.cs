@@ -24,8 +24,8 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
                 float cx = BricksStartX + c * (BrickWidth + BrickGap) + BrickWidth / 2f;
                 float cy = BricksStartY + r * (BrickHeight + BrickGap) + BrickHeight / 2f;
                 var brick = new Brick(r, c, cx, cy);
-                brick.Sprite.Color = BrickColors[r];
-                brick.Sprite.Shimmer.Start(Random.Shared.NextSingle() * brick.Sprite.Shimmer.Period);
+                brick.Color = BrickColors[r];
+                brick.Shimmer.Start(Random.Shared.NextSingle() * brick.Shimmer.Period);
                 _bricks.Add(brick);
             }
         }
@@ -34,7 +34,7 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     public override void Update(float deltaTime)
     {
         foreach (var brick in _bricks)
-            brick.Sprite.Update(deltaTime);
+            brick.Update(deltaTime);
     }
 
     public override void Draw(SKCanvas canvas, int width, int height)
@@ -43,8 +43,8 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 
         foreach (var brick in _bricks)
         {
-            brick.Sprite.Alpha = 0.3f;
-            canvas.Save(); canvas.Translate(brick.X, brick.Y); brick.Sprite.Draw(canvas); canvas.Restore();
+            brick.Alpha = 0.3f;
+            brick.Draw(canvas);
         }
 
         canvas.Save(); canvas.Translate(GameWidth / 2f, 290f); _title.Draw(canvas); canvas.Restore();

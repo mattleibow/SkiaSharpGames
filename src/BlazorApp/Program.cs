@@ -9,6 +9,7 @@ using SkiaSharpGames.TwoZeroFourEight;
 using SkiaSharpGames.SpaceInvaders;
 using SkiaSharpGames.Catch;
 using SkiaSharpGames.LunarLander;
+using SkiaSharpGames.Snake;
 using SkiaSharpGames.GameEngine;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -27,5 +28,6 @@ builder.Services.AddKeyedTransient<Game>("2048", (sp, _) => TwoZeroFourEightGame
 builder.Services.AddKeyedTransient<Game>("space-invaders", (sp, _) => SpaceInvadersGame.Create());
 builder.Services.AddKeyedTransient<Game>("catch", (sp, _) => CatchGame.Create());
 builder.Services.AddKeyedTransient<Game>("lunar-lander", (sp, _) => LunarLanderGame.Create());
+builder.Services.AddKeyedTransient<Game>("snake", (sp, _) => SnakeGame.Create());
 
 await builder.Build().RunAsync();

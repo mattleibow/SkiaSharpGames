@@ -81,10 +81,9 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
 
     private static readonly SKPaint AimDotPaint = new()
     {
-        Color = new SKColor(0xFF, 0xFF, 0xFF, 100),
-        StrokeWidth = 1.5f,
+        Color = new SKColor(0xFF, 0xFF, 0xFF, 60),
         IsAntialias = true,
-        PathEffect = SKPathEffect.CreateDash([4f, 6f], 0f)
+        Style = SKPaintStyle.Fill,
     };
     private static readonly SKPaint AimLandPaint = new() { Color = new SKColor(0xFF, 0xFF, 0x00, 180), IsAntialias = true };
 
@@ -934,33 +933,50 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     {
         if (_archerCount == 0) return;
 
+        float rad = _aimAngle * MathF.PI / 180f;
+        float vx = ArrowSpeed * MathF.Cos(rad);
+        float vy = -ArrowSpeed * MathF.Sin(rad);
+
+        // Draw arc from each archer wall
+        foreach (var wall in _walls)
+        {
+            if (wall.IsDestroyed || !wall.HasArcher) continue;
+
+            float ax = wall.ArcherCenterX;
+            float ay = wall.ArcherBaseY - ArcherH / 2f;
+
+            // Build a filled ribbon: trace the arc forward, then back slightly offset
+            using var path = new SKPath();
+            const float thickness = 3f;
+            bool first = true;
+            var topPoints = new List<SKPoint>();
+            for (float t = 0; t < 3f; t += 0.04f)
+            {
+                float nx = ax + vx * t;
+                float ny = ay + vy * t + 0.5f * ArrowGravity * t * t;
+                if (nx > GameWidth || ny > GroundY) break;
+                topPoints.Add(new SKPoint(nx, ny));
+                if (first) { path.MoveTo(nx, ny - thickness); first = false; }
+                else path.LineTo(nx, ny - thickness);
+            }
+            // Trace back along the bottom edge
+            for (int i = topPoints.Count - 1; i >= 0; i--)
+                path.LineTo(topPoints[i].X, topPoints[i].Y + thickness);
+            path.Close();
+            canvas.DrawPath(path, AimDotPaint);
+        }
+
+        // Landing marker from reference wall
         Wall? refWall = null;
         for (int i = _walls.Count - 1; i >= 0; i--)
             if (!_walls[i].IsDestroyed && _walls[i].HasArcher) { refWall = _walls[i]; break; }
         if (refWall == null) return;
 
-        float ax = refWall.ArcherCenterX;
-        float ay = refWall.ArcherBaseY - ArcherH / 2f;
-        float rad = _aimAngle * MathF.PI / 180f;
-        float vx = ArrowSpeed * MathF.Cos(rad);
-        float vy = -ArrowSpeed * MathF.Sin(rad);
-
-        using var path = new SKPath();
-        bool first = true;
-        for (float t = 0; t < 3f; t += 0.05f)
-        {
-            float nx = ax + vx * t;
-            float ny = ay + vy * t + 0.5f * ArrowGravity * t * t;
-            if (nx > GameWidth || ny > GroundY) break;
-            if (first) { path.MoveTo(nx, ny); first = false; }
-            else path.LineTo(nx, ny);
-        }
-        canvas.DrawPath(path, AimDotPaint);
-
-        float landT = FindLandingTime(ay, vy);
+        float refAy = refWall.ArcherBaseY - ArcherH / 2f;
+        float landT = FindLandingTime(refAy, vy);
         if (landT > 0f)
         {
-            float landX = ax + vx * landT;
+            float landX = refWall.ArcherCenterX + vx * landT;
             if (landX >= 0 && landX <= GameWidth)
                 canvas.DrawCircle(landX, GroundY - 3f, 5f, AimLandPaint);
         }

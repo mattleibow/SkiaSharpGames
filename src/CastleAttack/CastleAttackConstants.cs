@@ -33,7 +33,7 @@ internal static class CastleAttackConstants
     public const float ArrowSpeed = 580f;
     public const float ArrowGravity = 480f;
 
-    public const float WorkerBuildRate = 1f / 110f;
+    public const float WorkerBuildRate = 1f / 300f;
 
     public const float LordMeleeRange = 30f;
     public const float LordAttackDamage = 2f;

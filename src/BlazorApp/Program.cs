@@ -11,6 +11,7 @@ using SkiaSharpGames.Catch;
 using SkiaSharpGames.LunarLander;
 using SkiaSharpGames.Snake;
 using SkiaSharpGames.Asteroids;
+using SkiaSharpGames.UIGallery;
 using SkiaSharpGames.GameEngine;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -31,5 +32,6 @@ builder.Services.AddKeyedTransient<Game>("catch", (sp, _) => CatchGame.Create())
 builder.Services.AddKeyedTransient<Game>("lunar-lander", (sp, _) => LunarLanderGame.Create());
 builder.Services.AddKeyedTransient<Game>("snake", (sp, _) => SnakeGame.Create());
 builder.Services.AddKeyedTransient<Game>("asteroids", (sp, _) => AsteroidsGame.Create());
+builder.Services.AddKeyedTransient<Game>("ui-gallery", (sp, _) => UIGalleryGame.Create());
 
 await builder.Build().RunAsync();

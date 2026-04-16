@@ -6,7 +6,7 @@ public static class UiControls
 {
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private static readonly SKPaint _strokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
-    private static readonly SKPaint _textPaint = new() { IsAntialias = true, TextAlign = SKTextAlign.Center };
+    private static readonly SKPaint _textPaint = new() { IsAntialias = true };
     private static readonly SKFont _font = new(SKTypeface.Default, 18f);
 
     public static bool HitTest(SKRect rect, float x, float y) => rect.Contains(x, y);
@@ -36,7 +36,7 @@ public static class UiControls
         {
             _strokePaint.StrokeWidth = style.BevelSize;
             _strokePaint.Color = (pressed ? style.BevelShadowColor : style.BevelLightColor).WithAlpha(alpha);
-            using var inset = SKRect.Inflate(rect, -style.BevelSize * 0.5f, -style.BevelSize * 0.5f);
+            var inset = SKRect.Inflate(rect, -style.BevelSize * 0.5f, -style.BevelSize * 0.5f);
             canvas.DrawLine(inset.Left, inset.Top, inset.Right, inset.Top, _strokePaint);
             canvas.DrawLine(inset.Left, inset.Top, inset.Left, inset.Bottom, _strokePaint);
 
@@ -50,10 +50,9 @@ public static class UiControls
         canvas.DrawRoundRect(rect, style.CornerRadius, style.CornerRadius, _strokePaint);
 
         _textPaint.Color = style.TextColor.WithAlpha(alpha);
-        _textPaint.TextAlign = SKTextAlign.Center;
         _font.Size = fontSize;
         float baselineY = rect.MidY + fontSize * 0.35f;
-        canvas.DrawText(label, rect.MidX, baselineY, _font, _textPaint);
+        canvas.DrawText(label, rect.MidX, baselineY, SKTextAlign.Center, _font, _textPaint);
     }
 
     public static void DrawCheckbox(

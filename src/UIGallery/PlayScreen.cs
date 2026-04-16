@@ -128,9 +128,9 @@ internal sealed class PlayScreen(UIGalleryState state, IUiThemeProvider themes) 
                 using var ring = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, Color = SKColors.White, StrokeWidth = 3f };
                 c.DrawRoundRect(rect, 10f, 10f, fill);
                 c.DrawRoundRect(rect, 10f, 10f, ring);
-                using var labelPaint = new SKPaint { IsAntialias = true, Color = style.TextColor, TextAlign = SKTextAlign.Center };
+                using var labelPaint = new SKPaint { IsAntialias = true, Color = style.TextColor };
                 using var labelFont = new SKFont(SKTypeface.Default, 16f);
-                c.DrawText("Custom canvas draw", rect.MidX, rect.MidY + 6f, labelFont, labelPaint);
+                c.DrawText("Custom canvas draw", rect.MidX, rect.MidY + 6f, SKTextAlign.Center, labelFont, labelPaint);
             });
 
         DrawText(canvas, "Custom draw hook", _labelFont, SKColors.White, 40f, 494f);
@@ -173,7 +173,6 @@ internal sealed class PlayScreen(UIGalleryState state, IUiThemeProvider themes) 
     private static void DrawText(SKCanvas canvas, string text, SKFont font, SKColor color, float x, float y)
     {
         _textPaint.Color = color;
-        _textPaint.TextAlign = SKTextAlign.Left;
-        canvas.DrawText(text, x, y, font, _textPaint);
+        canvas.DrawText(text, x, y, SKTextAlign.Left, font, _textPaint);
     }
 }

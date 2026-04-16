@@ -1,0 +1,15 @@
+@page "/games/ui-gallery"
+@layout GameLayout
+
+<PageTitle>UI Gallery – SkiaSharp Games</PageTitle>
+
+<GameView Game="_game" />
+
+@code {
+    private readonly Game _game;
+
+    public UIGallery([FromKeyedServices("ui-gallery")] Game game)
+    {
+        _game = game;
+    }
+}

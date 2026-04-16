@@ -1,10 +1,11 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.Asteroids.AsteroidsConstants;
 
 namespace SkiaSharpGames.Asteroids;
 
-internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator coordinator, IUiThemeProvider themes) : GameScreen
 {
     private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha(80), IsAntialias = true };
     private static readonly SKPaint _livesShipPaint = new() { Color = ShipColor, IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
@@ -33,10 +34,6 @@ internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator co
     private static readonly SKRect ThrustBtnRect = SKRect.Create(PadLeft + PadBtnW + PadGap, PadY, PadBtnW, PadBtnH);
     private static readonly SKRect FireBtnRect = SKRect.Create(PadLeft + 2 * (PadBtnW + PadGap), PadY, PadBtnW, PadBtnH);
     private static readonly SKRect RightBtnRect = SKRect.Create(PadLeft + 3 * (PadBtnW + PadGap), PadY, PadBtnW, PadBtnH);
-
-    private static readonly SKPaint _padBtnPaint = new() { IsAntialias = true };
-    private static readonly SKPaint _padBtnTextPaint = new() { IsAntialias = true, Color = SKColors.White };
-    private static readonly SKFont _padBtnFont = new(SKTypeface.Default, 20f);
 
     private bool _leftHeld, _rightHeld, _thrustHeld;
     private bool _endTriggered;
@@ -443,22 +440,16 @@ internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator co
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        DrawButton(canvas, LeftBtnRect, "<", _touchLeft);
-        DrawButton(canvas, ThrustBtnRect, "^", _touchThrust);
-        DrawButton(canvas, FireBtnRect, "FIRE", _touchFire);
-        DrawButton(canvas, RightBtnRect, ">", _touchRight);
-    }
-
-    private static void DrawButton(SKCanvas canvas, SKRect rect, string label, bool pressed)
-    {
-        byte alpha = pressed ? (byte)120 : (byte)50;
-        _padBtnPaint.Color = SKColors.White.WithAlpha(alpha);
-        canvas.DrawRoundRect(new SKRoundRect(rect, 8f), _padBtnPaint);
-
-        float textW = _padBtnFont.MeasureText(label);
-        float textX = rect.MidX - textW / 2f;
-        float textY = rect.MidY + 7f;
-        canvas.DrawText(label, textX, textY, _padBtnFont, _padBtnTextPaint);
+        var buttonStyle = themes.Theme.Button with
+        {
+            CornerRadius = 8f,
+            BorderWidth = 1.5f,
+            BevelSize = 1.5f,
+        };
+        UiControls.DrawButton(canvas, LeftBtnRect, "<", buttonStyle, _touchLeft, fontSize: 20f);
+        UiControls.DrawButton(canvas, ThrustBtnRect, "^", buttonStyle, _touchThrust, fontSize: 20f);
+        UiControls.DrawButton(canvas, FireBtnRect, "FIRE", buttonStyle, _touchFire, fontSize: 20f);
+        UiControls.DrawButton(canvas, RightBtnRect, ">", buttonStyle, _touchRight, fontSize: 20f);
     }
 
     private static void ClearChildren(Entity parent)

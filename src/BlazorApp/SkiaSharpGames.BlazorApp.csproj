@@ -25,6 +25,7 @@
     <ProjectReference Include="..\LunarLander\SkiaSharpGames.LunarLander.csproj" />
     <ProjectReference Include="..\Snake\SkiaSharpGames.Snake.csproj" />
     <ProjectReference Include="..\Asteroids\SkiaSharpGames.Asteroids.csproj" />
+    <ProjectReference Include="..\UIGallery\SkiaSharpGames.UIGallery.csproj" />
   </ItemGroup>
 
 </Project>

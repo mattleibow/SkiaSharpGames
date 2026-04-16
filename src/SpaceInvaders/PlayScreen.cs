@@ -1,10 +1,11 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.SpaceInvaders.SpaceInvadersConstants;
 
 namespace SkiaSharpGames.SpaceInvaders;
 
-internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinator coordinator, IUiThemeProvider themes) : GameScreen
 {
     private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha((byte)(255 * 0.5f)), IsAntialias = true };
 
@@ -32,10 +33,6 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
     private static readonly SKRect LeftBtnRect = SKRect.Create(PadLeft, PadY, PadBtnW, PadBtnH);
     private static readonly SKRect FireBtnRect = SKRect.Create(PadLeft + PadBtnW + PadGap, PadY, PadBtnW, PadBtnH);
     private static readonly SKRect RightBtnRect = SKRect.Create(PadLeft + 2 * (PadBtnW + PadGap), PadY, PadBtnW, PadBtnH);
-
-    private static readonly SKPaint _padBtnPaint = new() { IsAntialias = true };
-    private static readonly SKPaint _padBtnTextPaint = new() { IsAntialias = true, Color = SKColors.White };
-    private static readonly SKFont _padBtnFont = new(SKTypeface.Default, 22f);
 
     private bool _leftHeld;
     private bool _rightHeld;
@@ -481,21 +478,15 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        DrawButton(canvas, LeftBtnRect, "<", _touchLeft);
-        DrawButton(canvas, FireBtnRect, "FIRE", _touchFire);
-        DrawButton(canvas, RightBtnRect, ">", _touchRight);
-    }
-
-    private static void DrawButton(SKCanvas canvas, SKRect rect, string label, bool pressed)
-    {
-        byte alpha = pressed ? (byte)120 : (byte)50;
-        _padBtnPaint.Color = SKColors.White.WithAlpha(alpha);
-        canvas.DrawRoundRect(new SKRoundRect(rect, 8f), _padBtnPaint);
-
-        float textW = _padBtnFont.MeasureText(label);
-        float textX = rect.MidX - textW / 2f;
-        float textY = rect.MidY + 7f;
-        canvas.DrawText(label, textX, textY, _padBtnFont, _padBtnTextPaint);
+        var buttonStyle = themes.Theme.Button with
+        {
+            CornerRadius = 8f,
+            BorderWidth = 1.5f,
+            BevelSize = 1.5f,
+        };
+        UiControls.DrawButton(canvas, LeftBtnRect, "<", buttonStyle, _touchLeft, fontSize: 22f);
+        UiControls.DrawButton(canvas, FireBtnRect, "FIRE", buttonStyle, _touchFire, fontSize: 22f);
+        UiControls.DrawButton(canvas, RightBtnRect, ">", buttonStyle, _touchRight, fontSize: 22f);
     }
 
     private static void ClearChildren(Entity parent)

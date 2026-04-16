@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharpGames.GameEngine;
+using SkiaSharpGames.GameEngine.UI;
 using static SkiaSharpGames.LunarLander.LunarLanderConstants;
 
 namespace SkiaSharpGames.LunarLander;
@@ -8,7 +9,7 @@ namespace SkiaSharpGames.LunarLander;
 /// Main gameplay screen. The lander entity uses child entities for thruster flames
 /// that rotate automatically with the parent — demonstrating the Entity parenting system.
 /// </summary>
-internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator coordinator, IUiThemeProvider themes) : GameScreen
 {
     // ── Entities ──────────────────────────────────────────────────────────
     private readonly Lander _lander = new();
@@ -279,26 +280,16 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
         canvas.Save(); canvas.Translate(GameWidth / 2f, 30f); _altText.Draw(canvas); canvas.Restore();
     }
 
-    private static readonly SKPaint _padBtnPaint = new() { IsAntialias = true };
-    private static readonly SKPaint _padBtnTextPaint = new() { IsAntialias = true, Color = SKColors.White };
-    private static readonly SKFont _padBtnFont = new(SKTypeface.Default, 22f);
-
     private void DrawControlPad(SKCanvas canvas)
     {
-        DrawButton(canvas, LeftBtnRect, "<", _touchLeft);
-        DrawButton(canvas, ThrustBtnRect, "^", _touchThrust);
-        DrawButton(canvas, RightBtnRect, ">", _touchRight);
-    }
-
-    private static void DrawButton(SKCanvas canvas, SKRect rect, string label, bool pressed)
-    {
-        byte alpha = pressed ? (byte)120 : (byte)50;
-        _padBtnPaint.Color = SKColors.White.WithAlpha(alpha);
-        canvas.DrawRoundRect(new SKRoundRect(rect, 8f), _padBtnPaint);
-
-        float textW = _padBtnFont.MeasureText(label);
-        float textX = rect.MidX - textW / 2f;
-        float textY = rect.MidY + 7f;
-        canvas.DrawText(label, textX, textY, _padBtnFont, _padBtnTextPaint);
+        var buttonStyle = themes.Theme.Button with
+        {
+            CornerRadius = 8f,
+            BorderWidth = 1.5f,
+            BevelSize = 1.5f,
+        };
+        UiControls.DrawButton(canvas, LeftBtnRect, "<", buttonStyle, _touchLeft, fontSize: 22f);
+        UiControls.DrawButton(canvas, ThrustBtnRect, "^", buttonStyle, _touchThrust, fontSize: 22f);
+        UiControls.DrawButton(canvas, RightBtnRect, ">", buttonStyle, _touchRight, fontSize: 22f);
     }
 }

@@ -20,6 +20,7 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 | [Snake](src/Snake/) | `/games/snake` | Guide the snake to eat food and grow. Don't crash into walls or your own tail! |
 | [2048](src/TwoZeroFourEight/) | `/games/2048` | Slide tiles on a 4×4 grid, merge matching numbers, and reach the 2048 tile. |
 | [Asteroids](src/Asteroids/) | `/games/asteroids` | Pilot your ship through an asteroid field — rotate, thrust, and shoot to survive. |
+| [UI Gallery](src/UIGallery/) | `/games/ui-gallery` | Interactive canvas UI playground with shared themes, overrides, and custom draw hooks. |
 
 ### Breakout
 
@@ -66,6 +67,15 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 
 **Highlights:** vector-style ship and asteroid rendering, screen wrapping, thrust physics with drag, asteroid splitting, debris particles, and progressive difficulty.
 
+### UI Gallery
+
+| Desktop | Mobile |
+|---------|--------|
+| ![Desktop - Start screen](docs/screenshots/ui-gallery/desktop-loading.png) | ![Mobile - Start screen](docs/screenshots/ui-gallery/mobile-loading.png) |
+| ![Desktop - Gameplay](docs/screenshots/ui-gallery/desktop-gameplay.png) | ![Mobile - Gameplay](docs/screenshots/ui-gallery/mobile-gameplay.png) |
+
+**Highlights:** global theme switching (bold/cute, retro, simple), per-control style overrides, and custom canvas drawing for controls.
+
 ## Project structure
 
 ```text
@@ -98,6 +108,10 @@ src/
       DissolveTransition.cs
       FadeToColorTransition.cs
       SlideTransition.cs
+    UI/
+      UiTheme.cs
+      UiControls.cs
+      UiThemeProvider.cs
 
   Breakout/                     # SkiaSharpGames.Breakout class library
     BreakoutGame.cs
@@ -132,6 +146,11 @@ src/
     Bullet.cs, BulletSprite.cs
     Debris.cs, DebrisSprite.cs
     AsteroidsConstants.cs, AsteroidsGameState.cs, TextRenderer.cs
+
+  UIGallery/                    # SkiaSharpGames.UIGallery class library
+    UIGalleryGame.cs
+    UIGalleryState.cs
+    PlayScreen.cs
 
   TwoZeroFourEight/             # SkiaSharpGames.TwoZeroFourEight class library
     TwoZeroFourEightGame.cs
@@ -192,6 +211,8 @@ This keeps the engine deliberately small and explicit. There is no hidden solver
 | `CollisionResolver` | Overlaps, collision normals, wall/bounds resolution |
 | `CountdownTimer` | Cooldowns and temporary effects |
 | `AnimatedFloat` / `LoopedAnimation` | Smooth values and repeating effects |
+| `UiTheme` / `UiThemes` | Shareable UI style presets (Simple, Bold/Cute, Retro) |
+| `UiControls` | Canvas-drawn controls with theme defaults and per-control overrides |
 
 Concrete visuals such as Breakout bricks/balls, Castle Attack enemies/archers, or Sink Sub ships/submarines live in their own game libraries. Each game is a standalone class library (`SkiaSharpGames.<GameName>`) that references only the engine and SkiaSharp. The engine keeps only the sprite contract — no shared drawing helpers. Each game owns its own `TextRenderer` for text/overlay rendering with cached paints and fonts.
 

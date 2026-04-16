@@ -13,6 +13,7 @@ internal static class BreakoutConstants
     public const float DefaultPaddleWidth = 100f;
     public const float PaddleHeight = 14f;
     public const float PaddleY = 558f;
+    public const float PaddleSpeed = 500f;
     public const float BigPaddleMultiplier = 1.8f;
     public const float BigPaddleDuration = 8f;
 

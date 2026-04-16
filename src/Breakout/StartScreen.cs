@@ -9,7 +9,7 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
 {
     private readonly TextSprite _title = new() { Text = "BREAKOUT", Size = 72f, Color = SKColors.White, Align = TextAlign.Center };
     private readonly TextSprite _startPrompt = new() { Text = "Click or Tap to Start", Size = 28f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly TextSprite _instructions = new() { Text = "Move mouse / finger to control the paddle", Size = 18f, Color = DimColor, Align = TextAlign.Center };
+    private readonly TextSprite _instructions = new() { Text = "Move mouse / finger / arrow keys to control the paddle", Size = 18f, Color = DimColor, Align = TextAlign.Center };
 
     private readonly List<Brick> _bricks = [];
 

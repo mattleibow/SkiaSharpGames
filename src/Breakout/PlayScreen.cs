@@ -22,6 +22,9 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     private CountdownTimer _strongBallTimer;
     private CountdownTimer _bigPaddleTimer;
 
+    // ── Keyboard tracking ──────────────────────────────────────────────────
+    private bool _leftHeld, _rightHeld;
+
     // ── Entity groups (parenting) ─────────────────────────────────────────
     private readonly Entity _bricks = new();
     private readonly Entity _powerUps = new();
@@ -96,10 +99,36 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
         _paddle.X = Math.Clamp(x, halfW, GameWidth - halfW);
     }
 
+    public override void OnKeyDown(string key)
+    {
+        switch (key)
+        {
+            case "ArrowLeft": _leftHeld = true; break;
+            case "ArrowRight": _rightHeld = true; break;
+        }
+    }
+
+    public override void OnKeyUp(string key)
+    {
+        switch (key)
+        {
+            case "ArrowLeft": _leftHeld = false; break;
+            case "ArrowRight": _rightHeld = false; break;
+        }
+    }
+
     // ── Update ────────────────────────────────────────────────────────────
 
     public override void Update(float deltaTime)
     {
+        // Keyboard-driven paddle movement
+        if (_leftHeld ^ _rightHeld)
+        {
+            float direction = _leftHeld ? -1f : 1f;
+            float halfW = _paddle.Width / 2f;
+            _paddle.X = Math.Clamp(_paddle.X + direction * PaddleSpeed * deltaTime, halfW, GameWidth - halfW);
+        }
+
         // Entity.Update handles rigidbody step + sprite update via OnUpdate
         _paddle.Update(deltaTime);
         _ball.Update(deltaTime);

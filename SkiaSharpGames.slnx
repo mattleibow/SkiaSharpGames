@@ -33,6 +33,9 @@
   <Folder Name="/src/Snake/">
     <Project Path="src/Snake/SkiaSharpGames.Snake.csproj" />
   </Folder>
+  <Folder Name="/src/Asteroids/">
+    <Project Path="src/Asteroids/SkiaSharpGames.Asteroids.csproj" />
+  </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/GameEngine.Tests/">
     <Project Path="tests/GameEngine.Tests/SkiaSharpGames.GameEngine.Tests.csproj" />

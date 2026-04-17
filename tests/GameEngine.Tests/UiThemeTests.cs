@@ -32,22 +32,26 @@ public class UiThemeTests
     }
 
     [Fact]
-    public void SliderValueFromX_ClampsToRange()
-    {
-        var rect = SKRect.Create(10f, 10f, 100f, 20f);
-
-        Assert.Equal(0f, UiControls.SliderValueFromX(rect, -100f));
-        Assert.Equal(0.5f, UiControls.SliderValueFromX(rect, 60f), 3);
-        Assert.Equal(1f, UiControls.SliderValueFromX(rect, 1000f));
-    }
-
-    [Fact]
     public void ClampJoystick_ClampsToRadius()
     {
-        var clamped = UiControls.ClampJoystick(new SKPoint(30f, 40f), 10f);
+        var clamped = UiJoystick.ClampJoystick(new SKPoint(30f, 40f), 10f);
         float length = MathF.Sqrt(clamped.X * clamped.X + clamped.Y * clamped.Y);
 
         Assert.Equal(10f, length, 3);
+    }
+
+    [Fact]
+    public void Theme_Button_IsUiButtonAppearance()
+    {
+        Assert.IsType<UiButtonAppearance>(UiThemes.Simple.Button);
+        Assert.IsType<UiButtonAppearance>(UiThemes.BoldCute.Button);
+        Assert.IsType<UiButtonAppearance>(UiThemes.Retro.Button);
+    }
+
+    [Fact]
+    public void Theme_HasPointerAppearance()
+    {
+        Assert.IsType<UiPointerAppearance>(UiThemes.Simple.Pointer);
     }
 
     private static Game BuildBareGame()

@@ -61,26 +61,16 @@ public class UiButton : Entity
     public float FontSize { get; set; } = 18f;
 
     /// <summary>
-    /// Optional per-button style override. When null, uses the theme's default button style.
+    /// Optional per-button appearance override. When null, uses the theme's default.
     /// </summary>
-    public UiButtonStyle? StyleOverride { get; set; }
+    public UiAppearance<UiButton>? Appearance { get; set; }
 
-    /// <summary>
-    /// Optional custom draw callback. When set, replaces the default button rendering entirely.
-    /// Parameters: canvas, local rect, effective style, isPressed, isEnabled.
-    /// </summary>
-    public Action<SKCanvas, SKRect, UiButtonStyle, bool, bool>? CustomDraw { get; set; }
-
-    /// <summary>Returns the active button style (override or theme default).</summary>
-    public UiButtonStyle EffectiveStyle => StyleOverride ?? ThemeProvider.Theme.Button;
-
-    internal SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
+    /// <summary>The local-space bounding rectangle centred at the origin.</summary>
+    public SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
 
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        UiControls.DrawButton(canvas, LocalRect, Label,
-            EffectiveStyle, IsPressed, IsEnabled,
-            FontSize, CustomDraw);
+        (Appearance ?? ThemeProvider.Theme.Button).Draw(canvas, this);
     }
 }

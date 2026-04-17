@@ -53,24 +53,16 @@ public class UiSwitch : Entity
     public bool IsOn { get; set; }
 
     /// <summary>
-    /// Optional per-switch style override. When null, uses the theme's default switch style.
+    /// Optional per-switch appearance override. When null, uses the theme's default.
     /// </summary>
-    public UiSwitchStyle? StyleOverride { get; set; }
+    public UiAppearance<UiSwitch>? Appearance { get; set; }
 
-    /// <summary>
-    /// Optional custom draw callback. When set, replaces the default rendering entirely.
-    /// </summary>
-    public Action<SKCanvas, SKRect, UiSwitchStyle, bool, UiSwitchVariant>? CustomDraw { get; set; }
-
-    /// <summary>Returns the active switch style (override or theme default).</summary>
-    public UiSwitchStyle EffectiveStyle => StyleOverride ?? ThemeProvider.Theme.Switch;
-
-    internal SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
+    /// <summary>The local-space bounding rectangle centred at the origin.</summary>
+    public SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
 
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        UiControls.DrawSwitch(canvas, LocalRect, IsOn,
-            EffectiveStyle, Variant, CustomDraw);
+        (Appearance ?? ThemeProvider.Theme.Switch).Draw(canvas, this);
     }
 }

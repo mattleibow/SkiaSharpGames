@@ -71,17 +71,22 @@ public class UiJoystick : Entity
     }
 
     /// <summary>
-    /// Optional per-joystick style override. When null, uses the theme's default joystick style.
+    /// Optional per-joystick appearance override. When null, uses the theme's default.
     /// </summary>
-    public UiJoystickStyle? StyleOverride { get; set; }
+    public UiAppearance<UiJoystick>? Appearance { get; set; }
 
     /// <summary>
-    /// Optional custom draw callback. When set, replaces the default rendering entirely.
+    /// Clamps a joystick delta vector to the given maximum radius.
     /// </summary>
-    public Action<SKCanvas, SKPoint, float, SKPoint, UiJoystickStyle>? CustomDraw { get; set; }
+    public static SKPoint ClampJoystick(SKPoint delta, float maxRadius)
+    {
+        float length = MathF.Sqrt(delta.X * delta.X + delta.Y * delta.Y);
+        if (length <= maxRadius || length <= 0.0001f)
+            return delta;
 
-    /// <summary>Returns the active joystick style (override or theme default).</summary>
-    public UiJoystickStyle EffectiveStyle => StyleOverride ?? ThemeProvider.Theme.Joystick;
+        float scale = maxRadius / length;
+        return new SKPoint(delta.X * scale, delta.Y * scale);
+    }
 
     /// <summary>
     /// Updates <see cref="Delta"/> based on a world-space pointer position.
@@ -91,7 +96,7 @@ public class UiJoystick : Entity
     /// <param name="worldY">The pointer's Y position in world space.</param>
     public void UpdateFromPointer(float worldX, float worldY)
     {
-        Delta = UiControls.ClampJoystick(
+        Delta = ClampJoystick(
             new SKPoint(worldX - WorldX, worldY - WorldY),
             Radius * MaxRadiusFraction);
     }
@@ -102,7 +107,6 @@ public class UiJoystick : Entity
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        UiControls.DrawJoystick(canvas, SKPoint.Empty, Radius,
-            Delta, EffectiveStyle, CustomDraw);
+        (Appearance ?? ThemeProvider.Theme.Joystick).Draw(canvas, this);
     }
 }

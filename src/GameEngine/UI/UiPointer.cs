@@ -36,51 +36,35 @@ public enum UiPointerStyle
 /// </summary>
 public class UiPointer : Entity
 {
-    private static readonly SKPaint StrokeDark = new()
-    {
-        IsAntialias = true,
-        Style = SKPaintStyle.Stroke,
-        StrokeWidth = 2.5f,
-        Color = new SKColor(0, 0, 0, 180)
-    };
-
-    private static readonly SKPaint StrokeLight = new()
-    {
-        IsAntialias = true,
-        Style = SKPaintStyle.Stroke,
-        StrokeWidth = 1.5f,
-        Color = SKColors.White
-    };
-
-    private static readonly SKPaint FillLight = new()
-    {
-        IsAntialias = true,
-        Style = SKPaintStyle.Fill,
-        Color = SKColors.White
-    };
-
-    private static readonly SKPaint FillDark = new()
-    {
-        IsAntialias = true,
-        Style = SKPaintStyle.Fill,
-        Color = new SKColor(0, 0, 0, 180)
-    };
-
     /// <summary>
     /// Creates a new pointer entity with a point collider.
     /// Initially invisible — becomes visible on first pointer event.
     /// </summary>
-    public UiPointer()
+    /// <param name="themeProvider">
+    /// Optional theme provider for resolving the pointer appearance.
+    /// When null, falls back to <see cref="UiPointerAppearance.Default"/>.
+    /// </param>
+    public UiPointer(IUiThemeProvider? themeProvider = null)
     {
+        ThemeProvider = themeProvider;
         Collider = new CircleCollider { Radius = 1f };
         Visible = false;
     }
+
+    /// <summary>The theme provider used for rendering (may be null).</summary>
+    public IUiThemeProvider? ThemeProvider { get; }
 
     /// <summary>Whether the pointer is currently pressed/down.</summary>
     public bool IsDown { get; set; }
 
     /// <summary>Visual style of the cursor.</summary>
     public UiPointerStyle Style { get; set; } = UiPointerStyle.Crosshair;
+
+    /// <summary>
+    /// Optional per-pointer appearance override. When null, uses the theme's default or
+    /// <see cref="UiPointerAppearance.Default"/>.
+    /// </summary>
+    public UiAppearance<UiPointer>? Appearance { get; set; }
 
     /// <summary>
     /// Finds the first child of <paramref name="container"/> that the pointer overlaps.
@@ -98,49 +82,6 @@ public class UiPointer : Entity
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        switch (Style)
-        {
-            case UiPointerStyle.Crosshair:
-                DrawCrosshair(canvas);
-                break;
-            case UiPointerStyle.Dot:
-                DrawDot(canvas);
-                break;
-            case UiPointerStyle.Ring:
-                DrawRing(canvas);
-                break;
-        }
-    }
-
-    private void DrawCrosshair(SKCanvas canvas)
-    {
-        float size = IsDown ? 6f : 8f;
-        float gap = IsDown ? 1.5f : 2.5f;
-
-        // Dark outline pass
-        canvas.DrawLine(-size, 0, -gap, 0, StrokeDark);
-        canvas.DrawLine(gap, 0, size, 0, StrokeDark);
-        canvas.DrawLine(0, -size, 0, -gap, StrokeDark);
-        canvas.DrawLine(0, gap, 0, size, StrokeDark);
-
-        // Light inner pass
-        canvas.DrawLine(-size, 0, -gap, 0, StrokeLight);
-        canvas.DrawLine(gap, 0, size, 0, StrokeLight);
-        canvas.DrawLine(0, -size, 0, -gap, StrokeLight);
-        canvas.DrawLine(0, gap, 0, size, StrokeLight);
-    }
-
-    private void DrawDot(SKCanvas canvas)
-    {
-        float r = IsDown ? 2f : 3f;
-        canvas.DrawCircle(0, 0, r + 1f, FillDark);
-        canvas.DrawCircle(0, 0, r, FillLight);
-    }
-
-    private void DrawRing(SKCanvas canvas)
-    {
-        float r = IsDown ? 4f : 6f;
-        canvas.DrawCircle(0, 0, r, StrokeDark);
-        canvas.DrawCircle(0, 0, r, StrokeLight);
+        (Appearance ?? ThemeProvider?.Theme.Pointer ?? UiPointerAppearance.Default).Draw(canvas, this);
     }
 }

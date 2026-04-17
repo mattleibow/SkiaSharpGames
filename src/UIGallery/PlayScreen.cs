@@ -142,7 +142,7 @@ internal sealed class PlayScreen : GameScreen
     public override void Draw(SKCanvas canvas, int width, int height)
     {
         var theme = _themes.Theme;
-        using var backgroundPaint = new SKPaint { IsAntialias = true, Color = theme.Button.FillColor.WithAlpha(35) };
+        using var backgroundPaint = new SKPaint { IsAntialias = true, Color = ((UiButtonAppearance)theme.Button).FillColor.WithAlpha(35) };
         using var textPaint = new SKPaint { IsAntialias = true, Color = SKColors.White };
         using var headerFont = new SKFont(SKTypeface.Default, 26f);
         using var labelFont = new SKFont(SKTypeface.Default, 18f);
@@ -172,8 +172,8 @@ internal sealed class PlayScreen : GameScreen
 
     private void ConfigureOverrides()
     {
-        // Override button uses a custom green style
-        _overrideButton.StyleOverride = _themes.Theme.Button with
+        // Override button uses a custom green appearance
+        _overrideButton.Appearance = UiButtonAppearance.Default with
         {
             FillColor = new SKColor(0x39, 0xC6, 0x91),
             PressedFillColor = new SKColor(0x1F, 0x8A, 0x64),
@@ -183,17 +183,8 @@ internal sealed class PlayScreen : GameScreen
             BorderColor = SKColors.White,
         };
 
-        // Custom button uses a completely custom draw callback
-        _customButton.CustomDraw = static (c, rect, style, _, _) =>
-        {
-            using var fill = new SKPaint { IsAntialias = true, Color = new SKColor(0x4A, 0x2E, 0xFF) };
-            using var ring = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, Color = SKColors.White, StrokeWidth = 3f };
-            c.DrawRoundRect(rect, 10f, 10f, fill);
-            c.DrawRoundRect(rect, 10f, 10f, ring);
-            using var labelPaint = new SKPaint { IsAntialias = true, Color = style.TextColor };
-            using var labelFont = new SKFont(SKTypeface.Default, 16f);
-            c.DrawText("Custom canvas draw", rect.MidX, rect.MidY + 6f, SKTextAlign.Center, labelFont, labelPaint);
-        };
+        // Custom button uses a completely custom appearance subclass
+        _customButton.Appearance = new CustomPurpleAppearance();
     }
 
     private void UpdateThemeButtonStyles()
@@ -206,8 +197,8 @@ internal sealed class PlayScreen : GameScreen
 
     private static void UpdateThemeButtonStyle(UiButton button, UiTheme theme, bool selected)
     {
-        button.StyleOverride = selected
-            ? theme.Button with { BorderColor = SKColors.White, BorderWidth = theme.Button.BorderWidth + 1f }
+        button.Appearance = selected
+            ? (UiButtonAppearance)theme.Button with { BorderColor = SKColors.White, BorderWidth = ((UiButtonAppearance)theme.Button).BorderWidth + 1f }
             : theme.Button;
         button.IsPressed = selected;
     }
@@ -222,5 +213,21 @@ internal sealed class PlayScreen : GameScreen
     {
         textPaint.Color = color;
         canvas.DrawText(text, x, y, SKTextAlign.Left, font, textPaint);
+    }
+
+    /// <summary>Custom appearance that draws a purple button with a white ring.</summary>
+    private sealed record CustomPurpleAppearance : UiAppearance<UiButton>
+    {
+        public override void Draw(SKCanvas canvas, UiButton button)
+        {
+            var rect = button.LocalRect;
+            using var fill = new SKPaint { IsAntialias = true, Color = new SKColor(0x4A, 0x2E, 0xFF) };
+            using var ring = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, Color = SKColors.White, StrokeWidth = 3f };
+            canvas.DrawRoundRect(rect, 10f, 10f, fill);
+            canvas.DrawRoundRect(rect, 10f, 10f, ring);
+            using var labelPaint = new SKPaint { IsAntialias = true, Color = SKColors.White };
+            using var labelFont = new SKFont(SKTypeface.Default, 16f);
+            canvas.DrawText("Custom canvas draw", rect.MidX, rect.MidY + 6f, SKTextAlign.Center, labelFont, labelPaint);
+        }
     }
 }

@@ -49,19 +49,12 @@ public class UiSlider : Entity
     public float Value { get; set; } = 0.5f;
 
     /// <summary>
-    /// Optional per-slider style override. When null, uses the theme's default slider style.
+    /// Optional per-slider appearance override. When null, uses the theme's default.
     /// </summary>
-    public UiSliderStyle? StyleOverride { get; set; }
+    public UiAppearance<UiSlider>? Appearance { get; set; }
 
-    /// <summary>
-    /// Optional custom draw callback. When set, replaces the default rendering entirely.
-    /// </summary>
-    public Action<SKCanvas, SKRect, UiSliderStyle, float>? CustomDraw { get; set; }
-
-    /// <summary>Returns the active slider style (override or theme default).</summary>
-    public UiSliderStyle EffectiveStyle => StyleOverride ?? ThemeProvider.Theme.Slider;
-
-    internal SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
+    /// <summary>The local-space bounding rectangle centred at the origin.</summary>
+    public SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
 
     /// <summary>
     /// Updates <see cref="Value"/> based on a world-space pointer X coordinate.
@@ -77,7 +70,6 @@ public class UiSlider : Entity
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        UiControls.DrawSlider(canvas, LocalRect, Value,
-            EffectiveStyle, CustomDraw);
+        (Appearance ?? ThemeProvider.Theme.Slider).Draw(canvas, this);
     }
 }

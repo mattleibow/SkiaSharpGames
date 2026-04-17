@@ -5,51 +5,12 @@ namespace SkiaSharpGames.GameEngine.UI;
 public sealed class UiTheme
 {
     public required string Name { get; init; }
-    public UiButtonStyle Button { get; init; } = UiButtonStyle.Default;
-    public UiCheckboxStyle Checkbox { get; init; } = UiCheckboxStyle.Default;
-    public UiSwitchStyle Switch { get; init; } = UiSwitchStyle.Default;
-    public UiSliderStyle Slider { get; init; } = UiSliderStyle.Default;
-    public UiJoystickStyle Joystick { get; init; } = UiJoystickStyle.Default;
-}
-
-public readonly record struct UiButtonStyle(
-    SKColor FillColor,
-    SKColor PressedFillColor,
-    SKColor TextColor,
-    SKColor BorderColor,
-    SKColor BevelLightColor,
-    SKColor BevelShadowColor,
-    float CornerRadius,
-    float BorderWidth,
-    float BevelSize,
-    byte DisabledAlpha)
-{
-    public static UiButtonStyle Default => new(
-        FillColor: new SKColor(0x36, 0x44, 0x56),
-        PressedFillColor: new SKColor(0x22, 0x2D, 0x3D),
-        TextColor: SKColors.White,
-        BorderColor: new SKColor(0x95, 0xA5, 0xB5),
-        BevelLightColor: new SKColor(0x95, 0xB6, 0xD5),
-        BevelShadowColor: new SKColor(0x10, 0x18, 0x23),
-        CornerRadius: 10f,
-        BorderWidth: 2f,
-        BevelSize: 2f,
-        DisabledAlpha: 110);
-}
-
-public readonly record struct UiCheckboxStyle(
-    SKColor FillColor,
-    SKColor BorderColor,
-    SKColor CheckColor,
-    float CornerRadius,
-    float BorderWidth)
-{
-    public static UiCheckboxStyle Default => new(
-        FillColor: new SKColor(0x22, 0x2A, 0x35),
-        BorderColor: new SKColor(0x8D, 0xA2, 0xB8),
-        CheckColor: new SKColor(0x61, 0xD0, 0x7D),
-        CornerRadius: 6f,
-        BorderWidth: 2f);
+    public UiAppearance<UiButton> Button { get; init; } = UiButtonAppearance.Default;
+    public UiAppearance<UiCheckbox> Checkbox { get; init; } = UiCheckboxAppearance.Default;
+    public UiAppearance<UiSwitch> Switch { get; init; } = UiSwitchAppearance.Default;
+    public UiAppearance<UiSlider> Slider { get; init; } = UiSliderAppearance.Default;
+    public UiAppearance<UiJoystick> Joystick { get; init; } = UiJoystickAppearance.Default;
+    public UiAppearance<UiPointer> Pointer { get; init; } = UiPointerAppearance.Default;
 }
 
 public enum UiSwitchVariant
@@ -58,75 +19,23 @@ public enum UiSwitchVariant
     ToggleButton,
 }
 
-public readonly record struct UiSwitchStyle(
-    SKColor TrackOffColor,
-    SKColor TrackOnColor,
-    SKColor KnobColor,
-    SKColor BorderColor,
-    SKColor TextColor,
-    float CornerRadius,
-    float BorderWidth)
-{
-    public static UiSwitchStyle Default => new(
-        TrackOffColor: new SKColor(0x44, 0x4F, 0x5E),
-        TrackOnColor: new SKColor(0x46, 0xA4, 0xF6),
-        KnobColor: SKColors.White,
-        BorderColor: new SKColor(0x15, 0x1D, 0x27),
-        TextColor: SKColors.White,
-        CornerRadius: 14f,
-        BorderWidth: 2f);
-}
-
-public readonly record struct UiSliderStyle(
-    SKColor TrackColor,
-    SKColor FillColor,
-    SKColor KnobColor,
-    SKColor BorderColor,
-    float TrackHeight,
-    float KnobRadius,
-    float BorderWidth)
-{
-    public static UiSliderStyle Default => new(
-        TrackColor: new SKColor(0x35, 0x3F, 0x4E),
-        FillColor: new SKColor(0x5A, 0xB5, 0xFF),
-        KnobColor: SKColors.White,
-        BorderColor: new SKColor(0x17, 0x1D, 0x27),
-        TrackHeight: 10f,
-        KnobRadius: 11f,
-        BorderWidth: 2f);
-}
-
-public readonly record struct UiJoystickStyle(
-    SKColor BaseColor,
-    SKColor BaseBorderColor,
-    SKColor KnobColor,
-    SKColor KnobBorderColor,
-    float BorderWidth)
-{
-    public static UiJoystickStyle Default => new(
-        BaseColor: new SKColor(0x2A, 0x34, 0x44, 170),
-        BaseBorderColor: new SKColor(0xA0, 0xB6, 0xCC, 200),
-        KnobColor: new SKColor(0xE8, 0xF2, 0xFF, 230),
-        KnobBorderColor: new SKColor(0x10, 0x16, 0x20),
-        BorderWidth: 2f);
-}
-
 public static class UiThemes
 {
     public static UiTheme Simple { get; } = new()
     {
         Name = "Simple",
-        Button = UiButtonStyle.Default,
-        Checkbox = UiCheckboxStyle.Default,
-        Switch = UiSwitchStyle.Default,
-        Slider = UiSliderStyle.Default,
-        Joystick = UiJoystickStyle.Default,
+        Button = UiButtonAppearance.Default,
+        Checkbox = UiCheckboxAppearance.Default,
+        Switch = UiSwitchAppearance.Default,
+        Slider = UiSliderAppearance.Default,
+        Joystick = UiJoystickAppearance.Default,
+        Pointer = UiPointerAppearance.Default,
     };
 
     public static UiTheme BoldCute { get; } = new()
     {
         Name = "Bold/Cute",
-        Button = UiButtonStyle.Default with
+        Button = UiButtonAppearance.Default with
         {
             FillColor = new SKColor(0xFF, 0x77, 0xB4),
             PressedFillColor = new SKColor(0xE1, 0x4B, 0x95),
@@ -137,14 +46,14 @@ public static class UiThemes
             BorderWidth = 3f,
             BevelSize = 3f,
         },
-        Checkbox = UiCheckboxStyle.Default with
+        Checkbox = UiCheckboxAppearance.Default with
         {
             FillColor = new SKColor(0x4D, 0x2F, 0x5B),
             BorderColor = new SKColor(0xFF, 0xB7, 0xDF),
             CheckColor = new SKColor(0x8D, 0xFF, 0xB0),
             CornerRadius = 8f,
         },
-        Switch = UiSwitchStyle.Default with
+        Switch = UiSwitchAppearance.Default with
         {
             TrackOffColor = new SKColor(0x6A, 0x43, 0x7F),
             TrackOnColor = new SKColor(0xFF, 0x92, 0xCF),
@@ -153,7 +62,7 @@ public static class UiThemes
             CornerRadius = 18f,
             BorderWidth = 3f,
         },
-        Slider = UiSliderStyle.Default with
+        Slider = UiSliderAppearance.Default with
         {
             TrackColor = new SKColor(0x6A, 0x43, 0x7F),
             FillColor = new SKColor(0xFF, 0xA2, 0xD6),
@@ -162,7 +71,7 @@ public static class UiThemes
             KnobRadius = 13f,
             BorderWidth = 3f,
         },
-        Joystick = UiJoystickStyle.Default with
+        Joystick = UiJoystickAppearance.Default with
         {
             BaseColor = new SKColor(0x69, 0x3A, 0x80, 180),
             BaseBorderColor = new SKColor(0xFF, 0xD8, 0xEC, 220),
@@ -175,7 +84,7 @@ public static class UiThemes
     public static UiTheme Retro { get; } = new()
     {
         Name = "Retro",
-        Button = UiButtonStyle.Default with
+        Button = UiButtonAppearance.Default with
         {
             FillColor = new SKColor(0x35, 0x4A, 0x3A),
             PressedFillColor = new SKColor(0x28, 0x37, 0x2B),
@@ -187,14 +96,14 @@ public static class UiThemes
             BorderWidth = 2f,
             BevelSize = 2f,
         },
-        Checkbox = UiCheckboxStyle.Default with
+        Checkbox = UiCheckboxAppearance.Default with
         {
             FillColor = new SKColor(0x1F, 0x2B, 0x20),
             BorderColor = new SKColor(0xD4, 0xB0, 0x65),
             CheckColor = new SKColor(0xD2, 0xF8, 0x6D),
             CornerRadius = 2f,
         },
-        Switch = UiSwitchStyle.Default with
+        Switch = UiSwitchAppearance.Default with
         {
             TrackOffColor = new SKColor(0x2A, 0x35, 0x2B),
             TrackOnColor = new SKColor(0x5F, 0x86, 0x48),
@@ -203,7 +112,7 @@ public static class UiThemes
             TextColor = new SKColor(0xE8, 0xD6, 0x9C),
             CornerRadius = 4f,
         },
-        Slider = UiSliderStyle.Default with
+        Slider = UiSliderAppearance.Default with
         {
             TrackColor = new SKColor(0x2B, 0x3A, 0x2D),
             FillColor = new SKColor(0xA7, 0xD1, 0x5B),
@@ -213,7 +122,7 @@ public static class UiThemes
             KnobRadius = 9f,
             BorderWidth = 2f,
         },
-        Joystick = UiJoystickStyle.Default with
+        Joystick = UiJoystickAppearance.Default with
         {
             BaseColor = new SKColor(0x1E, 0x2A, 0x20, 175),
             BaseBorderColor = new SKColor(0xD4, 0xB0, 0x65, 210),

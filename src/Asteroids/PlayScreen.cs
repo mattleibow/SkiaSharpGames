@@ -439,16 +439,16 @@ internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator co
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        var buttonStyle = themes.Theme.Button with
+        var appearance = (UiButtonAppearance)themes.Theme.Button with
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,
             BevelSize = 1.5f,
         };
-        UiControls.DrawButton(canvas, LeftBtnRect, "<", buttonStyle, _touchLeft, fontSize: 20f);
-        UiControls.DrawButton(canvas, ThrustBtnRect, "^", buttonStyle, _touchThrust, fontSize: 20f);
-        UiControls.DrawButton(canvas, FireBtnRect, "FIRE", buttonStyle, _touchFire, fontSize: 20f);
-        UiControls.DrawButton(canvas, RightBtnRect, ">", buttonStyle, _touchRight, fontSize: 20f);
+        appearance.DrawDirect(canvas, LeftBtnRect, "<", _touchLeft, fontSize: 20f);
+        appearance.DrawDirect(canvas, ThrustBtnRect, "^", _touchThrust, fontSize: 20f);
+        appearance.DrawDirect(canvas, FireBtnRect, "FIRE", _touchFire, fontSize: 20f);
+        appearance.DrawDirect(canvas, RightBtnRect, ">", _touchRight, fontSize: 20f);
     }
 
     private static void ClearChildren(Entity parent)

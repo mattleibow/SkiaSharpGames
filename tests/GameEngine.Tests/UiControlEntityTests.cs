@@ -26,24 +26,24 @@ public class UiControlEntityTests
         Assert.False(button.IsPressed);
         Assert.True(button.IsEnabled);
         Assert.Equal(18f, button.FontSize);
-        Assert.Null(button.StyleOverride);
-        Assert.Null(button.CustomDraw);
+        Assert.Null(button.Appearance);
     }
 
     [Fact]
-    public void UiButton_EffectiveStyle_UsesThemeByDefault()
+    public void UiButton_Appearance_UsesThemeByDefault()
     {
         var button = new UiButton(100f, 40f, ThemeProvider);
-        Assert.Equal(UiThemes.Simple.Button, button.EffectiveStyle);
+        Assert.Null(button.Appearance);
+        // OnDraw falls back to ThemeProvider.Theme.Button
     }
 
     [Fact]
-    public void UiButton_EffectiveStyle_UsesOverrideWhenSet()
+    public void UiButton_Appearance_UsesOverrideWhenSet()
     {
         var button = new UiButton(100f, 40f, ThemeProvider);
-        var custom = UiThemes.BoldCute.Button;
-        button.StyleOverride = custom;
-        Assert.Equal(custom, button.EffectiveStyle);
+        var custom = UiButtonAppearance.Default with { CornerRadius = 99f };
+        button.Appearance = custom;
+        Assert.Same(custom, button.Appearance);
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class UiControlEntityTests
     }
 
     [Fact]
-    public void UiButton_CustomDraw_IsInvoked()
+    public void UiButton_CustomAppearance_IsInvoked()
     {
         using var bitmap = new SKBitmap(200, 100);
         using var canvas = new SKCanvas(bitmap);
@@ -77,7 +77,7 @@ public class UiControlEntityTests
         bool called = false;
         var button = new UiButton(100f, 40f, ThemeProvider)
         {
-            CustomDraw = (_, _, _, _, _) => called = true
+            Appearance = new DelegateButtonAppearance(() => called = true)
         };
         button.Draw(canvas);
         Assert.True(called);
@@ -115,7 +115,7 @@ public class UiControlEntityTests
     {
         var cb = new UiCheckbox(30f, 30f, ThemeProvider);
         Assert.False(cb.IsChecked);
-        Assert.Null(cb.StyleOverride);
+        Assert.Null(cb.Appearance);
     }
 
     [Fact]
@@ -129,12 +129,12 @@ public class UiControlEntityTests
     }
 
     [Fact]
-    public void UiCheckbox_EffectiveStyle_UsesOverrideWhenSet()
+    public void UiCheckbox_Appearance_UsesOverrideWhenSet()
     {
         var cb = new UiCheckbox(30f, 30f, ThemeProvider);
-        var custom = UiThemes.Retro.Checkbox;
-        cb.StyleOverride = custom;
-        Assert.Equal(custom, cb.EffectiveStyle);
+        var custom = UiCheckboxAppearance.Default with { CornerRadius = 99f };
+        cb.Appearance = custom;
+        Assert.Same(custom, cb.Appearance);
     }
 
     [Fact]
@@ -145,21 +145,6 @@ public class UiControlEntityTests
 
         var cb = new UiCheckbox(30f, 30f, ThemeProvider) { IsChecked = true, X = 50f, Y = 50f };
         cb.Draw(canvas);
-    }
-
-    [Fact]
-    public void UiCheckbox_CustomDraw_IsInvoked()
-    {
-        using var bitmap = new SKBitmap(100, 100);
-        using var canvas = new SKCanvas(bitmap);
-
-        bool called = false;
-        var cb = new UiCheckbox(30f, 30f, ThemeProvider)
-        {
-            CustomDraw = (_, _, _, _) => called = true
-        };
-        cb.Draw(canvas);
-        Assert.True(called);
     }
 
     // ── UiSwitch ──────────────────────────────────────────────────────
@@ -187,12 +172,12 @@ public class UiControlEntityTests
     }
 
     [Fact]
-    public void UiSwitch_EffectiveStyle_UsesOverrideWhenSet()
+    public void UiSwitch_Appearance_UsesOverrideWhenSet()
     {
         var sw = new UiSwitch(100f, 40f, ThemeProvider);
-        var custom = UiThemes.BoldCute.Switch;
-        sw.StyleOverride = custom;
-        Assert.Equal(custom, sw.EffectiveStyle);
+        var custom = UiSwitchAppearance.Default with { CornerRadius = 99f };
+        sw.Appearance = custom;
+        Assert.Same(custom, sw.Appearance);
     }
 
     [Fact]
@@ -206,21 +191,6 @@ public class UiControlEntityTests
 
         var toggle = new UiSwitch(100f, 40f, ThemeProvider, UiSwitchVariant.ToggleButton) { IsOn = false };
         toggle.Draw(canvas);
-    }
-
-    [Fact]
-    public void UiSwitch_CustomDraw_IsInvoked()
-    {
-        using var bitmap = new SKBitmap(200, 100);
-        using var canvas = new SKCanvas(bitmap);
-
-        bool called = false;
-        var sw = new UiSwitch(100f, 40f, ThemeProvider)
-        {
-            CustomDraw = (_, _, _, _, _) => called = true
-        };
-        sw.Draw(canvas);
-        Assert.True(called);
     }
 
     // ── UiSlider ──────────────────────────────────────────────────────
@@ -264,12 +234,12 @@ public class UiControlEntityTests
     }
 
     [Fact]
-    public void UiSlider_EffectiveStyle_UsesOverrideWhenSet()
+    public void UiSlider_Appearance_UsesOverrideWhenSet()
     {
         var slider = new UiSlider(200f, 20f, ThemeProvider);
-        var custom = UiThemes.Retro.Slider;
-        slider.StyleOverride = custom;
-        Assert.Equal(custom, slider.EffectiveStyle);
+        var custom = UiSliderAppearance.Default with { TrackHeight = 99f };
+        slider.Appearance = custom;
+        Assert.Same(custom, slider.Appearance);
     }
 
     [Fact]
@@ -280,21 +250,6 @@ public class UiControlEntityTests
 
         var slider = new UiSlider(200f, 20f, ThemeProvider) { Value = 0.7f };
         slider.Draw(canvas);
-    }
-
-    [Fact]
-    public void UiSlider_CustomDraw_IsInvoked()
-    {
-        using var bitmap = new SKBitmap(300, 100);
-        using var canvas = new SKCanvas(bitmap);
-
-        bool called = false;
-        var slider = new UiSlider(200f, 20f, ThemeProvider)
-        {
-            CustomDraw = (_, _, _, _) => called = true
-        };
-        slider.Draw(canvas);
-        Assert.True(called);
     }
 
     // ── UiJoystick ────────────────────────────────────────────────────
@@ -360,12 +315,12 @@ public class UiControlEntityTests
     }
 
     [Fact]
-    public void UiJoystick_EffectiveStyle_UsesOverrideWhenSet()
+    public void UiJoystick_Appearance_UsesOverrideWhenSet()
     {
         var js = new UiJoystick(80f, ThemeProvider);
-        var custom = UiThemes.BoldCute.Joystick;
-        js.StyleOverride = custom;
-        Assert.Equal(custom, js.EffectiveStyle);
+        var custom = UiJoystickAppearance.Default with { BorderWidth = 99f };
+        js.Appearance = custom;
+        Assert.Same(custom, js.Appearance);
     }
 
     [Fact]
@@ -377,21 +332,6 @@ public class UiControlEntityTests
         var js = new UiJoystick(80f, ThemeProvider) { X = 150f, Y = 150f };
         js.Delta = new SKPoint(10f, -5f);
         js.Draw(canvas);
-    }
-
-    [Fact]
-    public void UiJoystick_CustomDraw_IsInvoked()
-    {
-        using var bitmap = new SKBitmap(300, 300);
-        using var canvas = new SKCanvas(bitmap);
-
-        bool called = false;
-        var js = new UiJoystick(80f, ThemeProvider)
-        {
-            CustomDraw = (_, _, _, _, _) => called = true
-        };
-        js.Draw(canvas);
-        Assert.True(called);
     }
 
     // ── Entity group collision ────────────────────────────────────────
@@ -452,5 +392,14 @@ public class UiControlEntityTests
         group.AddChild(new UiJoystick(60f, ThemeProvider) { X = 400f, Y = 300f });
 
         group.Draw(canvas); // Should render all controls without error
+    }
+
+    /// <summary>Test helper: a button appearance that calls a delegate on draw.</summary>
+    private sealed record DelegateButtonAppearance(Action OnDrawCalled) : UiAppearance<UiButton>
+    {
+        public override void Draw(SKCanvas canvas, UiButton entity)
+        {
+            OnDrawCalled();
+        }
     }
 }

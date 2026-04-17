@@ -478,15 +478,15 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        var buttonStyle = themes.Theme.Button with
+        var appearance = (UiButtonAppearance)themes.Theme.Button with
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,
             BevelSize = 1.5f,
         };
-        UiControls.DrawButton(canvas, LeftBtnRect, "<", buttonStyle, _touchLeft, fontSize: 22f);
-        UiControls.DrawButton(canvas, FireBtnRect, "FIRE", buttonStyle, _touchFire, fontSize: 22f);
-        UiControls.DrawButton(canvas, RightBtnRect, ">", buttonStyle, _touchRight, fontSize: 22f);
+        appearance.DrawDirect(canvas, LeftBtnRect, "<", _touchLeft, fontSize: 22f);
+        appearance.DrawDirect(canvas, FireBtnRect, "FIRE", _touchFire, fontSize: 22f);
+        appearance.DrawDirect(canvas, RightBtnRect, ">", _touchRight, fontSize: 22f);
     }
 
     private static void ClearChildren(Entity parent)

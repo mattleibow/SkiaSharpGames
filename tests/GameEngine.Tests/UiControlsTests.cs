@@ -7,102 +7,80 @@ namespace SkiaSharpGames.GameEngine.Tests;
 public class UiControlsTests
 {
     [Fact]
-    public void HitTest_ReturnsExpected()
-    {
-        var rect = SKRect.Create(10f, 10f, 20f, 20f);
-        Assert.True(UiControls.HitTest(rect, 15f, 15f));
-        Assert.False(UiControls.HitTest(rect, 1f, 1f));
-    }
-
-    [Fact]
-    public void DrawButton_CoversDefaultAndCustomPaths()
+    public void UiButtonAppearance_DrawDirect_CoversDefaultPaths()
     {
         using var bitmap = new SKBitmap(200, 120);
         using var canvas = new SKCanvas(bitmap);
         var rect = SKRect.Create(20f, 20f, 140f, 60f);
 
-        UiControls.DrawButton(canvas, rect, "PLAY", UiThemes.Simple.Button, pressed: false, enabled: true);
-        UiControls.DrawButton(canvas, rect, "PLAY", UiThemes.Simple.Button with { BevelSize = 0f }, pressed: true, enabled: false);
-
-        bool called = false;
-        UiControls.DrawButton(canvas, rect, "PLAY", UiThemes.Simple.Button,
-            customDraw: (_, _, _, _, _) => called = true);
-
-        Assert.True(called);
+        UiButtonAppearance.Default.DrawDirect(canvas, rect, "PLAY", pressed: false, enabled: true);
+        (UiButtonAppearance.Default with { BevelSize = 0f }).DrawDirect(canvas, rect, "PLAY", pressed: true, enabled: false);
     }
 
     [Fact]
-    public void DrawCheckbox_CoversCheckedUncheckedAndCustomPaths()
+    public void UiCheckboxAppearance_Draw_CoversCheckedUnchecked()
     {
         using var bitmap = new SKBitmap(120, 120);
         using var canvas = new SKCanvas(bitmap);
-        var rect = SKRect.Create(20f, 20f, 36f, 36f);
+        var tp = new UiThemeProvider(UiThemes.Simple);
 
-        UiControls.DrawCheckbox(canvas, rect, isChecked: false, UiThemes.Simple.Checkbox);
-        UiControls.DrawCheckbox(canvas, rect, isChecked: true, UiThemes.Simple.Checkbox);
+        var cb = new UiCheckbox(36f, 36f, tp) { X = 50f, Y = 50f };
+        cb.Draw(canvas);
 
-        bool called = false;
-        UiControls.DrawCheckbox(canvas, rect, isChecked: true, UiThemes.Simple.Checkbox,
-            customDraw: (_, _, _, _) => called = true);
-
-        Assert.True(called);
+        cb.IsChecked = true;
+        cb.Draw(canvas);
     }
 
     [Fact]
-    public void DrawSwitch_CoversSlidingToggleAndCustomPaths()
+    public void UiSwitchAppearance_Draw_CoversSlidingAndToggle()
     {
         using var bitmap = new SKBitmap(220, 120);
         using var canvas = new SKCanvas(bitmap);
-        var rect = SKRect.Create(20f, 30f, 120f, 44f);
+        var tp = new UiThemeProvider(UiThemes.Simple);
 
-        UiControls.DrawSwitch(canvas, rect, isOn: false, UiThemes.Simple.Switch, UiSwitchVariant.Sliding);
-        UiControls.DrawSwitch(canvas, rect, isOn: true, UiThemes.Simple.Switch, UiSwitchVariant.Sliding);
-        UiControls.DrawSwitch(canvas, rect, isOn: true, UiThemes.Simple.Switch, UiSwitchVariant.ToggleButton);
+        var sliding = new UiSwitch(120f, 44f, tp) { IsOn = true };
+        sliding.Draw(canvas);
 
-        bool called = false;
-        UiControls.DrawSwitch(canvas, rect, isOn: true, UiThemes.Simple.Switch, UiSwitchVariant.Sliding,
-            customDraw: (_, _, _, _, _) => called = true);
+        sliding.IsOn = false;
+        sliding.Draw(canvas);
 
-        Assert.True(called);
+        var toggle = new UiSwitch(120f, 44f, tp, UiSwitchVariant.ToggleButton) { IsOn = true };
+        toggle.Draw(canvas);
     }
 
     [Fact]
-    public void DrawSlider_CoversDefaultAndCustomPaths()
+    public void UiSliderAppearance_Draw_ClampsAndDraws()
     {
         using var bitmap = new SKBitmap(260, 100);
         using var canvas = new SKCanvas(bitmap);
-        var rect = SKRect.Create(20f, 30f, 200f, 20f);
+        var tp = new UiThemeProvider(UiThemes.Simple);
 
-        UiControls.DrawSlider(canvas, rect, -2f, UiThemes.Simple.Slider);
-        UiControls.DrawSlider(canvas, rect, 2f, UiThemes.Simple.Slider);
+        var slider = new UiSlider(200f, 20f, tp) { Value = -2f };
+        slider.Draw(canvas);
 
-        bool called = false;
-        UiControls.DrawSlider(canvas, rect, 0.5f, UiThemes.Simple.Slider,
-            customDraw: (_, _, _, _) => called = true);
-
-        Assert.True(called);
+        slider.Value = 2f;
+        slider.Draw(canvas);
     }
 
     [Fact]
-    public void DrawJoystick_CoversDefaultAndCustomPaths()
+    public void UiJoystickAppearance_Draw()
     {
         using var bitmap = new SKBitmap(260, 260);
         using var canvas = new SKCanvas(bitmap);
+        var tp = new UiThemeProvider(UiThemes.Simple);
 
-        UiControls.DrawJoystick(canvas, new SKPoint(120f, 120f), 60f, SKPoint.Empty, UiThemes.Simple.Joystick);
+        var js = new UiJoystick(60f, tp) { X = 120f, Y = 120f };
+        js.Draw(canvas);
 
-        bool called = false;
-        UiControls.DrawJoystick(canvas, new SKPoint(120f, 120f), 60f, new SKPoint(5f, -5f), UiThemes.Simple.Joystick,
-            customDraw: (_, _, _, _, _) => called = true);
-
-        Assert.True(called);
+        js.Delta = new SKPoint(5f, -5f);
+        js.Draw(canvas);
     }
 
     [Fact]
     public void ClampJoystick_WhenInsideRadius_ReturnsOriginalDelta()
     {
         var delta = new SKPoint(2f, 3f);
-        var clamped = UiControls.ClampJoystick(delta, 10f);
+        var clamped = UiJoystick.ClampJoystick(delta, 10f);
 
         Assert.Equal(delta, clamped);
     }

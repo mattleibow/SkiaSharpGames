@@ -49,24 +49,16 @@ public class UiCheckbox : Entity
     public bool IsChecked { get; set; }
 
     /// <summary>
-    /// Optional per-checkbox style override. When null, uses the theme's default checkbox style.
+    /// Optional per-checkbox appearance override. When null, uses the theme's default.
     /// </summary>
-    public UiCheckboxStyle? StyleOverride { get; set; }
+    public UiAppearance<UiCheckbox>? Appearance { get; set; }
 
-    /// <summary>
-    /// Optional custom draw callback. When set, replaces the default rendering entirely.
-    /// </summary>
-    public Action<SKCanvas, SKRect, UiCheckboxStyle, bool>? CustomDraw { get; set; }
-
-    /// <summary>Returns the active checkbox style (override or theme default).</summary>
-    public UiCheckboxStyle EffectiveStyle => StyleOverride ?? ThemeProvider.Theme.Checkbox;
-
-    internal SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
+    /// <summary>The local-space bounding rectangle centred at the origin.</summary>
+    public SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
 
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        UiControls.DrawCheckbox(canvas, LocalRect, IsChecked,
-            EffectiveStyle, CustomDraw);
+        (Appearance ?? ThemeProvider.Theme.Checkbox).Draw(canvas, this);
     }
 }

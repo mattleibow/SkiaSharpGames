@@ -5,7 +5,7 @@
      class="game-view"
      tabindex="0"
      @onmousemove="OnMouseMove"
-     @onclick="OnClick"
+     @onmousedown="OnMouseDown"
      @onmouseup="OnMouseUp"
      @ontouchmove="OnTouchMove"
      @ontouchstart="OnTouchStart"
@@ -90,7 +90,7 @@
         Game.OnPointerMove(gx, gy);
     }
 
-    private void OnClick(MouseEventArgs e)
+    private void OnMouseDown(MouseEventArgs e)
     {
         if (Game is null) return;
         var (gx, gy) = ToGameCoords((float)e.OffsetX, (float)e.OffsetY);

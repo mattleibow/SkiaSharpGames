@@ -93,6 +93,8 @@ public static class UiThemes
         },
     };
 
+    public static UiTheme PixelArt { get; } = PixelArtTheme.Create();
+
     public static UiTheme Retro { get; } = new()
     {
         Button = UiButtonAppearance.Default with
@@ -141,4 +143,6 @@ public static class UiThemes
             BorderWidth = 2f,
         },
     };
+
+    public static UiTheme Neon { get; } = NeonTheme.Create();
 }

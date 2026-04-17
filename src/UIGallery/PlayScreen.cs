@@ -6,8 +6,8 @@ namespace SkiaSharpGames.UIGallery;
 
 internal sealed class PlayScreen : GameScreen
 {
-    private static readonly string[] ThemeNames = ["Bold/Cute", "Retro", "Simple"];
-    private static readonly UiTheme[] ThemeOptions = [UiThemes.BoldCute, UiThemes.Retro, UiThemes.Simple];
+    private static readonly string[] ThemeNames = ["Bold/Cute", "Retro", "Simple", "Pixel Art", "Neon"];
+    private static readonly UiTheme[] ThemeOptions = [UiThemes.BoldCute, UiThemes.Retro, UiThemes.Simple, UiThemes.PixelArt, UiThemes.Neon];
 
     private readonly UIGalleryState _state;
     private readonly UiTheme _theme;
@@ -15,9 +15,7 @@ internal sealed class PlayScreen : GameScreen
     private readonly Entity _themeButtons = new();
     private readonly Entity _controls = new();
 
-    private readonly UiButton _themeBoldButton;
-    private readonly UiButton _themeRetroButton;
-    private readonly UiButton _themeSimpleButton;
+    private readonly UiButton[] _themeButtonList;
 
     private readonly UiButton _primaryButton;
     private readonly UiButton _overrideButton;
@@ -36,13 +34,24 @@ internal sealed class PlayScreen : GameScreen
         _state = state;
         _theme = theme;
 
-        // Theme selector buttons
-        _themeBoldButton = new UiButton(160f, 42f, theme) { X = 104f, Y = 41f, Label = "Bold/Cute", FontSize = 14f };
-        _themeRetroButton = new UiButton(160f, 42f, theme) { X = 274f, Y = 41f, Label = "Retro", FontSize = 14f };
-        _themeSimpleButton = new UiButton(160f, 42f, theme) { X = 444f, Y = 41f, Label = "Simple", FontSize = 14f };
-        _themeButtons.AddChild(_themeBoldButton);
-        _themeButtons.AddChild(_themeRetroButton);
-        _themeButtons.AddChild(_themeSimpleButton);
+        // Theme selector buttons — one per theme, spaced dynamically
+        _themeButtonList = new UiButton[ThemeNames.Length];
+        float btnWidth = 120f;
+        float gap = 10f;
+        float totalWidth = ThemeNames.Length * btnWidth + (ThemeNames.Length - 1) * gap;
+        float startX = (800f - totalWidth) / 2f + btnWidth / 2f;
+        for (int i = 0; i < ThemeNames.Length; i++)
+        {
+            var btn = new UiButton(btnWidth, 36f, theme)
+            {
+                X = startX + i * (btnWidth + gap),
+                Y = 41f,
+                Label = ThemeNames[i],
+                FontSize = 12f
+            };
+            _themeButtonList[i] = btn;
+            _themeButtons.AddChild(btn);
+        }
 
         // Demo controls — state lives on each entity
         _primaryButton = new UiButton(190f, 56f, theme) { X = 135f, Y = 138f, Label = "Button" };
@@ -84,9 +93,8 @@ internal sealed class PlayScreen : GameScreen
 
         if (Pointer!.FindHit(_themeButtons) is UiButton themeButton)
         {
-            if (themeButton == _themeBoldButton) { ApplyTheme(0); return; }
-            if (themeButton == _themeRetroButton) { ApplyTheme(1); return; }
-            if (themeButton == _themeSimpleButton) { ApplyTheme(2); return; }
+            int idx = Array.IndexOf(_themeButtonList, themeButton);
+            if (idx >= 0) { ApplyTheme(idx); return; }
         }
 
         _primaryButton.IsPressed = false;
@@ -193,16 +201,17 @@ internal sealed class PlayScreen : GameScreen
     private void UpdateThemeButtonStyles()
     {
         int idx = _state.ThemeIndex;
-        UpdateThemeButtonStyle(_themeBoldButton, UiThemes.BoldCute, idx == 0);
-        UpdateThemeButtonStyle(_themeRetroButton, UiThemes.Retro, idx == 1);
-        UpdateThemeButtonStyle(_themeSimpleButton, UiThemes.Simple, idx == 2);
+        for (int i = 0; i < _themeButtonList.Length; i++)
+            UpdateThemeButtonStyle(_themeButtonList[i], ThemeOptions[i], idx == i);
     }
 
     private static void UpdateThemeButtonStyle(UiButton button, UiTheme themeTemplate, bool selected)
     {
-        button.Appearance = selected
-            ? (UiButtonAppearance)themeTemplate.Button with { BorderColor = SKColors.White, BorderWidth = ((UiButtonAppearance)themeTemplate.Button).BorderWidth + 1f }
-            : themeTemplate.Button;
+        var baseAppearance = themeTemplate.Button;
+        if (selected && baseAppearance is UiButtonAppearance typed)
+            button.Appearance = typed with { BorderColor = SKColors.White, BorderWidth = typed.BorderWidth + 1f };
+        else
+            button.Appearance = baseAppearance;
         button.IsPressed = selected;
     }
 

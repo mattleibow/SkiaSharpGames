@@ -87,13 +87,28 @@ public sealed class Game
     }
 
     /// <summary>Called when the pointer/mouse moves over the canvas.</summary>
-    public void OnPointerMove(float x, float y) => _coordinator.ActiveInputScreen.OnPointerMove(x, y);
+    public void OnPointerMove(float x, float y)
+    {
+        var screen = _coordinator.ActiveInputScreen;
+        if (screen.Pointer is { } p) { p.X = x; p.Y = y; p.Visible = true; }
+        screen.OnPointerMove(x, y);
+    }
 
     /// <summary>Called when the user clicks or taps the canvas.</summary>
-    public void OnPointerDown(float x, float y) => _coordinator.ActiveInputScreen.OnPointerDown(x, y);
+    public void OnPointerDown(float x, float y)
+    {
+        var screen = _coordinator.ActiveInputScreen;
+        if (screen.Pointer is { } p) { p.IsDown = true; p.X = x; p.Y = y; p.Visible = true; }
+        screen.OnPointerDown(x, y);
+    }
 
     /// <summary>Called when the user releases a click or touch on the canvas.</summary>
-    public void OnPointerUp(float x, float y) => _coordinator.ActiveInputScreen.OnPointerUp(x, y);
+    public void OnPointerUp(float x, float y)
+    {
+        var screen = _coordinator.ActiveInputScreen;
+        if (screen.Pointer is { } p) { p.IsDown = false; }
+        screen.OnPointerUp(x, y);
+    }
 
     /// <summary>Called when a key is pressed while the game canvas has focus.</summary>
     public void OnKeyDown(string key) => _coordinator.ActiveInputScreen.OnKeyDown(key);

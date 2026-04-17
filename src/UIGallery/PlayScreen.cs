@@ -13,7 +13,6 @@ internal sealed class PlayScreen : GameScreen
 
     private readonly Entity _themeButtons = new();
     private readonly Entity _controls = new();
-    private readonly Entity _pointerProbe = new() { Collider = new CircleCollider { Radius = 2f } };
 
     private readonly UiButton _themeBoldButton;
     private readonly UiButton _themeRetroButton;
@@ -64,6 +63,8 @@ internal sealed class PlayScreen : GameScreen
         _controls.AddChild(_joystick);
 
         ConfigureOverrides();
+
+        Pointer = new UiPointer();
     }
 
     public override void OnActivated()
@@ -78,10 +79,9 @@ internal sealed class PlayScreen : GameScreen
 
     public override void OnPointerDown(float x, float y)
     {
-        _pointerProbe.X = x;
-        _pointerProbe.Y = y;
+        // Pointer position is already set by the engine
 
-        if (_themeButtons.FindChildCollision(_pointerProbe, out _) is UiButton themeButton)
+        if (Pointer!.FindHit(_themeButtons) is UiButton themeButton)
         {
             if (themeButton == _themeBoldButton) { ApplyTheme(0); return; }
             if (themeButton == _themeRetroButton) { ApplyTheme(1); return; }
@@ -91,7 +91,7 @@ internal sealed class PlayScreen : GameScreen
         _primaryButton.IsPressed = false;
         _overrideButton.IsPressed = false;
 
-        var hit = _controls.FindChildCollision(_pointerProbe, out _);
+        var hit = Pointer!.FindHit(_controls);
 
         switch (hit)
         {
@@ -166,6 +166,8 @@ internal sealed class PlayScreen : GameScreen
 
         var norm = _joystick.NormalizedDelta;
         DrawText(canvas, textPaint, labelFont, $"Joystick X:{norm.X:F2} Y:{norm.Y:F2}", new SKColor(0xD0, 0xDC, 0xEA), 500f, 500f);
+
+        Pointer?.Draw(canvas);
     }
 
     private void ConfigureOverrides()

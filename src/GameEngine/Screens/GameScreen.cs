@@ -1,4 +1,5 @@
 using SkiaSharp;
+using SkiaSharpGames.GameEngine.UI;
 
 namespace SkiaSharpGames.GameEngine;
 
@@ -17,6 +18,12 @@ public abstract class GameScreen
     /// The screen is still drawn as the base layer while paused.
     /// </summary>
     public bool IsPaused { get; internal set; }
+
+    /// <summary>
+    /// Optional visible pointer/cursor. When set, the engine automatically updates its
+    /// position from pointer events. Draw it at the end of <see cref="Draw"/> to keep it on top.
+    /// </summary>
+    public UiPointer? Pointer { get; protected set; }
 
     // ── Virtual update and abstract draw ──────────────────────────────────
 

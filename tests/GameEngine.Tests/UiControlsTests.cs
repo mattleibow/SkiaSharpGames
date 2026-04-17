@@ -44,7 +44,7 @@ public class UiControlsTests
         sliding.IsOn = false;
         sliding.Draw(canvas);
 
-        var toggle = new UiSwitch(120f, 44f, tp) { IsOn = true, Appearance = UiToggleButtonAppearance.Default };
+        var toggle = new UiButton(120f, 44f, tp) { IsToggle = true, IsOn = true, Appearance = UiToggleButtonAppearance.Default };
         toggle.Draw(canvas);
     }
 

@@ -15,6 +15,7 @@ public sealed class UiTheme
     public UiAppearance<UiSlider> Slider { get; set; } = UiSliderAppearance.Default;
     public UiAppearance<UiJoystick> Joystick { get; set; } = UiJoystickAppearance.Default;
     public UiAppearance<UiPointer> Pointer { get; set; } = UiPointerAppearance.Default;
+    public UiAppearance<UiLabel> Label { get; set; } = UiLabelAppearance.Default;
 
     /// <summary>
     /// Copies all appearances from <paramref name="other"/> into this theme.
@@ -28,6 +29,7 @@ public sealed class UiTheme
         Slider = other.Slider;
         Joystick = other.Joystick;
         Pointer = other.Pointer;
+        Label = other.Label;
     }
 }
 

@@ -23,7 +23,7 @@ internal sealed class PlayScreen : GameScreen
     private readonly UiButton _overrideButton;
     private readonly UiCheckbox _checkbox;
     private readonly UiSwitch _slideSwitch;
-    private readonly UiSwitch _toggleSwitch;
+    private readonly UiButton _toggleButton;
     private readonly UiSlider _slider;
     private readonly UiButton _customButton;
     private readonly UiJoystick _joystick;
@@ -49,7 +49,7 @@ internal sealed class PlayScreen : GameScreen
         _overrideButton = new UiButton(190f, 56f, theme) { X = 345f, Y = 138f, Label = "Override" };
         _checkbox = new UiCheckbox(34f, 34f, theme) { X = 57f, Y = 221f, IsChecked = true };
         _slideSwitch = new UiSwitch(110f, 42f, theme) { X = 95f, Y = 289f };
-        _toggleSwitch = new UiSwitch(130f, 42f, theme) { X = 233f, Y = 289f, Appearance = UiToggleButtonAppearance.Default };
+        _toggleButton = new UiButton(130f, 42f, theme) { X = 233f, Y = 289f, IsToggle = true, Appearance = UiToggleButtonAppearance.Default };
         _slider = new UiSlider(320f, 26f, theme) { X = 200f, Y = 363f, Value = 0.45f };
         _customButton = new UiButton(260f, 58f, theme) { X = 170f, Y = 445f };
         _joystick = new UiJoystick(86f, theme) { X = 620f, Y = 360f };
@@ -58,7 +58,7 @@ internal sealed class PlayScreen : GameScreen
         _controls.AddChild(_overrideButton);
         _controls.AddChild(_checkbox);
         _controls.AddChild(_slideSwitch);
-        _controls.AddChild(_toggleSwitch);
+        _controls.AddChild(_toggleButton);
         _controls.AddChild(_slider);
         _controls.AddChild(_customButton);
         _controls.AddChild(_joystick);
@@ -102,14 +102,16 @@ internal sealed class PlayScreen : GameScreen
             case UiButton btn when btn == _overrideButton:
                 _overrideButton.IsPressed = true;
                 break;
+            case UiButton btn when btn == _toggleButton:
+                btn.IsOn = !btn.IsOn;
+                _slideSwitch.IsOn = btn.IsOn;
+                break;
             case UiCheckbox cb:
                 cb.IsChecked = !cb.IsChecked;
                 break;
             case UiSwitch sw:
                 sw.IsOn = !sw.IsOn;
-                // Keep both switches in sync for the demo
-                _slideSwitch.IsOn = sw.IsOn;
-                _toggleSwitch.IsOn = sw.IsOn;
+                _toggleButton.IsOn = sw.IsOn;
                 break;
             case UiSlider sl:
                 _draggingSlider = true;

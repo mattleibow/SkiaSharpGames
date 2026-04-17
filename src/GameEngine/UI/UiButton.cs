@@ -21,7 +21,7 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// if (button.IsPressed) { /* … */ }
 /// </code></example>
 /// </summary>
-public class UiButton : Entity
+public class UiButton : UiControl
 {
     /// <summary>
     /// Creates a new button entity with the given dimensions and theme.
@@ -30,23 +30,8 @@ public class UiButton : Entity
     /// </summary>
     /// <param name="width">Button width in game-space units.</param>
     /// <param name="height">Button height in game-space units.</param>
-    /// <param name="themeProvider">Provides the active UI theme for rendering.</param>
-    public UiButton(float width, float height, UiTheme theme)
-    {
-        Width = width;
-        Height = height;
-        Theme = theme;
-        Collider = new RectCollider { Width = width, Height = height };
-    }
-
-    /// <summary>The theme used for rendering.</summary>
-    public UiTheme Theme { get; }
-
-    /// <summary>Button width in game-space units.</summary>
-    public float Width { get; }
-
-    /// <summary>Button height in game-space units.</summary>
-    public float Height { get; }
+    /// <param name="theme">Provides the active UI theme for rendering.</param>
+    public UiButton(float width, float height, UiTheme theme) : base(width, height, theme) { }
 
     /// <summary>Text displayed on the button.</summary>
     public string Label { get; set; } = "";
@@ -57,6 +42,12 @@ public class UiButton : Entity
     /// <summary>Whether the button is enabled (when false, draws at reduced opacity).</summary>
     public bool IsEnabled { get; set; } = true;
 
+    /// <summary>Whether this button behaves as a toggle (on/off).</summary>
+    public bool IsToggle { get; set; }
+
+    /// <summary>Whether the toggle button is currently on (only meaningful when <see cref="IsToggle"/> is true).</summary>
+    public bool IsOn { get; set; }
+
     /// <summary>Font size for the label text.</summary>
     public float FontSize { get; set; } = 18f;
 
@@ -64,9 +55,6 @@ public class UiButton : Entity
     /// Optional per-button appearance override. When null, uses the theme's default.
     /// </summary>
     public UiAppearance<UiButton>? Appearance { get; set; }
-
-    /// <summary>The local-space bounding rectangle centred at the origin.</summary>
-    public SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
 
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)

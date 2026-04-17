@@ -29,11 +29,13 @@ public enum TextAlign
 /// Y is always the text baseline.
 /// </para>
 /// </summary>
-public sealed class UiLabel : Entity
+public sealed class UiLabel : UiEntity
 {
-    // Shared font cache — safe because rendering is single-threaded.
-    private static readonly Dictionary<float, SKFont> FontCache = [];
-    private readonly SKPaint _paint = new() { IsAntialias = true };
+    /// <summary>
+    /// Creates a new label entity with an optional theme.
+    /// When theme is null, uses <see cref="UiLabelAppearance.Default"/>.
+    /// </summary>
+    public UiLabel(UiTheme? theme = null) : base(theme) { }
 
     /// <summary>The text to render. Empty or null is silently skipped.</summary>
     public string Text { get; set; } = "";
@@ -47,40 +49,22 @@ public sealed class UiLabel : Entity
     /// <summary>Horizontal alignment relative to the entity's X position.</summary>
     public TextAlign Align { get; set; } = TextAlign.Left;
 
+    /// <summary>
+    /// Optional per-label appearance override. When null, uses the theme's default or
+    /// <see cref="UiLabelAppearance.Default"/>.
+    /// </summary>
+    public UiAppearance<UiLabel>? Appearance { get; set; }
+
     /// <summary>Returns the rendered width of <see cref="Text"/> at the current <see cref="FontSize"/>.</summary>
     public float MeasureWidth()
     {
         if (string.IsNullOrEmpty(Text)) return 0f;
-        return GetFont(FontSize).MeasureText(Text);
+        return UiLabelAppearance.GetFont(FontSize).MeasureText(Text);
     }
 
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f || string.IsNullOrEmpty(Text))
-            return;
-
-        var font = GetFont(FontSize);
-        _paint.Color = Color.WithAlpha((byte)(255 * Math.Clamp(Alpha, 0f, 1f)));
-
-        float drawX = Align switch
-        {
-            TextAlign.Center => -font.MeasureText(Text) / 2f,
-            TextAlign.Right => -font.MeasureText(Text),
-            _ => 0f
-        };
-
-        canvas.DrawText(Text, drawX, 0f, font, _paint);
-    }
-
-    private static SKFont GetFont(float size)
-    {
-        float key = MathF.Round(size, 2);
-        if (!FontCache.TryGetValue(key, out var font))
-        {
-            font = new SKFont(SKTypeface.Default, key) { Edging = SKFontEdging.Antialias };
-            FontCache[key] = font;
-        }
-        return font;
+        (Appearance ?? Theme?.Label ?? UiLabelAppearance.Default).Draw(canvas, this);
     }
 }

@@ -26,22 +26,18 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// float ny = joystick.NormalizedDelta.Y; // -1..1
 /// </code></example>
 /// </summary>
-public class UiJoystick : Entity
+public class UiJoystick : UiEntity
 {
     /// <summary>
     /// Creates a new joystick entity with the given radius and theme.
     /// </summary>
     /// <param name="radius">Base circle radius in game-space units.</param>
-    /// <param name="themeProvider">Provides the active UI theme for rendering.</param>
-    public UiJoystick(float radius, UiTheme theme)
+    /// <param name="theme">Provides the active UI theme for rendering.</param>
+    public UiJoystick(float radius, UiTheme theme) : base(theme)
     {
         Radius = radius;
-        Theme = theme;
         Collider = new CircleCollider { Radius = radius };
     }
-
-    /// <summary>The theme used for rendering.</summary>
-    public UiTheme Theme { get; }
 
     /// <summary>Base radius of the joystick in game-space units.</summary>
     public float Radius { get; }
@@ -107,6 +103,6 @@ public class UiJoystick : Entity
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? Theme.Joystick).Draw(canvas, this);
+        (Appearance ?? Theme!.Joystick).Draw(canvas, this);
     }
 }

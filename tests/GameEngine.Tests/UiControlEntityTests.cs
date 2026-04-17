@@ -164,11 +164,11 @@ public class UiControlEntityTests
     }
 
     [Fact]
-    public void UiSwitch_ToggleButton_ViaAppearance()
+    public void UiButton_ToggleButton_ViaAppearance()
     {
-        var sw = new UiSwitch(100f, 40f, ThemeProvider);
-        sw.Appearance = UiToggleButtonAppearance.Default;
-        Assert.IsType<UiToggleButtonAppearance>(sw.Appearance);
+        var btn = new UiButton(100f, 40f, ThemeProvider) { IsToggle = true };
+        btn.Appearance = UiToggleButtonAppearance.Default;
+        Assert.IsType<UiToggleButtonAppearance>(btn.Appearance);
     }
 
     [Fact]
@@ -181,7 +181,7 @@ public class UiControlEntityTests
     }
 
     [Fact]
-    public void UiSwitch_Draws_BothAppearances()
+    public void UiSwitch_And_ToggleButton_Draw()
     {
         using var bitmap = new SKBitmap(200, 100);
         using var canvas = new SKCanvas(bitmap);
@@ -189,7 +189,7 @@ public class UiControlEntityTests
         var sliding = new UiSwitch(100f, 40f, ThemeProvider) { IsOn = true };
         sliding.Draw(canvas);
 
-        var toggle = new UiSwitch(100f, 40f, ThemeProvider) { IsOn = false, Appearance = UiToggleButtonAppearance.Default };
+        var toggle = new UiButton(100f, 40f, ThemeProvider) { IsToggle = true, IsOn = false, Appearance = UiToggleButtonAppearance.Default };
         toggle.Draw(canvas);
     }
 

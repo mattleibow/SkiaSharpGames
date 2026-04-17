@@ -25,7 +25,7 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// Pointer?.Draw(canvas);
 /// </code></example>
 /// </summary>
-public class UiPointer : Entity
+public class UiPointer : UiEntity
 {
     /// <summary>
     /// Creates a new pointer entity with a point collider.
@@ -35,15 +35,11 @@ public class UiPointer : Entity
     /// Optional theme for resolving the pointer appearance.
     /// When null, falls back to <see cref="UiPointerAppearance.Default"/>.
     /// </param>
-    public UiPointer(UiTheme? theme = null)
+    public UiPointer(UiTheme? theme = null) : base(theme)
     {
-        Theme = theme;
         Collider = new CircleCollider { Radius = 1f };
         Visible = false;
     }
-
-    /// <summary>The theme used for rendering (may be null).</summary>
-    public UiTheme? Theme { get; }
 
     /// <summary>Whether the pointer is currently pressed/down.</summary>
     public bool IsDown { get; set; }

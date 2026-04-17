@@ -20,30 +20,15 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// if (checkbox.IsChecked) { /* … */ }
 /// </code></example>
 /// </summary>
-public class UiCheckbox : Entity
+public class UiCheckbox : UiControl
 {
     /// <summary>
     /// Creates a new checkbox entity with the given dimensions and theme.
     /// </summary>
     /// <param name="width">Checkbox width in game-space units.</param>
     /// <param name="height">Checkbox height in game-space units.</param>
-    /// <param name="themeProvider">Provides the active UI theme for rendering.</param>
-    public UiCheckbox(float width, float height, UiTheme theme)
-    {
-        Width = width;
-        Height = height;
-        Theme = theme;
-        Collider = new RectCollider { Width = width, Height = height };
-    }
-
-    /// <summary>The theme used for rendering.</summary>
-    public UiTheme Theme { get; }
-
-    /// <summary>Checkbox width in game-space units.</summary>
-    public float Width { get; }
-
-    /// <summary>Checkbox height in game-space units.</summary>
-    public float Height { get; }
+    /// <param name="theme">Provides the active UI theme for rendering.</param>
+    public UiCheckbox(float width, float height, UiTheme theme) : base(width, height, theme) { }
 
     /// <summary>Whether the checkbox is currently checked.</summary>
     public bool IsChecked { get; set; }
@@ -52,9 +37,6 @@ public class UiCheckbox : Entity
     /// Optional per-checkbox appearance override. When null, uses the theme's default.
     /// </summary>
     public UiAppearance<UiCheckbox>? Appearance { get; set; }
-
-    /// <summary>The local-space bounding rectangle centred at the origin.</summary>
-    public SKRect LocalRect => SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
 
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)

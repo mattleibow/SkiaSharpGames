@@ -28,16 +28,16 @@ public class UiCheckbox : Entity
     /// <param name="width">Checkbox width in game-space units.</param>
     /// <param name="height">Checkbox height in game-space units.</param>
     /// <param name="themeProvider">Provides the active UI theme for rendering.</param>
-    public UiCheckbox(float width, float height, IUiThemeProvider themeProvider)
+    public UiCheckbox(float width, float height, UiTheme theme)
     {
         Width = width;
         Height = height;
-        ThemeProvider = themeProvider;
+        Theme = theme;
         Collider = new RectCollider { Width = width, Height = height };
     }
 
-    /// <summary>The theme provider used for rendering.</summary>
-    public IUiThemeProvider ThemeProvider { get; }
+    /// <summary>The theme used for rendering.</summary>
+    public UiTheme Theme { get; }
 
     /// <summary>Checkbox width in game-space units.</summary>
     public float Width { get; }
@@ -59,6 +59,6 @@ public class UiCheckbox : Entity
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? ThemeProvider.Theme.Checkbox).Draw(canvas, this);
+        (Appearance ?? Theme.Checkbox).Draw(canvas, this);
     }
 }

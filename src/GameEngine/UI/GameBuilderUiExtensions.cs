@@ -6,7 +6,7 @@ public static class GameBuilderUiExtensions
 {
     public static GameBuilder SetUiTheme(this GameBuilder builder, UiTheme theme)
     {
-        builder.Services.AddSingleton<IUiThemeProvider>(_ => new UiThemeProvider(theme));
+        builder.Services.AddSingleton(theme);
         return builder;
     }
 }

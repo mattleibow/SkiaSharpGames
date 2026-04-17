@@ -152,7 +152,7 @@ public sealed class GameBuilder
         // Build the IConfiguration and make it injectable inside screens.
         var config = Configuration.Build();
         _serviceCollection.AddSingleton<IConfiguration>(config);
-        _serviceCollection.TryAddSingleton<IUiThemeProvider>(_ => new UiThemeProvider(UiThemes.Simple));
+        _serviceCollection.TryAddSingleton(_ => new UiTheme());
 
         // Bind game options so any service can inject IOptions<GameOptions>.
         _serviceCollection.Configure<GameOptions>(opts =>

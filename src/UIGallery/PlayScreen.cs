@@ -6,10 +6,11 @@ namespace SkiaSharpGames.UIGallery;
 
 internal sealed class PlayScreen : GameScreen
 {
+    private static readonly string[] ThemeNames = ["Bold/Cute", "Retro", "Simple"];
     private static readonly UiTheme[] ThemeOptions = [UiThemes.BoldCute, UiThemes.Retro, UiThemes.Simple];
 
     private readonly UIGalleryState _state;
-    private readonly IUiThemeProvider _themes;
+    private readonly UiTheme _theme;
 
     private readonly Entity _themeButtons = new();
     private readonly Entity _controls = new();
@@ -30,28 +31,28 @@ internal sealed class PlayScreen : GameScreen
     private bool _draggingSlider;
     private bool _draggingJoystick;
 
-    public PlayScreen(UIGalleryState state, IUiThemeProvider themes)
+    public PlayScreen(UIGalleryState state, UiTheme theme)
     {
         _state = state;
-        _themes = themes;
+        _theme = theme;
 
         // Theme selector buttons
-        _themeBoldButton = new UiButton(160f, 42f, themes) { X = 104f, Y = 41f, Label = "Bold/Cute", FontSize = 14f };
-        _themeRetroButton = new UiButton(160f, 42f, themes) { X = 274f, Y = 41f, Label = "Retro", FontSize = 14f };
-        _themeSimpleButton = new UiButton(160f, 42f, themes) { X = 444f, Y = 41f, Label = "Simple", FontSize = 14f };
+        _themeBoldButton = new UiButton(160f, 42f, theme) { X = 104f, Y = 41f, Label = "Bold/Cute", FontSize = 14f };
+        _themeRetroButton = new UiButton(160f, 42f, theme) { X = 274f, Y = 41f, Label = "Retro", FontSize = 14f };
+        _themeSimpleButton = new UiButton(160f, 42f, theme) { X = 444f, Y = 41f, Label = "Simple", FontSize = 14f };
         _themeButtons.AddChild(_themeBoldButton);
         _themeButtons.AddChild(_themeRetroButton);
         _themeButtons.AddChild(_themeSimpleButton);
 
         // Demo controls — state lives on each entity
-        _primaryButton = new UiButton(190f, 56f, themes) { X = 135f, Y = 138f, Label = "Button" };
-        _overrideButton = new UiButton(190f, 56f, themes) { X = 345f, Y = 138f, Label = "Override" };
-        _checkbox = new UiCheckbox(34f, 34f, themes) { X = 57f, Y = 221f, IsChecked = true };
-        _slideSwitch = new UiSwitch(110f, 42f, themes, UiSwitchVariant.Sliding) { X = 95f, Y = 289f };
-        _toggleSwitch = new UiSwitch(130f, 42f, themes, UiSwitchVariant.ToggleButton) { X = 233f, Y = 289f };
-        _slider = new UiSlider(320f, 26f, themes) { X = 200f, Y = 363f, Value = 0.45f };
-        _customButton = new UiButton(260f, 58f, themes) { X = 170f, Y = 445f };
-        _joystick = new UiJoystick(86f, themes) { X = 620f, Y = 360f };
+        _primaryButton = new UiButton(190f, 56f, theme) { X = 135f, Y = 138f, Label = "Button" };
+        _overrideButton = new UiButton(190f, 56f, theme) { X = 345f, Y = 138f, Label = "Override" };
+        _checkbox = new UiCheckbox(34f, 34f, theme) { X = 57f, Y = 221f, IsChecked = true };
+        _slideSwitch = new UiSwitch(110f, 42f, theme) { X = 95f, Y = 289f };
+        _toggleSwitch = new UiSwitch(130f, 42f, theme) { X = 233f, Y = 289f, Appearance = UiToggleButtonAppearance.Default };
+        _slider = new UiSlider(320f, 26f, theme) { X = 200f, Y = 363f, Value = 0.45f };
+        _customButton = new UiButton(260f, 58f, theme) { X = 170f, Y = 445f };
+        _joystick = new UiJoystick(86f, theme) { X = 620f, Y = 360f };
 
         _controls.AddChild(_primaryButton);
         _controls.AddChild(_overrideButton);
@@ -141,7 +142,7 @@ internal sealed class PlayScreen : GameScreen
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {
-        var theme = _themes.Theme;
+        var theme = _theme;
         using var backgroundPaint = new SKPaint { IsAntialias = true, Color = ((UiButtonAppearance)theme.Button).FillColor.WithAlpha(35) };
         using var textPaint = new SKPaint { IsAntialias = true, Color = SKColors.White };
         using var headerFont = new SKFont(SKTypeface.Default, 26f);
@@ -151,7 +152,7 @@ internal sealed class PlayScreen : GameScreen
         canvas.DrawRect(12f, 12f, width - 24f, height - 24f, backgroundPaint);
 
         DrawText(canvas, textPaint, headerFont, "UI Gallery", SKColors.White, 24f, 90f);
-        DrawText(canvas, textPaint, labelFont, $"Theme: {theme.Name}", new SKColor(0xD0, 0xDC, 0xEA), 620f, 46f);
+        DrawText(canvas, textPaint, labelFont, $"Theme: {ThemeNames[_state.ThemeIndex]}", new SKColor(0xD0, 0xDC, 0xEA), 620f, 46f);
 
         // Update theme button styles to show selection
         UpdateThemeButtonStyles();
@@ -189,24 +190,24 @@ internal sealed class PlayScreen : GameScreen
 
     private void UpdateThemeButtonStyles()
     {
-        var themeName = _themes.Theme.Name;
-        UpdateThemeButtonStyle(_themeBoldButton, UiThemes.BoldCute, themeName == UiThemes.BoldCute.Name);
-        UpdateThemeButtonStyle(_themeRetroButton, UiThemes.Retro, themeName == UiThemes.Retro.Name);
-        UpdateThemeButtonStyle(_themeSimpleButton, UiThemes.Simple, themeName == UiThemes.Simple.Name);
+        int idx = _state.ThemeIndex;
+        UpdateThemeButtonStyle(_themeBoldButton, UiThemes.BoldCute, idx == 0);
+        UpdateThemeButtonStyle(_themeRetroButton, UiThemes.Retro, idx == 1);
+        UpdateThemeButtonStyle(_themeSimpleButton, UiThemes.Simple, idx == 2);
     }
 
-    private static void UpdateThemeButtonStyle(UiButton button, UiTheme theme, bool selected)
+    private static void UpdateThemeButtonStyle(UiButton button, UiTheme themeTemplate, bool selected)
     {
         button.Appearance = selected
-            ? (UiButtonAppearance)theme.Button with { BorderColor = SKColors.White, BorderWidth = ((UiButtonAppearance)theme.Button).BorderWidth + 1f }
-            : theme.Button;
+            ? (UiButtonAppearance)themeTemplate.Button with { BorderColor = SKColors.White, BorderWidth = ((UiButtonAppearance)themeTemplate.Button).BorderWidth + 1f }
+            : themeTemplate.Button;
         button.IsPressed = selected;
     }
 
     private void ApplyTheme(int index)
     {
         _state.ThemeIndex = Math.Clamp(index, 0, ThemeOptions.Length - 1);
-        _themes.Theme = ThemeOptions[_state.ThemeIndex];
+        _theme.ApplyFrom(ThemeOptions[_state.ThemeIndex]);
     }
 
     private static void DrawText(SKCanvas canvas, SKPaint textPaint, SKFont font, string text, SKColor color, float x, float y)

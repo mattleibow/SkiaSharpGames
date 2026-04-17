@@ -257,7 +257,7 @@ public class GameTestHarnessTests
     [Fact]
     public void Entity_Dump_ShowsConcreteTypeName()
     {
-        var button = new UiButton(100f, 40f, new UiThemeProvider(UiThemes.Simple));
+        var button = new UiButton(100f, 40f, new UiTheme());
         string dump = button.Dump();
         Assert.Contains("UiButton", dump);
         Assert.Contains("collider: Rect 100x40", dump);

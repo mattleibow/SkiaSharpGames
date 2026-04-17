@@ -22,7 +22,7 @@ public class UiControlsTests
     {
         using var bitmap = new SKBitmap(120, 120);
         using var canvas = new SKCanvas(bitmap);
-        var tp = new UiThemeProvider(UiThemes.Simple);
+        var tp = new UiTheme();
 
         var cb = new UiCheckbox(36f, 36f, tp) { X = 50f, Y = 50f };
         cb.Draw(canvas);
@@ -36,7 +36,7 @@ public class UiControlsTests
     {
         using var bitmap = new SKBitmap(220, 120);
         using var canvas = new SKCanvas(bitmap);
-        var tp = new UiThemeProvider(UiThemes.Simple);
+        var tp = new UiTheme();
 
         var sliding = new UiSwitch(120f, 44f, tp) { IsOn = true };
         sliding.Draw(canvas);
@@ -44,7 +44,7 @@ public class UiControlsTests
         sliding.IsOn = false;
         sliding.Draw(canvas);
 
-        var toggle = new UiSwitch(120f, 44f, tp, UiSwitchVariant.ToggleButton) { IsOn = true };
+        var toggle = new UiSwitch(120f, 44f, tp) { IsOn = true, Appearance = UiToggleButtonAppearance.Default };
         toggle.Draw(canvas);
     }
 
@@ -53,7 +53,7 @@ public class UiControlsTests
     {
         using var bitmap = new SKBitmap(260, 100);
         using var canvas = new SKCanvas(bitmap);
-        var tp = new UiThemeProvider(UiThemes.Simple);
+        var tp = new UiTheme();
 
         var slider = new UiSlider(200f, 20f, tp) { Value = -2f };
         slider.Draw(canvas);
@@ -67,7 +67,7 @@ public class UiControlsTests
     {
         using var bitmap = new SKBitmap(260, 260);
         using var canvas = new SKCanvas(bitmap);
-        var tp = new UiThemeProvider(UiThemes.Simple);
+        var tp = new UiTheme();
 
         var js = new UiJoystick(60f, tp) { X = 120f, Y = 120f };
         js.Draw(canvas);

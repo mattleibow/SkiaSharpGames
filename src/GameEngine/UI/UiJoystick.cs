@@ -33,15 +33,15 @@ public class UiJoystick : Entity
     /// </summary>
     /// <param name="radius">Base circle radius in game-space units.</param>
     /// <param name="themeProvider">Provides the active UI theme for rendering.</param>
-    public UiJoystick(float radius, IUiThemeProvider themeProvider)
+    public UiJoystick(float radius, UiTheme theme)
     {
         Radius = radius;
-        ThemeProvider = themeProvider;
+        Theme = theme;
         Collider = new CircleCollider { Radius = radius };
     }
 
-    /// <summary>The theme provider used for rendering.</summary>
-    public IUiThemeProvider ThemeProvider { get; }
+    /// <summary>The theme used for rendering.</summary>
+    public UiTheme Theme { get; }
 
     /// <summary>Base radius of the joystick in game-space units.</summary>
     public float Radius { get; }
@@ -107,6 +107,6 @@ public class UiJoystick : Entity
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? ThemeProvider.Theme.Joystick).Draw(canvas, this);
+        (Appearance ?? Theme.Joystick).Draw(canvas, this);
     }
 }

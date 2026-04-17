@@ -3,9 +3,9 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine.UI;
 
 /// <summary>
-/// A themed switch entity with built-in collision, sprite, and readable state.
-/// Supports both <see cref="UiSwitchVariant.Sliding"/> and
-/// <see cref="UiSwitchVariant.ToggleButton"/> variants.
+/// A themed switch entity with built-in collision and readable state.
+/// Set <see cref="Entity.Appearance"/> to <see cref="UiToggleButtonAppearance"/>
+/// for a toggle-button variant, or leave default for a sliding switch.
 /// <example><code>
 /// var sw = new UiSwitch(110f, 42f, themeProvider);
 /// sw.X = 95f; sw.Y = 289f;
@@ -28,26 +28,22 @@ public class UiSwitch : Entity
     /// <param name="height">Switch height in game-space units.</param>
     /// <param name="themeProvider">Provides the active UI theme for rendering.</param>
     /// <param name="variant">Visual variant — sliding track or toggle button.</param>
-    public UiSwitch(float width, float height, IUiThemeProvider themeProvider, UiSwitchVariant variant = UiSwitchVariant.Sliding)
+    public UiSwitch(float width, float height, UiTheme theme)
     {
         Width = width;
         Height = height;
-        ThemeProvider = themeProvider;
-        Variant = variant;
+        Theme = theme;
         Collider = new RectCollider { Width = width, Height = height };
     }
 
-    /// <summary>The theme provider used for rendering.</summary>
-    public IUiThemeProvider ThemeProvider { get; }
+    /// <summary>The theme used for rendering.</summary>
+    public UiTheme Theme { get; }
 
     /// <summary>Switch width in game-space units.</summary>
     public float Width { get; }
 
     /// <summary>Switch height in game-space units.</summary>
     public float Height { get; }
-
-    /// <summary>Visual variant of the switch.</summary>
-    public UiSwitchVariant Variant { get; set; }
 
     /// <summary>Whether the switch is currently on.</summary>
     public bool IsOn { get; set; }
@@ -63,6 +59,6 @@ public class UiSwitch : Entity
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? ThemeProvider.Theme.Switch).Draw(canvas, this);
+        (Appearance ?? Theme.Switch).Draw(canvas, this);
     }
 }

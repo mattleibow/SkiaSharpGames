@@ -2,25 +2,16 @@ using SkiaSharp;
 
 namespace SkiaSharpGames.GameEngine.UI;
 
-/// <summary>Visual style for the <see cref="UiPointer"/> cursor.</summary>
-public enum UiPointerStyle
-{
-    /// <summary>Two thin lines forming a crosshair with a gap in the center.</summary>
-    Crosshair,
-
-    /// <summary>Small filled circle with a contrasting ring.</summary>
-    Dot,
-
-    /// <summary>Hollow circle that scales down on press.</summary>
-    Ring
-}
-
 /// <summary>
 /// A visible pointer/cursor entity with a point collider for hit testing.
 /// <para>
 /// Opt in by setting <see cref="GameScreen.Pointer"/> on any screen.
 /// The engine automatically updates position from pointer events.
 /// Draw it last in your screen's <see cref="GameScreen.Draw"/> to keep it on top.
+/// </para>
+/// <para>
+/// The default appearance is a crosshair. Swap via <see cref="Appearance"/>:
+/// <c>Pointer.Appearance = UiDotAppearance.Default;</c>
 /// </para>
 /// <example><code>
 /// // In your screen constructor:
@@ -40,25 +31,22 @@ public class UiPointer : Entity
     /// Creates a new pointer entity with a point collider.
     /// Initially invisible — becomes visible on first pointer event.
     /// </summary>
-    /// <param name="themeProvider">
-    /// Optional theme provider for resolving the pointer appearance.
+    /// <param name="theme">
+    /// Optional theme for resolving the pointer appearance.
     /// When null, falls back to <see cref="UiPointerAppearance.Default"/>.
     /// </param>
-    public UiPointer(IUiThemeProvider? themeProvider = null)
+    public UiPointer(UiTheme? theme = null)
     {
-        ThemeProvider = themeProvider;
+        Theme = theme;
         Collider = new CircleCollider { Radius = 1f };
         Visible = false;
     }
 
-    /// <summary>The theme provider used for rendering (may be null).</summary>
-    public IUiThemeProvider? ThemeProvider { get; }
+    /// <summary>The theme used for rendering (may be null).</summary>
+    public UiTheme? Theme { get; }
 
     /// <summary>Whether the pointer is currently pressed/down.</summary>
     public bool IsDown { get; set; }
-
-    /// <summary>Visual style of the cursor.</summary>
-    public UiPointerStyle Style { get; set; } = UiPointerStyle.Crosshair;
 
     /// <summary>
     /// Optional per-pointer appearance override. When null, uses the theme's default or
@@ -82,6 +70,6 @@ public class UiPointer : Entity
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? ThemeProvider?.Theme.Pointer ?? UiPointerAppearance.Default).Draw(canvas, this);
+        (Appearance ?? Theme?.Pointer ?? UiPointerAppearance.Default).Draw(canvas, this);
     }
 }

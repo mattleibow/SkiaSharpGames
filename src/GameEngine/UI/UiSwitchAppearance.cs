@@ -3,9 +3,7 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine.UI;
 
 /// <summary>
-/// Appearance for <see cref="UiSwitch"/>. Owns visual properties and draw logic.
-/// Handles both <see cref="UiSwitchVariant.Sliding"/> and
-/// <see cref="UiSwitchVariant.ToggleButton"/> variants.
+/// Default sliding switch appearance — track with a sliding knob.
 /// </summary>
 public record UiSwitchAppearance : UiAppearance<UiSwitch>
 {
@@ -13,7 +11,6 @@ public record UiSwitchAppearance : UiAppearance<UiSwitch>
     public SKColor TrackOnColor { get; init; } = new(0x46, 0xA4, 0xF6);
     public SKColor KnobColor { get; init; } = SKColors.White;
     public SKColor BorderColor { get; init; } = new(0x15, 0x1D, 0x27);
-    public SKColor TextColor { get; init; } = SKColors.White;
     public float CornerRadius { get; init; } = 14f;
     public float BorderWidth { get; init; } = 2f;
 
@@ -23,27 +20,6 @@ public record UiSwitchAppearance : UiAppearance<UiSwitch>
     public override void Draw(SKCanvas canvas, UiSwitch sw)
     {
         var rect = sw.LocalRect;
-
-        if (sw.Variant == UiSwitchVariant.ToggleButton)
-        {
-            var btnAppearance = new UiButtonAppearance
-            {
-                FillColor = sw.IsOn ? TrackOnColor : TrackOffColor,
-                PressedFillColor = sw.IsOn ? TrackOnColor : TrackOffColor,
-                TextColor = TextColor,
-                BorderColor = BorderColor,
-                BevelLightColor = KnobColor,
-                BevelShadowColor = BorderColor,
-                CornerRadius = CornerRadius,
-                BorderWidth = BorderWidth,
-                BevelSize = 0f,
-                DisabledAlpha = 100,
-            };
-            btnAppearance.DrawDirect(canvas, rect, sw.IsOn ? "ON" : "OFF",
-                pressed: false, enabled: true,
-                fontSize: MathF.Min(18f, rect.Height * 0.5f));
-            return;
-        }
 
         using var fillPaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
         using var strokePaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke };
@@ -64,5 +40,43 @@ public record UiSwitchAppearance : UiAppearance<UiSwitch>
         strokePaint.Color = BorderColor;
         strokePaint.StrokeWidth = MathF.Max(1f, BorderWidth * 0.75f);
         canvas.DrawCircle(knobX, rect.MidY, knobRadius, strokePaint);
+    }
+}
+
+/// <summary>
+/// Toggle button appearance for <see cref="UiSwitch"/> — renders as a
+/// button that shows ON/OFF text.
+/// </summary>
+public record UiToggleButtonAppearance : UiAppearance<UiSwitch>
+{
+    public SKColor OffColor { get; init; } = new(0x44, 0x4F, 0x5E);
+    public SKColor OnColor { get; init; } = new(0x46, 0xA4, 0xF6);
+    public SKColor TextColor { get; init; } = SKColors.White;
+    public SKColor BorderColor { get; init; } = new(0x15, 0x1D, 0x27);
+    public float CornerRadius { get; init; } = 14f;
+    public float BorderWidth { get; init; } = 2f;
+
+    public static UiToggleButtonAppearance Default => new();
+
+    /// <inheritdoc />
+    public override void Draw(SKCanvas canvas, UiSwitch sw)
+    {
+        var rect = sw.LocalRect;
+        var btnAppearance = new UiButtonAppearance
+        {
+            FillColor = sw.IsOn ? OnColor : OffColor,
+            PressedFillColor = sw.IsOn ? OnColor : OffColor,
+            TextColor = TextColor,
+            BorderColor = BorderColor,
+            BevelLightColor = SKColors.White,
+            BevelShadowColor = BorderColor,
+            CornerRadius = CornerRadius,
+            BorderWidth = BorderWidth,
+            BevelSize = 0f,
+            DisabledAlpha = 100,
+        };
+        btnAppearance.DrawDirect(canvas, rect, sw.IsOn ? "ON" : "OFF",
+            pressed: false, enabled: true,
+            fontSize: MathF.Min(18f, rect.Height * 0.5f));
     }
 }

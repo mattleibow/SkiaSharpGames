@@ -2,28 +2,39 @@ using SkiaSharp;
 
 namespace SkiaSharpGames.GameEngine.UI;
 
+/// <summary>
+/// Mutable theme that controls read each frame to resolve their default appearance.
+/// Register as a singleton and pass to controls. Switch themes at runtime via
+/// <see cref="ApplyFrom"/>.
+/// </summary>
 public sealed class UiTheme
 {
-    public required string Name { get; init; }
-    public UiAppearance<UiButton> Button { get; init; } = UiButtonAppearance.Default;
-    public UiAppearance<UiCheckbox> Checkbox { get; init; } = UiCheckboxAppearance.Default;
-    public UiAppearance<UiSwitch> Switch { get; init; } = UiSwitchAppearance.Default;
-    public UiAppearance<UiSlider> Slider { get; init; } = UiSliderAppearance.Default;
-    public UiAppearance<UiJoystick> Joystick { get; init; } = UiJoystickAppearance.Default;
-    public UiAppearance<UiPointer> Pointer { get; init; } = UiPointerAppearance.Default;
-}
+    public UiAppearance<UiButton> Button { get; set; } = UiButtonAppearance.Default;
+    public UiAppearance<UiCheckbox> Checkbox { get; set; } = UiCheckboxAppearance.Default;
+    public UiAppearance<UiSwitch> Switch { get; set; } = UiSwitchAppearance.Default;
+    public UiAppearance<UiSlider> Slider { get; set; } = UiSliderAppearance.Default;
+    public UiAppearance<UiJoystick> Joystick { get; set; } = UiJoystickAppearance.Default;
+    public UiAppearance<UiPointer> Pointer { get; set; } = UiPointerAppearance.Default;
 
-public enum UiSwitchVariant
-{
-    Sliding,
-    ToggleButton,
+    /// <summary>
+    /// Copies all appearances from <paramref name="other"/> into this theme.
+    /// All controls sharing this theme instance see the change immediately.
+    /// </summary>
+    public void ApplyFrom(UiTheme other)
+    {
+        Button = other.Button;
+        Checkbox = other.Checkbox;
+        Switch = other.Switch;
+        Slider = other.Slider;
+        Joystick = other.Joystick;
+        Pointer = other.Pointer;
+    }
 }
 
 public static class UiThemes
 {
     public static UiTheme Simple { get; } = new()
     {
-        Name = "Simple",
         Button = UiButtonAppearance.Default,
         Checkbox = UiCheckboxAppearance.Default,
         Switch = UiSwitchAppearance.Default,
@@ -34,7 +45,6 @@ public static class UiThemes
 
     public static UiTheme BoldCute { get; } = new()
     {
-        Name = "Bold/Cute",
         Button = UiButtonAppearance.Default with
         {
             FillColor = new SKColor(0xFF, 0x77, 0xB4),
@@ -83,7 +93,6 @@ public static class UiThemes
 
     public static UiTheme Retro { get; } = new()
     {
-        Name = "Retro",
         Button = UiButtonAppearance.Default with
         {
             FillColor = new SKColor(0x35, 0x4A, 0x3A),
@@ -109,7 +118,6 @@ public static class UiThemes
             TrackOnColor = new SKColor(0x5F, 0x86, 0x48),
             KnobColor = new SKColor(0xE8, 0xD6, 0x9C),
             BorderColor = new SKColor(0x12, 0x1C, 0x13),
-            TextColor = new SKColor(0xE8, 0xD6, 0x9C),
             CornerRadius = 4f,
         },
         Slider = UiSliderAppearance.Default with

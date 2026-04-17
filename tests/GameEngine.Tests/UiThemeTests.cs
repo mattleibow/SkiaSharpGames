@@ -9,26 +9,29 @@ namespace SkiaSharpGames.GameEngine.Tests;
 public class UiThemeTests
 {
     [Fact]
-    public void Build_RegistersSimpleThemeByDefault()
+    public void Build_RegistersDefaultTheme()
     {
         var game = BuildBareGame();
-        var provider = game.Services.GetRequiredService<IUiThemeProvider>();
+        var theme = game.Services.GetRequiredService<UiTheme>();
 
-        Assert.Equal(UiThemes.Simple.Name, provider.Theme.Name);
+        Assert.IsType<UiButtonAppearance>(theme.Button);
     }
 
     [Fact]
     public void SetUiTheme_OverridesDefaultTheme()
     {
+        var retro = new UiTheme();
+        retro.ApplyFrom(UiThemes.Retro);
+
         var builder = GameBuilder.CreateDefault();
         builder.Screens.Add<BlankScreen>();
         builder.SetInitialScreen<BlankScreen>();
-        builder.SetUiTheme(UiThemes.Retro);
+        builder.SetUiTheme(retro);
 
         var game = builder.Build();
-        var provider = game.Services.GetRequiredService<IUiThemeProvider>();
+        var theme = game.Services.GetRequiredService<UiTheme>();
 
-        Assert.Equal(UiThemes.Retro.Name, provider.Theme.Name);
+        Assert.Same(retro, theme);
     }
 
     [Fact]
@@ -51,7 +54,7 @@ public class UiThemeTests
     [Fact]
     public void Theme_HasPointerAppearance()
     {
-        Assert.IsType<UiPointerAppearance>(UiThemes.Simple.Pointer);
+        Assert.IsType<UiCrosshairAppearance>(UiThemes.Simple.Pointer);
     }
 
     private static Game BuildBareGame()

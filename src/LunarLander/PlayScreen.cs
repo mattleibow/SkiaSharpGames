@@ -9,7 +9,7 @@ namespace SkiaSharpGames.LunarLander;
 /// Main gameplay screen. The lander entity uses child entities for thruster flames
 /// that rotate automatically with the parent — demonstrating the Entity parenting system.
 /// </summary>
-internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator coordinator, IUiThemeProvider themes) : GameScreen
+internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator coordinator, UiTheme themes) : GameScreen
 {
     // ── Entities ──────────────────────────────────────────────────────────
     private readonly Lander _lander = new();
@@ -282,7 +282,7 @@ internal sealed class PlayScreen(LunarLanderGameState state, IScreenCoordinator 
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        var appearance = (UiButtonAppearance)themes.Theme.Button with
+        var appearance = (UiButtonAppearance)themes.Button with
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,

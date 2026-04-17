@@ -31,16 +31,16 @@ public class UiButton : Entity
     /// <param name="width">Button width in game-space units.</param>
     /// <param name="height">Button height in game-space units.</param>
     /// <param name="themeProvider">Provides the active UI theme for rendering.</param>
-    public UiButton(float width, float height, IUiThemeProvider themeProvider)
+    public UiButton(float width, float height, UiTheme theme)
     {
         Width = width;
         Height = height;
-        ThemeProvider = themeProvider;
+        Theme = theme;
         Collider = new RectCollider { Width = width, Height = height };
     }
 
-    /// <summary>The theme provider used for rendering.</summary>
-    public IUiThemeProvider ThemeProvider { get; }
+    /// <summary>The theme used for rendering.</summary>
+    public UiTheme Theme { get; }
 
     /// <summary>Button width in game-space units.</summary>
     public float Width { get; }
@@ -71,6 +71,6 @@ public class UiButton : Entity
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? ThemeProvider.Theme.Button).Draw(canvas, this);
+        (Appearance ?? Theme.Button).Draw(canvas, this);
     }
 }

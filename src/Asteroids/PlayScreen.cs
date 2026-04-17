@@ -5,7 +5,7 @@ using static SkiaSharpGames.Asteroids.AsteroidsConstants;
 
 namespace SkiaSharpGames.Asteroids;
 
-internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator coordinator, IUiThemeProvider themes) : GameScreen
+internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator coordinator, UiTheme themes) : GameScreen
 {
     private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha(80), IsAntialias = true };
     private static readonly SKPaint _livesShipPaint = new() { Color = ShipColor, IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
@@ -439,7 +439,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator co
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        var appearance = (UiButtonAppearance)themes.Theme.Button with
+        var appearance = (UiButtonAppearance)themes.Button with
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,

@@ -6,7 +6,7 @@ namespace SkiaSharpGames.GameEngine.Tests;
 
 public class UiControlEntityTests
 {
-    private static readonly IUiThemeProvider ThemeProvider = new UiThemeProvider(UiThemes.Simple);
+    private static readonly UiTheme ThemeProvider = new UiTheme();
 
     // ── UiButton ──────────────────────────────────────────────────────
 
@@ -34,7 +34,7 @@ public class UiControlEntityTests
     {
         var button = new UiButton(100f, 40f, ThemeProvider);
         Assert.Null(button.Appearance);
-        // OnDraw falls back to ThemeProvider.Theme.Button
+        // OnDraw falls back to ThemeProvider.Button
     }
 
     [Fact]
@@ -161,14 +161,14 @@ public class UiControlEntityTests
     {
         var sw = new UiSwitch(100f, 40f, ThemeProvider);
         Assert.False(sw.IsOn);
-        Assert.Equal(UiSwitchVariant.Sliding, sw.Variant);
     }
 
     [Fact]
-    public void UiSwitch_ToggleButton_Variant()
+    public void UiSwitch_ToggleButton_ViaAppearance()
     {
-        var sw = new UiSwitch(100f, 40f, ThemeProvider, UiSwitchVariant.ToggleButton);
-        Assert.Equal(UiSwitchVariant.ToggleButton, sw.Variant);
+        var sw = new UiSwitch(100f, 40f, ThemeProvider);
+        sw.Appearance = UiToggleButtonAppearance.Default;
+        Assert.IsType<UiToggleButtonAppearance>(sw.Appearance);
     }
 
     [Fact]
@@ -181,7 +181,7 @@ public class UiControlEntityTests
     }
 
     [Fact]
-    public void UiSwitch_Draws_BothVariants()
+    public void UiSwitch_Draws_BothAppearances()
     {
         using var bitmap = new SKBitmap(200, 100);
         using var canvas = new SKCanvas(bitmap);
@@ -189,7 +189,7 @@ public class UiControlEntityTests
         var sliding = new UiSwitch(100f, 40f, ThemeProvider) { IsOn = true };
         sliding.Draw(canvas);
 
-        var toggle = new UiSwitch(100f, 40f, ThemeProvider, UiSwitchVariant.ToggleButton) { IsOn = false };
+        var toggle = new UiSwitch(100f, 40f, ThemeProvider) { IsOn = false, Appearance = UiToggleButtonAppearance.Default };
         toggle.Draw(canvas);
     }
 

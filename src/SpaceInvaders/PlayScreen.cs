@@ -5,7 +5,7 @@ using static SkiaSharpGames.SpaceInvaders.SpaceInvadersConstants;
 
 namespace SkiaSharpGames.SpaceInvaders;
 
-internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinator coordinator, IUiThemeProvider themes) : GameScreen
+internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinator coordinator, UiTheme themes) : GameScreen
 {
     private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha((byte)(255 * 0.5f)), IsAntialias = true };
 
@@ -478,7 +478,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        var appearance = (UiButtonAppearance)themes.Theme.Button with
+        var appearance = (UiButtonAppearance)themes.Button with
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,

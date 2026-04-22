@@ -5,7 +5,7 @@ namespace SkiaSharp.Theatre;
 /// <summary>
 /// Neon/cyberpunk joystick — dark circle with glowing neon ring and knob.
 /// </summary>
-public record NeonJoystickAppearance : UiAppearance<UiJoystick>
+public record NeonJoystickAppearance : HudAppearance<HudJoystick>
 {
     private static readonly SKMaskFilter GlowFilter =
         SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 4f);
@@ -22,7 +22,7 @@ public record NeonJoystickAppearance : UiAppearance<UiJoystick>
     public static NeonJoystickAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiJoystick joystick)
+    public override void Draw(SKCanvas canvas, HudJoystick joystick)
     {
         byte alpha = (byte)(255 * Math.Clamp(joystick.Alpha, 0f, 1f));
         if (alpha == 0) return;

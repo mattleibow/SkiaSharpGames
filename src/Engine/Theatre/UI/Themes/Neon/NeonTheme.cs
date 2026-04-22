@@ -6,9 +6,9 @@ namespace SkiaSharp.Theatre;
 public static class NeonTheme
 {
     /// <summary>
-    /// Creates a new <see cref="UiTheme"/> with neon/cyberpunk appearances for all controls.
+    /// Creates a new <see cref="HudTheme"/> with neon/cyberpunk appearances for all controls.
     /// </summary>
-    public static UiTheme Create() => new()
+    public static HudTheme Create() => new()
     {
         Button = NeonButtonAppearance.Default,
         Checkbox = NeonCheckboxAppearance.Default,
@@ -16,6 +16,6 @@ public static class NeonTheme
         Slider = NeonSliderAppearance.Default,
         Joystick = NeonJoystickAppearance.Default,
         Label = NeonLabelAppearance.Default,
-        Spotlight = NeonPointerAppearance.Default,
+        Pointer = NeonPointerAppearance.Default,
     };
 }

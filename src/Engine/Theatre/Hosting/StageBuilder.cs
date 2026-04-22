@@ -15,7 +15,7 @@ namespace SkiaSharp.Theatre;
 /// <para>
 /// The design mirrors <c>WebApplicationBuilder</c> / <c>MauiAppBuilder</c>:
 /// a single entry point (<see cref="Create"/>) sets up sensible defaults, the caller
-/// configures screens, assets, and services via strongly-typed properties, and
+/// configures scenes, assets, and services via strongly-typed properties, and
 /// <see cref="Build"/> seals the configuration and returns the live object.
 /// </para>
 /// <example>
@@ -41,13 +41,13 @@ namespace SkiaSharp.Theatre;
 public sealed class StageBuilder
 {
     private readonly ServiceCollection _serviceCollection = new();
-    private Type? _initialScreenType;
+    private Type? _initialSceneType;
     private SKSize _gameDimensions = new(800, 600);
 
     private StageBuilder()
     {
         Services = _serviceCollection;
-        Scenes = new SceneCollection(_serviceCollection);
+        Scenes = new Repertoire(_serviceCollection);
         Props = new PropRoom(_serviceCollection);
     }
 
@@ -56,15 +56,15 @@ public sealed class StageBuilder
     /// <summary>
     /// Stage-scoped service collection, independent of any host DI (e.g. Blazor's container).
     /// Register singletons, transients, and other services here; they will be available for
-    /// injection into screen constructors.
+    /// injection into scene constructors.
     /// </summary>
     public IServiceCollection Services { get; }
 
     /// <summary>
-    /// Typed collection for registering game screens.
+    /// Typed collection for registering game scenes.
     /// Internally backed by <see cref="Services"/>.
     /// </summary>
-    public SceneCollection Scenes { get; }
+    public Repertoire Scenes { get; }
 
     /// <summary>
     /// Typed collection for registering game assets (typefaces, bitmaps, etc.).
@@ -75,7 +75,7 @@ public sealed class StageBuilder
     /// <summary>
     /// Configuration builder for the game's <see cref="IConfiguration"/>.
     /// The built configuration is registered in <see cref="Services"/> as
-    /// <see cref="IConfiguration"/> so screens can inject it.
+    /// <see cref="IConfiguration"/> so scenes can inject it.
     /// </summary>
     public IConfigurationBuilder Configuration { get; } = new ConfigurationBuilder();
 
@@ -92,7 +92,7 @@ public sealed class StageBuilder
 
     /// <summary>
     /// Sets the logical (virtual) size of the game canvas in game-space units.
-    /// This single value is shared across all screens in the game.
+    /// This single value is shared across all scenes in the game.
     /// If not called, the default is 800 × 600.
     /// </summary>
     /// <returns>This builder, for method chaining.</returns>
@@ -106,7 +106,7 @@ public sealed class StageBuilder
 
     /// <summary>
     /// Sets the logical (virtual) size of the game canvas in game-space units.
-    /// This single value is shared across all screens in the game.
+    /// This single value is shared across all scenes in the game.
     /// If not called, the default is 800 × 600.
     /// </summary>
     /// <param name="width">Stage-space width in pixels.</param>
@@ -115,72 +115,72 @@ public sealed class StageBuilder
     public StageBuilder SetStageSize(float width, float height)
         => SetStageSize(new SKSize(width, height));
 
-    // ── Initial screen ────────────────────────────────────────────────────
+    // ── Initial scene ────────────────────────────────────────────────────
 
     /// <summary>
-    /// Designates <typeparamref name="TScreen"/> as the screen that is activated when the game
-    /// starts. The screen must also be registered via <see cref="SceneCollection.Add{TScreen}"/>.
+    /// Designates <typeparamref name="TScene"/> as the scene that is activated when the game
+    /// starts. The scene must also be registered via <see cref="Repertoire.Add{TScene}"/>.
     /// This must be called exactly once before <see cref="Build"/>.
     /// </summary>
     /// <remarks>
-    /// Separating registration (<see cref="SceneCollection.Add{TScreen}"/>) from initial-screen
+    /// Separating registration (<see cref="Repertoire.Add{TScene}"/>) from initial-scene
     /// selection allows the caller to choose the starting point based on runtime logic —
     /// for example, showing a tutorial for first-time players or jumping straight to the menu
     /// for returning ones.
     /// </remarks>
     /// <returns>This builder, for method chaining.</returns>
-    public StageBuilder SetOpeningScene<TScreen>() where TScreen : Scene
+    public StageBuilder SetOpeningScene<TScene>() where TScene : Scene
     {
-        _initialScreenType = typeof(TScreen);
+        _initialSceneType = typeof(TScene);
         return this;
     }
 
     // ── Build ─────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Finalises configuration, builds the game's DI container, activates the initial screen,
+    /// Finalises configuration, builds the game's DI container, activates the initial scene,
     /// and returns a ready-to-run <see cref="Stage"/>.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when <see cref="SetOpeningScene{TScreen}"/> has not been called.
+    /// Thrown when <see cref="SetOpeningScene{TScene}"/> has not been called.
     /// </exception>
     public Stage Open()
     {
-        if (_initialScreenType is null)
+        if (_initialSceneType is null)
             throw new InvalidOperationException(
-                "No initial screen set. Call SetOpeningScene<T>() before calling Open().");
+                "No initial scene set. Call SetOpeningScene<T>() before calling Open().");
 
-        // Build the IConfiguration and make it injectable inside screens.
+        // Build the IConfiguration and make it injectable inside scenes.
         var config = Configuration.Build();
         _serviceCollection.AddSingleton<IConfiguration>(config);
-        _serviceCollection.TryAddSingleton(_ => new UiTheme());
+        _serviceCollection.TryAddSingleton(_ => new HudTheme());
 
         // Bind game options so any service can inject IOptions<StageOptions>.
         _serviceCollection.Configure<StageOptions>(opts =>
         {
             opts.Dimensions = _gameDimensions;
-            opts.OpeningSceneType = _initialScreenType;
+            opts.OpeningSceneType = _initialSceneType;
         });
 
-        // Director is the single job that loads and moves between screens.
+        // Director is the single job that loads and moves between scenes.
         // Register the concrete type and both interfaces so consumers can depend on the
         // narrowest interface they need.
         _serviceCollection.AddSingleton<Director>(
             sp => new Director(sp, sp.GetRequiredService<IOptions<StageOptions>>()));
         _serviceCollection.AddSingleton<IDirector>(
             sp => sp.GetRequiredService<Director>());
-        _serviceCollection.AddSingleton<IStageRenderer>(
+        _serviceCollection.AddSingleton<IRenderer>(
             sp => sp.GetRequiredService<Director>());
 
         // Stage is the public host API; constructed via factory to preserve the internal constructor.
         _serviceCollection.AddSingleton<Stage>(
             sp => new Stage(sp,
                            sp.GetRequiredService<IOptions<StageOptions>>(),
-                           sp.GetRequiredService<IStageRenderer>()));
+                           sp.GetRequiredService<IRenderer>()));
 
         var provider = _serviceCollection.BuildServiceProvider();
         var stage = provider.GetRequiredService<Stage>();
-        // Activate the initial screen immediately at build time (not lazily on first frame).
+        // Activate the initial scene immediately at build time (not lazily on first frame).
         provider.GetRequiredService<Director>().Initialize();
         return stage;
     }

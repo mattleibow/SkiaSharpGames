@@ -36,7 +36,7 @@ public sealed class Rehearsal : IDisposable
         _canvas = new SKCanvas(_bitmap);
     }
 
-    /// <summary>The underlying Stage instance. Access services, coordinator, etc.</summary>
+    /// <summary>The underlying Stage instance. Access services, director, etc.</summary>
     public Stage Stage { get; }
 
     /// <summary>Total frames simulated so far.</summary>
@@ -160,11 +160,11 @@ public sealed class Rehearsal : IDisposable
 
     // ── Screen navigation ────────────────────────────────────────────
 
-    /// <summary>Transitions to a different screen.</summary>
-    public void TransitionTo<TScreen>(ICurtain? transition = null) where TScreen : Scene
+    /// <summary>Transitions to a different scene.</summary>
+    public void TransitionTo<TScene>(ICurtain? transition = null) where TScene : Scene
     {
-        var coordinator = Stage.Services.GetRequiredService<IDirector>();
-        coordinator.TransitionTo<TScreen>(transition);
+        var director = Stage.Services.GetRequiredService<IDirector>();
+        director.TransitionTo<TScene>(transition);
     }
 
     /// <inheritdoc />

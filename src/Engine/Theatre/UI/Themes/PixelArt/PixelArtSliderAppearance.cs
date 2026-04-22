@@ -6,7 +6,7 @@ namespace SkiaSharp.Theatre;
 /// Pixel-art slider appearance — flat rectangular track with a square knob.
 /// No anti-aliasing, no rounded corners.
 /// </summary>
-public record PixelArtSliderAppearance : UiAppearance<UiSlider>
+public record PixelArtSliderAppearance : HudAppearance<HudSlider>
 {
     private static readonly SKPaint FillPaint = new() { IsAntialias = false, Style = SKPaintStyle.Fill };
     private static readonly SKPaint StrokePaint = new() { IsAntialias = false, Style = SKPaintStyle.Stroke };
@@ -22,7 +22,7 @@ public record PixelArtSliderAppearance : UiAppearance<UiSlider>
     public static PixelArtSliderAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiSlider slider)
+    public override void Draw(SKCanvas canvas, HudSlider slider)
     {
         byte alpha = (byte)(255 * Math.Clamp(slider.Alpha, 0f, 1f));
         if (alpha == 0) return;

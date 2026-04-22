@@ -5,16 +5,16 @@ using SkiaSharp;
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// Default implementation of <see cref="IDirector"/> and <see cref="IStageRenderer"/>.
-/// Manages the active screen, overlay stack, and running transitions.
+/// Default implementation of <see cref="IDirector"/> and <see cref="IRenderer"/>.
+/// Manages the active scene, scene stack, and running transitions.
 /// Registered as a singleton in the game's own DI container by <see cref="StageBuilder.Open"/>.
 /// </summary>
-internal sealed class Director : IDirector, IStageRenderer
+internal sealed class Director : IDirector, IRenderer
 {
     private readonly IServiceProvider _services;
-    private readonly Type _initialScreenType;
+    private readonly Type _initialSceneType;
     private Scene? _current;
-    private readonly List<Scene> _overlays = [];
+    private readonly List<Scene> _sceneStack = [];
     private ActiveCurtain? _activeCurtain;
 
     private sealed class ActiveCurtain(
@@ -31,7 +31,7 @@ internal sealed class Director : IDirector, IStageRenderer
     internal Director(IServiceProvider services, IOptions<StageOptions> options)
     {
         _services = services;
-        _initialScreenType = options.Value.OpeningSceneType!;
+        _initialSceneType = options.Value.OpeningSceneType!;
     }
 
     internal void Initialize() => EnsureInitialized();
@@ -41,7 +41,7 @@ internal sealed class Director : IDirector, IStageRenderer
         if (_current is not null)
             return;
 
-        _current = (Scene)_services.GetRequiredService(_initialScreenType);
+        _current = (Scene)_services.GetRequiredService(_initialSceneType);
         _current.OnActivating();
         _current.OnActivated();
     }
@@ -49,8 +49,8 @@ internal sealed class Director : IDirector, IStageRenderer
     // ── IDirector ────────────────────────────────────────────────
 
     /// <inheritdoc/>
-    public void TransitionTo<TScreen>(ICurtain? transition = null)
-        where TScreen : Scene
+    public void TransitionTo<TScene>(ICurtain? transition = null)
+        where TScene : Scene
     {
         EnsureInitialized();
 
@@ -64,15 +64,15 @@ internal sealed class Director : IDirector, IStageRenderer
             _activeCurtain = null;
         }
 
-        // Clear overlay stack
-        foreach (var overlay in _overlays)
+        // Clear scene stack
+        foreach (var layer in _sceneStack)
         {
-            overlay.OnDeactivating();
-            overlay.OnDeactivated();
+            layer.OnDeactivating();
+            layer.OnDeactivated();
         }
-        _overlays.Clear();
+        _sceneStack.Clear();
 
-        var incoming = ResolveScreen<TScreen>();
+        var incoming = ResolveScene<TScene>();
 
         if (transition is null || transition.Duration <= 0f)
         {
@@ -93,33 +93,33 @@ internal sealed class Director : IDirector, IStageRenderer
     }
 
     /// <inheritdoc/>
-    public void PushOverlay<TOverlay>() where TOverlay : Scene
+    public void PushScene<TScene>() where TScene : Scene
     {
         EnsureInitialized();
 
-        if (_overlays.Count == 0)
+        if (_sceneStack.Count == 0)
         {
             _current!.IsPaused = true;
             _current.OnPaused();
         }
 
-        var overlay = ResolveScreen<TOverlay>();
-        overlay.OnActivating();
-        overlay.OnActivated();
-        _overlays.Add(overlay);
+        var layer = ResolveScene<TScene>();
+        layer.OnActivating();
+        layer.OnActivated();
+        _sceneStack.Add(layer);
     }
 
     /// <inheritdoc/>
-    public void PopOverlay()
+    public void PopScene()
     {
-        if (_overlays.Count == 0)
+        if (_sceneStack.Count == 0)
             return;
 
-        _overlays[^1].OnDeactivating();
-        _overlays[^1].OnDeactivated();
-        _overlays.RemoveAt(_overlays.Count - 1);
+        _sceneStack[^1].OnDeactivating();
+        _sceneStack[^1].OnDeactivated();
+        _sceneStack.RemoveAt(_sceneStack.Count - 1);
 
-        if (_overlays.Count == 0)
+        if (_sceneStack.Count == 0)
         {
             _current!.IsPaused = false;
             _current.OnResumed();
@@ -133,12 +133,12 @@ internal sealed class Director : IDirector, IStageRenderer
         {
             EnsureInitialized();
             return _activeCurtain is not null ? _activeCurtain.Incoming :
-                   _overlays.Count > 0 ? _overlays[^1] :
+                   _sceneStack.Count > 0 ? _sceneStack[^1] :
                                          _current!;
         }
     }
 
-    // ── IStageRenderer ───────────────────────────────────────────────────
+    // ── IRenderer ───────────────────────────────────────────────────
 
     /// <inheritdoc/>
     public void Update(float deltaTime)
@@ -159,7 +159,7 @@ internal sealed class Director : IDirector, IStageRenderer
                 _current.IsPaused = false;
                 outgoing.OnDeactivated();
                 incoming.OnActivated();
-                // Fall through so the new screen gets its first update on this frame
+                // Fall through so the new scene gets its first update on this frame
             }
             else
             {
@@ -167,8 +167,8 @@ internal sealed class Director : IDirector, IStageRenderer
             }
         }
 
-        if (_overlays.Count > 0)
-            _overlays[^1].Update(deltaTime);
+        if (_sceneStack.Count > 0)
+            _sceneStack[^1].Update(deltaTime);
         else
             _current!.Update(deltaTime);
     }
@@ -190,13 +190,13 @@ internal sealed class Director : IDirector, IStageRenderer
         else
         {
             _current!.Draw(canvas, width, height);
-            foreach (var overlay in _overlays)
-                overlay.Draw(canvas, width, height);
+            foreach (var layer in _sceneStack)
+                layer.Draw(canvas, width, height);
         }
     }
 
     // ── Private helpers ───────────────────────────────────────────────────
 
-    private TScreen ResolveScreen<TScreen>() where TScreen : Scene =>
-        _services.GetRequiredService<TScreen>();
+    private TScene ResolveScene<TScene>() where TScene : Scene =>
+        _services.GetRequiredService<TScene>();
 }

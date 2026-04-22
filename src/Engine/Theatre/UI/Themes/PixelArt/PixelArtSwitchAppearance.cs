@@ -6,7 +6,7 @@ namespace SkiaSharp.Theatre;
 /// Pixel-art switch appearance — flat rectangular track with a small square knob.
 /// No anti-aliasing, no rounded corners.
 /// </summary>
-public record PixelArtSwitchAppearance : UiAppearance<UiSwitch>
+public record PixelArtSwitchAppearance : HudAppearance<HudSwitch>
 {
     private static readonly SKPaint FillPaint = new() { IsAntialias = false, Style = SKPaintStyle.Fill };
     private static readonly SKPaint StrokePaint = new() { IsAntialias = false, Style = SKPaintStyle.Stroke };
@@ -20,7 +20,7 @@ public record PixelArtSwitchAppearance : UiAppearance<UiSwitch>
     public static PixelArtSwitchAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiSwitch sw)
+    public override void Draw(SKCanvas canvas, HudSwitch sw)
     {
         byte alpha = (byte)(255 * Math.Clamp(sw.Alpha, 0f, 1f));
         if (alpha == 0) return;

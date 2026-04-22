@@ -1,33 +1,33 @@
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// Manages the active screen stack and transitions between screens.
+/// Manages the active scene stack and transitions between scenes.
 /// </summary>
 /// <remarks>
 /// Inject this interface into a <see cref="Scene"/> constructor to trigger transitions,
-/// push overlays, and pop overlays.
+/// push scenes, and pop scenes.
 /// </remarks>
 public interface IDirector
 {
     /// <summary>
-    /// Replaces the current screen with a new <typeparamref name="TScreen"/> instance,
-    /// optionally playing a cross-screen transition. Clears any open overlays first.
+    /// Replaces the current scene with a new <typeparamref name="TScene"/> instance,
+    /// optionally playing a cross-scene transition. Clears any open layered scenes first.
     /// </summary>
-    void TransitionTo<TScreen>(ICurtain? transition = null)
-        where TScreen : Scene;
+    void TransitionTo<TScene>(ICurtain? transition = null)
+        where TScene : Scene;
 
     /// <summary>
-    /// Pushes an overlay screen on top of the current screen.
-    /// The current screen is paused (still drawn, not updated) while any overlay is active.
+    /// Pushes a layered scene on top of the current scene.
+    /// The current scene is paused (still drawn, not updated) while any layered scene is active.
     /// </summary>
-    void PushOverlay<TOverlay>() where TOverlay : Scene;
+    void PushScene<TScene>() where TScene : Scene;
 
     /// <summary>
-    /// Removes the topmost overlay and resumes the underlying screen.
-    /// Does nothing if no overlay is currently active.
+    /// Removes the topmost layered scene and resumes the underlying scene.
+    /// Does nothing if no layered scene is currently active.
     /// </summary>
-    void PopOverlay();
+    void PopScene();
 
-    /// <summary>The screen that should receive input events.</summary>
+    /// <summary>The scene that should receive input events.</summary>
     Scene ActiveInputScene { get; }
 }

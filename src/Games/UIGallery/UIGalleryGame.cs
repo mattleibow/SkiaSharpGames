@@ -11,7 +11,7 @@ public static class UIGalleryGame
 
         builder.SetStageSize(800f, 600f);
         builder.Services.AddSingleton<UIGalleryState>();
-        builder.SetUiTheme(UiThemes.Simple);
+        builder.SetHudTheme(HudThemes.Simple);
 
         builder.Scenes.Add<PlayScreen>();
         builder.SetOpeningScene<PlayScreen>();

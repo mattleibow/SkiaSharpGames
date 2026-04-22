@@ -5,7 +5,7 @@ namespace SkiaSharp.Theatre;
 /// <summary>
 /// Neon/cyberpunk checkbox — dark square with glowing neon border and check mark.
 /// </summary>
-public record NeonCheckboxAppearance : UiAppearance<UiCheckbox>
+public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
 {
     private static readonly SKMaskFilter GlowFilter =
         SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 3f);
@@ -20,7 +20,7 @@ public record NeonCheckboxAppearance : UiAppearance<UiCheckbox>
     public static NeonCheckboxAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiCheckbox checkbox)
+    public override void Draw(SKCanvas canvas, HudCheckbox checkbox)
     {
         byte alpha = (byte)(255 * Math.Clamp(checkbox.Alpha, 0f, 1f));
         if (alpha == 0) return;

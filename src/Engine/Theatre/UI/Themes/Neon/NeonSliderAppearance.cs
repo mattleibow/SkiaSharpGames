@@ -5,7 +5,7 @@ namespace SkiaSharp.Theatre;
 /// <summary>
 /// Neon/cyberpunk slider — dark track with neon fill glow and glowing knob.
 /// </summary>
-public record NeonSliderAppearance : UiAppearance<UiSlider>
+public record NeonSliderAppearance : HudAppearance<HudSlider>
 {
     private static readonly SKMaskFilter GlowFilter =
         SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 3f);
@@ -24,7 +24,7 @@ public record NeonSliderAppearance : UiAppearance<UiSlider>
     public static NeonSliderAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiSlider slider)
+    public override void Draw(SKCanvas canvas, HudSlider slider)
     {
         byte alpha = (byte)(255 * Math.Clamp(slider.Alpha, 0f, 1f));
         if (alpha == 0) return;

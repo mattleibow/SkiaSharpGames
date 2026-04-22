@@ -5,7 +5,7 @@ namespace SkiaSharp.Theatre;
 /// <summary>
 /// Neon/cyberpunk button appearance — dark fill with glowing neon border and text.
 /// </summary>
-public record NeonButtonAppearance : UiAppearance<UiButton>
+public record NeonButtonAppearance : HudAppearance<HudButton>
 {
     private static readonly SKMaskFilter GlowFilter =
         SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 4f);
@@ -24,7 +24,7 @@ public record NeonButtonAppearance : UiAppearance<UiButton>
     public static NeonButtonAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiButton button)
+    public override void Draw(SKCanvas canvas, HudButton button)
     {
         var rect = button.LocalRect;
         bool pressed = button.IsPressed;
@@ -65,7 +65,7 @@ public record NeonButtonAppearance : UiAppearance<UiButton>
         // Label
         if (!string.IsNullOrEmpty(button.Label))
         {
-            var font = UiLabelAppearance.GetFont(button.FontSize);
+            var font = HudLabelAppearance.GetFont(button.FontSize);
             using var textPaint = new SKPaint
             {
                 IsAntialias = true,

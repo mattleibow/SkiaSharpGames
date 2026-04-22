@@ -2,15 +2,15 @@ using SkiaSharp;
 
 namespace SkiaSharp.Theatre;
 
-/// <summary>Direction from which the incoming screen slides into view.</summary>
+/// <summary>Direction from which the incoming scene slides into view.</summary>
 public enum SlideDirection { Up, Down, Left, Right }
 
 /// <summary>
-/// A slide transition: the incoming screen slides in from one edge, revealing it on top of the outgoing screen.
+/// A slide transition: the incoming scene slides in from one edge, revealing it on top of the outgoing scene.
 /// </summary>
 public sealed class SlideCurtain : ICurtain
 {
-    /// <summary>Edge from which the incoming screen enters. Defaults to <see cref="SlideDirection.Left"/>.</summary>
+    /// <summary>Edge from which the incoming scene enters. Defaults to <see cref="SlideDirection.Left"/>.</summary>
     public SlideDirection Direction { get; init; } = SlideDirection.Left;
 
     /// <inheritdoc />
@@ -22,10 +22,10 @@ public sealed class SlideCurtain : ICurtain
                      Action<SKCanvas> drawIncoming,
                      int width, int height)
     {
-        // Outgoing screen is fully visible underneath
+        // Outgoing scene is fully visible underneath
         drawOutgoing(canvas);
 
-        // Incoming screen slides in from the specified edge
+        // Incoming scene slides in from the specified edge
         float ease = Easing.EaseInOut(progress);
 
         float tx = 0f, ty = 0f;

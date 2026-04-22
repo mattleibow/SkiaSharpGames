@@ -17,8 +17,8 @@ using Xunit;
 namespace SkiaSharp.Theatre.Games.Tests;
 
 /// <summary>
-/// Smoke tests for every game: run the start screen for 3 seconds,
-/// transition to the play screen, then run gameplay for 3 seconds.
+/// Smoke tests for every game: run the start scene for 3 seconds,
+/// transition to the play scene, then run gameplay for 3 seconds.
 /// Asserts that frames render without crashing and produce visible output.
 /// </summary>
 public class GameSmokeTests
@@ -31,7 +31,7 @@ public class GameSmokeTests
     {
         using var harness = Rehearsal.FromStage(stage);
 
-        // Run the start/menu screen for 3 seconds
+        // Run the start/menu scene for 3 seconds
         harness.RunFor(MenuDuration, DeltaTime);
 
         // Capture menu frame and verify something was drawn
@@ -40,9 +40,9 @@ public class GameSmokeTests
             menuFrame.HasNonBackgroundPixel(
                 new SKRectI(0, 0, menuFrame.Width, menuFrame.Height),
                 SKColors.Transparent),
-            "Menu screen should render visible content");
+            "Menu scene should render visible content");
 
-        // Transition to play screen via click (all games support this)
+        // Transition to play scene via click (all games support this)
         harness.Click(
             stage.StageSize.Width / 2f,
             stage.StageSize.Height / 2f);
@@ -59,7 +59,7 @@ public class GameSmokeTests
             playFrame.HasNonBackgroundPixel(
                 new SKRectI(0, 0, playFrame.Width, playFrame.Height),
                 SKColors.Transparent),
-            "Play screen should render visible content");
+            "Play scene should render visible content");
 
         // Menu and play should look different
         float diff = menuFrame.DiffRatio(playFrame);
@@ -110,7 +110,7 @@ public class GameSmokeTests
     [Fact]
     public void UIGallery_PlayScreen()
     {
-        // UIGallery has no start screen — it goes directly to PlayScreen
+        // UIGallery has no start scene — it goes directly to PlayScreen
         var stage = UIGalleryGame.Create();
         using var harness = Rehearsal.FromStage(stage);
 

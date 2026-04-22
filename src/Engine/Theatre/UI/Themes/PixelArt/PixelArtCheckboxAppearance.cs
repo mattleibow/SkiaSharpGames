@@ -6,7 +6,7 @@ namespace SkiaSharp.Theatre;
 /// Pixel-art checkbox appearance — sharp square with a blocky X checkmark
 /// made of small rectangles. No anti-aliasing, no rounded corners.
 /// </summary>
-public record PixelArtCheckboxAppearance : UiAppearance<UiCheckbox>
+public record PixelArtCheckboxAppearance : HudAppearance<HudCheckbox>
 {
     private static readonly SKPaint FillPaint = new() { IsAntialias = false, Style = SKPaintStyle.Fill };
     private static readonly SKPaint StrokePaint = new() { IsAntialias = false, Style = SKPaintStyle.Stroke };
@@ -19,7 +19,7 @@ public record PixelArtCheckboxAppearance : UiAppearance<UiCheckbox>
     public static PixelArtCheckboxAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiCheckbox checkbox)
+    public override void Draw(SKCanvas canvas, HudCheckbox checkbox)
     {
         byte alpha = (byte)(255 * Math.Clamp(checkbox.Alpha, 0f, 1f));
         if (alpha == 0) return;

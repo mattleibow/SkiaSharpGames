@@ -3,8 +3,8 @@ using SkiaSharp;
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// A cross-dissolve transition: the outgoing screen fades out while the incoming screen fades in.
-/// At any point during the transition both screens are visible, blended by <c>progress</c>.
+/// A cross-dissolve transition: the outgoing scene fades out while the incoming scene fades in.
+/// At any point during the transition both scenes are visible, blended by <c>progress</c>.
 /// </summary>
 public sealed class DissolveCurtain : ICurtain
 {

@@ -6,7 +6,7 @@ namespace SkiaSharp.Theatre;
 /// Pixel-art label appearance — same text rendering but with aliased (pixel-sharp)
 /// font edging instead of anti-aliased.
 /// </summary>
-public record PixelArtLabelAppearance : UiAppearance<UiLabel>
+public record PixelArtLabelAppearance : HudAppearance<HudLabel>
 {
     private static readonly Dictionary<float, SKFont> FontCache = [];
     private static readonly SKPaint TextPaint = new() { IsAntialias = false };
@@ -14,7 +14,7 @@ public record PixelArtLabelAppearance : UiAppearance<UiLabel>
     public static PixelArtLabelAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiLabel label)
+    public override void Draw(SKCanvas canvas, HudLabel label)
     {
         if (label.Alpha <= 0f || string.IsNullOrEmpty(label.Text))
             return;

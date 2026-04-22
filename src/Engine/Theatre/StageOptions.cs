@@ -22,7 +22,7 @@ public sealed class StageOptions
 
     /// <summary>
     /// The <see cref="Scene"/>-derived type to activate when the game starts.
-    /// Set via <see cref="StageBuilder.SetOpeningScene{TScreen}"/>.
+    /// Set via <see cref="StageBuilder.SetOpeningScene{TScene}"/>.
     /// </summary>
     public Type? OpeningSceneType { get; set; }
 }

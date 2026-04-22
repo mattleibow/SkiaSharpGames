@@ -3,7 +3,7 @@ using SkiaSharp;
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// A transition that fades the outgoing screen to a solid colour and then reveals the incoming screen.
+/// A transition that fades the outgoing scene to a solid colour and then reveals the incoming scene.
 /// The total duration is split evenly: first half fades out, second half fades in.
 /// </summary>
 public sealed class FadeCurtain : ICurtain
@@ -26,13 +26,13 @@ public sealed class FadeCurtain : ICurtain
 
         if (progress < 0.5f)
         {
-            // First half: outgoing screen fades toward solid colour
+            // First half: outgoing scene fades toward solid colour
             drawOutgoing(canvas);
             overlayAlpha = progress * 2f; // 0 → 1
         }
         else
         {
-            // Second half: incoming screen reveals from solid colour
+            // Second half: incoming scene reveals from solid colour
             drawIncoming(canvas);
             overlayAlpha = 1f - (progress - 0.5f) * 2f; // 1 → 0
         }

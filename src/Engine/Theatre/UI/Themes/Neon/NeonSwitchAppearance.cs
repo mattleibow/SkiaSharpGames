@@ -5,7 +5,7 @@ namespace SkiaSharp.Theatre;
 /// <summary>
 /// Neon/cyberpunk switch — dark track with glowing neon border and knob.
 /// </summary>
-public record NeonSwitchAppearance : UiAppearance<UiSwitch>
+public record NeonSwitchAppearance : HudAppearance<HudSwitch>
 {
     private static readonly SKMaskFilter GlowFilter =
         SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 3f);
@@ -24,7 +24,7 @@ public record NeonSwitchAppearance : UiAppearance<UiSwitch>
     public static NeonSwitchAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiSwitch sw)
+    public override void Draw(SKCanvas canvas, HudSwitch sw)
     {
         byte alpha = (byte)(255 * Math.Clamp(sw.Alpha, 0f, 1f));
         if (alpha == 0) return;

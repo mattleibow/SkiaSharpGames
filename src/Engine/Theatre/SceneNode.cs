@@ -2,7 +2,7 @@ namespace SkiaSharp.Theatre;
 
 /// <summary>
 /// Base class for all nodes in the scene tree. Both <see cref="Actor"/> (visible game
-/// objects) and <see cref="Scene"/> (game screens) derive from this class, gaining a
+/// objects) and <see cref="Scene"/> (game scenes) derive from this class, gaining a
 /// shared parent/child hierarchy, recursive update/draw, and active state.
 /// </summary>
 public class SceneNode

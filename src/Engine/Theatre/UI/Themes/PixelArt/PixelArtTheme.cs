@@ -6,15 +6,15 @@ namespace SkiaSharp.Theatre;
 /// </summary>
 public static class PixelArtTheme
 {
-    /// <summary>Creates a new <see cref="UiTheme"/> with pixel-art appearances for all controls.</summary>
-    public static UiTheme Create() => new()
+    /// <summary>Creates a new <see cref="HudTheme"/> with pixel-art appearances for all controls.</summary>
+    public static HudTheme Create() => new()
     {
         Button = PixelArtButtonAppearance.Default,
         Checkbox = PixelArtCheckboxAppearance.Default,
         Switch = PixelArtSwitchAppearance.Default,
         Slider = PixelArtSliderAppearance.Default,
         Joystick = PixelArtJoystickAppearance.Default,
-        Spotlight = PixelArtPointerAppearance.Default,
+        Pointer = PixelArtPointerAppearance.Default,
         Label = PixelArtLabelAppearance.Default,
     };
 }

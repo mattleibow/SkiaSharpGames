@@ -1,6 +1,6 @@
 namespace SkiaSharpGames.LunarLander;
 
-/// <summary>Shared mutable state passed between the Lunar Lander screens.</summary>
+/// <summary>Shared mutable state passed 0.</summary>
 internal sealed class LunarLanderGameState
 {
     public float Fuel { get; set; } = LunarLanderConstants.FuelMax;

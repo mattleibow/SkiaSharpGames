@@ -3,18 +3,18 @@ using SkiaSharp;
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// Abstract base class for all game screens (start, play, game-over, overlays, …).
-/// Each screen is responsible for updating its own state and drawing itself.
+/// Abstract base class for all game scenes (start, play, game-over, layered scenes, …).
+/// Each scene is responsible for updating its own state and drawing itself.
 /// </summary>
 /// <remarks>
-/// Screens that need to trigger transitions or push overlays should inject
+/// Screens that need to trigger transitions or push scenes should inject
 /// <see cref="IDirector"/> in their constructor.
 /// </remarks>
 public abstract class Scene
 {
     /// <summary>
-    /// True while this screen has an overlay on top of it and is therefore not being updated.
-    /// The screen is still drawn as the base layer while paused.
+    /// True while this scene has a layered scene on top of it and is therefore not being updated.
+    /// The scene is still drawn as the base layer while paused.
     /// </summary>
     public bool IsPaused { get; internal set; }
 
@@ -22,7 +22,7 @@ public abstract class Scene
     /// Optional visible pointer/cursor. When set, the engine automatically updates its
     /// position from pointer events. Draw it at the end of <see cref="Draw"/> to keep it on top.
     /// </summary>
-    public Spotlight? Spotlight { get; protected set; }
+    public HudPointer? Pointer { get; protected set; }
 
     // ── Virtual update and abstract draw ──────────────────────────────────
 
@@ -64,33 +64,33 @@ public abstract class Scene
     // ── Lifecycle ─────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Called when a transition to this screen begins — i.e., the screen is about to become
-    /// visible and is starting to appear. Input events are still forwarded to this screen during
+    /// Called when a transition to this scene begins — i.e., the scene is about to become
+    /// visible and is starting to appear. Input events are still forwarded to this scene during
     /// the transition so that games can produce interactive transition effects.
     /// Typically used to initialise game state so it is ready to be drawn during the animation.
     /// </summary>
     public virtual void OnActivating() { }
 
     /// <summary>
-    /// Called once when this screen is fully visible and the transition (if any) has completed.
-    /// Typically used to perform any final setup that depends on the screen being fully active,
+    /// Called once when this scene is fully visible and the transition (if any) has completed.
+    /// Typically used to perform any final setup that depends on the scene being fully active,
     /// such as re-syncing dynamic elements to positions updated by input during the transition.
     /// </summary>
     public virtual void OnActivated() { }
 
     /// <summary>
-    /// Called when a transition away from this screen begins — i.e., the screen is starting to
-    /// disappear. Input events are still forwarded to this screen during the transition.
+    /// Called when a transition away from this scene begins — i.e., the scene is starting to
+    /// disappear. Input events are still forwarded to this scene during the transition.
     /// </summary>
     public virtual void OnDeactivating() { }
 
-    /// <summary>Called once when this screen is fully hidden and the transition has completed,
+    /// <summary>Called once when this scene is fully hidden and the transition has completed,
     /// or immediately when replaced without a transition.</summary>
     public virtual void OnDeactivated() { }
 
-    /// <summary>Called when an overlay is pushed on top of this screen.</summary>
+    /// <summary>Called when a layered scene is pushed on top of this scene.</summary>
     public virtual void OnPaused() { }
 
-    /// <summary>Called when the last overlay on top of this screen is removed.</summary>
+    /// <summary>Called when the last layered scene on top of this scene is removed.</summary>
     public virtual void OnResumed() { }
 }

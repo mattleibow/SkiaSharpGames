@@ -5,30 +5,30 @@ using Xunit;
 
 namespace SkiaSharp.Theatre.Tests;
 
-public class UiThemeTests
+public class HudThemeTests
 {
     [Fact]
     public void Build_RegistersDefaultTheme()
     {
         var stage = BuildBareGame();
-        var theme = stage.Services.GetRequiredService<UiTheme>();
+        var theme = stage.Services.GetRequiredService<HudTheme>();
 
-        Assert.IsType<UiButtonAppearance>(theme.Button);
+        Assert.IsType<HudButtonAppearance>(theme.Button);
     }
 
     [Fact]
-    public void SetUiTheme_OverridesDefaultTheme()
+    public void SetHudTheme_OverridesDefaultTheme()
     {
-        var retro = new UiTheme();
-        retro.ApplyFrom(UiThemes.Retro);
+        var retro = new HudTheme();
+        retro.ApplyFrom(HudThemes.Retro);
 
         var builder = StageBuilder.Create();
         builder.Scenes.Add<BlankScreen>();
         builder.SetOpeningScene<BlankScreen>();
-        builder.SetUiTheme(retro);
+        builder.SetHudTheme(retro);
 
         var stage = builder.Open();
-        var theme = stage.Services.GetRequiredService<UiTheme>();
+        var theme = stage.Services.GetRequiredService<HudTheme>();
 
         Assert.Same(retro, theme);
     }
@@ -36,24 +36,24 @@ public class UiThemeTests
     [Fact]
     public void ClampJoystick_ClampsToRadius()
     {
-        var clamped = UiJoystick.ClampJoystick(new SKPoint(30f, 40f), 10f);
+        var clamped = HudJoystick.ClampJoystick(new SKPoint(30f, 40f), 10f);
         float length = MathF.Sqrt(clamped.X * clamped.X + clamped.Y * clamped.Y);
 
         Assert.Equal(10f, length, 3);
     }
 
     [Fact]
-    public void Theme_Button_IsUiButtonAppearance()
+    public void Theme_Button_IsHudButtonAppearance()
     {
-        Assert.IsType<UiButtonAppearance>(UiThemes.Simple.Button);
-        Assert.IsType<UiButtonAppearance>(UiThemes.BoldCute.Button);
-        Assert.IsType<UiButtonAppearance>(UiThemes.Retro.Button);
+        Assert.IsType<HudButtonAppearance>(HudThemes.Simple.Button);
+        Assert.IsType<HudButtonAppearance>(HudThemes.BoldCute.Button);
+        Assert.IsType<HudButtonAppearance>(HudThemes.Retro.Button);
     }
 
     [Fact]
     public void Theme_HasPointerAppearance()
     {
-        Assert.IsType<UiCrosshairAppearance>(UiThemes.Simple.Spotlight);
+        Assert.IsType<HudCrosshairAppearance>(HudThemes.Simple.Pointer);
     }
 
     private static Stage BuildBareGame()

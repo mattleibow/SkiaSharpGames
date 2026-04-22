@@ -6,7 +6,7 @@ namespace SkiaSharp.Theatre;
 /// Pixel-art pointer appearance — simple 4px cross with no gap, 1px thick lines.
 /// No anti-aliasing for crisp pixel edges.
 /// </summary>
-public record PixelArtPointerAppearance : UiAppearance<Spotlight>
+public record PixelArtPointerAppearance : HudAppearance<HudPointer>
 {
     private static readonly SKPaint ShadowPaint = new()
     {
@@ -25,7 +25,7 @@ public record PixelArtPointerAppearance : UiAppearance<Spotlight>
     public static PixelArtPointerAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, Spotlight pointer)
+    public override void Draw(SKCanvas canvas, HudPointer pointer)
     {
         byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
         if (alpha == 0) return;

@@ -7,7 +7,7 @@ namespace SkiaSharp.Theatre;
 /// highlight (top-left) and shadow (bottom-right) inset lines.
 /// No anti-aliasing, no rounded corners.
 /// </summary>
-public record PixelArtButtonAppearance : UiAppearance<UiButton>
+public record PixelArtButtonAppearance : HudAppearance<HudButton>
 {
     private static readonly SKPaint FillPaint = new() { IsAntialias = false, Style = SKPaintStyle.Fill };
     private static readonly SKPaint StrokePaint = new() { IsAntialias = false, Style = SKPaintStyle.Stroke };
@@ -26,14 +26,14 @@ public record PixelArtButtonAppearance : UiAppearance<UiButton>
     public static PixelArtButtonAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiButton button)
+    public override void Draw(SKCanvas canvas, HudButton button)
     {
         DrawDirect(canvas, button.LocalRect, button.Label,
             button.IsPressed, button.IsEnabled, button.FontSize, button.Alpha);
     }
 
     /// <summary>
-    /// Draws a button directly without requiring a <see cref="UiButton"/> actor.
+    /// Draws a button directly without requiring a <see cref="HudButton"/> actor.
     /// </summary>
     public void DrawDirect(
         SKCanvas canvas,
@@ -47,7 +47,7 @@ public record PixelArtButtonAppearance : UiAppearance<UiButton>
         byte a = enabled ? (byte)(255 * Math.Clamp(alpha, 0f, 1f)) : DisabledAlpha;
         if (a == 0) return;
 
-        var font = UiLabelAppearance.GetFont(fontSize);
+        var font = HudLabelAppearance.GetFont(fontSize);
 
         // Solid fill
         FillPaint.Color = (pressed ? PressedFillColor : FillColor).WithAlpha(a);

@@ -77,7 +77,7 @@ public class StageBuilderTests
     [Fact]
     public void Build_FirstScreen_BecomesInitialScreen()
     {
-        // The initial screen is activated immediately by Build()
+        // The initial scene is activated immediately by Build()
         var tracker = new ScreenTracker();
         var builder = StageBuilder.Create();
         builder.Services.AddSingleton(tracker);
@@ -112,7 +112,7 @@ public class StageBuilderTests
         builder.Scenes
                .Add<ScreenA>()
                .Add<ScreenB>();
-        builder.SetOpeningScene<ScreenB>(); // explicitly choose a non-first screen
+        builder.SetOpeningScene<ScreenB>(); // explicitly choose a non-first scene
         builder.Open();
         Assert.False(tracker.AActivated);
         Assert.True(tracker.BActivated);
@@ -135,8 +135,8 @@ public class StageBuilderTests
         builder.Scenes.Add<OverlayScreen>();
         builder.SetOpeningScene<OverlayScreen>();
         var stage = builder.Open();
-        var coordinator = stage.Services.GetService<IDirector>();
-        Assert.NotNull(coordinator);
+        var director = stage.Services.GetService<IDirector>();
+        Assert.NotNull(director);
     }
 
     private sealed class OverlayScreen : Scene

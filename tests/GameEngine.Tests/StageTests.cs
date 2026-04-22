@@ -5,7 +5,7 @@ using Xunit;
 
 namespace SkiaSharp.Theatre.Tests;
 
-// ── Observable state shared between screens via DI ────────────────────────
+// ── Observable state shared between scenes via DI ────────────────────────
 
 file sealed class ScreenTracker
 {
@@ -24,7 +24,7 @@ file sealed class ScreenTracker
     public bool BDeactivated { get; set; }
 }
 
-// ── Minimal concrete screen implementations ───────────────────────────────
+// ── Minimal concrete scene implementations ───────────────────────────────
 
 file sealed class ScreenA(ScreenTracker t) : Scene
 {
@@ -117,8 +117,8 @@ public class StageTests
     public void Services_ExposesIDirector()
     {
         var (stage, _) = TestGameFactory.Create();
-        var coordinator = stage.Services.GetRequiredService<IDirector>();
-        Assert.NotNull(coordinator);
+        var director = stage.Services.GetRequiredService<IDirector>();
+        Assert.NotNull(director);
     }
 
     // ── TransitionTo (immediate) ───────────────────────────────────────────
@@ -183,60 +183,60 @@ public class StageTests
     public void TransitionTo_InterruptedTransition_DeactivatesAbandonedIncoming()
     {
         var (stage, tracker) = TestGameFactory.Create();
-        var coordinator = stage.Services.GetRequiredService<IDirector>();
-        coordinator.TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
-        coordinator.TransitionTo<ScreenA>();
+        var director = stage.Services.GetRequiredService<IDirector>();
+        director.TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
+        director.TransitionTo<ScreenA>();
         Assert.True(tracker.BDeactivated);
     }
 
-    // ── PushOverlay / PopOverlay ───────────────────────────────────────────
+    // ── PushScene / PopScene ───────────────────────────────────────────
 
     [Fact]
-    public void PushOverlay_PausesBaseScreen()
+    public void PushScene_PausesBaseScreen()
     {
         var (stage, tracker) = TestGameFactory.Create();
-        stage.Services.GetRequiredService<IDirector>().PushOverlay<OverlayScreen>();
+        stage.Services.GetRequiredService<IDirector>().PushScene<OverlayScreen>();
         Assert.True(tracker.APaused);
         Assert.True(tracker.AIsPausedWhenPaused);
     }
 
     [Fact]
-    public void PushOverlay_BaseScreenNotUpdated()
+    public void PushScene_BaseScreenNotUpdated()
     {
         var (stage, tracker) = TestGameFactory.Create();
-        stage.Services.GetRequiredService<IDirector>().PushOverlay<OverlayScreen>();
+        stage.Services.GetRequiredService<IDirector>().PushScene<OverlayScreen>();
         tracker.AUpdateCalled = false; // reset after initial activation
         stage.Update(0.016f);
         Assert.False(tracker.AUpdateCalled);
     }
 
     [Fact]
-    public void PopOverlay_ResumesBaseScreen()
+    public void PopScene_ResumesBaseScreen()
     {
         var (stage, tracker) = TestGameFactory.Create();
-        var coordinator = stage.Services.GetRequiredService<IDirector>();
-        coordinator.PushOverlay<OverlayScreen>();
-        coordinator.PopOverlay();
+        var director = stage.Services.GetRequiredService<IDirector>();
+        director.PushScene<OverlayScreen>();
+        director.PopScene();
         Assert.True(tracker.AResumed);
     }
 
     [Fact]
-    public void PopOverlay_WhenEmpty_DoesNothing()
+    public void PopScene_WhenEmpty_DoesNothing()
     {
         var (stage, _) = TestGameFactory.Create();
-        var ex = Record.Exception(() => stage.Services.GetRequiredService<IDirector>().PopOverlay());
+        var ex = Record.Exception(() => stage.Services.GetRequiredService<IDirector>().PopScene());
         Assert.Null(ex);
     }
 
-    // ── TransitionTo clears overlay stack ─────────────────────────────────
+    // ── TransitionTo clears scene stack ─────────────────────────────────
 
     [Fact]
     public void TransitionTo_ClearsOverlayStack_DeactivatesBase()
     {
         var (stage, tracker) = TestGameFactory.Create();
-        var coordinator = stage.Services.GetRequiredService<IDirector>();
-        coordinator.PushOverlay<OverlayScreen>();
-        coordinator.TransitionTo<ScreenB>();
+        var director = stage.Services.GetRequiredService<IDirector>();
+        director.PushScene<OverlayScreen>();
+        director.TransitionTo<ScreenB>();
         Assert.True(tracker.ADeactivated);
     }
 
@@ -352,8 +352,8 @@ public class StageTests
     public void ActiveInputScene_DuringTransition_DoesNotThrow()
     {
         var (stage, _) = InputTestFactory.Create();
-        var coordinator = stage.Services.GetRequiredService<IDirector>();
-        coordinator.TransitionTo<InputDummyScreen>(new DissolveCurtain { Duration = 1f });
+        var director = stage.Services.GetRequiredService<IDirector>();
+        director.TransitionTo<InputDummyScreen>(new DissolveCurtain { Duration = 1f });
 
         var ex = Record.Exception(() => stage.OnPointerMove(0f, 0f));
         Assert.Null(ex);

@@ -6,7 +6,7 @@ namespace SkiaSharp.Theatre;
 /// Pixel-art joystick appearance — square base outline with a square knob.
 /// No anti-aliasing, no rounded corners.
 /// </summary>
-public record PixelArtJoystickAppearance : UiAppearance<UiJoystick>
+public record PixelArtJoystickAppearance : HudAppearance<HudJoystick>
 {
     private static readonly SKPaint FillPaint = new() { IsAntialias = false, Style = SKPaintStyle.Fill };
     private static readonly SKPaint StrokePaint = new() { IsAntialias = false, Style = SKPaintStyle.Stroke };
@@ -20,7 +20,7 @@ public record PixelArtJoystickAppearance : UiAppearance<UiJoystick>
     public static PixelArtJoystickAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiJoystick joystick)
+    public override void Draw(SKCanvas canvas, HudJoystick joystick)
     {
         byte alpha = (byte)(255 * Math.Clamp(joystick.Alpha, 0f, 1f));
         if (alpha == 0) return;

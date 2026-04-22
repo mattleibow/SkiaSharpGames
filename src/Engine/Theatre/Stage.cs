@@ -11,7 +11,7 @@ namespace SkiaSharp.Theatre;
 /// <remarks>
 /// <para>
 /// Assign the instance returned by <see cref="StageBuilder.Open"/> to a view component
-/// (e.g. <c>GameView.razor</c>). The game owns its own isolated DI container, screen stack,
+/// (e.g. <c>GameView.razor</c>). The game owns its own isolated DI container, scene stack,
 /// and transition engine.
 /// </para>
 /// <example>
@@ -31,14 +31,14 @@ namespace SkiaSharp.Theatre;
 /// </remarks>
 public sealed class Stage
 {
-    private readonly IDirector _coordinator;
-    private readonly IStageRenderer _drawable;
+    private readonly IDirector _director;
+    private readonly IRenderer _drawable;
 
-    internal Stage(IServiceProvider services, IOptions<StageOptions> options, IStageRenderer drawable)
+    internal Stage(IServiceProvider services, IOptions<StageOptions> options, IRenderer drawable)
     {
         Services = services;
         StageSize = options.Value.Dimensions;
-        _coordinator = services.GetRequiredService<IDirector>();
+        _director = services.GetRequiredService<IDirector>();
         _drawable = drawable;
     }
 
@@ -53,7 +53,7 @@ public sealed class Stage
     /// <summary>
     /// Logical (virtual) dimensions of the game canvas in game-space units.
     /// Set via <see cref="StageBuilder.SetStageSize"/> before calling
-    /// <see cref="StageBuilder.Open"/>. All screens in the game share this value.
+    /// <see cref="StageBuilder.Open"/>. All scenes in the game share this value.
     /// </summary>
     public SKSize StageSize { get; }
 
@@ -63,7 +63,7 @@ public sealed class Stage
     /// <summary>Draws the current frame to <paramref name="canvas"/>.</summary>
     /// <remarks>
     /// Computes the fit-and-centre transform from pixel space to game space once, then
-    /// delegates to <see cref="IStageRenderer.Draw"/> with a pre-transformed canvas.
+    /// delegates to <see cref="IRenderer.Draw"/> with a pre-transformed canvas.
     /// Screens always receive a canvas in game-space coordinates — they never need to
     /// compute or apply their own scale/offset.
     /// </remarks>
@@ -89,31 +89,31 @@ public sealed class Stage
     /// <summary>Called when the pointer/mouse moves over the canvas.</summary>
     public void OnPointerMove(float x, float y)
     {
-        var scene = _coordinator.ActiveInputScene;
-        if (scene.Spotlight is { } p) { p.X = x; p.Y = y; p.Visible = true; }
+        var scene = _director.ActiveInputScene;
+        if (scene.Pointer is { } p) { p.X = x; p.Y = y; p.Visible = true; }
         scene.OnPointerMove(x, y);
     }
 
     /// <summary>Called when the user clicks or taps the canvas.</summary>
     public void OnPointerDown(float x, float y)
     {
-        var scene = _coordinator.ActiveInputScene;
-        if (scene.Spotlight is { } p) { p.IsDown = true; p.X = x; p.Y = y; p.Visible = true; }
+        var scene = _director.ActiveInputScene;
+        if (scene.Pointer is { } p) { p.IsDown = true; p.X = x; p.Y = y; p.Visible = true; }
         scene.OnPointerDown(x, y);
     }
 
     /// <summary>Called when the user releases a click or touch on the canvas.</summary>
     public void OnPointerUp(float x, float y)
     {
-        var scene = _coordinator.ActiveInputScene;
-        if (scene.Spotlight is { } p) { p.X = x; p.Y = y; p.IsDown = false; }
+        var scene = _director.ActiveInputScene;
+        if (scene.Pointer is { } p) { p.X = x; p.Y = y; p.IsDown = false; }
         scene.OnPointerUp(x, y);
     }
 
     /// <summary>Called when a key is pressed while the game canvas has focus.</summary>
-    public void OnKeyDown(string key) => _coordinator.ActiveInputScene.OnKeyDown(key);
+    public void OnKeyDown(string key) => _director.ActiveInputScene.OnKeyDown(key);
 
     /// <summary>Called when a key is released while the game canvas has focus.</summary>
-    public void OnKeyUp(string key) => _coordinator.ActiveInputScene.OnKeyUp(key);
+    public void OnKeyUp(string key) => _director.ActiveInputScene.OnKeyUp(key);
 }
 

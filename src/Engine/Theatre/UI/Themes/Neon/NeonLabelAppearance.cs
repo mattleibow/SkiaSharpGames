@@ -5,7 +5,7 @@ namespace SkiaSharp.Theatre;
 /// <summary>
 /// Neon/cyberpunk label — neon-colored text with optional glow behind it.
 /// </summary>
-public record NeonLabelAppearance : UiAppearance<UiLabel>
+public record NeonLabelAppearance : HudAppearance<HudLabel>
 {
     private static readonly SKMaskFilter GlowFilter =
         SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 2f);
@@ -15,12 +15,12 @@ public record NeonLabelAppearance : UiAppearance<UiLabel>
     public static NeonLabelAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiLabel label)
+    public override void Draw(SKCanvas canvas, HudLabel label)
     {
         if (label.Alpha <= 0f || string.IsNullOrEmpty(label.Text))
             return;
 
-        var font = UiLabelAppearance.GetFont(label.FontSize);
+        var font = HudLabelAppearance.GetFont(label.FontSize);
         byte a = (byte)(255 * Math.Clamp(label.Alpha, 0f, 1f));
 
         float drawX = label.Align switch

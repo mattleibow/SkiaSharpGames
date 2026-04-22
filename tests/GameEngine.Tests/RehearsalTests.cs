@@ -6,7 +6,7 @@ using Xunit;
 
 namespace SkiaSharp.Theatre.Tests;
 
-// ── Test screens for harness tests ────────────────────────────────────────
+// ── Test scenes for harness tests ────────────────────────────────────────
 
 file sealed class HarnessState
 {
@@ -16,7 +16,7 @@ file sealed class HarnessState
     public bool GameStarted { get; set; }
 }
 
-file sealed class HarnessStartScreen(HarnessState state, IDirector coordinator) : Scene
+file sealed class HarnessStartScreen(HarnessState state, IDirector director) : Scene
 {
     public override void Draw(SKCanvas canvas, int width, int height)
     {
@@ -33,7 +33,7 @@ file sealed class HarnessStartScreen(HarnessState state, IDirector coordinator) 
         if (x >= 350 && x <= 450 && y >= 250 && y <= 300)
         {
             state.GameStarted = true;
-            coordinator.TransitionTo<HarnessPlayScreen>();
+            director.TransitionTo<HarnessPlayScreen>();
         }
     }
 }
@@ -62,7 +62,7 @@ file sealed class HarnessPlayScreen(HarnessState state) : Scene
         canvas.DrawCircle(_ball.X, _ball.Y, 10f, paint);
 
         // Draw score label
-        var label = new UiLabel { Text = $"Frame: {state.UpdateCount}", FontSize = 20f, Color = SKColors.White };
+        var label = new HudLabel { Text = $"Frame: {state.UpdateCount}", FontSize = 20f, Color = SKColors.White };
         label.X = 10f; label.Y = 25f;
         label.Draw(canvas);
     }
@@ -136,7 +136,7 @@ public class RehearsalTests
         h.RunFrame();
 
         using var frame = h.CaptureFrame();
-        // The start screen draws a red rect at (350,250)-(450,300)
+        // The start scene draws a red rect at (350,250)-(450,300)
         var buttonRegion = new SKRectI(360, 260, 440, 290);
         Assert.True(frame.HasNonBackgroundPixel(buttonRegion, SKColors.Black));
 
@@ -175,7 +175,7 @@ public class RehearsalTests
         h.Click(400, 275);
         Assert.True(state.GameStarted);
 
-        // Advance some frames on the play screen
+        // Advance some frames on the play scene
         h.RunFrames(30);
         Assert.True(state.UpdateCount > 0);
     }
@@ -186,7 +186,7 @@ public class RehearsalTests
         using var h = CreateHarness();
         h.RunFrame();
 
-        // Transition to play screen
+        // Transition to play scene
         h.Click(400, 275);
         h.RunFrame();
 
@@ -215,7 +215,7 @@ public class RehearsalTests
         h.RunFrame();
         using var startFrame = h.CaptureFrame();
 
-        h.Click(400, 275); // transition to play screen
+        h.Click(400, 275); // transition to play scene
         h.RunFrames(5);
         using var playFrame = h.CaptureFrame();
 
@@ -256,9 +256,9 @@ public class RehearsalTests
     [Fact]
     public void Actor_Dump_ShowsConcreteTypeName()
     {
-        var button = new UiButton(100f, 40f, new UiTheme());
+        var button = new HudButton(100f, 40f, new HudTheme());
         string dump = button.Dump();
-        Assert.Contains("UiButton", dump);
+        Assert.Contains("HudButton", dump);
         Assert.Contains("collider: Rect 100x40", dump);
     }
 
@@ -268,7 +268,7 @@ public class RehearsalTests
     public void FrameSnapshot_IsRegionSolidColor()
     {
         using var h = CreateHarness();
-        h.RunFrame(); // Start screen: black background with red button
+        h.RunFrame(); // Start scene: black background with red button
 
         using var frame = h.CaptureFrame();
         // Top-left corner should be solid black (no UI there)

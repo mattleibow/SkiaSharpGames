@@ -5,7 +5,7 @@ namespace SkiaSharp.Theatre;
 /// <summary>
 /// Appearance for <see cref="HudSlider"/>. Owns visual properties and draw logic.
 /// </summary>
-public record HudSliderAppearance : HudAppearance<HudSlider>
+public record DefaultSliderAppearance : HudAppearance<HudSlider>
 {
     private static readonly SKPaint FillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private static readonly SKPaint StrokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
@@ -18,7 +18,7 @@ public record HudSliderAppearance : HudAppearance<HudSlider>
     public float KnobRadius { get; init; } = 11f;
     public float BorderWidth { get; init; } = 2f;
 
-    public static HudSliderAppearance Default { get; } = new();
+    public static DefaultSliderAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudSlider slider)

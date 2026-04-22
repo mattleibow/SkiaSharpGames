@@ -65,7 +65,7 @@ public record NeonButtonAppearance : HudAppearance<HudButton>
         // Label
         if (!string.IsNullOrEmpty(button.Label))
         {
-            var font = HudLabelAppearance.GetFont(button.FontSize);
+            var font = DefaultLabelAppearance.GetFont(button.FontSize);
             using var textPaint = new SKPaint
             {
                 IsAntialias = true,

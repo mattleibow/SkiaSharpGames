@@ -12,7 +12,9 @@ public class SceneNode
     /// <summary>Optional human-readable name for debugging and lookup.</summary>
     public string? Name { get; set; }
 
-    /// <summary>When <see langword="false"/> the node is skipped during update and rendering.</summary>
+    /// <summary>
+    /// When <see langword="false"/> the node is skipped during update and rendering.
+    /// </summary>
     public bool Active { get; set; } = true;
 
     // ── Children ──────────────────────────────────────────────────────
@@ -73,21 +75,27 @@ public class SceneNode
     /// <summary>Returns the index of <paramref name="child"/>, or -1 if not found.</summary>
     public int IndexOf(SceneNode child) => _children?.IndexOf(child) ?? -1;
 
-    /// <summary>Moves <paramref name="child"/> to the end of the children list (drawn last / on top).</summary>
+    /// <summary>
+    /// Moves <paramref name="child"/> to the end of the children list (drawn last / on top).
+    /// </summary>
     public void MoveChildToFront(SceneNode child)
     {
         if (_children is null || !_children.Remove(child)) return;
         _children.Add(child);
     }
 
-    /// <summary>Moves <paramref name="child"/> to the start of the children list (drawn first / behind).</summary>
+    /// <summary>
+    /// Moves <paramref name="child"/> to the start of the children list (drawn first / behind).
+    /// </summary>
     public void MoveChildToBack(SceneNode child)
     {
         if (_children is null || !_children.Remove(child)) return;
         _children.Insert(0, child);
     }
 
-    /// <summary>Moves <paramref name="child"/> one position toward the end (drawn later).</summary>
+    /// <summary>
+    /// Moves <paramref name="child"/> one position toward the end (drawn later).
+    /// </summary>
     public void MoveChildUp(SceneNode child)
     {
         if (_children is null) return;
@@ -96,7 +104,9 @@ public class SceneNode
         (_children[idx], _children[idx + 1]) = (_children[idx + 1], _children[idx]);
     }
 
-    /// <summary>Moves <paramref name="child"/> one position toward the start (drawn earlier).</summary>
+    /// <summary>
+    /// Moves <paramref name="child"/> one position toward the start (drawn earlier).
+    /// </summary>
     public void MoveChildDown(SceneNode child)
     {
         if (_children is null) return;
@@ -143,7 +153,9 @@ public class SceneNode
     /// <summary>Override to render the node.</summary>
     protected virtual void OnDraw(SkiaSharp.SKCanvas canvas) { }
 
-    /// <summary>Called when this node is added to a parent. Override to react to reparenting.</summary>
+    /// <summary>
+    /// Called when this node is added to a parent. Override to react to reparenting.
+    /// </summary>
     protected virtual void OnAddedToParent() { }
 
     /// <summary>Called when this node is removed from a parent.</summary>

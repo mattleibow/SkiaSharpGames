@@ -6,7 +6,7 @@ namespace SkiaSharp.Theatre;
 /// Toggle button appearance for <see cref="HudButton"/> — renders as a
 /// button that shows ON/OFF text based on <see cref="HudButton.IsOn"/>.
 /// </summary>
-public record HudToggleButtonAppearance : HudAppearance<HudButton>
+public record DefaultToggleButtonAppearance : HudAppearance<HudButton>
 {
     public SKColor OffColor { get; init; } = new(0x44, 0x4F, 0x5E);
     public SKColor OnColor { get; init; } = new(0x46, 0xA4, 0xF6);
@@ -15,10 +15,10 @@ public record HudToggleButtonAppearance : HudAppearance<HudButton>
     public float CornerRadius { get; init; } = 14f;
     public float BorderWidth { get; init; } = 2f;
 
-    private HudButtonAppearance? _cachedOnAppearance;
-    private HudButtonAppearance? _cachedOffAppearance;
+    private DefaultButtonAppearance? _cachedOnAppearance;
+    private DefaultButtonAppearance? _cachedOffAppearance;
 
-    public static HudToggleButtonAppearance Default { get; } = new();
+    public static DefaultToggleButtonAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudButton button)
@@ -33,7 +33,7 @@ public record HudToggleButtonAppearance : HudAppearance<HudButton>
             alpha: button.Alpha);
     }
 
-    private HudButtonAppearance MakeAppearance(SKColor fill) => new()
+    private DefaultButtonAppearance MakeAppearance(SKColor fill) => new()
     {
         FillColor = fill,
         PressedFillColor = fill,

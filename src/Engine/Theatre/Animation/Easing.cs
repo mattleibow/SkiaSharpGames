@@ -24,10 +24,18 @@ public static class Easing
     {
         const float n = 7.5625f, d = 2.75f;
         if (t < 1f / d) return n * t * t;
-        if (t < 2f / d) { t -= 1.5f / d; return n * t * t + 0.75f; }
-        if (t < 2.5f / d) { t -= 2.25f / d; return n * t * t + 0.9375f; }
-        /* t < 2.625/d */
-        t -= 2.625f / d; return n * t * t + 0.984375f;
+        if (t < 2f / d)
+        {
+            t -= 1.5f / d;
+            return n * t * t + 0.75f;
+        }
+        if (t < 2.5f / d)
+        {
+            t -= 2.25f / d;
+            return n * t * t + 0.9375f;
+        }
+        t -= 2.625f / d;
+        return n * t * t + 0.984375f;
     };
 
     /// <summary>Overshoots slightly then settles back (back-ease-out).</summary>

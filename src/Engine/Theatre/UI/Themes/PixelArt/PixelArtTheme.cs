@@ -6,7 +6,9 @@ namespace SkiaSharp.Theatre;
 /// </summary>
 public static class PixelArtTheme
 {
-    /// <summary>Creates a new <see cref="HudTheme"/> with pixel-art appearances for all controls.</summary>
+    /// <summary>
+    /// Creates a new <see cref="HudTheme"/> with pixel-art appearances for all controls.
+    /// </summary>
     public static HudTheme Create() => new()
     {
         Button = PixelArtButtonAppearance.Default,

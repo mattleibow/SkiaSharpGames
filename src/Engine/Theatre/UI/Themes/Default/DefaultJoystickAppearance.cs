@@ -6,7 +6,7 @@ namespace SkiaSharp.Theatre;
 /// Appearance for <see cref="HudJoystick"/>. Owns visual properties and draw logic.
 /// Draws at local origin (0,0); the actor transform handles positioning.
 /// </summary>
-public record HudJoystickAppearance : HudAppearance<HudJoystick>
+public record DefaultJoystickAppearance : HudAppearance<HudJoystick>
 {
     private static readonly SKPaint FillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private static readonly SKPaint StrokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
@@ -17,7 +17,7 @@ public record HudJoystickAppearance : HudAppearance<HudJoystick>
     public SKColor KnobBorderColor { get; init; } = new(0x10, 0x16, 0x20);
     public float BorderWidth { get; init; } = 2f;
 
-    public static HudJoystickAppearance Default { get; } = new();
+    public static DefaultJoystickAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudJoystick joystick)

@@ -7,14 +7,14 @@ namespace SkiaSharp.Theatre.Tests;
 public class HudControlsTests
 {
     [Fact]
-    public void HudButtonAppearance_DrawDirect_CoversDefaultPaths()
+    public void DefaultButtonAppearance_DrawDirect_CoversDefaultPaths()
     {
         using var bitmap = new SKBitmap(200, 120);
         using var canvas = new SKCanvas(bitmap);
         var rect = SKRect.Create(20f, 20f, 140f, 60f);
 
-        HudButtonAppearance.Default.DrawDirect(canvas, rect, "PLAY", pressed: false, enabled: true);
-        (HudButtonAppearance.Default with { BevelSize = 0f }).DrawDirect(canvas, rect, "PLAY", pressed: true, enabled: false);
+        DefaultButtonAppearance.Default.DrawDirect(canvas, rect, "PLAY", pressed: false, enabled: true);
+        (DefaultButtonAppearance.Default with { BevelSize = 0f }).DrawDirect(canvas, rect, "PLAY", pressed: true, enabled: false);
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class HudControlsTests
         sliding.IsOn = false;
         sliding.Draw(canvas);
 
-        var toggle = new HudButton(120f, 44f, tp) { IsToggle = true, IsOn = true, Appearance = HudToggleButtonAppearance.Default };
+        var toggle = new HudButton(120f, 44f, tp) { IsToggle = true, IsOn = true, Appearance = DefaultToggleButtonAppearance.Default };
         toggle.Draw(canvas);
     }
 

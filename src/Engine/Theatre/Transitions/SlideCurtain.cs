@@ -10,7 +10,9 @@ public enum SlideDirection { Up, Down, Left, Right }
 /// </summary>
 public sealed class SlideCurtain : ICurtain
 {
-    /// <summary>Edge from which the incoming scene enters. Defaults to <see cref="SlideDirection.Left"/>.</summary>
+    /// <summary>
+    /// Edge from which the incoming scene enters. Defaults to <see cref="SlideDirection.Left"/>.
+    /// </summary>
     public SlideDirection Direction { get; init; } = SlideDirection.Left;
 
     /// <inheritdoc />
@@ -31,10 +33,18 @@ public sealed class SlideCurtain : ICurtain
         float tx = 0f, ty = 0f;
         switch (Direction)
         {
-            case SlideDirection.Left: tx = width * (1f - ease); break;
-            case SlideDirection.Right: tx = -width * (1f - ease); break;
-            case SlideDirection.Up: ty = height * (1f - ease); break;
-            case SlideDirection.Down: ty = -height * (1f - ease); break;
+            case SlideDirection.Left:
+                tx = width * (1f - ease);
+                break;
+            case SlideDirection.Right:
+                tx = -width * (1f - ease);
+                break;
+            case SlideDirection.Up:
+                ty = height * (1f - ease);
+                break;
+            case SlideDirection.Down:
+                ty = -height * (1f - ease);
+                break;
         }
 
         canvas.Save();

@@ -477,7 +477,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        var appearance = (HudButtonAppearance)themes.Button with
+        var appearance = (DefaultButtonAppearance)themes.Button with
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,

@@ -57,7 +57,7 @@ internal sealed class PlayScreen : Scene
         _overrideButton = new HudButton(190f, 56f, theme) { X = 345f, Y = 138f, Label = "Override" };
         _checkbox = new HudCheckbox(34f, 34f, theme) { X = 57f, Y = 221f, IsChecked = true };
         _slideSwitch = new HudSwitch(110f, 42f, theme) { X = 95f, Y = 289f };
-        _toggleButton = new HudButton(130f, 42f, theme) { X = 233f, Y = 289f, IsToggle = true, Appearance = HudToggleButtonAppearance.Default };
+        _toggleButton = new HudButton(130f, 42f, theme) { X = 233f, Y = 289f, IsToggle = true, Appearance = DefaultToggleButtonAppearance.Default };
         _slider = new HudSlider(320f, 26f, theme) { X = 200f, Y = 363f, Value = 0.45f };
         _customButton = new HudButton(260f, 58f, theme) { X = 170f, Y = 445f };
         _joystick = new HudJoystick(86f, theme) { X = 620f, Y = 360f };
@@ -152,7 +152,7 @@ internal sealed class PlayScreen : Scene
     public override void Draw(SKCanvas canvas, int width, int height)
     {
         var theme = _theme;
-        using var backgroundPaint = new SKPaint { IsAntialias = true, Color = ((HudButtonAppearance)theme.Button).FillColor.WithAlpha(35) };
+        using var backgroundPaint = new SKPaint { IsAntialias = true, Color = ((DefaultButtonAppearance)theme.Button).FillColor.WithAlpha(35) };
         using var textPaint = new SKPaint { IsAntialias = true, Color = SKColors.White };
         using var headerFont = new SKFont(SKTypeface.Default, 26f);
         using var labelFont = new SKFont(SKTypeface.Default, 18f);
@@ -183,7 +183,7 @@ internal sealed class PlayScreen : Scene
     private void ConfigureOverrides()
     {
         // Override button uses a custom green appearance
-        _overrideButton.Appearance = HudButtonAppearance.Default with
+        _overrideButton.Appearance = DefaultButtonAppearance.Default with
         {
             FillColor = new SKColor(0x39, 0xC6, 0x91),
             PressedFillColor = new SKColor(0x1F, 0x8A, 0x64),
@@ -207,7 +207,7 @@ internal sealed class PlayScreen : Scene
     private static void UpdateThemeButtonStyle(HudButton button, HudTheme themeTemplate, bool selected)
     {
         var baseAppearance = themeTemplate.Button;
-        if (selected && baseAppearance is HudButtonAppearance typed)
+        if (selected && baseAppearance is DefaultButtonAppearance typed)
             button.Appearance = typed with { BorderColor = SKColors.White, BorderWidth = typed.BorderWidth + 1f };
         else
             button.Appearance = baseAppearance;

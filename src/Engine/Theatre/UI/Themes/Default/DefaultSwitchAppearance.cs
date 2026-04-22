@@ -5,7 +5,7 @@ namespace SkiaSharp.Theatre;
 /// <summary>
 /// Default sliding switch appearance — track with a sliding knob.
 /// </summary>
-public record HudSwitchAppearance : HudAppearance<HudSwitch>
+public record DefaultSwitchAppearance : HudAppearance<HudSwitch>
 {
     private static readonly SKPaint FillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private static readonly SKPaint StrokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
@@ -17,7 +17,7 @@ public record HudSwitchAppearance : HudAppearance<HudSwitch>
     public float CornerRadius { get; init; } = 14f;
     public float BorderWidth { get; init; } = 2f;
 
-    public static HudSwitchAppearance Default { get; } = new();
+    public static DefaultSwitchAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudSwitch sw)

@@ -41,7 +41,7 @@ public class HudControlEntityTests
     public void HudButton_Appearance_UsesOverrideWhenSet()
     {
         var button = new HudButton(100f, 40f, Theme);
-        var custom = HudButtonAppearance.Default with { CornerRadius = 99f };
+        var custom = DefaultButtonAppearance.Default with { CornerRadius = 99f };
         button.Appearance = custom;
         Assert.Same(custom, button.Appearance);
     }
@@ -132,7 +132,7 @@ public class HudControlEntityTests
     public void HudCheckbox_Appearance_UsesOverrideWhenSet()
     {
         var cb = new HudCheckbox(30f, 30f, Theme);
-        var custom = HudCheckboxAppearance.Default with { CornerRadius = 99f };
+        var custom = DefaultCheckboxAppearance.Default with { CornerRadius = 99f };
         cb.Appearance = custom;
         Assert.Same(custom, cb.Appearance);
     }
@@ -167,15 +167,15 @@ public class HudControlEntityTests
     public void HudButton_ToggleButton_ViaAppearance()
     {
         var btn = new HudButton(100f, 40f, Theme) { IsToggle = true };
-        btn.Appearance = HudToggleButtonAppearance.Default;
-        Assert.IsType<HudToggleButtonAppearance>(btn.Appearance);
+        btn.Appearance = DefaultToggleButtonAppearance.Default;
+        Assert.IsType<DefaultToggleButtonAppearance>(btn.Appearance);
     }
 
     [Fact]
     public void HudSwitch_Appearance_UsesOverrideWhenSet()
     {
         var sw = new HudSwitch(100f, 40f, Theme);
-        var custom = HudSwitchAppearance.Default with { CornerRadius = 99f };
+        var custom = DefaultSwitchAppearance.Default with { CornerRadius = 99f };
         sw.Appearance = custom;
         Assert.Same(custom, sw.Appearance);
     }
@@ -189,7 +189,7 @@ public class HudControlEntityTests
         var sliding = new HudSwitch(100f, 40f, Theme) { IsOn = true };
         sliding.Draw(canvas);
 
-        var toggle = new HudButton(100f, 40f, Theme) { IsToggle = true, IsOn = false, Appearance = HudToggleButtonAppearance.Default };
+        var toggle = new HudButton(100f, 40f, Theme) { IsToggle = true, IsOn = false, Appearance = DefaultToggleButtonAppearance.Default };
         toggle.Draw(canvas);
     }
 
@@ -237,7 +237,7 @@ public class HudControlEntityTests
     public void HudSlider_Appearance_UsesOverrideWhenSet()
     {
         var slider = new HudSlider(200f, 20f, Theme);
-        var custom = HudSliderAppearance.Default with { TrackHeight = 99f };
+        var custom = DefaultSliderAppearance.Default with { TrackHeight = 99f };
         slider.Appearance = custom;
         Assert.Same(custom, slider.Appearance);
     }
@@ -318,7 +318,7 @@ public class HudControlEntityTests
     public void HudJoystick_Appearance_UsesOverrideWhenSet()
     {
         var js = new HudJoystick(80f, Theme);
-        var custom = HudJoystickAppearance.Default with { BorderWidth = 99f };
+        var custom = DefaultJoystickAppearance.Default with { BorderWidth = 99f };
         js.Appearance = custom;
         Assert.Same(custom, js.Appearance);
     }

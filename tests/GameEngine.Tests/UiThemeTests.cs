@@ -13,7 +13,7 @@ public class HudThemeTests
         var stage = BuildBareGame();
         var theme = stage.Services.GetRequiredService<HudTheme>();
 
-        Assert.IsType<HudButtonAppearance>(theme.Button);
+        Assert.IsType<DefaultButtonAppearance>(theme.Button);
     }
 
     [Fact]
@@ -43,17 +43,17 @@ public class HudThemeTests
     }
 
     [Fact]
-    public void Theme_Button_IsHudButtonAppearance()
+    public void Theme_Button_IsDefaultButtonAppearance()
     {
-        Assert.IsType<HudButtonAppearance>(HudThemes.Simple.Button);
-        Assert.IsType<HudButtonAppearance>(HudThemes.BoldCute.Button);
-        Assert.IsType<HudButtonAppearance>(HudThemes.Retro.Button);
+        Assert.IsType<DefaultButtonAppearance>(HudThemes.Simple.Button);
+        Assert.IsType<DefaultButtonAppearance>(HudThemes.BoldCute.Button);
+        Assert.IsType<DefaultButtonAppearance>(HudThemes.Retro.Button);
     }
 
     [Fact]
     public void Theme_HasPointerAppearance()
     {
-        Assert.IsType<HudCrosshairAppearance>(HudThemes.Simple.Pointer);
+        Assert.IsType<DefaultCrosshairAppearance>(HudThemes.Simple.Pointer);
     }
 
     private static Stage BuildBareGame()

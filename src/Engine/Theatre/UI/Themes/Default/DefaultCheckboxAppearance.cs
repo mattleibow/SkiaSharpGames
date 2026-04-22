@@ -5,7 +5,7 @@ namespace SkiaSharp.Theatre;
 /// <summary>
 /// Appearance for <see cref="HudCheckbox"/>. Owns visual properties and draw logic.
 /// </summary>
-public record HudCheckboxAppearance : HudAppearance<HudCheckbox>
+public record DefaultCheckboxAppearance : HudAppearance<HudCheckbox>
 {
     private static readonly SKPaint FillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private static readonly SKPaint StrokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
@@ -16,7 +16,7 @@ public record HudCheckboxAppearance : HudAppearance<HudCheckbox>
     public float CornerRadius { get; init; } = 6f;
     public float BorderWidth { get; init; } = 2f;
 
-    public static HudCheckboxAppearance Default { get; } = new();
+    public static DefaultCheckboxAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudCheckbox checkbox)

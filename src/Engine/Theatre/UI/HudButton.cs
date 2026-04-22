@@ -45,7 +45,9 @@ public class HudButton : HudControl
     /// <summary>Whether this button behaves as a toggle (on/off).</summary>
     public bool IsToggle { get; set; }
 
-    /// <summary>Whether the toggle button is currently on (only meaningful when <see cref="IsToggle"/> is true).</summary>
+    /// <summary>
+    /// Whether the toggle button is currently on (only meaningful when <see cref="IsToggle"/> is true).
+    /// </summary>
     public bool IsOn { get; set; }
 
     /// <summary>Font size for the label text.</summary>

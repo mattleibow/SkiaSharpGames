@@ -90,7 +90,12 @@ public sealed class Stage
     public void OnPointerMove(float x, float y)
     {
         var scene = _director.ActiveInputScene;
-        if (scene.Pointer is { } p) { p.X = x; p.Y = y; p.Visible = true; }
+        if (scene.Pointer is { } p)
+        {
+            p.X = x;
+            p.Y = y;
+            p.Visible = true;
+        }
         scene.OnPointerMove(x, y);
     }
 
@@ -98,7 +103,13 @@ public sealed class Stage
     public void OnPointerDown(float x, float y)
     {
         var scene = _director.ActiveInputScene;
-        if (scene.Pointer is { } p) { p.IsDown = true; p.X = x; p.Y = y; p.Visible = true; }
+        if (scene.Pointer is { } p)
+        {
+            p.IsDown = true;
+            p.X = x;
+            p.Y = y;
+            p.Visible = true;
+        }
         scene.OnPointerDown(x, y);
     }
 
@@ -106,7 +117,12 @@ public sealed class Stage
     public void OnPointerUp(float x, float y)
     {
         var scene = _director.ActiveInputScene;
-        if (scene.Pointer is { } p) { p.X = x; p.Y = y; p.IsDown = false; }
+        if (scene.Pointer is { } p)
+        {
+            p.X = x;
+            p.Y = y;
+            p.IsDown = false;
+        }
         scene.OnPointerUp(x, y);
     }
 

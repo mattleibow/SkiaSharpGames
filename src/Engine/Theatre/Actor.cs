@@ -22,7 +22,9 @@ public class Actor : SceneNode
 
     // ── Local position / rotation ─────────────────────────────────────
 
-    /// <summary>Horizontal position in local space (relative to parent, or world if root).</summary>
+    /// <summary>
+    /// Horizontal position in local space (relative to parent, or world if root).
+    /// </summary>
     public float X
     {
         get => _x;
@@ -112,7 +114,9 @@ public class Actor : SceneNode
     /// <summary>Opacity from 0 (invisible) to 1 (fully opaque).</summary>
     public float Alpha { get; set; } = 1f;
 
-    /// <summary>Collision shape. Used by <see cref="WorldBoundingBox"/> and collision helpers.</summary>
+    /// <summary>
+    /// Collision shape. Used by <see cref="WorldBoundingBox"/> and collision helpers.
+    /// </summary>
     public Collider2D? Collider { get; set; }
 
     /// <summary>Velocity-driven movement. Stepped automatically by <see cref="Update"/>.</summary>
@@ -206,7 +210,9 @@ public class Actor : SceneNode
     public bool TryGetHit(Actor other, out CollisionHit hit) =>
         CollisionResolver.TryGetHit(this, other, out hit);
 
-    /// <summary>If overlapping, bounces this actor's rigidbody off <paramref name="other"/>.</summary>
+    /// <summary>
+    /// If overlapping, bounces this actor's rigidbody off <paramref name="other"/>.
+    /// </summary>
     public bool BounceOff(Actor other)
     {
         if (Rigidbody is null || !TryGetHit(other, out var hit)) return false;
@@ -216,7 +222,9 @@ public class Actor : SceneNode
 
     // ── Child queries ─────────────────────────────────────────────────
 
-    /// <summary>Aggregate world-space bounding box of all active Actor children with colliders.</summary>
+    /// <summary>
+    /// Aggregate world-space bounding box of all active Actor children with colliders.
+    /// </summary>
     public SKRect? ChildrenBoundingBox
     {
         get

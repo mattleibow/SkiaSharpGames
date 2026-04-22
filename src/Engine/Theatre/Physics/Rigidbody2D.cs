@@ -40,7 +40,9 @@ public sealed class Rigidbody2D
         VelocityY = 0f;
     }
 
-    /// <summary>Advances <paramref name="owner"/>'s position by velocity × <paramref name="deltaTime"/>.</summary>
+    /// <summary>
+    /// Advances <paramref name="owner"/>'s position by velocity × <paramref name="deltaTime"/>.
+    /// </summary>
     public void Step(Actor owner, float deltaTime)
     {
         owner.X += VelocityX * deltaTime;

@@ -6,21 +6,25 @@ namespace SkiaSharp.Theatre;
 /// Crosshair pointer appearance — two thin lines with a gap in the center.
 /// This is the default pointer appearance.
 /// </summary>
-public record HudCrosshairAppearance : HudAppearance<HudPointer>
+public record DefaultCrosshairAppearance : HudAppearance<HudPointer>
 {
     private static readonly SKPaint StrokeDark = new()
     {
-        IsAntialias = true, Style = SKPaintStyle.Stroke,
-        StrokeWidth = 2.5f, Color = new SKColor(0, 0, 0, 180)
+        IsAntialias = true,
+        Style = SKPaintStyle.Stroke,
+        StrokeWidth = 2.5f,
+        Color = new SKColor(0, 0, 0, 180)
     };
 
     private static readonly SKPaint StrokeLight = new()
     {
-        IsAntialias = true, Style = SKPaintStyle.Stroke,
-        StrokeWidth = 1.5f, Color = SKColors.White
+        IsAntialias = true,
+        Style = SKPaintStyle.Stroke,
+        StrokeWidth = 1.5f,
+        Color = SKColors.White
     };
 
-    public static HudCrosshairAppearance Default { get; } = new();
+    public static DefaultCrosshairAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudPointer pointer)
@@ -48,19 +52,23 @@ public record HudCrosshairAppearance : HudAppearance<HudPointer>
 /// <summary>
 /// Dot pointer appearance — small filled circle with a contrasting outline.
 /// </summary>
-public record HudDotAppearance : HudAppearance<HudPointer>
+public record DefaultDotAppearance : HudAppearance<HudPointer>
 {
     private static readonly SKPaint FillLight = new()
     {
-        IsAntialias = true, Style = SKPaintStyle.Fill, Color = SKColors.White
+        IsAntialias = true,
+        Style = SKPaintStyle.Fill,
+        Color = SKColors.White
     };
 
     private static readonly SKPaint FillDark = new()
     {
-        IsAntialias = true, Style = SKPaintStyle.Fill, Color = new SKColor(0, 0, 0, 180)
+        IsAntialias = true,
+        Style = SKPaintStyle.Fill,
+        Color = new SKColor(0, 0, 0, 180)
     };
 
-    public static HudDotAppearance Default { get; } = new();
+    public static DefaultDotAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudPointer pointer)
@@ -79,21 +87,25 @@ public record HudDotAppearance : HudAppearance<HudPointer>
 /// <summary>
 /// Ring pointer appearance — hollow circle that shrinks on press.
 /// </summary>
-public record HudRingAppearance : HudAppearance<HudPointer>
+public record DefaultRingAppearance : HudAppearance<HudPointer>
 {
     private static readonly SKPaint StrokeDark = new()
     {
-        IsAntialias = true, Style = SKPaintStyle.Stroke,
-        StrokeWidth = 2.5f, Color = new SKColor(0, 0, 0, 180)
+        IsAntialias = true,
+        Style = SKPaintStyle.Stroke,
+        StrokeWidth = 2.5f,
+        Color = new SKColor(0, 0, 0, 180)
     };
 
     private static readonly SKPaint StrokeLight = new()
     {
-        IsAntialias = true, Style = SKPaintStyle.Stroke,
-        StrokeWidth = 1.5f, Color = SKColors.White
+        IsAntialias = true,
+        Style = SKPaintStyle.Stroke,
+        StrokeWidth = 1.5f,
+        Color = SKColors.White
     };
 
-    public static HudRingAppearance Default { get; } = new();
+    public static DefaultRingAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudPointer pointer)
@@ -109,9 +121,11 @@ public record HudRingAppearance : HudAppearance<HudPointer>
     }
 }
 
-/// <summary>Provides <c>HudPointerAppearance.Default</c> as an alias for <see cref="HudCrosshairAppearance"/>.</summary>
-public static class HudPointerAppearance
+/// <summary>
+/// Provides <c>DefaultPointerAppearance.Default</c> as an alias for <see cref="DefaultCrosshairAppearance"/>.
+/// </summary>
+public static class DefaultPointerAppearance
 {
     /// <summary>The default pointer appearance (crosshair).</summary>
-    public static HudAppearance<HudPointer> Default { get; } = HudCrosshairAppearance.Default;
+    public static HudAppearance<HudPointer> Default { get; } = DefaultCrosshairAppearance.Default;
 }

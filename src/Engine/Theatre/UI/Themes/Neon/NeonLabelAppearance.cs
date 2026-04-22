@@ -20,7 +20,7 @@ public record NeonLabelAppearance : HudAppearance<HudLabel>
         if (label.Alpha <= 0f || string.IsNullOrEmpty(label.Text))
             return;
 
-        var font = HudLabelAppearance.GetFont(label.FontSize);
+        var font = DefaultLabelAppearance.GetFont(label.FontSize);
         byte a = (byte)(255 * Math.Clamp(label.Alpha, 0f, 1f));
 
         float drawX = label.Align switch

@@ -33,7 +33,7 @@ public sealed class HudLabel : HudActor
 {
     /// <summary>
     /// Creates a new label actor with an optional theme.
-    /// When theme is null, uses <see cref="HudLabelAppearance.Default"/>.
+    /// When theme is null, uses <see cref="DefaultLabelAppearance.Default"/>.
     /// </summary>
     public HudLabel(HudTheme? theme = null) : base(theme) { }
 
@@ -51,20 +51,22 @@ public sealed class HudLabel : HudActor
 
     /// <summary>
     /// Optional per-label appearance override. When null, uses the theme's default or
-    /// <see cref="HudLabelAppearance.Default"/>.
+    /// <see cref="DefaultLabelAppearance.Default"/>.
     /// </summary>
     public HudAppearance<HudLabel>? Appearance { get; set; }
 
-    /// <summary>Returns the rendered width of <see cref="Text"/> at the current <see cref="FontSize"/>.</summary>
+    /// <summary>
+    /// Returns the rendered width of <see cref="Text"/> at the current <see cref="FontSize"/>.
+    /// </summary>
     public float MeasureWidth()
     {
         if (string.IsNullOrEmpty(Text)) return 0f;
-        return HudLabelAppearance.GetFont(FontSize).MeasureText(Text);
+        return DefaultLabelAppearance.GetFont(FontSize).MeasureText(Text);
     }
 
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? Theme?.Label ?? HudLabelAppearance.Default).Draw(canvas, this);
+        (Appearance ?? Theme?.Label ?? DefaultLabelAppearance.Default).Draw(canvas, this);
     }
 }

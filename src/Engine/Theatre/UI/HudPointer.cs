@@ -11,7 +11,7 @@ namespace SkiaSharp.Theatre;
 /// </para>
 /// <para>
 /// The default appearance is a crosshair. Swap via <see cref="Appearance"/>:
-/// <c>Pointer.Appearance = HudDotAppearance.Default;</c>
+/// <c>Pointer.Appearance = DefaultDotAppearance.Default;</c>
 /// </para>
 /// <example><code>
 /// // In your scene constructor:
@@ -33,7 +33,7 @@ public class HudPointer : HudActor
     /// </summary>
     /// <param name="theme">
     /// Optional theme for resolving the pointer appearance.
-    /// When null, falls back to <see cref="HudPointerAppearance.Default"/>.
+    /// When null, falls back to <see cref="DefaultPointerAppearance.Default"/>.
     /// </param>
     public HudPointer(HudTheme? theme = null) : base(theme)
     {
@@ -46,7 +46,7 @@ public class HudPointer : HudActor
 
     /// <summary>
     /// Optional per-pointer appearance override. When null, uses the theme's default or
-    /// <see cref="HudPointerAppearance.Default"/>.
+    /// <see cref="DefaultPointerAppearance.Default"/>.
     /// </summary>
     public HudAppearance<HudPointer>? Appearance { get; set; }
 
@@ -66,6 +66,6 @@ public class HudPointer : HudActor
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? Theme?.Pointer ?? HudPointerAppearance.Default).Draw(canvas, this);
+        (Appearance ?? Theme?.Pointer ?? DefaultPointerAppearance.Default).Draw(canvas, this);
     }
 }

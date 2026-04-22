@@ -29,7 +29,9 @@ public struct CountdownTimer
     /// <summary>Remaining time in seconds. Zero when not active.</summary>
     public readonly float Remaining => _remaining;
 
-    /// <summary>Starts (or restarts) the countdown from <paramref name="duration"/> seconds.</summary>
+    /// <summary>
+    /// Starts (or restarts) the countdown from <paramref name="duration"/> seconds.
+    /// </summary>
     public void Set(float duration) => _remaining = MathF.Max(0f, duration);
 
     /// <summary>Cancels the timer without triggering an expiry callback.</summary>
@@ -43,7 +45,11 @@ public struct CountdownTimer
     {
         if (_remaining <= 0f) return false;
         _remaining -= deltaTime;
-        if (_remaining <= 0f) { _remaining = 0f; return true; }
+        if (_remaining <= 0f)
+        {
+            _remaining = 0f;
+            return true;
+        }
         return false;
     }
 }

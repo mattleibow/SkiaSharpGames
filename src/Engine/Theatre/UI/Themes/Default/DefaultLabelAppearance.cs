@@ -6,14 +6,14 @@ namespace SkiaSharp.Theatre;
 /// Appearance for <see cref="HudLabel"/>. Owns visual properties and draw logic.
 /// Handles font caching, alignment, colour, and alpha.
 /// </summary>
-public record HudLabelAppearance : HudAppearance<HudLabel>
+public record DefaultLabelAppearance : HudAppearance<HudLabel>
 {
     // Font cache is intentionally unbounded — the game loop is single-threaded and
     // games typically use only ~5-10 distinct font sizes, so growth is negligible.
     private static readonly Dictionary<float, SKFont> FontCache = [];
     private static readonly SKPaint TextPaint = new() { IsAntialias = true };
 
-    public static HudLabelAppearance Default { get; } = new();
+    public static DefaultLabelAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudLabel label)

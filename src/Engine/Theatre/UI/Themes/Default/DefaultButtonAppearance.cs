@@ -6,7 +6,7 @@ namespace SkiaSharp.Theatre;
 /// Appearance for <see cref="HudButton"/>. Owns visual properties and draw logic.
 /// Use <c>with { }</c> to create customised variants.
 /// </summary>
-public record HudButtonAppearance : HudAppearance<HudButton>
+public record DefaultButtonAppearance : HudAppearance<HudButton>
 {
     private static readonly SKPaint FillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private static readonly SKPaint StrokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
@@ -23,7 +23,7 @@ public record HudButtonAppearance : HudAppearance<HudButton>
     public float BevelSize { get; init; } = 2f;
     public byte DisabledAlpha { get; init; } = 110;
 
-    public static HudButtonAppearance Default { get; } = new();
+    public static DefaultButtonAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudButton button)
@@ -48,7 +48,7 @@ public record HudButtonAppearance : HudAppearance<HudButton>
         byte a = enabled ? (byte)(255 * Math.Clamp(alpha, 0f, 1f)) : DisabledAlpha;
         if (a == 0) return;
 
-        var font = HudLabelAppearance.GetFont(fontSize);
+        var font = DefaultLabelAppearance.GetFont(fontSize);
 
         FillPaint.Color = (pressed ? PressedFillColor : FillColor).WithAlpha(a);
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, FillPaint);

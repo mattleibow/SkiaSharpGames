@@ -47,7 +47,7 @@ public record PixelArtButtonAppearance : HudAppearance<HudButton>
         byte a = enabled ? (byte)(255 * Math.Clamp(alpha, 0f, 1f)) : DisabledAlpha;
         if (a == 0) return;
 
-        var font = HudLabelAppearance.GetFont(fontSize);
+        var font = DefaultLabelAppearance.GetFont(fontSize);
 
         // Solid fill
         FillPaint.Color = (pressed ? PressedFillColor : FillColor).WithAlpha(a);

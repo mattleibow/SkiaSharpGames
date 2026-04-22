@@ -10,11 +10,13 @@ public record PixelArtPointerAppearance : HudAppearance<HudPointer>
 {
     private static readonly SKPaint ShadowPaint = new()
     {
-        IsAntialias = false, Style = SKPaintStyle.Stroke
+        IsAntialias = false,
+        Style = SKPaintStyle.Stroke
     };
     private static readonly SKPaint MainPaint = new()
     {
-        IsAntialias = false, Style = SKPaintStyle.Stroke
+        IsAntialias = false,
+        Style = SKPaintStyle.Stroke
     };
 
     public SKColor Color { get; init; } = new(0xF5, 0xE6, 0xB8);

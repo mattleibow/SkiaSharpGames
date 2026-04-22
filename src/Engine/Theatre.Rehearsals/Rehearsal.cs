@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
 
-namespace SkiaSharp.Theatre.Testing;
+namespace SkiaSharp.Theatre.Rehearsals;
 
 /// <summary>
 /// Headless test harness for running a <see cref="Stage"/> without a UI host.
@@ -29,9 +29,9 @@ public sealed class Rehearsal : IDisposable
     private int _frameNumber;
     private float _elapsedTime;
 
-    private Rehearsal(Stage game, int width, int height)
+    private Rehearsal(Stage stage, int width, int height)
     {
-        Stage = game;
+        Stage = stage;
         _bitmap = new SKBitmap(width, height);
         _canvas = new SKCanvas(_bitmap);
     }
@@ -60,15 +60,15 @@ public sealed class Rehearsal : IDisposable
     {
         var builder = StageBuilder.Create();
         configure(builder);
-        var game = builder.Open();
-        return new Rehearsal(game, width, height);
+        var stage = builder.Open();
+        return new Rehearsal(stage, width, height);
     }
 
     /// <summary>
     /// Creates a harness from an already-built <see cref="Stage"/>.
     /// </summary>
-    public static Rehearsal FromStage(Stage game, int width = 800, int height = 600)
-        => new(game, width, height);
+    public static Rehearsal FromStage(Stage stage, int width = 800, int height = 600)
+        => new(stage, width, height);
 
     // ── Frame simulation ─────────────────────────────────────────────
 

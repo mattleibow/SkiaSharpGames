@@ -15,80 +15,80 @@ public class SceneTests
     [Fact]
     public void DefaultUpdate_DoesNotThrow()
     {
-        var screen = new DefaultScene();
-        var ex = Record.Exception(() => screen.Update(0.016f));
+        var scene = new DefaultScene();
+        var ex = Record.Exception(() => scene.Update(0.016f));
         Assert.Null(ex);
     }
 
     [Fact]
     public void DefaultOnPointerMove_DoesNotThrow()
     {
-        var screen = new DefaultScene();
-        var ex = Record.Exception(() => screen.OnPointerMove(100f, 200f));
+        var scene = new DefaultScene();
+        var ex = Record.Exception(() => scene.OnPointerMove(100f, 200f));
         Assert.Null(ex);
     }
 
     [Fact]
     public void DefaultOnPointerDown_DoesNotThrow()
     {
-        var screen = new DefaultScene();
-        var ex = Record.Exception(() => screen.OnPointerDown(100f, 200f));
+        var scene = new DefaultScene();
+        var ex = Record.Exception(() => scene.OnPointerDown(100f, 200f));
         Assert.Null(ex);
     }
 
     [Fact]
     public void DefaultOnPointerUp_DoesNotThrow()
     {
-        var screen = new DefaultScene();
-        var ex = Record.Exception(() => screen.OnPointerUp(100f, 200f));
+        var scene = new DefaultScene();
+        var ex = Record.Exception(() => scene.OnPointerUp(100f, 200f));
         Assert.Null(ex);
     }
 
     [Fact]
     public void DefaultOnKeyDown_DoesNotThrow()
     {
-        var screen = new DefaultScene();
-        var ex = Record.Exception(() => screen.OnKeyDown("ArrowLeft"));
+        var scene = new DefaultScene();
+        var ex = Record.Exception(() => scene.OnKeyDown("ArrowLeft"));
         Assert.Null(ex);
     }
 
     [Fact]
     public void DefaultOnKeyUp_DoesNotThrow()
     {
-        var screen = new DefaultScene();
-        var ex = Record.Exception(() => screen.OnKeyUp("ArrowLeft"));
+        var scene = new DefaultScene();
+        var ex = Record.Exception(() => scene.OnKeyUp("ArrowLeft"));
         Assert.Null(ex);
     }
 
     [Fact]
     public void DefaultOnPaused_DoesNotThrow()
     {
-        var screen = new DefaultScene();
-        var ex = Record.Exception(() => screen.OnPaused());
+        var scene = new DefaultScene();
+        var ex = Record.Exception(() => scene.OnPaused());
         Assert.Null(ex);
     }
 
     [Fact]
     public void DefaultOnResumed_DoesNotThrow()
     {
-        var screen = new DefaultScene();
-        var ex = Record.Exception(() => screen.OnResumed());
+        var scene = new DefaultScene();
+        var ex = Record.Exception(() => scene.OnResumed());
         Assert.Null(ex);
     }
 
     [Fact]
     public void DefaultOnActivating_DoesNotThrow()
     {
-        var screen = new DefaultScene();
-        var ex = Record.Exception(() => screen.OnActivating());
+        var scene = new DefaultScene();
+        var ex = Record.Exception(() => scene.OnActivating());
         Assert.Null(ex);
     }
 
     [Fact]
     public void DefaultOnDeactivating_DoesNotThrow()
     {
-        var screen = new DefaultScene();
-        var ex = Record.Exception(() => screen.OnDeactivating());
+        var scene = new DefaultScene();
+        var ex = Record.Exception(() => scene.OnDeactivating());
         Assert.Null(ex);
     }
 }

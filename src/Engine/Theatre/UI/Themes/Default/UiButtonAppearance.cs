@@ -33,7 +33,7 @@ public record UiButtonAppearance : UiAppearance<UiButton>
     }
 
     /// <summary>
-    /// Draws a button directly without requiring a <see cref="UiButton"/> entity.
+    /// Draws a button directly without requiring a <see cref="UiButton"/> actor.
     /// Used by game screens that render touch-control overlays.
     /// </summary>
     public void DrawDirect(

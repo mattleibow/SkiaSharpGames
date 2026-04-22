@@ -4,7 +4,7 @@ namespace SkiaSharp.Theatre;
 
 /// <summary>
 /// Appearance for <see cref="UiJoystick"/>. Owns visual properties and draw logic.
-/// Draws at local origin (0,0); the entity transform handles positioning.
+/// Draws at local origin (0,0); the actor transform handles positioning.
 /// </summary>
 public record UiJoystickAppearance : UiAppearance<UiJoystick>
 {

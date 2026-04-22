@@ -1,6 +1,6 @@
 using SkiaSharp;
 
-namespace SkiaSharp.Theatre.Testing;
+namespace SkiaSharp.Theatre.Rehearsals;
 
 /// <summary>
 /// A rendered frame captured by <see cref="Rehearsal"/>. Provides pixel-level

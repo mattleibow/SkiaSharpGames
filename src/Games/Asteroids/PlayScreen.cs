@@ -390,7 +390,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector coordinator
         foreach (var star in _stars)
             canvas.DrawRect(star.X, star.Y, 1.5f, 1.5f, _starPaint);
 
-        // Stage entities
+        // Stage actors
         _asteroids.Draw(canvas);
         _bullets.Draw(canvas);
         _debris.Draw(canvas);

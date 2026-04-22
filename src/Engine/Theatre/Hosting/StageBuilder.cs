@@ -179,9 +179,9 @@ public sealed class StageBuilder
                            sp.GetRequiredService<IStageRenderer>()));
 
         var provider = _serviceCollection.BuildServiceProvider();
-        var game = provider.GetRequiredService<Stage>();
+        var stage = provider.GetRequiredService<Stage>();
         // Activate the initial screen immediately at build time (not lazily on first frame).
         provider.GetRequiredService<Director>().Initialize();
-        return game;
+        return stage;
     }
 }

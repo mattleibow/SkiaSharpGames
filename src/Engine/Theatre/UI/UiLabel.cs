@@ -16,7 +16,7 @@ public enum TextAlign
 }
 
 /// <summary>
-/// A text label entity that draws a single line of text. Handles font caching,
+/// A text label actor that draws a single line of text. Handles font caching,
 /// alignment, colour, and alpha internally.
 /// <para>
 /// Position the label using <see cref="Actor.X"/> and <see cref="Actor.Y"/>.
@@ -32,7 +32,7 @@ public enum TextAlign
 public sealed class UiLabel : UiActor
 {
     /// <summary>
-    /// Creates a new label entity with an optional theme.
+    /// Creates a new label actor with an optional theme.
     /// When theme is null, uses <see cref="UiLabelAppearance.Default"/>.
     /// </summary>
     public UiLabel(UiTheme? theme = null) : base(theme) { }
@@ -46,7 +46,7 @@ public sealed class UiLabel : UiActor
     /// <summary>Text colour.</summary>
     public SKColor Color { get; set; } = SKColors.White;
 
-    /// <summary>Horizontal alignment relative to the entity's X position.</summary>
+    /// <summary>Horizontal alignment relative to the actor's X position.</summary>
     public TextAlign Align { get; set; } = TextAlign.Left;
 
     /// <summary>

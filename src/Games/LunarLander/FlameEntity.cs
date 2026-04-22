@@ -5,9 +5,9 @@ using static SkiaSharpGames.LunarLander.LunarLanderConstants;
 namespace SkiaSharpGames.LunarLander;
 
 /// <summary>
-/// A thruster flame entity that draws a flickering flame at its local origin
+/// A thruster flame actor that draws a flickering flame at its local origin
 /// pointing downward. Replaces the former FlameSprite — animation state and
-/// rendering now live directly on the entity.
+/// rendering now live directly on the actor.
 /// </summary>
 internal sealed class FlameEntity : Actor
 {

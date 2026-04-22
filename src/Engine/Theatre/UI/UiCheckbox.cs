@@ -3,12 +3,12 @@ using SkiaSharp;
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// A themed checkbox entity with built-in collision, sprite, and readable state.
+/// A themed checkbox actor with built-in collision, sprite, and readable state.
 /// <para>
 /// Toggle <see cref="IsChecked"/> on pointer-down to flip the checkbox.
 /// </para>
 /// <example><code>
-/// var checkbox = new UiCheckbox(34f, 34f, themeProvider);
+/// var checkbox = new UiCheckbox(34f, 34f, theme);
 /// checkbox.X = 57f; checkbox.Y = 221f;
 /// controls.AddChild(checkbox);
 ///
@@ -23,7 +23,7 @@ namespace SkiaSharp.Theatre;
 public class UiCheckbox : UiControl
 {
     /// <summary>
-    /// Creates a new checkbox entity with the given dimensions and theme.
+    /// Creates a new checkbox actor with the given dimensions and theme.
     /// </summary>
     /// <param name="width">Checkbox width in game-space units.</param>
     /// <param name="height">Checkbox height in game-space units.</param>

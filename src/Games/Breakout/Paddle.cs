@@ -5,7 +5,7 @@ using static SkiaSharpGames.Breakout.BreakoutConstants;
 namespace SkiaSharpGames.Breakout;
 
 /// <summary>
-/// The player's paddle entity. Position (X, Y) is the centre of the rectangle.
+/// The player's paddle actor. Position (X, Y) is the centre of the rectangle.
 /// Width is animated; all width-related state (animation, collider sync) lives here.
 /// </summary>
 internal sealed class Paddle : Actor

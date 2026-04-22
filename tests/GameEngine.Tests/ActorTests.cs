@@ -8,15 +8,15 @@ public class ActorTests
     // ── Position & World Position ─────────────────────────────────────
 
     [Fact]
-    public void RootEntity_WorldPosition_EqualsLocalPosition()
+    public void RootActor_WorldPosition_EqualsLocalPosition()
     {
-        var entity = new Actor { X = 10f, Y = 20f };
-        Assert.Equal(10f, entity.WorldX);
-        Assert.Equal(20f, entity.WorldY);
+        var actor = new Actor { X = 10f, Y = 20f };
+        Assert.Equal(10f, actor.WorldX);
+        Assert.Equal(20f, actor.WorldY);
     }
 
     [Fact]
-    public void ChildEntity_WorldPosition_IsParentPlusLocal()
+    public void ChildActor_WorldPosition_IsParentPlusLocal()
     {
         var parent = new Actor { X = 100f, Y = 200f };
         var child = new Actor { X = 10f, Y = 20f };
@@ -70,11 +70,11 @@ public class ActorTests
     // ── Rotation ──────────────────────────────────────────────────────
 
     [Fact]
-    public void RootEntity_WorldRotation_EqualsLocalRotation()
+    public void RootActor_WorldRotation_EqualsLocalRotation()
     {
-        var entity = new Actor { Rotation = MathF.PI / 4f };
+        var actor = new Actor { Rotation = MathF.PI / 4f };
         // WorldMatrix should rotate (1,0) by 45°
-        var mapped = entity.WorldMatrix.MapPoint(1f, 0f);
+        var mapped = actor.WorldMatrix.MapPoint(1f, 0f);
         float expectedX = MathF.Cos(MathF.PI / 4f);
         float expectedY = MathF.Sin(MathF.PI / 4f);
         Assert.Equal(expectedX, mapped.X, 1e-5f);
@@ -196,16 +196,16 @@ public class ActorTests
     [Fact]
     public void Update_StepsRigidbody()
     {
-        var entity = new Actor
+        var actor = new Actor
         {
             X = 0f, Y = 0f,
             Rigidbody = new Rigidbody2D { VelocityX = 100f, VelocityY = 50f }
         };
 
-        entity.Update(0.5f);
+        actor.Update(0.5f);
 
-        Assert.Equal(50f, entity.X);
-        Assert.Equal(25f, entity.Y);
+        Assert.Equal(50f, actor.X);
+        Assert.Equal(25f, actor.Y);
     }
 
     [Fact]
@@ -224,55 +224,55 @@ public class ActorTests
     }
 
     [Fact]
-    public void Update_SkipsInactiveEntities()
+    public void Update_SkipsInactiveActors()
     {
-        var entity = new Actor
+        var actor = new Actor
         {
             Active = false,
             Rigidbody = new Rigidbody2D { VelocityX = 100f }
         };
 
-        entity.Update(1f);
+        actor.Update(1f);
 
-        Assert.Equal(0f, entity.X);
+        Assert.Equal(0f, actor.X);
     }
 
     [Fact]
     public void Update_CallsOnUpdate()
     {
-        var entity = new TestEntity();
-        entity.Update(0.5f);
-        Assert.True(entity.OnUpdateCalled);
-        Assert.Equal(0.5f, entity.LastDeltaTime);
+        var actor = new TestEntity();
+        actor.Update(0.5f);
+        Assert.True(actor.OnUpdateCalled);
+        Assert.Equal(0.5f, actor.LastDeltaTime);
     }
 
     // ── Draw ──────────────────────────────────────────────────────────
 
     [Fact]
-    public void Draw_SkipsInvisibleEntity()
+    public void Draw_SkipsInvisibleActor()
     {
-        var entity = new TrackingEntity { Visible = false };
+        var actor = new TrackingEntity { Visible = false };
         using var surface = SKSurface.Create(new SKImageInfo(100, 100));
-        entity.Draw(surface.Canvas);
-        Assert.False(entity.DrawCalled);
+        actor.Draw(surface.Canvas);
+        Assert.False(actor.DrawCalled);
     }
 
     [Fact]
-    public void Draw_SkipsInactiveEntity()
+    public void Draw_SkipsInactiveActor()
     {
-        var entity = new TrackingEntity { Active = false };
+        var actor = new TrackingEntity { Active = false };
         using var surface = SKSurface.Create(new SKImageInfo(100, 100));
-        entity.Draw(surface.Canvas);
-        Assert.False(entity.DrawCalled);
+        actor.Draw(surface.Canvas);
+        Assert.False(actor.DrawCalled);
     }
 
     [Fact]
     public void Draw_CallsOnDraw()
     {
-        var entity = new TrackingEntity();
+        var actor = new TrackingEntity();
         using var surface = SKSurface.Create(new SKImageInfo(100, 100));
-        entity.Draw(surface.Canvas);
-        Assert.True(entity.DrawCalled);
+        actor.Draw(surface.Canvas);
+        Assert.True(actor.DrawCalled);
     }
 
     [Fact]
@@ -350,8 +350,8 @@ public class ActorTests
     [Fact]
     public void WorldBoundingBox_NullWithoutCollider()
     {
-        var entity = new Actor { X = 10f, Y = 10f };
-        Assert.Null(entity.WorldBoundingBox);
+        var actor = new Actor { X = 10f, Y = 10f };
+        Assert.Null(actor.WorldBoundingBox);
     }
 
     [Fact]
@@ -377,14 +377,14 @@ public class ActorTests
     [Fact]
     public void WorldBoundingBox_WithRotation_ReturnsConservativeAABB()
     {
-        var entity = new Actor
+        var actor = new Actor
         {
             X = 0f, Y = 0f,
             Rotation = MathF.PI / 4f, // 45°
             Collider = new RectCollider { Width = 10f, Height = 10f }
         };
 
-        var bb = entity.WorldBoundingBox;
+        var bb = actor.WorldBoundingBox;
         Assert.NotNull(bb);
         // 45° rotated 10x10 rect has AABB larger than 10x10
         Assert.True(bb.Value.Width > 10f);
@@ -396,8 +396,8 @@ public class ActorTests
     [Fact]
     public void ChildrenBoundingBox_NullWithNoChildren()
     {
-        var entity = new Actor();
-        Assert.Null(entity.ChildrenBoundingBox);
+        var actor = new Actor();
+        Assert.Null(actor.ChildrenBoundingBox);
     }
 
     [Fact]
@@ -521,10 +521,10 @@ public class ActorTests
     // ── WorldMatrix ─────────────────────────────────────────────────
 
     [Fact]
-    public void DefaultEntity_WorldMatrix_IsIdentity()
+    public void DefaultActor_WorldMatrix_IsIdentity()
     {
-        var entity = new Actor();
-        Assert.Equal(SKMatrix44.Identity, entity.WorldMatrix);
+        var actor = new Actor();
+        Assert.Equal(SKMatrix44.Identity, actor.WorldMatrix);
     }
 
     [Fact]
@@ -543,8 +543,8 @@ public class ActorTests
     [Fact]
     public void LocalMatrix_MapPoint_ReturnsLocalPosition()
     {
-        var entity = new Actor { X = 42f, Y = 99f };
-        var mapped = entity.LocalMatrix.MapPoint(0f, 0f);
+        var actor = new Actor { X = 42f, Y = 99f };
+        var mapped = actor.LocalMatrix.MapPoint(0f, 0f);
         Assert.Equal(42f, mapped.X, 1e-3f);
         Assert.Equal(99f, mapped.Y, 1e-3f);
     }
@@ -552,9 +552,9 @@ public class ActorTests
     [Fact]
     public void LocalMatrix_WithRotation_RotatesPoints()
     {
-        var entity = new Actor { X = 0f, Y = 0f, Rotation = MathF.PI / 2f };
+        var actor = new Actor { X = 0f, Y = 0f, Rotation = MathF.PI / 2f };
         // Rotating (10, 0) by 90° should give (0, 10)
-        var mapped = entity.LocalMatrix.MapPoint(10f, 0f);
+        var mapped = actor.LocalMatrix.MapPoint(10f, 0f);
         Assert.Equal(0f, mapped.X, 1e-3f);
         Assert.Equal(10f, mapped.Y, 1e-3f);
     }
@@ -584,8 +584,8 @@ public class ActorTests
     [Fact]
     public void CaptureToImage_ReturnsNonNullImage()
     {
-        var entity = new TrackingEntity { X = 50f, Y = 50f };
-        using var image = entity.CaptureToImage(100, 100);
+        var actor = new TrackingEntity { X = 50f, Y = 50f };
+        using var image = actor.CaptureToImage(100, 100);
         Assert.NotNull(image);
         Assert.Equal(100, image.Width);
         Assert.Equal(100, image.Height);
@@ -632,8 +632,8 @@ public class ActorTests
     [Fact]
     public void Actor_Dump_IncludesName()
     {
-        var entity = new Actor { Name = "testActor", X = 5f, Y = 10f };
-        var dump = entity.Dump();
+        var actor = new Actor { Name = "testActor", X = 5f, Y = 10f };
+        var dump = actor.Dump();
         Assert.Contains("testActor", dump);
         Assert.Contains("5.0", dump);
     }

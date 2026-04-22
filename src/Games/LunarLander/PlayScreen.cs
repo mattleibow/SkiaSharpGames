@@ -5,7 +5,7 @@ using static SkiaSharpGames.LunarLander.LunarLanderConstants;
 namespace SkiaSharpGames.LunarLander;
 
 /// <summary>
-/// Main gameplay screen. The lander entity uses child entities for thruster flames
+/// Main gameplay screen. The lander actor uses child actors for thruster flames
 /// that rotate automatically with the parent — demonstrating the Actor parenting system.
 /// </summary>
 internal sealed class PlayScreen(LunarLanderGameState state, IDirector coordinator, UiTheme themes) : Scene
@@ -169,7 +169,7 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector coordinat
         // Gravity
         _lander.Rigidbody.AddVelocity(0, Gravity * deltaTime);
 
-        // Flame visibility — child entities rotate with the lander automatically!
+        // Flame visibility — child actors rotate with the lander automatically!
         bool hasFuel = state.Fuel > 0f;
         _lander.MainFlame.Visible = thrusting;
         _lander.LeftFlame.Visible = wantRight && hasFuel;

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
 using SkiaSharp.Theatre;
-using SkiaSharp.Theatre.Testing;
+using SkiaSharp.Theatre.Rehearsals;
 using Xunit;
 
 namespace SkiaSharp.Theatre.Tests;
@@ -226,7 +226,7 @@ public class RehearsalTests
     // ── Actor dump ───────────────────────────────────────────────────
 
     [Fact]
-    public void Entity_Dump_ShowsHierarchy()
+    public void Actor_Dump_ShowsHierarchy()
     {
         var parent = new Actor { X = 100f, Y = 200f };
         var child = new Actor { X = 10f, Y = 20f, Alpha = 0.5f };
@@ -245,16 +245,16 @@ public class RehearsalTests
     }
 
     [Fact]
-    public void Entity_Dump_ShowsInactiveAndHidden()
+    public void Actor_Dump_ShowsInactiveAndHidden()
     {
-        var entity = new Actor { Active = false, Visible = false };
-        string dump = entity.Dump();
+        var actor = new Actor { Active = false, Visible = false };
+        string dump = actor.Dump();
         Assert.Contains("INACTIVE", dump);
         Assert.Contains("HIDDEN", dump);
     }
 
     [Fact]
-    public void Entity_Dump_ShowsConcreteTypeName()
+    public void Actor_Dump_ShowsConcreteTypeName()
     {
         var button = new UiButton(100f, 40f, new UiTheme());
         string dump = button.Dump();

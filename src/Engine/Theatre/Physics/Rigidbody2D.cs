@@ -5,7 +5,7 @@ namespace SkiaSharp.Theatre;
 /// move; static objects simply omit it.
 /// </summary>
 /// <remarks>
-/// Call <see cref="Step"/> once per game tick to advance the owning entity's position
+/// Call <see cref="Step"/> once per game tick to advance the owning actor's position
 /// by <c>Velocity × deltaTime</c>.
 /// </remarks>
 public sealed class Rigidbody2D

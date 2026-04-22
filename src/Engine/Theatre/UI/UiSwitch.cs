@@ -3,9 +3,9 @@ using SkiaSharp;
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// A themed switch entity with built-in collision and readable state.
+/// A themed switch actor with built-in collision and readable state.
 /// <example><code>
-/// var sw = new UiSwitch(110f, 42f, themeProvider);
+/// var sw = new UiSwitch(110f, 42f, theme);
 /// sw.X = 95f; sw.Y = 289f;
 /// controls.AddChild(sw);
 ///
@@ -20,7 +20,7 @@ namespace SkiaSharp.Theatre;
 public class UiSwitch : UiControl
 {
     /// <summary>
-    /// Creates a new switch entity with the given dimensions and theme.
+    /// Creates a new switch actor with the given dimensions and theme.
     /// </summary>
     /// <param name="width">Switch width in game-space units.</param>
     /// <param name="height">Switch height in game-space units.</param>

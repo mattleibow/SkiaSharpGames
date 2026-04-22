@@ -2,10 +2,10 @@
 @layout GameLayout
 @inject IEnumerable<IGalleryGame> GalleryGames
 
-@if (_game is not null)
+@if (_stage is not null)
 {
     <PageTitle>@_entry!.Title – SkiaSharp Games</PageTitle>
-    <GameView Stage="_game" />
+    <GameView Stage="_stage" />
 }
 else
 {
@@ -17,12 +17,12 @@ else
     [Parameter] public string Slug { get; set; } = "";
 
     private IGalleryGame? _entry;
-    private Stage? _game;
+    private Stage? _stage;
 
     protected override void OnParametersSet()
     {
         _entry = GalleryGames.FirstOrDefault(g =>
             string.Equals(g.Slug, Slug, StringComparison.OrdinalIgnoreCase));
-        _game = _entry?.CreateGame();
+        _stage = _entry?.CreateStage();
     }
 }

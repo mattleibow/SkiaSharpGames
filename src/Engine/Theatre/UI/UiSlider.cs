@@ -3,13 +3,13 @@ using SkiaSharp;
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// A themed slider entity with built-in collision, sprite, and readable state.
+/// A themed slider actor with built-in collision, sprite, and readable state.
 /// <para>
 /// Drag the slider to change its <see cref="Value"/> (0 – 1). Call
 /// <see cref="UpdateValueFromPointer"/> during pointer-move to track the thumb.
 /// </para>
 /// <example><code>
-/// var slider = new UiSlider(320f, 26f, themeProvider);
+/// var slider = new UiSlider(320f, 26f, theme);
 /// slider.X = 200f; slider.Y = 363f;
 /// controls.AddChild(slider);
 ///
@@ -23,7 +23,7 @@ namespace SkiaSharp.Theatre;
 public class UiSlider : UiControl
 {
     /// <summary>
-    /// Creates a new slider entity with the given dimensions and theme.
+    /// Creates a new slider actor with the given dimensions and theme.
     /// </summary>
     /// <param name="width">Slider track width in game-space units.</param>
     /// <param name="height">Slider hit-area height in game-space units.</param>

@@ -1,15 +1,15 @@
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// Static helpers for simple arcade-style 2D collisions between entities.
+/// Static helpers for simple arcade-style 2D collisions between actors.
 /// </summary>
 public static class CollisionResolver
 {
     // ── Actor API (uses WorldX/WorldY and Collider) ──────────────────
 
     /// <summary>
-    /// Returns <see langword="true"/> when the two entities' colliders overlap
-    /// in world space. Returns false if either entity has no collider.
+    /// Returns <see langword="true"/> when the two actors' colliders overlap
+    /// in world space. Returns false if either actor has no collider.
     /// </summary>
     public static bool Overlaps(Actor a, Actor b)
     {
@@ -19,9 +19,9 @@ public static class CollisionResolver
     }
 
     /// <summary>
-    /// Returns <see langword="true"/> when the two entities overlap and outputs
+    /// Returns <see langword="true"/> when the two actors overlap and outputs
     /// <paramref name="hit"/> with the collision normal and penetration.
-    /// Returns false if either entity has no collider.
+    /// Returns false if either actor has no collider.
     /// </summary>
     public static bool TryGetHit(Actor a, Actor b, out CollisionHit hit)
     {

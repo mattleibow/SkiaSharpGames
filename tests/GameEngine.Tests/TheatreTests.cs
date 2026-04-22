@@ -13,8 +13,8 @@ public class StageBuilderTests
         var builder = StageBuilder.Create();
         builder.Scenes.Add<OverlayScreen>();
         builder.SetOpeningScene<OverlayScreen>();
-        var game = builder.Open();
-        Assert.Equal(new SKSize(800, 600), game.StageSize);
+        var stage = builder.Open();
+        Assert.Equal(new SKSize(800, 600), stage.StageSize);
     }
 
     [Fact]
@@ -24,8 +24,8 @@ public class StageBuilderTests
         builder.SetStageSize(1200, 600);
         builder.Scenes.Add<OverlayScreen>();
         builder.SetOpeningScene<OverlayScreen>();
-        var game = builder.Open();
-        Assert.Equal(new SKSize(1200, 600), game.StageSize);
+        var stage = builder.Open();
+        Assert.Equal(new SKSize(1200, 600), stage.StageSize);
     }
 
     [Fact]
@@ -42,8 +42,8 @@ public class StageBuilderTests
         var builder = StageBuilder.Create();
         builder.Scenes.Add<OverlayScreen>();
         builder.SetOpeningScene<OverlayScreen>();
-        var game = builder.Open();
-        Assert.NotNull(game);
+        var stage = builder.Open();
+        Assert.NotNull(stage);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class StageBuilderTests
         builder.Services.AddSingleton(tracker);
         builder.Scenes.Add<ScreenA>();
         builder.SetOpeningScene<ScreenA>();
-        var game = builder.Open();
+        var stage = builder.Open();
         // ScreenA's constructor took the tracker singleton — it was able to call OnActivated
         Assert.True(tracker.AActivated);
     }
@@ -124,8 +124,8 @@ public class StageBuilderTests
         var builder = StageBuilder.Create();
         builder.Scenes.Add<OverlayScreen>();
         builder.SetOpeningScene<OverlayScreen>();
-        var game = builder.Open();
-        Assert.NotNull(game.Services);
+        var stage = builder.Open();
+        Assert.NotNull(stage.Services);
     }
 
     [Fact]
@@ -134,8 +134,8 @@ public class StageBuilderTests
         var builder = StageBuilder.Create();
         builder.Scenes.Add<OverlayScreen>();
         builder.SetOpeningScene<OverlayScreen>();
-        var game = builder.Open();
-        var coordinator = game.Services.GetService<IDirector>();
+        var stage = builder.Open();
+        var coordinator = stage.Services.GetService<IDirector>();
         Assert.NotNull(coordinator);
     }
 

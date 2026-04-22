@@ -102,7 +102,7 @@ public class UiLabelTests
     }
 
     [Fact]
-    public void UiLabel_IsEntity()
+    public void UiLabel_IsActor()
     {
         var label = new UiLabel { Text = "test", X = 10f, Y = 20f };
         Assert.IsAssignableFrom<Actor>(label);
@@ -110,7 +110,7 @@ public class UiLabelTests
     }
 
     [Fact]
-    public void UiLabel_AsChildEntity()
+    public void UiLabel_AsChildActor()
     {
         var parent = new Actor { X = 100f, Y = 200f };
         var label = new UiLabel { Text = "child", X = 10f, Y = 20f };

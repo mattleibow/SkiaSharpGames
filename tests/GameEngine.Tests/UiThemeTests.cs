@@ -10,8 +10,8 @@ public class UiThemeTests
     [Fact]
     public void Build_RegistersDefaultTheme()
     {
-        var game = BuildBareGame();
-        var theme = game.Services.GetRequiredService<UiTheme>();
+        var stage = BuildBareGame();
+        var theme = stage.Services.GetRequiredService<UiTheme>();
 
         Assert.IsType<UiButtonAppearance>(theme.Button);
     }
@@ -27,8 +27,8 @@ public class UiThemeTests
         builder.SetOpeningScene<BlankScreen>();
         builder.SetUiTheme(retro);
 
-        var game = builder.Open();
-        var theme = game.Services.GetRequiredService<UiTheme>();
+        var stage = builder.Open();
+        var theme = stage.Services.GetRequiredService<UiTheme>();
 
         Assert.Same(retro, theme);
     }

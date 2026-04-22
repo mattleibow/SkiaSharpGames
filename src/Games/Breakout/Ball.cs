@@ -5,7 +5,7 @@ using static SkiaSharpGames.Breakout.BreakoutConstants;
 namespace SkiaSharpGames.Breakout;
 
 /// <summary>
-/// The player's ball entity. Position (X, Y) is the centre of the circle.
+/// The player's ball actor. Position (X, Y) is the centre of the circle.
 /// </summary>
 internal sealed class Ball : Actor
 {

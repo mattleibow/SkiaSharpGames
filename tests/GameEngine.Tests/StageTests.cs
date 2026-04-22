@@ -59,7 +59,7 @@ file sealed class OverlayScreen : Scene
 file static class TestGameFactory
 {
     /// <summary>Builds a game with ScreenA (initial), ScreenB, and OverlayScreen.</summary>
-    public static (Stage game, ScreenTracker tracker) Create()
+    public static (Stage stage, ScreenTracker tracker) Create()
     {
         var tracker = new ScreenTracker();
 
@@ -91,33 +91,33 @@ public class StageTests
     [Fact]
     public void InitialScreen_Update_IsCalled()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Update(0.016f);
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Update(0.016f);
         Assert.True(tracker.AUpdateCalled);
     }
 
     [Fact]
     public void InitialScreen_Draw_DoesNotThrow()
     {
-        var (game, _) = TestGameFactory.Create();
+        var (stage, _) = TestGameFactory.Create();
         using var bmp = new SKBitmap(800, 600);
         using var canvas = new SKCanvas(bmp);
-        var ex = Record.Exception(() => game.Draw(canvas, 800, 600));
+        var ex = Record.Exception(() => stage.Draw(canvas, 800, 600));
         Assert.Null(ex);
     }
 
     [Fact]
     public void GameDimensions_ReturnsBuilderValue()
     {
-        var (game, _) = TestGameFactory.Create();
-        Assert.Equal(new SKSize(800, 600), game.StageSize);
+        var (stage, _) = TestGameFactory.Create();
+        Assert.Equal(new SKSize(800, 600), stage.StageSize);
     }
 
     [Fact]
     public void Services_ExposesIDirector()
     {
-        var (game, _) = TestGameFactory.Create();
-        var coordinator = game.Services.GetRequiredService<IDirector>();
+        var (stage, _) = TestGameFactory.Create();
+        var coordinator = stage.Services.GetRequiredService<IDirector>();
         Assert.NotNull(coordinator);
     }
 
@@ -126,25 +126,25 @@ public class StageTests
     [Fact]
     public void TransitionTo_NoTransition_DeactivatesOldScreen()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>();
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>();
         Assert.True(tracker.ADeactivated);
     }
 
     [Fact]
     public void TransitionTo_NoTransition_ActivatesNewScreen()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>();
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>();
         Assert.True(tracker.BActivated);
     }
 
     [Fact]
     public void TransitionTo_NoTransition_NewScreenReceivesUpdate()
     {
-        var (game, _) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>();
-        var ex = Record.Exception(() => game.Update(0.016f));
+        var (stage, _) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>();
+        var ex = Record.Exception(() => stage.Update(0.016f));
         Assert.Null(ex);
     }
 
@@ -153,37 +153,37 @@ public class StageTests
     [Fact]
     public void TransitionTo_WithTransition_OldScreenNotDeactivatedYet()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
         Assert.False(tracker.ADeactivated);
     }
 
     [Fact]
     public void TransitionTo_WithTransition_CompletesAfterDuration()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
-        game.Update(0.5f);
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
+        stage.Update(0.5f);
         Assert.True(tracker.ADeactivated);
     }
 
     [Fact]
     public void TransitionTo_WithTransition_DrawDoesNotThrow()
     {
-        var (game, _) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
+        var (stage, _) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
         using var bmp = new SKBitmap(800, 600);
         using var canvas = new SKCanvas(bmp);
-        game.Update(0.25f);
-        var ex = Record.Exception(() => game.Draw(canvas, 800, 600));
+        stage.Update(0.25f);
+        var ex = Record.Exception(() => stage.Draw(canvas, 800, 600));
         Assert.Null(ex);
     }
 
     [Fact]
     public void TransitionTo_InterruptedTransition_DeactivatesAbandonedIncoming()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        var coordinator = game.Services.GetRequiredService<IDirector>();
+        var (stage, tracker) = TestGameFactory.Create();
+        var coordinator = stage.Services.GetRequiredService<IDirector>();
         coordinator.TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
         coordinator.TransitionTo<ScreenA>();
         Assert.True(tracker.BDeactivated);
@@ -194,8 +194,8 @@ public class StageTests
     [Fact]
     public void PushOverlay_PausesBaseScreen()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().PushOverlay<OverlayScreen>();
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().PushOverlay<OverlayScreen>();
         Assert.True(tracker.APaused);
         Assert.True(tracker.AIsPausedWhenPaused);
     }
@@ -203,18 +203,18 @@ public class StageTests
     [Fact]
     public void PushOverlay_BaseScreenNotUpdated()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().PushOverlay<OverlayScreen>();
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().PushOverlay<OverlayScreen>();
         tracker.AUpdateCalled = false; // reset after initial activation
-        game.Update(0.016f);
+        stage.Update(0.016f);
         Assert.False(tracker.AUpdateCalled);
     }
 
     [Fact]
     public void PopOverlay_ResumesBaseScreen()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        var coordinator = game.Services.GetRequiredService<IDirector>();
+        var (stage, tracker) = TestGameFactory.Create();
+        var coordinator = stage.Services.GetRequiredService<IDirector>();
         coordinator.PushOverlay<OverlayScreen>();
         coordinator.PopOverlay();
         Assert.True(tracker.AResumed);
@@ -223,8 +223,8 @@ public class StageTests
     [Fact]
     public void PopOverlay_WhenEmpty_DoesNothing()
     {
-        var (game, _) = TestGameFactory.Create();
-        var ex = Record.Exception(() => game.Services.GetRequiredService<IDirector>().PopOverlay());
+        var (stage, _) = TestGameFactory.Create();
+        var ex = Record.Exception(() => stage.Services.GetRequiredService<IDirector>().PopOverlay());
         Assert.Null(ex);
     }
 
@@ -233,8 +233,8 @@ public class StageTests
     [Fact]
     public void TransitionTo_ClearsOverlayStack_DeactivatesBase()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        var coordinator = game.Services.GetRequiredService<IDirector>();
+        var (stage, tracker) = TestGameFactory.Create();
+        var coordinator = stage.Services.GetRequiredService<IDirector>();
         coordinator.PushOverlay<OverlayScreen>();
         coordinator.TransitionTo<ScreenB>();
         Assert.True(tracker.ADeactivated);
@@ -253,24 +253,24 @@ public class StageTests
     [Fact]
     public void TransitionTo_NoTransition_OnDeactivatingCalledOnOldScreen()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>();
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>();
         Assert.True(tracker.ADeactivating);
     }
 
     [Fact]
     public void TransitionTo_NoTransition_OnActivatingCalledOnNewScreen()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>();
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>();
         Assert.True(tracker.BActivating);
     }
 
     [Fact]
     public void TransitionTo_WithTransition_OnActivatingCalledImmediately()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
         // OnActivating is called at transition START — before any Update
         Assert.True(tracker.BActivating);
         Assert.False(tracker.BActivated);
@@ -279,8 +279,8 @@ public class StageTests
     [Fact]
     public void TransitionTo_WithTransition_OnDeactivatingCalledImmediately()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
         // OnDeactivating is called at transition START — OnDeactivated is not called yet
         Assert.True(tracker.ADeactivating);
         Assert.False(tracker.ADeactivated);
@@ -289,20 +289,20 @@ public class StageTests
     [Fact]
     public void TransitionTo_WithTransition_OnActivatedCalledAfterCompletion()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
         Assert.False(tracker.BActivated);  // not yet
-        game.Update(0.5f);                  // completes the transition
+        stage.Update(0.5f);                  // completes the transition
         Assert.True(tracker.BActivated);   // now called
     }
 
     [Fact]
     public void TransitionTo_WithTransition_OnDeactivatedCalledAfterCompletion()
     {
-        var (game, tracker) = TestGameFactory.Create();
-        game.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
+        var (stage, tracker) = TestGameFactory.Create();
+        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
         Assert.False(tracker.ADeactivated);
-        game.Update(0.5f);
+        stage.Update(0.5f);
         Assert.True(tracker.ADeactivated);
     }
 
@@ -311,51 +311,51 @@ public class StageTests
     [Fact]
     public void OnPointerMove_ForwardedToActiveScreen()
     {
-        var (game, tracker) = InputTestFactory.Create();
-        game.OnPointerMove(100f, 200f);
+        var (stage, tracker) = InputTestFactory.Create();
+        stage.OnPointerMove(100f, 200f);
         Assert.Equal((100f, 200f), tracker.LastPointerMove);
     }
 
     [Fact]
     public void OnPointerDown_ForwardedToActiveScreen()
     {
-        var (game, tracker) = InputTestFactory.Create();
-        game.OnPointerDown(50f, 60f);
+        var (stage, tracker) = InputTestFactory.Create();
+        stage.OnPointerDown(50f, 60f);
         Assert.Equal((50f, 60f), tracker.LastPointerDown);
     }
 
     [Fact]
     public void OnPointerUp_ForwardedToActiveScreen()
     {
-        var (game, tracker) = InputTestFactory.Create();
-        game.OnPointerUp(70f, 80f);
+        var (stage, tracker) = InputTestFactory.Create();
+        stage.OnPointerUp(70f, 80f);
         Assert.Equal((70f, 80f), tracker.LastPointerUp);
     }
 
     [Fact]
     public void OnKeyDown_ForwardedToActiveScreen()
     {
-        var (game, tracker) = InputTestFactory.Create();
-        game.OnKeyDown("Space");
+        var (stage, tracker) = InputTestFactory.Create();
+        stage.OnKeyDown("Space");
         Assert.Equal("Space", tracker.LastKeyDown);
     }
 
     [Fact]
     public void OnKeyUp_ForwardedToActiveScreen()
     {
-        var (game, tracker) = InputTestFactory.Create();
-        game.OnKeyUp("Enter");
+        var (stage, tracker) = InputTestFactory.Create();
+        stage.OnKeyUp("Enter");
         Assert.Equal("Enter", tracker.LastKeyUp);
     }
 
     [Fact]
-    public void ActiveInputScreen_DuringTransition_DoesNotThrow()
+    public void ActiveInputScene_DuringTransition_DoesNotThrow()
     {
-        var (game, _) = InputTestFactory.Create();
-        var coordinator = game.Services.GetRequiredService<IDirector>();
+        var (stage, _) = InputTestFactory.Create();
+        var coordinator = stage.Services.GetRequiredService<IDirector>();
         coordinator.TransitionTo<InputDummyScreen>(new DissolveCurtain { Duration = 1f });
 
-        var ex = Record.Exception(() => game.OnPointerMove(0f, 0f));
+        var ex = Record.Exception(() => stage.OnPointerMove(0f, 0f));
         Assert.Null(ex);
     }
 }
@@ -388,7 +388,7 @@ file sealed class InputDummyScreen : Scene
 
 file static class InputTestFactory
 {
-    public static (Stage game, InputTracker tracker) Create()
+    public static (Stage stage, InputTracker tracker) Create()
     {
         var tracker = new InputTracker();
         var builder = StageBuilder.Create();

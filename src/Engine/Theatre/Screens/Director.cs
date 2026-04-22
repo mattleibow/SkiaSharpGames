@@ -15,16 +15,16 @@ internal sealed class Director : IDirector, IStageRenderer
     private readonly Type _initialScreenType;
     private Scene? _current;
     private readonly List<Scene> _overlays = [];
-    private ActiveTransition? _activeTransition;
+    private ActiveCurtain? _activeCurtain;
 
-    private sealed class ActiveTransition(
+    private sealed class ActiveCurtain(
         Scene outgoing,
         Scene incoming,
-        ICurtain transition)
+        ICurtain curtain)
     {
         public Scene Outgoing { get; } = outgoing;
         public Scene Incoming { get; } = incoming;
-        public ICurtain Transition { get; } = transition;
+        public ICurtain Curtain { get; } = curtain;
         public float Progress { get; set; }
     }
 
@@ -56,12 +56,12 @@ internal sealed class Director : IDirector, IStageRenderer
 
         // Cancel any running transition: both the outgoing (already deactivating) and the
         // incoming (was activating but never completed) are now fully removed.
-        if (_activeTransition != null)
+        if (_activeCurtain != null)
         {
-            _activeTransition.Outgoing.OnDeactivated();
-            _activeTransition.Incoming.OnDeactivating();
-            _activeTransition.Incoming.OnDeactivated();
-            _activeTransition = null;
+            _activeCurtain.Outgoing.OnDeactivated();
+            _activeCurtain.Incoming.OnDeactivating();
+            _activeCurtain.Incoming.OnDeactivated();
+            _activeCurtain = null;
         }
 
         // Clear overlay stack
@@ -88,7 +88,7 @@ internal sealed class Director : IDirector, IStageRenderer
             _current!.IsPaused = true;
             _current.OnDeactivating();
             incoming.OnActivating();
-            _activeTransition = new ActiveTransition(_current, incoming, transition);
+            _activeCurtain = new ActiveCurtain(_current, incoming, transition);
         }
     }
 
@@ -132,7 +132,7 @@ internal sealed class Director : IDirector, IStageRenderer
         get
         {
             EnsureInitialized();
-            return _activeTransition is not null ? _activeTransition.Incoming :
+            return _activeCurtain is not null ? _activeCurtain.Incoming :
                    _overlays.Count > 0 ? _overlays[^1] :
                                          _current!;
         }
@@ -145,16 +145,16 @@ internal sealed class Director : IDirector, IStageRenderer
     {
         EnsureInitialized();
 
-        if (_activeTransition is not null)
+        if (_activeCurtain is not null)
         {
-            _activeTransition.Progress +=
-                deltaTime / _activeTransition.Transition.Duration;
+            _activeCurtain.Progress +=
+                deltaTime / _activeCurtain.Curtain.Duration;
 
-            if (_activeTransition.Progress >= 1f)
+            if (_activeCurtain.Progress >= 1f)
             {
-                var outgoing = _activeTransition.Outgoing;
-                var incoming = _activeTransition.Incoming;
-                _activeTransition = null;
+                var outgoing = _activeCurtain.Outgoing;
+                var incoming = _activeCurtain.Incoming;
+                _activeCurtain = null;
                 _current = incoming;
                 _current.IsPaused = false;
                 outgoing.OnDeactivated();
@@ -178,13 +178,13 @@ internal sealed class Director : IDirector, IStageRenderer
     {
         EnsureInitialized();
 
-        if (_activeTransition is not null)
+        if (_activeCurtain is not null)
         {
-            float progress = Math.Clamp(_activeTransition.Progress, 0f, 1f);
-            _activeTransition.Transition.Draw(
+            float progress = Math.Clamp(_activeCurtain.Progress, 0f, 1f);
+            _activeCurtain.Curtain.Draw(
                 canvas, progress,
-                c => _activeTransition.Outgoing.Draw(c, width, height),
-                c => _activeTransition.Incoming.Draw(c, width, height),
+                c => _activeCurtain.Outgoing.Draw(c, width, height),
+                c => _activeCurtain.Incoming.Draw(c, width, height),
                 width, height);
         }
         else

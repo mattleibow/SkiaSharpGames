@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Engine/Theatre.Testing/SkiaSharp.Theatre.Testing.csproj" />
+    <ProjectReference Include="../../src/Engine/Theatre.Rehearsals/SkiaSharp.Theatre.Rehearsals.csproj" />
     <ProjectReference Include="../../src/Games/Asteroids/SkiaSharpGames.Asteroids.csproj" />
     <ProjectReference Include="../../src/Games/Breakout/SkiaSharpGames.Breakout.csproj" />
     <ProjectReference Include="../../src/Games/CastleAttack/SkiaSharpGames.CastleAttack.csproj" />

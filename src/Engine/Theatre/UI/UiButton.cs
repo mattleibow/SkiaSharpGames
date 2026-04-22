@@ -3,13 +3,13 @@ using SkiaSharp;
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// A themed button entity with built-in collision, sprite, and readable state.
+/// A themed button actor with built-in collision, sprite, and readable state.
 /// <para>
-/// Add to any entity group and use <see cref="Actor.FindChildCollision"/> for
+/// Add to any actor group and use <see cref="Actor.FindChildCollision"/> for
 /// hit-testing. Read <see cref="IsPressed"/> to determine the current state.
 /// </para>
 /// <example><code>
-/// var button = new UiButton(190f, 56f, themeProvider) { Label = "Start" };
+/// var button = new UiButton(190f, 56f, theme) { Label = "Start" };
 /// button.X = 200f; button.Y = 150f;
 /// controls.AddChild(button);
 ///
@@ -24,8 +24,8 @@ namespace SkiaSharp.Theatre;
 public class UiButton : UiControl
 {
     /// <summary>
-    /// Creates a new button entity with the given dimensions and theme.
-    /// The entity is positioned at its center; the collider and sprite
+    /// Creates a new button actor with the given dimensions and theme.
+    /// The actor is positioned at its center; the collider and sprite
     /// are configured automatically.
     /// </summary>
     /// <param name="width">Button width in game-space units.</param>

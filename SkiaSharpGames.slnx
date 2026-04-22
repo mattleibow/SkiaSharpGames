@@ -8,8 +8,8 @@
   <Folder Name="/src/Engine/Theatre/">
     <Project Path="src/Engine/Theatre/SkiaSharp.Theatre.csproj" />
   </Folder>
-  <Folder Name="/src/Engine/Theatre.Testing/">
-    <Project Path="src/Engine/Theatre.Testing/SkiaSharp.Theatre.Testing.csproj" />
+  <Folder Name="/src/Engine/Theatre.Rehearsals/">
+    <Project Path="src/Engine/Theatre.Rehearsals/SkiaSharp.Theatre.Rehearsals.csproj" />
   </Folder>
   <Folder Name="/src/Games/" />
   <Folder Name="/src/Games/Asteroids/">

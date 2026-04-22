@@ -33,7 +33,7 @@ public record PixelArtButtonAppearance : UiAppearance<UiButton>
     }
 
     /// <summary>
-    /// Draws a button directly without requiring a <see cref="UiButton"/> entity.
+    /// Draws a button directly without requiring a <see cref="UiButton"/> actor.
     /// </summary>
     public void DrawDirect(
         SKCanvas canvas,

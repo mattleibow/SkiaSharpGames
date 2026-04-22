@@ -16,7 +16,7 @@ internal sealed class GalleryGame(
     public string Title => title;
     public string Description => description;
     public string Emoji => emoji;
-    public Stage CreateGame() => factory();
+    public Stage CreateStage() => factory();
 }
 
 /// <summary>

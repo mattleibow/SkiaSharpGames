@@ -1,6 +1,6 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
-using SkiaSharp.Theatre.Testing;
+using SkiaSharp.Theatre.Rehearsals;
 using SkiaSharpGames.Asteroids;
 using SkiaSharpGames.Breakout;
 using SkiaSharpGames.CastleAttack;
@@ -27,9 +27,9 @@ public class GameSmokeTests
     private const float PlayDuration = 3f;
     private const float DeltaTime = 1f / 60f;
 
-    private static void RunMenuThenPlay(Stage game)
+    private static void RunMenuThenPlay(Stage stage)
     {
-        using var harness = Rehearsal.FromStage(game);
+        using var harness = Rehearsal.FromStage(stage);
 
         // Run the start/menu screen for 3 seconds
         harness.RunFor(MenuDuration, DeltaTime);
@@ -44,8 +44,8 @@ public class GameSmokeTests
 
         // Transition to play screen via click (all games support this)
         harness.Click(
-            game.StageSize.Width / 2f,
-            game.StageSize.Height / 2f);
+            stage.StageSize.Width / 2f,
+            stage.StageSize.Height / 2f);
 
         // Let transition complete
         harness.RunFor(1f, DeltaTime);
@@ -111,8 +111,8 @@ public class GameSmokeTests
     public void UIGallery_PlayScreen()
     {
         // UIGallery has no start screen — it goes directly to PlayScreen
-        var game = UIGalleryGame.Create();
-        using var harness = Rehearsal.FromStage(game);
+        var stage = UIGalleryGame.Create();
+        using var harness = Rehearsal.FromStage(stage);
 
         harness.RunFor(3f, DeltaTime);
 

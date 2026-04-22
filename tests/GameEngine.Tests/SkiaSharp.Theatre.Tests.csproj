@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/Engine/Theatre/SkiaSharp.Theatre.csproj" />
-    <ProjectReference Include="../../src/Engine/Theatre.Testing/SkiaSharp.Theatre.Testing.csproj" />
+    <ProjectReference Include="../../src/Engine/Theatre.Rehearsals/SkiaSharp.Theatre.Rehearsals.csproj" />
   </ItemGroup>
 
 </Project>

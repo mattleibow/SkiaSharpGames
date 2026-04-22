@@ -3,7 +3,7 @@ using SkiaSharp;
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// A visible pointer/cursor entity with a point collider for hit testing.
+/// A visible pointer/cursor actor with a point collider for hit testing.
 /// <para>
 /// Opt in by setting <see cref="Scene.Spotlight"/> on any screen.
 /// The engine automatically updates position from pointer events.
@@ -28,7 +28,7 @@ namespace SkiaSharp.Theatre;
 public class Spotlight : UiActor
 {
     /// <summary>
-    /// Creates a new pointer entity with a point collider.
+    /// Creates a new pointer actor with a point collider.
     /// Initially invisible — becomes visible on first pointer event.
     /// </summary>
     /// <param name="theme">

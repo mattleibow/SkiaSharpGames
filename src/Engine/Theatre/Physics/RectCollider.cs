@@ -13,7 +13,7 @@ public sealed class RectCollider : Collider2D
     /// <summary>Height of the rectangle in game-space units.</summary>
     public float Height { get; set; }
 
-    /// <summary>World-space rectangle given an entity centre position.</summary>
+    /// <summary>World-space rectangle given an actor centre position.</summary>
     public SKRect WorldRect(float centerX, float centerY) => SKRect.Create(
         centerX + OffsetX - Width / 2f,
         centerY + OffsetY - Height / 2f,

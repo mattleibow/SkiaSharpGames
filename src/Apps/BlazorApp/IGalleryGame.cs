@@ -21,5 +21,5 @@ public interface IGalleryGame
     string Emoji { get; }
 
     /// <summary>Creates a new, ready-to-run Stage instance.</summary>
-    Stage CreateGame();
+    Stage CreateStage();
 }

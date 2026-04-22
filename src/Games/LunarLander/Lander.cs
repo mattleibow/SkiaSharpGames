@@ -5,8 +5,8 @@ using static SkiaSharpGames.LunarLander.LunarLanderConstants;
 namespace SkiaSharpGames.LunarLander;
 
 /// <summary>
-/// The player's lander entity. Demonstrates rotation and child entities:
-/// flame entities are children that rotate with the lander automatically.
+/// The player's lander actor. Demonstrates rotation and child actors:
+/// flame actors are children that rotate with the lander automatically.
 /// </summary>
 internal sealed class Lander : Actor
 {
@@ -19,7 +19,7 @@ internal sealed class Lander : Actor
         Collider = new RectCollider { Width = LanderWidth, Height = LanderHeight };
         Rigidbody = new Rigidbody2D();
 
-        // Child entities for thruster flames — they orbit with lander rotation!
+        // Child actors for thruster flames — they orbit with lander rotation!
         MainFlame = new FlameEntity
         {
             Y = LanderHeight / 2f + 2f,

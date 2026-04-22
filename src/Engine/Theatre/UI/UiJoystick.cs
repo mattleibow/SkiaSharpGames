@@ -3,7 +3,7 @@ using SkiaSharp;
 namespace SkiaSharp.Theatre;
 
 /// <summary>
-/// A themed virtual joystick entity with built-in collision, sprite, and readable state.
+/// A themed virtual joystick actor with built-in collision, sprite, and readable state.
 /// <para>
 /// Drag inside the joystick to move the knob. Read <see cref="Delta"/> for the
 /// offset, or <see cref="NormalizedDelta"/> for the –1 … 1 range.
@@ -11,7 +11,7 @@ namespace SkiaSharp.Theatre;
 /// <see cref="ResetDelta"/> on pointer-up.
 /// </para>
 /// <example><code>
-/// var joystick = new UiJoystick(86f, themeProvider);
+/// var joystick = new UiJoystick(86f, theme);
 /// joystick.X = 620f; joystick.Y = 360f;
 /// controls.AddChild(joystick);
 ///
@@ -29,7 +29,7 @@ namespace SkiaSharp.Theatre;
 public class UiJoystick : UiActor
 {
     /// <summary>
-    /// Creates a new joystick entity with the given radius and theme.
+    /// Creates a new joystick actor with the given radius and theme.
     /// </summary>
     /// <param name="radius">Base circle radius in game-space units.</param>
     /// <param name="theme">Provides the active UI theme for rendering.</param>

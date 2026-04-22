@@ -270,7 +270,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector coordinator)
         _bricks.Draw(canvas);
         _powerUps.Draw(canvas);
 
-        // Draw power-up labels on top of power-up entities
+        // Draw power-up labels on top of power-up actors
         foreach (var child in _powerUps.Children)
         {
             if (child is not FallingPowerUp pu || !pu.Active) continue;

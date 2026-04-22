@@ -52,7 +52,7 @@ internal sealed class PlayScreen : Scene
             _themeButtons.AddChild(btn);
         }
 
-        // Demo controls — state lives on each entity
+        // Demo controls — state lives on each actor
         _primaryButton = new UiButton(190f, 56f, theme) { X = 135f, Y = 138f, Label = "Button" };
         _overrideButton = new UiButton(190f, 56f, theme) { X = 345f, Y = 138f, Label = "Override" };
         _checkbox = new UiCheckbox(34f, 34f, theme) { X = 57f, Y = 221f, IsChecked = true };

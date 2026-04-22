@@ -5,12 +5,12 @@ namespace SkiaSharp.Theatre.Tests;
 public class CollisionResolverTests
 {
     [Fact]
-    public void CircleCollider_BoundingBox_CentredOnEntity()
+    public void CircleCollider_BoundingBox_CentredOnActor()
     {
-        var entity = new Actor { X = 100f, Y = 200f };
+        var actor = new Actor { X = 100f, Y = 200f };
         var collider = new CircleCollider { Radius = 10f };
 
-        var bounds = collider.BoundingBox(entity.X, entity.Y);
+        var bounds = collider.BoundingBox(actor.X, actor.Y);
 
         Assert.Equal(90f, bounds.Left, precision: 4);
         Assert.Equal(190f, bounds.Top, precision: 4);
@@ -19,12 +19,12 @@ public class CollisionResolverTests
     }
 
     [Fact]
-    public void RectCollider_WorldRect_IsCentredOnEntity()
+    public void RectCollider_WorldRect_IsCentredOnActor()
     {
-        var entity = new Actor { X = 50f, Y = 30f };
+        var actor = new Actor { X = 50f, Y = 30f };
         var collider = new RectCollider { Width = 20f, Height = 10f };
 
-        var bounds = collider.WorldRect(entity.X, entity.Y);
+        var bounds = collider.WorldRect(actor.X, actor.Y);
 
         Assert.Equal(40f, bounds.Left, precision: 4);
         Assert.Equal(25f, bounds.Top, precision: 4);
@@ -33,16 +33,16 @@ public class CollisionResolverTests
     }
 
     [Fact]
-    public void Rigidbody2D_Step_MovesEntity()
+    public void Rigidbody2D_Step_MovesActor()
     {
-        var entity = new Actor { X = 10f, Y = 20f };
+        var actor = new Actor { X = 10f, Y = 20f };
         var body = new Rigidbody2D();
         body.SetVelocity(100f, -50f);
 
-        body.Step(entity, 0.5f);
+        body.Step(actor, 0.5f);
 
-        Assert.Equal(60f, entity.X, precision: 4);
-        Assert.Equal(-5f, entity.Y, precision: 4);
+        Assert.Equal(60f, actor.X, precision: 4);
+        Assert.Equal(-5f, actor.Y, precision: 4);
     }
 
     [Fact]
@@ -257,7 +257,7 @@ public class CollisionResolverTests
     [Fact]
     public void CircleVsRectWall_BouncesLikeOldBounds()
     {
-        // A ball heading left into a thick wall entity on the left edge — same
+        // A ball heading left into a thick wall actor on the left edge — same
         // scenario that ResolveBounds used to handle, now done via TryGetHit.
         var circle = new CircleCollider { Radius = 8f };
         var body = new Rigidbody2D { VelocityX = -120f };
@@ -277,11 +277,11 @@ public class CollisionResolverTests
     [Fact]
     public void RectCollider_BoundingBox_MatchesWorldRect()
     {
-        var entity = new Actor { X = 100f, Y = 50f };
+        var actor = new Actor { X = 100f, Y = 50f };
         var collider = new RectCollider { Width = 40f, Height = 20f };
 
-        var worldRect = collider.WorldRect(entity.X, entity.Y);
-        var boundingBox = collider.BoundingBox(entity.X, entity.Y);
+        var worldRect = collider.WorldRect(actor.X, actor.Y);
+        var boundingBox = collider.BoundingBox(actor.X, actor.Y);
 
         Assert.Equal(worldRect.Left, boundingBox.Left, precision: 4);
         Assert.Equal(worldRect.Top, boundingBox.Top, precision: 4);
@@ -292,10 +292,10 @@ public class CollisionResolverTests
     [Fact]
     public void RectCollider_BoundingBox_WithOffset_IsShifted()
     {
-        var entity = new Actor { X = 100f, Y = 100f };
+        var actor = new Actor { X = 100f, Y = 100f };
         var collider = new RectCollider { Width = 20f, Height = 10f, OffsetX = 5f, OffsetY = -5f };
 
-        var box = collider.BoundingBox(entity.X, entity.Y);
+        var box = collider.BoundingBox(actor.X, actor.Y);
 
         Assert.Equal(95f, box.Left, precision: 4);
         Assert.Equal(90f, box.Top, precision: 4);
@@ -306,10 +306,10 @@ public class CollisionResolverTests
     [Fact]
     public void CircleCollider_WithOffset_WorldCenterIsShifted()
     {
-        var entity = new Actor { X = 100f, Y = 100f };
+        var actor = new Actor { X = 100f, Y = 100f };
         var collider = new CircleCollider { Radius = 5f, OffsetX = 10f, OffsetY = -5f };
 
-        var (cx, cy) = collider.WorldCenter(entity.X, entity.Y);
+        var (cx, cy) = collider.WorldCenter(actor.X, actor.Y);
 
         Assert.Equal(110f, cx, precision: 4);
         Assert.Equal(95f, cy, precision: 4);

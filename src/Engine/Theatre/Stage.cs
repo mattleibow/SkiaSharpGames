@@ -25,7 +25,7 @@ namespace SkiaSharp.Theatre;
 ///        .Add&lt;BreakoutVictoryScreen&gt;();
 /// builder.SetOpeningScene&lt;BreakoutStartScreen&gt;();
 /// builder.SetStageSize(new SKSize(800, 600));
-/// var game = builder.Open();
+/// var stage = builder.Open();
 /// </code>
 /// </example>
 /// </remarks>
@@ -89,25 +89,25 @@ public sealed class Stage
     /// <summary>Called when the pointer/mouse moves over the canvas.</summary>
     public void OnPointerMove(float x, float y)
     {
-        var screen = _coordinator.ActiveInputScene;
-        if (screen.Spotlight is { } p) { p.X = x; p.Y = y; p.Visible = true; }
-        screen.OnPointerMove(x, y);
+        var scene = _coordinator.ActiveInputScene;
+        if (scene.Spotlight is { } p) { p.X = x; p.Y = y; p.Visible = true; }
+        scene.OnPointerMove(x, y);
     }
 
     /// <summary>Called when the user clicks or taps the canvas.</summary>
     public void OnPointerDown(float x, float y)
     {
-        var screen = _coordinator.ActiveInputScene;
-        if (screen.Spotlight is { } p) { p.IsDown = true; p.X = x; p.Y = y; p.Visible = true; }
-        screen.OnPointerDown(x, y);
+        var scene = _coordinator.ActiveInputScene;
+        if (scene.Spotlight is { } p) { p.IsDown = true; p.X = x; p.Y = y; p.Visible = true; }
+        scene.OnPointerDown(x, y);
     }
 
     /// <summary>Called when the user releases a click or touch on the canvas.</summary>
     public void OnPointerUp(float x, float y)
     {
-        var screen = _coordinator.ActiveInputScene;
-        if (screen.Spotlight is { } p) { p.X = x; p.Y = y; p.IsDown = false; }
-        screen.OnPointerUp(x, y);
+        var scene = _coordinator.ActiveInputScene;
+        if (scene.Spotlight is { } p) { p.X = x; p.Y = y; p.IsDown = false; }
+        scene.OnPointerUp(x, y);
     }
 
     /// <summary>Called when a key is pressed while the game canvas has focus.</summary>

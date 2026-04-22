@@ -21,7 +21,7 @@ public record NeonButtonAppearance : UiAppearance<UiButton>
     public byte GlowAlpha { get; init; } = 100;
     public byte DisabledAlpha { get; init; } = 60;
 
-    public static NeonButtonAppearance Default => new();
+    public static NeonButtonAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiButton button)
@@ -65,7 +65,7 @@ public record NeonButtonAppearance : UiAppearance<UiButton>
         // Label
         if (!string.IsNullOrEmpty(button.Label))
         {
-            using var font = new SKFont(SKTypeface.Default, button.FontSize);
+            var font = UiLabelAppearance.GetFont(button.FontSize);
             using var textPaint = new SKPaint
             {
                 IsAntialias = true,

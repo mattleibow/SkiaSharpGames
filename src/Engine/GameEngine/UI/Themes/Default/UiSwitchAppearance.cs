@@ -7,6 +7,9 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// </summary>
 public record UiSwitchAppearance : UiAppearance<UiSwitch>
 {
+    private static readonly SKPaint FillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private static readonly SKPaint StrokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+
     public SKColor TrackOffColor { get; init; } = new(0x44, 0x4F, 0x5E);
     public SKColor TrackOnColor { get; init; } = new(0x46, 0xA4, 0xF6);
     public SKColor KnobColor { get; init; } = SKColors.White;
@@ -14,31 +17,31 @@ public record UiSwitchAppearance : UiAppearance<UiSwitch>
     public float CornerRadius { get; init; } = 14f;
     public float BorderWidth { get; init; } = 2f;
 
-    public static UiSwitchAppearance Default => new();
+    public static UiSwitchAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiSwitch sw)
     {
+        byte alpha = (byte)(255 * Math.Clamp(sw.Alpha, 0f, 1f));
+        if (alpha == 0) return;
+
         var rect = sw.LocalRect;
 
-        using var fillPaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
-        using var strokePaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke };
+        FillPaint.Color = (sw.IsOn ? TrackOnColor : TrackOffColor).WithAlpha(alpha);
+        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, FillPaint);
 
-        fillPaint.Color = sw.IsOn ? TrackOnColor : TrackOffColor;
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, fillPaint);
-
-        strokePaint.StrokeWidth = BorderWidth;
-        strokePaint.Color = BorderColor;
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, strokePaint);
+        StrokePaint.StrokeWidth = BorderWidth;
+        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, StrokePaint);
 
         float margin = 4f;
         float knobRadius = MathF.Max(6f, rect.Height * 0.5f - margin);
         float knobX = sw.IsOn ? rect.Right - margin - knobRadius : rect.Left + margin + knobRadius;
 
-        fillPaint.Color = KnobColor;
-        canvas.DrawCircle(knobX, rect.MidY, knobRadius, fillPaint);
-        strokePaint.Color = BorderColor;
-        strokePaint.StrokeWidth = MathF.Max(1f, BorderWidth * 0.75f);
-        canvas.DrawCircle(knobX, rect.MidY, knobRadius, strokePaint);
+        FillPaint.Color = KnobColor.WithAlpha(alpha);
+        canvas.DrawCircle(knobX, rect.MidY, knobRadius, FillPaint);
+        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        StrokePaint.StrokeWidth = MathF.Max(1f, BorderWidth * 0.75f);
+        canvas.DrawCircle(knobX, rect.MidY, knobRadius, StrokePaint);
     }
 }

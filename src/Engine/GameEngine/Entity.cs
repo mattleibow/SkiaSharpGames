@@ -144,6 +144,7 @@ public class Entity
         {
             if (c.Active) return false;
             c.Parent = null;
+            c.RecalculateWorld();
             return true;
         });
     }

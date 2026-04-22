@@ -21,11 +21,14 @@ public record NeonSliderAppearance : UiAppearance<UiSlider>
     public float KnobRadius { get; init; } = 10f;
     public byte GlowAlpha { get; init; } = 100;
 
-    public static NeonSliderAppearance Default => new();
+    public static NeonSliderAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiSlider slider)
     {
+        byte alpha = (byte)(255 * Math.Clamp(slider.Alpha, 0f, 1f));
+        if (alpha == 0) return;
+
         var rect = slider.LocalRect;
         float value = Math.Clamp(slider.Value, 0f, 1f);
         float cy = rect.MidY;
@@ -40,7 +43,7 @@ public record NeonSliderAppearance : UiAppearance<UiSlider>
             Style = SKPaintStyle.Stroke,
             StrokeCap = SKStrokeCap.Round,
             StrokeWidth = TrackHeight,
-            Color = TrackColor
+            Color = TrackColor.WithAlpha(alpha)
         };
         canvas.DrawLine(left, cy, right, cy, trackPaint);
 
@@ -51,7 +54,7 @@ public record NeonSliderAppearance : UiAppearance<UiSlider>
             Style = SKPaintStyle.Stroke,
             StrokeCap = SKStrokeCap.Round,
             StrokeWidth = TrackHeight + 2f,
-            Color = TrackBorderColor.WithAlpha(GlowAlpha),
+            Color = TrackBorderColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
             MaskFilter = GlowFilter
         };
         canvas.DrawLine(left, cy, right, cy, glowPaint);
@@ -59,7 +62,7 @@ public record NeonSliderAppearance : UiAppearance<UiSlider>
         // Neon fill glow
         if (value > 0.01f)
         {
-            glowPaint.Color = FillColor.WithAlpha(GlowAlpha);
+            glowPaint.Color = FillColor.WithAlpha((byte)(GlowAlpha * alpha / 255));
             glowPaint.StrokeWidth = TrackHeight + 2f;
             glowPaint.MaskFilter = GlowFilter;
             canvas.DrawLine(left, cy, knobX, cy, glowPaint);
@@ -67,7 +70,7 @@ public record NeonSliderAppearance : UiAppearance<UiSlider>
             // Solid fill
             glowPaint.MaskFilter = null;
             glowPaint.StrokeWidth = TrackHeight;
-            glowPaint.Color = FillColor;
+            glowPaint.Color = FillColor.WithAlpha(alpha);
             canvas.DrawLine(left, cy, knobX, cy, glowPaint);
         }
 
@@ -76,14 +79,14 @@ public record NeonSliderAppearance : UiAppearance<UiSlider>
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = KnobColor.WithAlpha(GlowAlpha),
+            Color = KnobColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
             MaskFilter = KnobGlowFilter
         };
         canvas.DrawCircle(knobX, cy, KnobRadius + 3f, knobPaint);
 
         // Solid knob
         knobPaint.MaskFilter = null;
-        knobPaint.Color = KnobColor;
+        knobPaint.Color = KnobColor.WithAlpha(alpha);
         canvas.DrawCircle(knobX, cy, KnobRadius, knobPaint);
     }
 }

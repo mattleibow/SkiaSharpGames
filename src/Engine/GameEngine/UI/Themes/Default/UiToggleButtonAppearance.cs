@@ -15,24 +15,32 @@ public record UiToggleButtonAppearance : UiAppearance<UiButton>
     public float CornerRadius { get; init; } = 14f;
     public float BorderWidth { get; init; } = 2f;
 
-    public static UiToggleButtonAppearance Default => new();
+    private UiButtonAppearance? _cachedOnAppearance;
+    private UiButtonAppearance? _cachedOffAppearance;
+
+    public static UiToggleButtonAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiButton button)
     {
         var rect = button.LocalRect;
-        var btnAppearance = new UiButtonAppearance
-        {
-            FillColor = button.IsOn ? OnColor : OffColor,
-            PressedFillColor = button.IsOn ? OnColor : OffColor,
-            TextColor = TextColor,
-            BorderColor = BorderColor,
-            CornerRadius = CornerRadius,
-            BorderWidth = BorderWidth,
-            BevelSize = 0f,
-        };
+        var btnAppearance = button.IsOn
+            ? (_cachedOnAppearance ??= MakeAppearance(OnColor))
+            : (_cachedOffAppearance ??= MakeAppearance(OffColor));
         btnAppearance.DrawDirect(canvas, rect, button.IsOn ? "ON" : "OFF",
             pressed: false, enabled: true,
-            fontSize: MathF.Min(18f, rect.Height * 0.5f));
+            fontSize: MathF.Min(18f, rect.Height * 0.5f),
+            alpha: button.Alpha);
     }
+
+    private UiButtonAppearance MakeAppearance(SKColor fill) => new()
+    {
+        FillColor = fill,
+        PressedFillColor = fill,
+        TextColor = TextColor,
+        BorderColor = BorderColor,
+        CornerRadius = CornerRadius,
+        BorderWidth = BorderWidth,
+        BevelSize = 0f,
+    };
 }

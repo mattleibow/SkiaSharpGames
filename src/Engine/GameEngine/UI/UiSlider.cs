@@ -45,6 +45,7 @@ public class UiSlider : UiControl
     /// <param name="worldX">The pointer's X position in world space.</param>
     public void UpdateValueFromPointer(float worldX)
     {
+        if (Width <= 0f) { Value = 0f; return; }
         float left = WorldX - Width / 2f;
         Value = Math.Clamp((worldX - left) / Width, 0f, 1f);
     }

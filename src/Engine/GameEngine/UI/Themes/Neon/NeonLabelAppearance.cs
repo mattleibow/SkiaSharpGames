@@ -12,7 +12,7 @@ public record NeonLabelAppearance : UiAppearance<UiLabel>
 
     public byte GlowAlpha { get; init; } = 80;
 
-    public static NeonLabelAppearance Default => new();
+    public static NeonLabelAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiLabel label)

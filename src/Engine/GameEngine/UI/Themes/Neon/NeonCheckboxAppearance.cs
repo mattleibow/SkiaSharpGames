@@ -17,11 +17,14 @@ public record NeonCheckboxAppearance : UiAppearance<UiCheckbox>
     public float BorderWidth { get; init; } = 1.5f;
     public byte GlowAlpha { get; init; } = 100;
 
-    public static NeonCheckboxAppearance Default => new();
+    public static NeonCheckboxAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiCheckbox checkbox)
     {
+        byte alpha = (byte)(255 * Math.Clamp(checkbox.Alpha, 0f, 1f));
+        if (alpha == 0) return;
+
         var rect = checkbox.LocalRect;
         float cr = CornerRadius;
 
@@ -29,7 +32,7 @@ public record NeonCheckboxAppearance : UiAppearance<UiCheckbox>
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = FillColor
+            Color = FillColor.WithAlpha(alpha)
         };
         canvas.DrawRoundRect(rect, cr, cr, fillPaint);
 
@@ -39,7 +42,7 @@ public record NeonCheckboxAppearance : UiAppearance<UiCheckbox>
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             StrokeWidth = BorderWidth + 2f,
-            Color = BorderColor.WithAlpha(GlowAlpha),
+            Color = BorderColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
             MaskFilter = GlowFilter
         };
         canvas.DrawRoundRect(rect, cr, cr, glowPaint);
@@ -47,7 +50,7 @@ public record NeonCheckboxAppearance : UiAppearance<UiCheckbox>
         // Solid border
         glowPaint.MaskFilter = null;
         glowPaint.StrokeWidth = BorderWidth;
-        glowPaint.Color = BorderColor;
+        glowPaint.Color = BorderColor.WithAlpha(alpha);
         canvas.DrawRoundRect(rect, cr, cr, glowPaint);
 
         if (!checkbox.IsChecked)
@@ -60,7 +63,7 @@ public record NeonCheckboxAppearance : UiAppearance<UiCheckbox>
             Style = SKPaintStyle.Stroke,
             StrokeCap = SKStrokeCap.Round,
             StrokeWidth = MathF.Max(2f, rect.Width * 0.12f) + 2f,
-            Color = CheckColor.WithAlpha(GlowAlpha),
+            Color = CheckColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
             MaskFilter = GlowFilter
         };
 
@@ -77,7 +80,7 @@ public record NeonCheckboxAppearance : UiAppearance<UiCheckbox>
         // Solid check on top
         checkPaint.MaskFilter = null;
         checkPaint.StrokeWidth = MathF.Max(2f, rect.Width * 0.12f);
-        checkPaint.Color = CheckColor;
+        checkPaint.Color = CheckColor.WithAlpha(alpha);
         canvas.DrawLine(x1, y1, x2, y2, checkPaint);
         canvas.DrawLine(x2, y2, x3, y3, checkPaint);
     }

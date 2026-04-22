@@ -9,8 +9,9 @@ namespace SkiaSharpGames.GameEngine.UI;
 public record PixelArtLabelAppearance : UiAppearance<UiLabel>
 {
     private static readonly Dictionary<float, SKFont> FontCache = [];
+    private static readonly SKPaint TextPaint = new() { IsAntialias = false };
 
-    public static PixelArtLabelAppearance Default => new();
+    public static PixelArtLabelAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiLabel label)
@@ -19,11 +20,7 @@ public record PixelArtLabelAppearance : UiAppearance<UiLabel>
             return;
 
         var font = GetPixelFont(label.FontSize);
-        using var paint = new SKPaint
-        {
-            IsAntialias = false,
-            Color = label.Color.WithAlpha((byte)(255 * Math.Clamp(label.Alpha, 0f, 1f)))
-        };
+        TextPaint.Color = label.Color.WithAlpha((byte)(255 * Math.Clamp(label.Alpha, 0f, 1f)));
 
         float drawX = label.Align switch
         {
@@ -32,7 +29,7 @@ public record PixelArtLabelAppearance : UiAppearance<UiLabel>
             _ => 0f
         };
 
-        canvas.DrawText(label.Text, drawX, 0f, font, paint);
+        canvas.DrawText(label.Text, drawX, 0f, font, TextPaint);
     }
 
     private static SKFont GetPixelFont(float size)

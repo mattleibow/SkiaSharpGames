@@ -10,10 +10,18 @@ namespace SkiaSharpGames.GameEngine;
 /// </summary>
 public abstract class Collider2D
 {
-    /// <summary>Horizontal offset of the collider relative to the owning entity center.</summary>
+    /// <summary>
+    /// Horizontal offset of the collider relative to the owning entity center.
+    /// Offset is applied in world space and does not rotate with the entity.
+    /// For rotated entities, keep offsets at zero.
+    /// </summary>
     public float OffsetX { get; set; }
 
-    /// <summary>Vertical offset of the collider relative to the owning entity center.</summary>
+    /// <summary>
+    /// Vertical offset of the collider relative to the owning entity center.
+    /// Offset is applied in world space and does not rotate with the entity.
+    /// For rotated entities, keep offsets at zero.
+    /// </summary>
     public float OffsetY { get; set; }
 
     /// <summary>Gets the collider center given the entity's world position.</summary>

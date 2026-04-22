@@ -106,7 +106,7 @@ public sealed class Game
     public void OnPointerUp(float x, float y)
     {
         var screen = _coordinator.ActiveInputScreen;
-        if (screen.Pointer is { } p) { p.IsDown = false; }
+        if (screen.Pointer is { } p) { p.X = x; p.Y = y; p.IsDown = false; }
         screen.OnPointerUp(x, y);
     }
 

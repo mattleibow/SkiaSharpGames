@@ -59,6 +59,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
         if (_activeTransition != null)
         {
             _activeTransition.Outgoing.OnDeactivated();
+            _activeTransition.Incoming.OnDeactivating();
             _activeTransition.Incoming.OnDeactivated();
             _activeTransition = null;
         }
@@ -158,8 +159,12 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
                 _current.IsPaused = false;
                 outgoing.OnDeactivated();
                 incoming.OnActivated();
+                // Fall through so the new screen gets its first update on this frame
             }
-            return;
+            else
+            {
+                return;
+            }
         }
 
         if (_overlays.Count > 0)

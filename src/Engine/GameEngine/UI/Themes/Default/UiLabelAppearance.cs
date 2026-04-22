@@ -8,9 +8,12 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// </summary>
 public record UiLabelAppearance : UiAppearance<UiLabel>
 {
+    // Font cache is intentionally unbounded — the game loop is single-threaded and
+    // games typically use only ~5-10 distinct font sizes, so growth is negligible.
     private static readonly Dictionary<float, SKFont> FontCache = [];
+    private static readonly SKPaint TextPaint = new() { IsAntialias = true };
 
-    public static UiLabelAppearance Default => new();
+    public static UiLabelAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiLabel label)
@@ -19,11 +22,7 @@ public record UiLabelAppearance : UiAppearance<UiLabel>
             return;
 
         var font = GetFont(label.FontSize);
-        using var paint = new SKPaint
-        {
-            IsAntialias = true,
-            Color = label.Color.WithAlpha((byte)(255 * Math.Clamp(label.Alpha, 0f, 1f)))
-        };
+        TextPaint.Color = label.Color.WithAlpha((byte)(255 * Math.Clamp(label.Alpha, 0f, 1f)));
 
         float drawX = label.Align switch
         {
@@ -32,7 +31,7 @@ public record UiLabelAppearance : UiAppearance<UiLabel>
             _ => 0f
         };
 
-        canvas.DrawText(label.Text, drawX, 0f, font, paint);
+        canvas.DrawText(label.Text, drawX, 0f, font, TextPaint);
     }
 
     /// <summary>

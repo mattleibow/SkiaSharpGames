@@ -99,6 +99,8 @@ public sealed class GameBuilder
     /// <returns>This builder, for method chaining.</returns>
     public GameBuilder SetGameDimensions(SKSize dimensions)
     {
+        if (dimensions.Width <= 0 || dimensions.Height <= 0)
+            throw new ArgumentOutOfRangeException(nameof(dimensions), "Game dimensions must be positive.");
         _gameDimensions = dimensions;
         return this;
     }

@@ -21,11 +21,14 @@ public record NeonSwitchAppearance : UiAppearance<UiSwitch>
     public float BorderWidth { get; init; } = 1.5f;
     public byte GlowAlpha { get; init; } = 100;
 
-    public static NeonSwitchAppearance Default => new();
+    public static NeonSwitchAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiSwitch sw)
     {
+        byte alpha = (byte)(255 * Math.Clamp(sw.Alpha, 0f, 1f));
+        if (alpha == 0) return;
+
         var rect = sw.LocalRect;
         float cr = CornerRadius;
         var knobColor = sw.IsOn ? KnobOnColor : KnobOffColor;
@@ -35,7 +38,7 @@ public record NeonSwitchAppearance : UiAppearance<UiSwitch>
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = TrackColor
+            Color = TrackColor.WithAlpha(alpha)
         };
         canvas.DrawRoundRect(rect, cr, cr, fillPaint);
 
@@ -45,7 +48,7 @@ public record NeonSwitchAppearance : UiAppearance<UiSwitch>
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             StrokeWidth = BorderWidth + 2f,
-            Color = BorderColor.WithAlpha(GlowAlpha),
+            Color = BorderColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
             MaskFilter = GlowFilter
         };
         canvas.DrawRoundRect(rect, cr, cr, glowPaint);
@@ -53,7 +56,7 @@ public record NeonSwitchAppearance : UiAppearance<UiSwitch>
         // Solid border
         glowPaint.MaskFilter = null;
         glowPaint.StrokeWidth = BorderWidth;
-        glowPaint.Color = BorderColor;
+        glowPaint.Color = BorderColor.WithAlpha(alpha);
         canvas.DrawRoundRect(rect, cr, cr, glowPaint);
 
         // Knob
@@ -69,14 +72,14 @@ public record NeonSwitchAppearance : UiAppearance<UiSwitch>
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = knobColor.WithAlpha(GlowAlpha),
+            Color = knobColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
             MaskFilter = KnobGlowFilter
         };
         canvas.DrawCircle(knobX, knobY, knobRadius + 2f, knobGlowPaint);
 
         // Solid knob
         knobGlowPaint.MaskFilter = null;
-        knobGlowPaint.Color = knobColor;
+        knobGlowPaint.Color = knobColor.WithAlpha(alpha);
         canvas.DrawCircle(knobX, knobY, knobRadius, knobGlowPaint);
     }
 }

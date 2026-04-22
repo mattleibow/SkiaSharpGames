@@ -14,11 +14,14 @@ public record NeonPointerAppearance : UiAppearance<UiPointer>
     public float StrokeWidth { get; init; } = 1.5f;
     public byte GlowAlpha { get; init; } = 120;
 
-    public static NeonPointerAppearance Default => new();
+    public static NeonPointerAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiPointer pointer)
     {
+        byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
+        if (alpha == 0) return;
+
         float size = pointer.IsDown ? 7f : 10f;
         float gap = pointer.IsDown ? 2f : 3f;
 
@@ -28,7 +31,7 @@ public record NeonPointerAppearance : UiAppearance<UiPointer>
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             StrokeWidth = StrokeWidth + 2f,
-            Color = NeonColor.WithAlpha(GlowAlpha),
+            Color = NeonColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
             MaskFilter = GlowFilter
         };
         DrawCrosshair(canvas, size, gap, glowPaint);
@@ -36,7 +39,7 @@ public record NeonPointerAppearance : UiAppearance<UiPointer>
         // Solid pass
         glowPaint.MaskFilter = null;
         glowPaint.StrokeWidth = StrokeWidth;
-        glowPaint.Color = NeonColor;
+        glowPaint.Color = NeonColor.WithAlpha(alpha);
         DrawCrosshair(canvas, size, gap, glowPaint);
 
         // Center dot glow
@@ -44,13 +47,13 @@ public record NeonPointerAppearance : UiAppearance<UiPointer>
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = NeonColor.WithAlpha(GlowAlpha),
+            Color = NeonColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
             MaskFilter = GlowFilter
         };
         canvas.DrawCircle(0, 0, 1.5f, dotPaint);
 
         dotPaint.MaskFilter = null;
-        dotPaint.Color = NeonColor;
+        dotPaint.Color = NeonColor.WithAlpha(alpha);
         canvas.DrawCircle(0, 0, 0.8f, dotPaint);
     }
 

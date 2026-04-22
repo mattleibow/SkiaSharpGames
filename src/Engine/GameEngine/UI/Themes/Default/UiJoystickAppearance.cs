@@ -8,35 +8,38 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// </summary>
 public record UiJoystickAppearance : UiAppearance<UiJoystick>
 {
+    private static readonly SKPaint FillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private static readonly SKPaint StrokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+
     public SKColor BaseColor { get; init; } = new(0x2A, 0x34, 0x44, 170);
     public SKColor BaseBorderColor { get; init; } = new(0xA0, 0xB6, 0xCC, 200);
     public SKColor KnobColor { get; init; } = new(0xE8, 0xF2, 0xFF, 230);
     public SKColor KnobBorderColor { get; init; } = new(0x10, 0x16, 0x20);
     public float BorderWidth { get; init; } = 2f;
 
-    public static UiJoystickAppearance Default => new();
+    public static UiJoystickAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiJoystick joystick)
     {
+        byte alpha = (byte)(255 * Math.Clamp(joystick.Alpha, 0f, 1f));
+        if (alpha == 0) return;
+
         float baseRadius = joystick.Radius;
         var knobDelta = joystick.Delta;
 
-        using var fillPaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
-        using var strokePaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke };
+        FillPaint.Color = BaseColor.WithAlpha((byte)(BaseColor.Alpha * alpha / 255));
+        canvas.DrawCircle(0f, 0f, baseRadius, FillPaint);
 
-        fillPaint.Color = BaseColor;
-        canvas.DrawCircle(0f, 0f, baseRadius, fillPaint);
-
-        strokePaint.Color = BaseBorderColor;
-        strokePaint.StrokeWidth = BorderWidth;
-        canvas.DrawCircle(0f, 0f, baseRadius, strokePaint);
+        StrokePaint.Color = BaseBorderColor.WithAlpha((byte)(BaseBorderColor.Alpha * alpha / 255));
+        StrokePaint.StrokeWidth = BorderWidth;
+        canvas.DrawCircle(0f, 0f, baseRadius, StrokePaint);
 
         float knobRadius = baseRadius * 0.42f;
-        fillPaint.Color = KnobColor;
-        canvas.DrawCircle(knobDelta.X, knobDelta.Y, knobRadius, fillPaint);
+        FillPaint.Color = KnobColor.WithAlpha((byte)(KnobColor.Alpha * alpha / 255));
+        canvas.DrawCircle(knobDelta.X, knobDelta.Y, knobRadius, FillPaint);
 
-        strokePaint.Color = KnobBorderColor;
-        canvas.DrawCircle(knobDelta.X, knobDelta.Y, knobRadius, strokePaint);
+        StrokePaint.Color = KnobBorderColor.WithAlpha(alpha);
+        canvas.DrawCircle(knobDelta.X, knobDelta.Y, knobRadius, StrokePaint);
     }
 }

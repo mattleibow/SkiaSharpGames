@@ -76,6 +76,7 @@ public sealed class GameTestHarness : IDisposable
     public void RunFrame(float deltaTime = 1f / 60f)
     {
         Game.Update(deltaTime);
+        _canvas.Clear(SKColors.Transparent);
         Game.Draw(_canvas, _bitmap.Width, _bitmap.Height);
         _frameNumber++;
         _elapsedTime += deltaTime;
@@ -141,7 +142,6 @@ public sealed class GameTestHarness : IDisposable
     /// </summary>
     public FrameSnapshot CaptureFrame()
     {
-        Game.Draw(_canvas, _bitmap.Width, _bitmap.Height);
         var copy = _bitmap.Copy();
         return new FrameSnapshot(copy, _frameNumber, _elapsedTime);
     }

@@ -35,7 +35,7 @@ public sealed class UiTheme
 
 public static class UiThemes
 {
-    public static UiTheme Simple { get; } = new()
+    public static UiTheme Simple => new()
     {
         Button = UiButtonAppearance.Default,
         Checkbox = UiCheckboxAppearance.Default,
@@ -45,7 +45,7 @@ public static class UiThemes
         Pointer = UiPointerAppearance.Default,
     };
 
-    public static UiTheme BoldCute { get; } = new()
+    public static UiTheme BoldCute => new()
     {
         Button = UiButtonAppearance.Default with
         {
@@ -93,9 +93,9 @@ public static class UiThemes
         },
     };
 
-    public static UiTheme PixelArt { get; } = PixelArtTheme.Create();
+    public static UiTheme PixelArt => PixelArtTheme.Create();
 
-    public static UiTheme Retro { get; } = new()
+    public static UiTheme Retro => new()
     {
         Button = UiButtonAppearance.Default with
         {
@@ -144,5 +144,5 @@ public static class UiThemes
         },
     };
 
-    public static UiTheme Neon { get; } = NeonTheme.Create();
+    public static UiTheme Neon => NeonTheme.Create();
 }

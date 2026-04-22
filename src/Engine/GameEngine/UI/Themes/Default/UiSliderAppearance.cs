@@ -7,6 +7,9 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// </summary>
 public record UiSliderAppearance : UiAppearance<UiSlider>
 {
+    private static readonly SKPaint FillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private static readonly SKPaint StrokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+
     public SKColor TrackColor { get; init; } = new(0x35, 0x3F, 0x4E);
     public SKColor FillColor { get; init; } = new(0x5A, 0xB5, 0xFF);
     public SKColor KnobColor { get; init; } = SKColors.White;
@@ -15,11 +18,14 @@ public record UiSliderAppearance : UiAppearance<UiSlider>
     public float KnobRadius { get; init; } = 11f;
     public float BorderWidth { get; init; } = 2f;
 
-    public static UiSliderAppearance Default => new();
+    public static UiSliderAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiSlider slider)
     {
+        byte alpha = (byte)(255 * Math.Clamp(slider.Alpha, 0f, 1f));
+        if (alpha == 0) return;
+
         var rect = slider.LocalRect;
         float value = Math.Clamp(slider.Value, 0f, 1f);
 
@@ -28,23 +34,20 @@ public record UiSliderAppearance : UiAppearance<UiSlider>
         float right = rect.Right;
         float knobX = left + (right - left) * value;
 
-        using var fillPaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
-        using var strokePaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke };
+        StrokePaint.StrokeCap = SKStrokeCap.Round;
+        StrokePaint.StrokeWidth = TrackHeight;
+        StrokePaint.Color = TrackColor.WithAlpha(alpha);
+        canvas.DrawLine(left, cy, right, cy, StrokePaint);
 
-        strokePaint.StrokeCap = SKStrokeCap.Round;
-        strokePaint.StrokeWidth = TrackHeight;
-        strokePaint.Color = TrackColor;
-        canvas.DrawLine(left, cy, right, cy, strokePaint);
+        StrokePaint.Color = FillColor.WithAlpha(alpha);
+        canvas.DrawLine(left, cy, knobX, cy, StrokePaint);
 
-        strokePaint.Color = FillColor;
-        canvas.DrawLine(left, cy, knobX, cy, strokePaint);
+        FillPaint.Color = KnobColor.WithAlpha(alpha);
+        canvas.DrawCircle(knobX, cy, KnobRadius, FillPaint);
 
-        fillPaint.Color = KnobColor;
-        canvas.DrawCircle(knobX, cy, KnobRadius, fillPaint);
-
-        strokePaint.StrokeCap = SKStrokeCap.Butt;
-        strokePaint.StrokeWidth = BorderWidth;
-        strokePaint.Color = BorderColor;
-        canvas.DrawCircle(knobX, cy, KnobRadius, strokePaint);
+        StrokePaint.StrokeCap = SKStrokeCap.Butt;
+        StrokePaint.StrokeWidth = BorderWidth;
+        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        canvas.DrawCircle(knobX, cy, KnobRadius, StrokePaint);
     }
 }

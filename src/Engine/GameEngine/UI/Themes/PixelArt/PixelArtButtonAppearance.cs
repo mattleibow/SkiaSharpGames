@@ -9,6 +9,10 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// </summary>
 public record PixelArtButtonAppearance : UiAppearance<UiButton>
 {
+    private static readonly SKPaint FillPaint = new() { IsAntialias = false, Style = SKPaintStyle.Fill };
+    private static readonly SKPaint StrokePaint = new() { IsAntialias = false, Style = SKPaintStyle.Stroke };
+    private static readonly SKPaint TextPaint = new() { IsAntialias = false };
+
     public SKColor FillColor { get; init; } = new(0x4A, 0x6B, 0x3A);
     public SKColor PressedFillColor { get; init; } = new(0x35, 0x4F, 0x28);
     public SKColor TextColor { get; init; } = new(0xF5, 0xE6, 0xB8);
@@ -19,7 +23,7 @@ public record PixelArtButtonAppearance : UiAppearance<UiButton>
     public float BevelSize { get; init; } = 2f;
     public byte DisabledAlpha { get; init; } = 110;
 
-    public static PixelArtButtonAppearance Default => new();
+    public static PixelArtButtonAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiButton button)
@@ -41,38 +45,36 @@ public record PixelArtButtonAppearance : UiAppearance<UiButton>
         float alpha = 1f)
     {
         byte a = enabled ? (byte)(255 * Math.Clamp(alpha, 0f, 1f)) : DisabledAlpha;
+        if (a == 0) return;
 
-        using var fillPaint = new SKPaint { IsAntialias = false, Style = SKPaintStyle.Fill };
-        using var strokePaint = new SKPaint { IsAntialias = false, Style = SKPaintStyle.Stroke };
-        using var textPaint = new SKPaint { IsAntialias = false };
-        using var font = new SKFont(SKTypeface.Default, fontSize) { Edging = SKFontEdging.Alias };
+        var font = UiLabelAppearance.GetFont(fontSize);
 
         // Solid fill
-        fillPaint.Color = (pressed ? PressedFillColor : FillColor).WithAlpha(a);
-        canvas.DrawRect(rect, fillPaint);
+        FillPaint.Color = (pressed ? PressedFillColor : FillColor).WithAlpha(a);
+        canvas.DrawRect(rect, FillPaint);
 
         // 3D bevel — highlight on top-left, shadow on bottom-right (swap when pressed)
         if (BevelSize > 0f)
         {
-            strokePaint.StrokeWidth = BevelSize;
-            strokePaint.Color = (pressed ? BevelShadowColor : BevelLightColor).WithAlpha(a);
+            StrokePaint.StrokeWidth = BevelSize;
+            StrokePaint.Color = (pressed ? BevelShadowColor : BevelLightColor).WithAlpha(a);
             var inset = SKRect.Inflate(rect, -BevelSize * 0.5f, -BevelSize * 0.5f);
-            canvas.DrawLine(inset.Left, inset.Top, inset.Right, inset.Top, strokePaint);
-            canvas.DrawLine(inset.Left, inset.Top, inset.Left, inset.Bottom, strokePaint);
+            canvas.DrawLine(inset.Left, inset.Top, inset.Right, inset.Top, StrokePaint);
+            canvas.DrawLine(inset.Left, inset.Top, inset.Left, inset.Bottom, StrokePaint);
 
-            strokePaint.Color = (pressed ? BevelLightColor : BevelShadowColor).WithAlpha(a);
-            canvas.DrawLine(inset.Left, inset.Bottom, inset.Right, inset.Bottom, strokePaint);
-            canvas.DrawLine(inset.Right, inset.Top, inset.Right, inset.Bottom, strokePaint);
+            StrokePaint.Color = (pressed ? BevelLightColor : BevelShadowColor).WithAlpha(a);
+            canvas.DrawLine(inset.Left, inset.Bottom, inset.Right, inset.Bottom, StrokePaint);
+            canvas.DrawLine(inset.Right, inset.Top, inset.Right, inset.Bottom, StrokePaint);
         }
 
         // Border
-        strokePaint.StrokeWidth = BorderWidth;
-        strokePaint.Color = BorderColor.WithAlpha(a);
-        canvas.DrawRect(rect, strokePaint);
+        StrokePaint.StrokeWidth = BorderWidth;
+        StrokePaint.Color = BorderColor.WithAlpha(a);
+        canvas.DrawRect(rect, StrokePaint);
 
         // Label text
-        textPaint.Color = TextColor.WithAlpha(a);
+        TextPaint.Color = TextColor.WithAlpha(a);
         float baselineY = rect.MidY + fontSize * 0.35f;
-        canvas.DrawText(label, rect.MidX, baselineY, SKTextAlign.Center, font, textPaint);
+        canvas.DrawText(label, rect.MidX, baselineY, SKTextAlign.Center, font, TextPaint);
     }
 }

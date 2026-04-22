@@ -8,40 +8,42 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// </summary>
 public record PixelArtPointerAppearance : UiAppearance<UiPointer>
 {
+    private static readonly SKPaint ShadowPaint = new()
+    {
+        IsAntialias = false, Style = SKPaintStyle.Stroke
+    };
+    private static readonly SKPaint MainPaint = new()
+    {
+        IsAntialias = false, Style = SKPaintStyle.Stroke
+    };
+
     public SKColor Color { get; init; } = new(0xF5, 0xE6, 0xB8);
     public SKColor ShadowColor { get; init; } = new(0x1A, 0x1A, 0x0E, 180);
     public float Size { get; init; } = 4f;
     public float StrokeWidth { get; init; } = 1f;
 
-    public static PixelArtPointerAppearance Default => new();
+    public static PixelArtPointerAppearance Default { get; } = new();
 
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, UiPointer pointer)
     {
-        using var shadowPaint = new SKPaint
-        {
-            IsAntialias = false,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = StrokeWidth + 1f,
-            Color = ShadowColor
-        };
-
-        using var paint = new SKPaint
-        {
-            IsAntialias = false,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = StrokeWidth,
-            Color = Color
-        };
+        byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
+        if (alpha == 0) return;
 
         float s = pointer.IsDown ? Size * 0.75f : Size;
 
+        ShadowPaint.StrokeWidth = StrokeWidth + 1f;
+        ShadowPaint.Color = ShadowColor.WithAlpha((byte)(ShadowColor.Alpha * alpha / 255));
+
+        MainPaint.StrokeWidth = StrokeWidth;
+        MainPaint.Color = Color.WithAlpha(alpha);
+
         // Shadow layer
-        canvas.DrawLine(-s, 0, s, 0, shadowPaint);
-        canvas.DrawLine(0, -s, 0, s, shadowPaint);
+        canvas.DrawLine(-s, 0, s, 0, ShadowPaint);
+        canvas.DrawLine(0, -s, 0, s, ShadowPaint);
 
         // Foreground cross — no gap
-        canvas.DrawLine(-s, 0, s, 0, paint);
-        canvas.DrawLine(0, -s, 0, s, paint);
+        canvas.DrawLine(-s, 0, s, 0, MainPaint);
+        canvas.DrawLine(0, -s, 0, s, MainPaint);
     }
 }

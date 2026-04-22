@@ -8,7 +8,7 @@ namespace SkiaSharpGames.GameEngine;
 /// </summary>
 public sealed class FadeToColorTransition : IScreenTransition
 {
-    private static readonly SKPaint OverlayPaint = new() { IsAntialias = true };
+    private readonly SKPaint _overlayPaint = new() { IsAntialias = true };
 
     /// <summary>The colour to fade through. Defaults to black.</summary>
     public SKColor Color { get; init; } = SKColors.Black;
@@ -40,8 +40,8 @@ public sealed class FadeToColorTransition : IScreenTransition
         if (overlayAlpha > 0f)
         {
             byte a = (byte)(255 * Math.Clamp(overlayAlpha, 0f, 1f));
-            OverlayPaint.Color = Color.WithAlpha(a);
-            canvas.DrawRect(SKRect.Create(0, 0, width, height), OverlayPaint);
+            _overlayPaint.Color = Color.WithAlpha(a);
+            canvas.DrawRect(SKRect.Create(0, 0, width, height), _overlayPaint);
         }
     }
 }

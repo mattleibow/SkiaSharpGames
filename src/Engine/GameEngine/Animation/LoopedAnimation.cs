@@ -90,6 +90,8 @@ public sealed class LoopedAnimation(float period, float duration)
     {
         if (!Enabled) return;
 
+        _sinceLastRun += deltaTime;
+
         if (IsActive)
         {
             _runElapsed += deltaTime;
@@ -98,7 +100,6 @@ public sealed class LoopedAnimation(float period, float duration)
                 Progress = 1f;
                 IsActive = false;
                 _completedRuns++;
-                _sinceLastRun = 0f;
                 _runElapsed = 0f;
 
                 if (RepeatCount >= 0 && _completedRuns >= RepeatCount)
@@ -111,7 +112,6 @@ public sealed class LoopedAnimation(float period, float duration)
         }
         else
         {
-            _sinceLastRun += deltaTime;
             if (_sinceLastRun >= Period)
             {
                 _sinceLastRun -= Period;

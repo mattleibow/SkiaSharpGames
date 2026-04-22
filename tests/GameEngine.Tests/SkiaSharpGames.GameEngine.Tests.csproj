@@ -34,8 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/GameEngine/SkiaSharpGames.GameEngine.csproj" />
-    <ProjectReference Include="../../src/GameEngine.Testing/SkiaSharpGames.GameEngine.Testing.csproj" />
+    <ProjectReference Include="../../src/Engine/GameEngine/SkiaSharpGames.GameEngine.csproj" />
+    <ProjectReference Include="../../src/Engine/GameEngine.Testing/SkiaSharpGames.GameEngine.Testing.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <WasmBuildNative>true</WasmBuildNative>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.5" PrivateAssets="all" />
+    <PackageReference Include="SkiaSharp.Views.Blazor" Version="3.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Engine\GameEngine\SkiaSharpGames.GameEngine.csproj" />
+    <ProjectReference Include="..\..\Games\Breakout\SkiaSharpGames.Breakout.csproj" />
+    <ProjectReference Include="..\..\Games\CastleAttack\SkiaSharpGames.CastleAttack.csproj" />
+    <ProjectReference Include="..\..\Games\SinkSub\SkiaSharpGames.SinkSub.csproj" />
+    <ProjectReference Include="..\..\Games\Pong\SkiaSharpGames.Pong.csproj" />
+    <ProjectReference Include="..\..\Games\TwoZeroFourEight\SkiaSharpGames.TwoZeroFourEight.csproj" />
+    <ProjectReference Include="..\..\Games\SpaceInvaders\SkiaSharpGames.SpaceInvaders.csproj" />
+    <ProjectReference Include="..\..\Games\Catch\SkiaSharpGames.Catch.csproj" />
+    <ProjectReference Include="..\..\Games\LunarLander\SkiaSharpGames.LunarLander.csproj" />
+    <ProjectReference Include="..\..\Games\Snake\SkiaSharpGames.Snake.csproj" />
+    <ProjectReference Include="..\..\Games\Asteroids\SkiaSharpGames.Asteroids.csproj" />
+    <ProjectReference Include="..\..\Games\UIGallery\SkiaSharpGames.UIGallery.csproj" />
+  </ItemGroup>
+
+</Project>

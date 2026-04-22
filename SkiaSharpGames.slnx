@@ -1,46 +1,49 @@
 <Solution>
   <Folder Name="/src/" />
-  <Folder Name="/src/BlazorApp/">
-    <Project Path="src/BlazorApp/SkiaSharpGames.BlazorApp.csproj" />
+  <Folder Name="/src/Apps/" />
+  <Folder Name="/src/Apps/BlazorApp/">
+    <Project Path="src/Apps/BlazorApp/SkiaSharpGames.BlazorApp.csproj" />
   </Folder>
-  <Folder Name="/src/GameEngine/">
-    <Project Path="src/GameEngine/SkiaSharpGames.GameEngine.csproj" />
+  <Folder Name="/src/Engine/" />
+  <Folder Name="/src/Engine/GameEngine/">
+    <Project Path="src/Engine/GameEngine/SkiaSharpGames.GameEngine.csproj" />
   </Folder>
-  <Folder Name="/src/GameEngine.Testing/">
-    <Project Path="src/GameEngine.Testing/SkiaSharpGames.GameEngine.Testing.csproj" />
+  <Folder Name="/src/Engine/GameEngine.Testing/">
+    <Project Path="src/Engine/GameEngine.Testing/SkiaSharpGames.GameEngine.Testing.csproj" />
   </Folder>
-  <Folder Name="/src/Breakout/">
-    <Project Path="src/Breakout/SkiaSharpGames.Breakout.csproj" />
+  <Folder Name="/src/Games/" />
+  <Folder Name="/src/Games/Asteroids/">
+    <Project Path="src/Games/Asteroids/SkiaSharpGames.Asteroids.csproj" />
   </Folder>
-  <Folder Name="/src/CastleAttack/">
-    <Project Path="src/CastleAttack/SkiaSharpGames.CastleAttack.csproj" />
+  <Folder Name="/src/Games/Breakout/">
+    <Project Path="src/Games/Breakout/SkiaSharpGames.Breakout.csproj" />
   </Folder>
-  <Folder Name="/src/SinkSub/">
-    <Project Path="src/SinkSub/SkiaSharpGames.SinkSub.csproj" />
+  <Folder Name="/src/Games/CastleAttack/">
+    <Project Path="src/Games/CastleAttack/SkiaSharpGames.CastleAttack.csproj" />
   </Folder>
-  <Folder Name="/src/Pong/">
-    <Project Path="src/Pong/SkiaSharpGames.Pong.csproj" />
+  <Folder Name="/src/Games/Catch/">
+    <Project Path="src/Games/Catch/SkiaSharpGames.Catch.csproj" />
   </Folder>
-  <Folder Name="/src/TwoZeroFourEight/">
-    <Project Path="src/TwoZeroFourEight/SkiaSharpGames.TwoZeroFourEight.csproj" />
+  <Folder Name="/src/Games/LunarLander/">
+    <Project Path="src/Games/LunarLander/SkiaSharpGames.LunarLander.csproj" />
   </Folder>
-  <Folder Name="/src/SpaceInvaders/">
-    <Project Path="src/SpaceInvaders/SkiaSharpGames.SpaceInvaders.csproj" />
+  <Folder Name="/src/Games/Pong/">
+    <Project Path="src/Games/Pong/SkiaSharpGames.Pong.csproj" />
   </Folder>
-  <Folder Name="/src/Catch/">
-    <Project Path="src/Catch/SkiaSharpGames.Catch.csproj" />
+  <Folder Name="/src/Games/SinkSub/">
+    <Project Path="src/Games/SinkSub/SkiaSharpGames.SinkSub.csproj" />
   </Folder>
-  <Folder Name="/src/LunarLander/">
-    <Project Path="src/LunarLander/SkiaSharpGames.LunarLander.csproj" />
+  <Folder Name="/src/Games/Snake/">
+    <Project Path="src/Games/Snake/SkiaSharpGames.Snake.csproj" />
   </Folder>
-  <Folder Name="/src/Snake/">
-    <Project Path="src/Snake/SkiaSharpGames.Snake.csproj" />
+  <Folder Name="/src/Games/SpaceInvaders/">
+    <Project Path="src/Games/SpaceInvaders/SkiaSharpGames.SpaceInvaders.csproj" />
   </Folder>
-  <Folder Name="/src/Asteroids/">
-    <Project Path="src/Asteroids/SkiaSharpGames.Asteroids.csproj" />
+  <Folder Name="/src/Games/TwoZeroFourEight/">
+    <Project Path="src/Games/TwoZeroFourEight/SkiaSharpGames.TwoZeroFourEight.csproj" />
   </Folder>
-  <Folder Name="/src/UIGallery/">
-    <Project Path="src/UIGallery/SkiaSharpGames.UIGallery.csproj" />
+  <Folder Name="/src/Games/UIGallery/">
+    <Project Path="src/Games/UIGallery/SkiaSharpGames.UIGallery.csproj" />
   </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/GameEngine.Tests/">

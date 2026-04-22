@@ -18,18 +18,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/GameEngine.Testing/SkiaSharpGames.GameEngine.Testing.csproj" />
-    <ProjectReference Include="../../src/Asteroids/SkiaSharpGames.Asteroids.csproj" />
-    <ProjectReference Include="../../src/Breakout/SkiaSharpGames.Breakout.csproj" />
-    <ProjectReference Include="../../src/CastleAttack/SkiaSharpGames.CastleAttack.csproj" />
-    <ProjectReference Include="../../src/Catch/SkiaSharpGames.Catch.csproj" />
-    <ProjectReference Include="../../src/LunarLander/SkiaSharpGames.LunarLander.csproj" />
-    <ProjectReference Include="../../src/Pong/SkiaSharpGames.Pong.csproj" />
-    <ProjectReference Include="../../src/SinkSub/SkiaSharpGames.SinkSub.csproj" />
-    <ProjectReference Include="../../src/Snake/SkiaSharpGames.Snake.csproj" />
-    <ProjectReference Include="../../src/SpaceInvaders/SkiaSharpGames.SpaceInvaders.csproj" />
-    <ProjectReference Include="../../src/TwoZeroFourEight/SkiaSharpGames.TwoZeroFourEight.csproj" />
-    <ProjectReference Include="../../src/UIGallery/SkiaSharpGames.UIGallery.csproj" />
+    <ProjectReference Include="../../src/Engine/GameEngine.Testing/SkiaSharpGames.GameEngine.Testing.csproj" />
+    <ProjectReference Include="../../src/Games/Asteroids/SkiaSharpGames.Asteroids.csproj" />
+    <ProjectReference Include="../../src/Games/Breakout/SkiaSharpGames.Breakout.csproj" />
+    <ProjectReference Include="../../src/Games/CastleAttack/SkiaSharpGames.CastleAttack.csproj" />
+    <ProjectReference Include="../../src/Games/Catch/SkiaSharpGames.Catch.csproj" />
+    <ProjectReference Include="../../src/Games/LunarLander/SkiaSharpGames.LunarLander.csproj" />
+    <ProjectReference Include="../../src/Games/Pong/SkiaSharpGames.Pong.csproj" />
+    <ProjectReference Include="../../src/Games/SinkSub/SkiaSharpGames.SinkSub.csproj" />
+    <ProjectReference Include="../../src/Games/Snake/SkiaSharpGames.Snake.csproj" />
+    <ProjectReference Include="../../src/Games/SpaceInvaders/SkiaSharpGames.SpaceInvaders.csproj" />
+    <ProjectReference Include="../../src/Games/TwoZeroFourEight/SkiaSharpGames.TwoZeroFourEight.csproj" />
+    <ProjectReference Include="../../src/Games/UIGallery/SkiaSharpGames.UIGallery.csproj" />
   </ItemGroup>
 
 </Project>

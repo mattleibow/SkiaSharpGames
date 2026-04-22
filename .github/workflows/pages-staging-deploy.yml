@@ -130,7 +130,7 @@ jobs:
 
       # Publish the Blazor WASM app to a folder
       - name: Publish Blazor app
-        run: dotnet publish src/BlazorApp/SkiaSharpGames.BlazorApp.csproj --configuration Release --output dist
+        run: dotnet publish src/Apps/BlazorApp/SkiaSharpGames.BlazorApp.csproj --configuration Release --output dist
 
       # Assemble the final site directory
       - name: Assemble site

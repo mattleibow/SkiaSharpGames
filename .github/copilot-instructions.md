@@ -4,13 +4,13 @@
 
 This is a SkiaSharp game gallery — a .NET 10 Blazor WebAssembly app that hosts small games rendered with SkiaSharp. There are two projects:
 
-- **`src/GameEngine/`** — Class library referenced by the Blazor app. Contains base classes and utilities shared across all games. References only `SkiaSharp`.
-- **`src/BlazorApp/`** — Blazor WebAssembly host. Targets `net10.0`, requires the `wasm-tools` workload.
+- **`src/Engine/GameEngine/`** — Class library referenced by the Blazor app. Contains base classes and utilities shared across all games. References only `SkiaSharp`.
+- **`src/Apps/BlazorApp/`** — Blazor WebAssembly host. Targets `net10.0`, requires the `wasm-tools` workload.
 
 ## Project Structure
 
 ```
-src/BlazorApp/
+src/Apps/BlazorApp/
   Games/<GameName>/           # Game logic (GameScreenBase subclass)
   Pages/
     Home.razor                # Gallery home page at /
@@ -28,10 +28,10 @@ docs/screenshots/<slug>/      # 4 PNG screenshots per game
 
 ### Adding a new game
 
-1. Create a class in `src/BlazorApp/Games/<GameName>/` that extends `GameScreenBase`.
+1. Create a class in `src/Apps/BlazorApp/Games/<GameName>/` that extends `GameScreenBase`.
 2. Override `Update(float deltaTime)` for game logic and `Draw(SKCanvas, int width, int height)` for rendering.
 3. Override `GameDimensions` to return the game's logical (virtual) width and height if different from the default 800 × 600.
-4. Add a new game page at `src/BlazorApp/Pages/Games/<GameName>.razor`:
+4. Add a new game page at `src/Apps/BlazorApp/Pages/Games/<GameName>.razor`:
    ```razor
    @page "/games/<slug>"
    @layout GameLayout
@@ -42,7 +42,7 @@ docs/screenshots/<slug>/      # 4 PNG screenshots per game
 
    @code { private readonly <ClassName> _game = new(); }
    ```
-5. Add a game card to the grid in `src/BlazorApp/Pages/Home.razor`.
+5. Add a game card to the grid in `src/Apps/BlazorApp/Pages/Home.razor`.
 6. **Update `README.md`** — see Documentation rules below.
 7. **Add 4 screenshots** — see Screenshots section below.
 
@@ -149,7 +149,7 @@ float w = DrawHelper.MeasureText(text, size);
 
 ### `GameView` component
 
-`src/BlazorApp/Shared/GameView.razor` is the standard host for any game. It:
+`src/Apps/BlazorApp/Shared/GameView.razor` is the standard host for any game. It:
 
 - Renders via `SKGLView` with `EnableRenderLoop="true"` — driven by `requestAnimationFrame`.
 - Computes `deltaTime` in the paint callback.
@@ -193,7 +193,7 @@ These screenshots must be linked from the game's entry in `README.md`.
 
 Required capture workflow:
 
-1. Start the app locally (for example: `dotnet run --project src/BlazorApp/SkiaSharpGames.BlazorApp.csproj`).
+1. Start the app locally (for example: `dotnet run --project src/Apps/BlazorApp/SkiaSharpGames.BlazorApp.csproj`).
 2. Open `games/<slug>` (ensure the correct game is selected).
 3. Capture:
    - `desktop-loading.png` at desktop size (>=1280 wide) on start/loading state
@@ -222,11 +222,11 @@ dotnet workload install wasm-tools
 dotnet build
 
 # Run locally (hot-reload)
-cd src/BlazorApp
+cd src/Apps/BlazorApp
 dotnet watch run
 
 # Publish for GitHub Pages
-dotnet publish src/BlazorApp/SkiaSharpGames.BlazorApp.csproj -c Release -o dist
+dotnet publish src/Apps/BlazorApp/SkiaSharpGames.BlazorApp.csproj -c Release -o dist
 ```
 
 ## CI/CD

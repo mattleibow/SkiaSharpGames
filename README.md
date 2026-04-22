@@ -14,13 +14,13 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 
 | Game | URL | Description |
 |------|-----|-------------|
-| [Breakout](src/BlazorApp/Games/Breakout/) | `/games/breakout` | Classic brick-breaker with power-ups and paddle-angle control. |
-| [Castle Attack](src/BlazorApp/Games/CastleAttack/) | `/games/castle-attack` | Defend layered castle walls with archers, workers, and special weapons. |
-| [Sink Sub](src/BlazorApp/Games/SinkSub/) | `/games/sink-sub` | Patrol the surface, drop depth charges, and sink submarines before their mines hit your ship. |
-| [Snake](src/Snake/) | `/games/snake` | Guide the snake to eat food and grow. Don't crash into walls or your own tail! |
-| [2048](src/TwoZeroFourEight/) | `/games/2048` | Slide tiles on a 4×4 grid, merge matching numbers, and reach the 2048 tile. |
-| [Asteroids](src/Asteroids/) | `/games/asteroids` | Pilot your ship through an asteroid field — rotate, thrust, and shoot to survive. |
-| [UI Gallery](src/UIGallery/) | `/games/ui-gallery` | Interactive canvas UI playground with shared themes, overrides, and custom draw hooks. |
+| [Breakout](src/Games/Breakout/) | `/games/breakout` | Classic brick-breaker with power-ups and paddle-angle control. |
+| [Castle Attack](src/Games/CastleAttack/) | `/games/castle-attack` | Defend layered castle walls with archers, workers, and special weapons. |
+| [Sink Sub](src/Games/SinkSub/) | `/games/sink-sub` | Patrol the surface, drop depth charges, and sink submarines before their mines hit your ship. |
+| [Snake](src/Games/Snake/) | `/games/snake` | Guide the snake to eat food and grow. Don't crash into walls or your own tail! |
+| [2048](src/Games/TwoZeroFourEight/) | `/games/2048` | Slide tiles on a 4×4 grid, merge matching numbers, and reach the 2048 tile. |
+| [Asteroids](src/Games/Asteroids/) | `/games/asteroids` | Pilot your ship through an asteroid field — rotate, thrust, and shoot to survive. |
+| [UI Gallery](src/Games/UIGallery/) | `/games/ui-gallery` | Interactive canvas UI playground with shared themes, overrides, and custom draw hooks. |
 
 ### Breakout
 
@@ -82,87 +82,90 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 SkiaSharpGames.slnx
 
 src/
-  GameEngine/                   # Shared engine library
-    Game.cs                     # Runtime host used by GameView
-    GameBuilder.cs              # Game construction + screen/service registration
-    Entity.cs                   # Center-based world position + Active flag
-    Sprite.cs                   # Abstract sprite base
-    CountdownTimer.cs           # Simple cooldown / duration timer
-    Animation/
-      AnimatedFloat.cs
-      Easing.cs
-      LoopedAnimation.cs
-    Physics/
-      Collider2D.cs             # Common collider base
-      CircleCollider.cs
-      RectCollider.cs
-      Rigidbody2D.cs            # Velocity + bounce helpers
-      CollisionResolver.cs      # Overlap tests, hit normals, bounds handling
-      CollisionHit.cs
-      GameBounds.cs
-    Screens/
-      GameScreen.cs
-      ScreenCoordinator.cs
-    Transitions/
-      IScreenTransition.cs
-      DissolveTransition.cs
-      FadeToColorTransition.cs
-      SlideTransition.cs
-    UI/
-      UiTheme.cs
-      UiControls.cs
-      UiThemeProvider.cs
+  Engine/
+    GameEngine/                   # Shared engine library
+      Game.cs                     # Runtime host used by GameView
+      GameBuilder.cs              # Game construction + screen/service registration
+      Entity.cs                   # Center-based world position + Active flag
+      Sprite.cs                   # Abstract sprite base
+      CountdownTimer.cs           # Simple cooldown / duration timer
+      Animation/
+        AnimatedFloat.cs
+        Easing.cs
+        LoopedAnimation.cs
+      Physics/
+        Collider2D.cs             # Common collider base
+        CircleCollider.cs
+        RectCollider.cs
+        Rigidbody2D.cs            # Velocity + bounce helpers
+        CollisionResolver.cs      # Overlap tests, hit normals, bounds handling
+        CollisionHit.cs
+        GameBounds.cs
+      Screens/
+        GameScreen.cs
+        ScreenCoordinator.cs
+      Transitions/
+        IScreenTransition.cs
+        DissolveTransition.cs
+        FadeToColorTransition.cs
+        SlideTransition.cs
+      UI/
+        UiTheme.cs
+        UiControls.cs
+        UiThemeProvider.cs
 
-  Breakout/                     # SkiaSharpGames.Breakout class library
-    BreakoutGame.cs
-    BallSprite.cs, BrickSprite.cs, PaddleSprite.cs, PowerUpSprite.cs
-    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs, VictoryScreen.cs
-    TextRenderer.cs             # Game-local text/overlay helper
+  Games/
+    Breakout/                     # SkiaSharpGames.Breakout class library
+      BreakoutGame.cs
+      BallSprite.cs, BrickSprite.cs, PaddleSprite.cs, PowerUpSprite.cs
+      PlayScreen.cs, StartScreen.cs, GameOverScreen.cs, VictoryScreen.cs
+      TextRenderer.cs             # Game-local text/overlay helper
 
-  CastleAttack/                 # SkiaSharpGames.CastleAttack class library
-    CastleAttackGame.cs
-    EnemySprite.cs, ArrowSprite.cs, BoulderSprite.cs, WallBlockSprite.cs
-    ArcherSprite.cs, WorkerSprite.cs, LordSprite.cs
-    FloatTextSprite.cs, ButtonSprite.cs
-    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs, VictoryScreen.cs
-    TextRenderer.cs
+    CastleAttack/                 # SkiaSharpGames.CastleAttack class library
+      CastleAttackGame.cs
+      EnemySprite.cs, ArrowSprite.cs, BoulderSprite.cs, WallBlockSprite.cs
+      ArcherSprite.cs, WorkerSprite.cs, LordSprite.cs
+      FloatTextSprite.cs, ButtonSprite.cs
+      PlayScreen.cs, StartScreen.cs, GameOverScreen.cs, VictoryScreen.cs
+      TextRenderer.cs
 
-  SinkSub/                      # SkiaSharpGames.SinkSub class library
-    SinkSubGame.cs
-    ShipSprite.cs, SubmarineSprite.cs, MineSprite.cs, DepthChargeSprite.cs
-    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
-    TextRenderer.cs
+    SinkSub/                      # SkiaSharpGames.SinkSub class library
+      SinkSubGame.cs
+      ShipSprite.cs, SubmarineSprite.cs, MineSprite.cs, DepthChargeSprite.cs
+      PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
+      TextRenderer.cs
 
-  Snake/                        # SkiaSharpGames.Snake class library
-    SnakeGame.cs
-    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
-    Direction.cs, GridPoint.cs, SnakeConstants.cs, SnakeGameState.cs
+    Snake/                        # SkiaSharpGames.Snake class library
+      SnakeGame.cs
+      PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
+      Direction.cs, GridPoint.cs, SnakeConstants.cs, SnakeGameState.cs
 
-  Asteroids/                    # SkiaSharpGames.Asteroids class library
-    AsteroidsGame.cs
-    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
-    Ship.cs, ShipSprite.cs, ThrustSprite.cs
-    Asteroid.cs, AsteroidSprite.cs
-    Bullet.cs, BulletSprite.cs
-    Debris.cs, DebrisSprite.cs
-    AsteroidsConstants.cs, AsteroidsGameState.cs, TextRenderer.cs
+    Asteroids/                    # SkiaSharpGames.Asteroids class library
+      AsteroidsGame.cs
+      PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
+      Ship.cs, ShipSprite.cs, ThrustSprite.cs
+      Asteroid.cs, AsteroidSprite.cs
+      Bullet.cs, BulletSprite.cs
+      Debris.cs, DebrisSprite.cs
+      AsteroidsConstants.cs, AsteroidsGameState.cs, TextRenderer.cs
 
-  UIGallery/                    # SkiaSharpGames.UIGallery class library
-    UIGalleryGame.cs
-    UIGalleryState.cs
-    PlayScreen.cs
+    UIGallery/                    # SkiaSharpGames.UIGallery class library
+      UIGalleryGame.cs
+      UIGalleryState.cs
+      PlayScreen.cs
 
-  TwoZeroFourEight/             # SkiaSharpGames.TwoZeroFourEight class library
-    TwoZeroFourEightGame.cs
-    PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
+    TwoZeroFourEight/             # SkiaSharpGames.TwoZeroFourEight class library
+      TwoZeroFourEightGame.cs
+      PlayScreen.cs, StartScreen.cs, GameOverScreen.cs
 
-  BlazorApp/                    # Blazor WebAssembly host
-    Pages/
-      Home.razor
-      Games/
-        Breakout.razor
-        CastleAttack.razor
-        SinkSub.razor
+  Apps/
+    BlazorApp/                    # Blazor WebAssembly host
+      Pages/
+        Home.razor
+        Games/
+          Breakout.razor
+          CastleAttack.razor
+          SinkSub.razor
         Snake.razor
         TwoZeroFourEight.razor
         Asteroids.razor
@@ -218,14 +221,14 @@ Concrete visuals such as Breakout bricks/balls, Castle Attack enemies/archers, o
 
 ## Adding a new game
 
-1. Create a new class library under `src/<GameName>/` named `SkiaSharpGames.<GameName>`.
+1. Create a new class library under `src/Games/<GameName>/` named `SkiaSharpGames.<GameName>`.
 2. Reference `SkiaSharpGames.GameEngine` and `SkiaSharp`.
 3. Build the game with `GameBuilder.CreateDefault()`.
 4. Register one or more `GameScreen` types and set the initial screen.
 5. Create sprites for all game visuals with cached `SKPaint` fields.
 6. Add a `TextRenderer` static class for text/overlay drawing.
 7. Add the project to the solution and reference it from `BlazorApp`.
-8. Add a page in `src/BlazorApp/Pages/Games/`.
+8. Add a page in `src/Apps/BlazorApp/Pages/Games/`.
 9. Register the game in `Program.cs` as a keyed service.
 10. Add a card to `Home.razor`.
 11. Add four screenshots under `docs/screenshots/<slug>/`.
@@ -253,14 +256,14 @@ dotnet workload install wasm-tools
 ### Run locally
 
 ```bash
-cd src/BlazorApp
+cd src/Apps/BlazorApp
 dotnet watch run
 ```
 
 ### Publish for GitHub Pages
 
 ```bash
-dotnet publish src/BlazorApp/SkiaSharpGames.BlazorApp.csproj -c Release -o dist
+dotnet publish src/Apps/BlazorApp/SkiaSharpGames.BlazorApp.csproj -c Release -o dist
 ```
 
 ## CI/CD

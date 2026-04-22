@@ -4,7 +4,7 @@ using static SkiaSharpGames.SinkSub.SinkSubConstants;
 
 namespace SkiaSharpGames.SinkSub;
 
-internal sealed class Ship : Entity
+internal sealed class Ship : Actor
 {
     private readonly SKPaint _paint = new() { IsAntialias = true };
 

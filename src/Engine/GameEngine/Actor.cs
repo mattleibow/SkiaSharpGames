@@ -3,11 +3,10 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
-/// Base class for all game objects. An entity carries position (with optional
-/// rotation), nullable rendering/physics/collision components, and an ordered
-/// list of children. Children store local-space positions relative to their
-/// parent; world positions are cached and recalculated whenever any ancestor's
-/// local position or rotation changes.
+/// Base class for all visible game objects (actors). An actor carries position
+/// (with optional rotation), nullable rendering/physics/collision components.
+/// Actors are nodes in the scene tree (<see cref="SceneNode"/>), with transforms
+/// that cascade to children.
 /// </summary>
 /// <remarks>
 /// Transforms are stored as <see cref="SKMatrix44"/> matrices. The
@@ -15,12 +14,11 @@ namespace SkiaSharpGames.GameEngine;
 /// and <see cref="Rotation"/>, and the <see cref="WorldMatrix"/> is the
 /// concatenation of all ancestor local matrices.
 /// </remarks>
-public class Entity
+public class Actor : SceneNode
 {
     private float _x, _y;
     private float _rotation;
     private SKMatrix44 _worldMatrix = SKMatrix44.Identity;
-    private List<Entity>? _children;
 
     // ── Local position / rotation ─────────────────────────────────────
 
@@ -45,10 +43,7 @@ public class Entity
         set { _rotation = value; RecalculateWorld(); }
     }
 
-    /// <summary>When <see langword="false"/> the entity is skipped during update and rendering.</summary>
-    public bool Active { get; set; } = true;
-
-    /// <summary>When <see langword="false"/> the entity is not drawn (but still updated).</summary>
+    /// <summary>When <see langword="false"/> the actor is not drawn (but still updated).</summary>
     public bool Visible { get; set; } = true;
 
     // ── Transform matrices ────────────────────────────────────────────
@@ -83,14 +78,34 @@ public class Entity
 
     private void RecalculateWorld()
     {
-        _worldMatrix = Parent is null
+        var parentActor = FindParentActor();
+        _worldMatrix = parentActor is null
             ? LocalMatrix
-            : SKMatrix44.Concat(LocalMatrix, Parent._worldMatrix);
+            : SKMatrix44.Concat(LocalMatrix, parentActor._worldMatrix);
 
-        if (_children is not null)
-            for (int i = 0; i < _children.Count; i++)
-                _children[i].RecalculateWorld();
+        // Recurse into children that are also Actors
+        var children = Children;
+        for (int i = 0; i < children.Count; i++)
+            if (children[i] is Actor childActor)
+                childActor.RecalculateWorld();
     }
+
+    private Actor? FindParentActor()
+    {
+        var node = Parent;
+        while (node is not null)
+        {
+            if (node is Actor actor) return actor;
+            node = node.Parent;
+        }
+        return null;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnAddedToParent() => RecalculateWorld();
+
+    /// <inheritdoc/>
+    protected override void OnRemovedFromParent() => RecalculateWorld();
 
     // ── Components (nullable, opt-in) ─────────────────────────────────
 
@@ -103,80 +118,31 @@ public class Entity
     /// <summary>Velocity-driven movement. Stepped automatically by <see cref="Update"/>.</summary>
     public Rigidbody2D? Rigidbody { get; set; }
 
-    // ── Children ──────────────────────────────────────────────────────
-
-    /// <summary>Parent entity, or null if this is a root entity.</summary>
-    public Entity? Parent { get; private set; }
-
-    /// <summary>Ordered list of child entities.</summary>
-    public IReadOnlyList<Entity> Children => (IReadOnlyList<Entity>?)_children ?? [];
-
-    /// <summary>Number of children.</summary>
-    public int ChildCount => _children?.Count ?? 0;
-
-    /// <summary>
-    /// Adds <paramref name="child"/> to this entity's children. If the child already
-    /// has a parent it is removed from that parent first. World positions are recalculated.
-    /// </summary>
-    public void AddChild(Entity child)
-    {
-        child.Parent?.RemoveChild(child);
-        (_children ??= []).Add(child);
-        child.Parent = this;
-        child.RecalculateWorld();
-    }
-
-    /// <summary>Removes <paramref name="child"/> from this entity's children.</summary>
-    public void RemoveChild(Entity child)
-    {
-        if (_children?.Remove(child) == true)
-        {
-            child.Parent = null;
-            child.RecalculateWorld();
-        }
-    }
-
-    /// <summary>Removes all children where <see cref="Active"/> is false.</summary>
-    public int RemoveInactiveChildren()
-    {
-        if (_children is null) return 0;
-        return _children.RemoveAll(c =>
-        {
-            if (c.Active) return false;
-            c.Parent = null;
-            c.RecalculateWorld();
-            return true;
-        });
-    }
-
     // ── Update (recursive) ────────────────────────────────────────────
 
     /// <summary>
-    /// Advances the entity tree. Steps rigidbody, calls
+    /// Advances the actor tree. Steps rigidbody, calls
     /// <see cref="OnUpdate"/>, then recurses into active children.
     /// </summary>
-    public void Update(float deltaTime)
+    public override void Update(float deltaTime)
     {
         if (!Active) return;
 
         Rigidbody?.Step(this, deltaTime);
         OnUpdate(deltaTime);
 
-        if (_children is not null)
-            for (int i = 0; i < _children.Count; i++)
-                _children[i].Update(deltaTime);
+        var children = Children;
+        for (int i = 0; i < children.Count; i++)
+            children[i].Update(deltaTime);
     }
-
-    /// <summary>Override for game-specific per-frame logic (timers, AI, etc.).</summary>
-    protected virtual void OnUpdate(float deltaTime) { }
 
     // ── Draw (recursive) ──────────────────────────────────────────────
 
     /// <summary>
-    /// Renders the entity tree. Translates (and optionally rotates) the canvas,
+    /// Renders the actor tree. Translates (and optionally rotates) the canvas,
     /// calls <see cref="OnDraw"/>, then recurses into visible children.
     /// </summary>
-    public void Draw(SKCanvas canvas)
+    public override void Draw(SKCanvas canvas)
     {
         if (!Active || !Visible) return;
 
@@ -185,16 +151,24 @@ public class Entity
 
         OnDraw(canvas);
 
-        if (_children is not null)
-            for (int i = 0; i < _children.Count; i++)
-                _children[i].Draw(canvas);
+        var children = Children;
+        for (int i = 0; i < children.Count; i++)
+            children[i].Draw(canvas);
 
         canvas.Restore();
     }
 
-    /// <summary>Override to render the entity at the local origin. The canvas
-    /// is already translated to the entity's position.</summary>
-    protected virtual void OnDraw(SKCanvas canvas) { }
+    // ── CaptureToImage ────────────────────────────────────────────────
+
+    /// <summary>
+    /// Renders this actor (and its children) into an offscreen image of the given size.
+    /// </summary>
+    public SKImage CaptureToImage(int width, int height)
+    {
+        using var surface = SKSurface.Create(new SKImageInfo(width, height));
+        Draw(surface.Canvas);
+        return surface.Snapshot();
+    }
 
     // ── Collision (world-space) ───────────────────────────────────────
 
@@ -209,7 +183,6 @@ public class Entity
             if (Collider is null) return null;
             var local = Collider.BoundingBox(0f, 0f);
 
-            // Map the four corners through the world matrix and find the enclosing AABB
             var m = _worldMatrix;
             var p1 = m.MapPoint(local.Left, local.Top);
             var p2 = m.MapPoint(local.Right, local.Top);
@@ -225,16 +198,16 @@ public class Entity
         }
     }
 
-    /// <summary>Tests overlap with another entity in world space.</summary>
-    public bool Overlaps(Entity other) =>
+    /// <summary>Tests overlap with another actor in world space.</summary>
+    public bool Overlaps(Actor other) =>
         CollisionResolver.Overlaps(this, other);
 
     /// <summary>Tests overlap and returns collision details for bounce resolution.</summary>
-    public bool TryGetHit(Entity other, out CollisionHit hit) =>
+    public bool TryGetHit(Actor other, out CollisionHit hit) =>
         CollisionResolver.TryGetHit(this, other, out hit);
 
-    /// <summary>If overlapping, bounces this entity's rigidbody off <paramref name="other"/>.</summary>
-    public bool BounceOff(Entity other)
+    /// <summary>If overlapping, bounces this actor's rigidbody off <paramref name="other"/>.</summary>
+    public bool BounceOff(Actor other)
     {
         if (Rigidbody is null || !TryGetHit(other, out var hit)) return false;
         Rigidbody.Bounce(hit);
@@ -243,17 +216,17 @@ public class Entity
 
     // ── Child queries ─────────────────────────────────────────────────
 
-    /// <summary>Aggregate world-space bounding box of all active children with colliders.</summary>
+    /// <summary>Aggregate world-space bounding box of all active Actor children with colliders.</summary>
     public SKRect? ChildrenBoundingBox
     {
         get
         {
-            if (_children is null) return null;
+            var children = Children;
+            if (children.Count == 0) return null;
             SKRect? result = null;
-            for (int i = 0; i < _children.Count; i++)
+            for (int i = 0; i < children.Count; i++)
             {
-                var c = _children[i];
-                if (!c.Active) continue;
+                if (children[i] is not Actor c || !c.Active) continue;
                 var bb = c.WorldBoundingBox;
                 if (bb is null) continue;
                 result = result is null ? bb.Value : SKRect.Union(result.Value, bb.Value);
@@ -263,18 +236,18 @@ public class Entity
     }
 
     /// <summary>
-    /// Finds the first active child that collides with <paramref name="other"/>.
+    /// Finds the first active Actor child that collides with <paramref name="other"/>.
     /// Performs a broad-phase group bounding box check first.
     /// </summary>
-    public Entity? FindChildCollision(Entity other, out CollisionHit hit)
+    public Actor? FindChildCollision(Actor other, out CollisionHit hit)
     {
-        if (_children is null || other.Collider is null)
+        var children = Children;
+        if (children.Count == 0 || other.Collider is null)
         {
             hit = default;
             return null;
         }
 
-        // Broad-phase: skip all children if other doesn't overlap group bounds
         var groupBB = ChildrenBoundingBox;
         var otherBB = other.WorldBoundingBox;
         if (groupBB is null || otherBB is null
@@ -284,11 +257,9 @@ public class Entity
             return null;
         }
 
-        // Narrow-phase: test each active child
-        for (int i = 0; i < _children.Count; i++)
+        for (int i = 0; i < children.Count; i++)
         {
-            var c = _children[i];
-            if (!c.Active || c.Collider is null) continue;
+            if (children[i] is not Actor c || !c.Active || c.Collider is null) continue;
             if (CollisionResolver.TryGetHit(other, c, out hit))
                 return c;
         }
@@ -300,16 +271,17 @@ public class Entity
     // ── Debug / inspection ───────────────────────────────────────────
 
     /// <summary>
-    /// Returns a human-readable tree representation of this entity and all descendants.
+    /// Returns a human-readable tree representation of this actor and all descendants.
     /// Useful for debugging and test assertions.
     /// </summary>
     /// <param name="indent">Current indentation prefix (used for recursion).</param>
-    public string Dump(string indent = "")
+    public new string Dump(string indent = "")
     {
         var inv = System.Globalization.CultureInfo.InvariantCulture;
         var sb = new System.Text.StringBuilder();
-        sb.Append(indent).Append(GetType().Name)
-          .Append(" @ (").Append(X.ToString("F1", inv)).Append(", ").Append(Y.ToString("F1", inv)).Append(')')
+        sb.Append(indent).Append(GetType().Name);
+        if (!string.IsNullOrEmpty(Name)) sb.Append(" '").Append(Name).Append('\'');
+        sb.Append(" @ (").Append(X.ToString("F1", inv)).Append(", ").Append(Y.ToString("F1", inv)).Append(')')
           .Append(" world=(").Append(WorldX.ToString("F1", inv)).Append(", ").Append(WorldY.ToString("F1", inv)).Append(')')
           .Append(" a=").Append(Alpha.ToString("F2", inv));
         if (!Active) sb.Append(" INACTIVE");
@@ -325,9 +297,14 @@ public class Entity
         if (Rigidbody is { } rb && (rb.VelocityX != 0f || rb.VelocityY != 0f))
             sb.Append(indent).Append("  velocity: (").Append(rb.VelocityX.ToString("F1", inv)).Append(", ").Append(rb.VelocityY.ToString("F1", inv)).Append(')').AppendLine();
 
-        if (_children is not null)
-            for (int i = 0; i < _children.Count; i++)
-                sb.Append(_children[i].Dump(indent + "  "));
+        var children = Children;
+        for (int i = 0; i < children.Count; i++)
+        {
+            if (children[i] is Actor childActor)
+                sb.Append(childActor.Dump(indent + "  "));
+            else
+                sb.Append(children[i].Dump(indent + "  "));
+        }
 
         return sb.ToString();
     }

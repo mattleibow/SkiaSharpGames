@@ -19,7 +19,7 @@ public enum TextAlign
 /// A text label entity that draws a single line of text. Handles font caching,
 /// alignment, colour, and alpha internally.
 /// <para>
-/// Position the label using <see cref="Entity.X"/> and <see cref="Entity.Y"/>.
+/// Position the label using <see cref="Actor.X"/> and <see cref="Actor.Y"/>.
 /// The text is drawn at the local origin according to <see cref="Align"/>:
 /// <list type="bullet">
 ///   <item><see cref="TextAlign.Left"/> — text starts at X</item>
@@ -29,7 +29,7 @@ public enum TextAlign
 /// Y is always the text baseline.
 /// </para>
 /// </summary>
-public sealed class UiLabel : UiEntity
+public sealed class UiLabel : UiActor
 {
     /// <summary>
     /// Creates a new label entity with an optional theme.

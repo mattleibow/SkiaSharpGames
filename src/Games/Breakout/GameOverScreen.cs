@@ -6,10 +6,10 @@ using static SkiaSharpGames.Breakout.BreakoutConstants;
 namespace SkiaSharpGames.Breakout;
 
 /// <summary>
-/// Game-over overlay drawn on top of the frozen play screen.
+/// Stage-over overlay drawn on top of the frozen play screen.
 /// Does not clear the canvas — relies on the base play screen being drawn first.
 /// </summary>
-internal sealed class GameOverScreen(BreakoutGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class GameOverScreen(BreakoutGameState state, IDirector coordinator) : Scene
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha(186) };
 
@@ -28,11 +28,11 @@ internal sealed class GameOverScreen(BreakoutGameState state, IScreenCoordinator
     }
 
     public override void OnPointerDown(float x, float y)
-        => coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+        => coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+            coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
     }
 }

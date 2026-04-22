@@ -5,7 +5,7 @@ using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;
 
-internal sealed class PlayScreen(PongGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(PongGameState state, IDirector coordinator) : Scene
 {
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
 

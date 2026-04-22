@@ -4,14 +4,14 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine.Testing;
 
 /// <summary>
-/// Headless test harness for running a <see cref="Game"/> without a UI host.
+/// Headless test harness for running a <see cref="Stage"/> without a UI host.
 /// Simulates frames, input, and captures rendered output for inspection.
 /// </summary>
 /// <example>
 /// <code>
-/// using var harness = GameTestHarness.Create(builder => {
-///     builder.Screens.Add&lt;MyStartScreen&gt;().Add&lt;MyPlayScreen&gt;();
-///     builder.SetInitialScreen&lt;MyStartScreen&gt;();
+/// using var harness = Rehearsal.Create(builder => {
+///     builder.Scenes.Add&lt;MyStartScreen&gt;().Add&lt;MyPlayScreen&gt;();
+///     builder.SetOpeningScene&lt;MyStartScreen&gt;();
 /// });
 ///
 /// harness.RunFrames(10);               // advance 10 frames
@@ -22,22 +22,22 @@ namespace SkiaSharpGames.GameEngine.Testing;
 /// Assert.True(frame.HasNonBackgroundPixel(region, SKColors.Black));
 /// </code>
 /// </example>
-public sealed class GameTestHarness : IDisposable
+public sealed class Rehearsal : IDisposable
 {
     private readonly SKBitmap _bitmap;
     private readonly SKCanvas _canvas;
     private int _frameNumber;
     private float _elapsedTime;
 
-    private GameTestHarness(Game game, int width, int height)
+    private Rehearsal(Stage game, int width, int height)
     {
-        Game = game;
+        Stage = game;
         _bitmap = new SKBitmap(width, height);
         _canvas = new SKCanvas(_bitmap);
     }
 
-    /// <summary>The underlying Game instance. Access services, coordinator, etc.</summary>
-    public Game Game { get; }
+    /// <summary>The underlying Stage instance. Access services, coordinator, etc.</summary>
+    public Stage Stage { get; }
 
     /// <summary>Total frames simulated so far.</summary>
     public int FrameNumber => _frameNumber;
@@ -54,20 +54,20 @@ public sealed class GameTestHarness : IDisposable
     // ── Factory ──────────────────────────────────────────────────────
 
     /// <summary>
-    /// Creates a harness by configuring a <see cref="GameBuilder"/>.
+    /// Creates a harness by configuring a <see cref="Theatre"/>.
     /// </summary>
-    public static GameTestHarness Create(Action<GameBuilder> configure, int width = 800, int height = 600)
+    public static Rehearsal Create(Action<Theatre> configure, int width = 800, int height = 600)
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
         configure(builder);
-        var game = builder.Build();
-        return new GameTestHarness(game, width, height);
+        var game = builder.Open();
+        return new Rehearsal(game, width, height);
     }
 
     /// <summary>
-    /// Creates a harness from an already-built <see cref="Game"/>.
+    /// Creates a harness from an already-built <see cref="Stage"/>.
     /// </summary>
-    public static GameTestHarness FromGame(Game game, int width = 800, int height = 600)
+    public static Rehearsal FromStage(Stage game, int width = 800, int height = 600)
         => new(game, width, height);
 
     // ── Frame simulation ─────────────────────────────────────────────
@@ -75,9 +75,9 @@ public sealed class GameTestHarness : IDisposable
     /// <summary>Advances the game by one frame: calls Update then Draw.</summary>
     public void RunFrame(float deltaTime = 1f / 60f)
     {
-        Game.Update(deltaTime);
+        Stage.Update(deltaTime);
         _canvas.Clear(SKColors.Transparent);
-        Game.Draw(_canvas, _bitmap.Width, _bitmap.Height);
+        Stage.Draw(_canvas, _bitmap.Width, _bitmap.Height);
         _frameNumber++;
         _elapsedTime += deltaTime;
     }
@@ -104,13 +104,13 @@ public sealed class GameTestHarness : IDisposable
     // ── Input simulation ─────────────────────────────────────────────
 
     /// <summary>Simulate a pointer/mouse move to (x, y) in game-space coordinates.</summary>
-    public void PointerMove(float x, float y) => Game.OnPointerMove(x, y);
+    public void PointerMove(float x, float y) => Stage.OnPointerMove(x, y);
 
     /// <summary>Simulate a pointer/mouse press at (x, y) in game-space coordinates.</summary>
-    public void PointerDown(float x, float y) => Game.OnPointerDown(x, y);
+    public void PointerDown(float x, float y) => Stage.OnPointerDown(x, y);
 
     /// <summary>Simulate a pointer/mouse release at (x, y) in game-space coordinates.</summary>
-    public void PointerUp(float x, float y) => Game.OnPointerUp(x, y);
+    public void PointerUp(float x, float y) => Stage.OnPointerUp(x, y);
 
     /// <summary>Simulate a click: pointer down, optional frames, pointer up.</summary>
     public void Click(float x, float y, int holdFrames = 0, float deltaTime = 1f / 60f)
@@ -121,10 +121,10 @@ public sealed class GameTestHarness : IDisposable
     }
 
     /// <summary>Simulate a key press.</summary>
-    public void KeyDown(string key) => Game.OnKeyDown(key);
+    public void KeyDown(string key) => Stage.OnKeyDown(key);
 
     /// <summary>Simulate a key release.</summary>
-    public void KeyUp(string key) => Game.OnKeyUp(key);
+    public void KeyUp(string key) => Stage.OnKeyUp(key);
 
     /// <summary>Simulate a key tap: down then up.</summary>
     public void KeyTap(string key)
@@ -161,9 +161,9 @@ public sealed class GameTestHarness : IDisposable
     // ── Screen navigation ────────────────────────────────────────────
 
     /// <summary>Transitions to a different screen.</summary>
-    public void TransitionTo<TScreen>(IScreenTransition? transition = null) where TScreen : GameScreen
+    public void TransitionTo<TScreen>(ICurtain? transition = null) where TScreen : Scene
     {
-        var coordinator = Game.Services.GetRequiredService<IScreenCoordinator>();
+        var coordinator = Stage.Services.GetRequiredService<IDirector>();
         coordinator.TransitionTo<TScreen>(transition);
     }
 

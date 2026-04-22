@@ -106,14 +106,14 @@ public class UiLabelTests
     public void UiLabel_IsEntity()
     {
         var label = new UiLabel { Text = "test", X = 10f, Y = 20f };
-        Assert.IsAssignableFrom<Entity>(label);
+        Assert.IsAssignableFrom<Actor>(label);
         Assert.Equal(10f, label.WorldX);
     }
 
     [Fact]
     public void UiLabel_AsChildEntity()
     {
-        var parent = new Entity { X = 100f, Y = 200f };
+        var parent = new Actor { X = 100f, Y = 200f };
         var label = new UiLabel { Text = "child", X = 10f, Y = 20f };
         parent.AddChild(label);
         Assert.Equal(110f, label.WorldX);

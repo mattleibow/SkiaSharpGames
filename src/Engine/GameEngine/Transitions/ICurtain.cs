@@ -6,7 +6,7 @@ namespace SkiaSharpGames.GameEngine;
 /// Defines a visual transition between two game screens.
 /// Implement this to create custom transition effects such as dissolves, slides, or wipes.
 /// </summary>
-public interface IScreenTransition
+public interface ICurtain
 {
     /// <summary>Total duration of the transition in seconds.</summary>
     float Duration { get; }
@@ -18,8 +18,8 @@ public interface IScreenTransition
     /// <param name="progress">Normalised time: 0 = start (outgoing fully visible), 1 = end (incoming fully visible).</param>
     /// <param name="drawOutgoing">Callback that draws the outgoing screen onto the supplied canvas.</param>
     /// <param name="drawIncoming">Callback that draws the incoming screen onto the supplied canvas.</param>
-    /// <param name="width">Game-space width in game units.</param>
-    /// <param name="height">Game-space height in game units.</param>
+    /// <param name="width">Stage-space width in game units.</param>
+    /// <param name="height">Stage-space height in game units.</param>
     void Draw(SKCanvas canvas, float progress,
               Action<SKCanvas> drawOutgoing,
               Action<SKCanvas> drawIncoming,

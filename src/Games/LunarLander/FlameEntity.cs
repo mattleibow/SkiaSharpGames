@@ -9,7 +9,7 @@ namespace SkiaSharpGames.LunarLander;
 /// pointing downward. Replaces the former FlameSprite — animation state and
 /// rendering now live directly on the entity.
 /// </summary>
-internal sealed class FlameEntity : Entity
+internal sealed class FlameEntity : Actor
 {
     private readonly SKPaint _outerPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _innerPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };

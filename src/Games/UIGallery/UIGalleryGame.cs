@@ -6,17 +6,17 @@ namespace SkiaSharpGames.UIGallery;
 
 public static class UIGalleryGame
 {
-    public static Game Create()
+    public static Stage Create()
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
 
-        builder.SetGameDimensions(800f, 600f);
+        builder.SetStageSize(800f, 600f);
         builder.Services.AddSingleton<UIGalleryState>();
         builder.SetUiTheme(UiThemes.Simple);
 
-        builder.Screens.Add<PlayScreen>();
-        builder.SetInitialScreen<PlayScreen>();
+        builder.Scenes.Add<PlayScreen>();
+        builder.SetOpeningScene<PlayScreen>();
 
-        return builder.Build();
+        return builder.Open();
     }
 }

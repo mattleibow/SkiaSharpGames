@@ -5,7 +5,7 @@ using static SkiaSharpGames.Catch.CatchConstants;
 
 namespace SkiaSharpGames.Catch;
 
-internal sealed class PlayScreen(CatchGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(CatchGameState state, IDirector coordinator) : Scene
 {
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
 

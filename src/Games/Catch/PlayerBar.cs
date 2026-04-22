@@ -4,7 +4,7 @@ using static SkiaSharpGames.Catch.CatchConstants;
 
 namespace SkiaSharpGames.Catch;
 
-internal sealed class PlayerBar : Entity
+internal sealed class PlayerBar : Actor
 {
     private readonly SKPaint _paint = new() { IsAntialias = true };
     private readonly SKPaint _shinePaint = new() { IsAntialias = true };

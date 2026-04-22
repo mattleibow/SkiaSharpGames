@@ -5,72 +5,72 @@ using Xunit;
 
 namespace SkiaSharpGames.GameEngine.Tests;
 
-public class GameBuilderTests
+public class TheatreTests
 {
     [Fact]
     public void GameDimensions_DefaultIs800x600()
     {
-        var builder = GameBuilder.CreateDefault();
-        builder.Screens.Add<OverlayScreen>();
-        builder.SetInitialScreen<OverlayScreen>();
-        var game = builder.Build();
-        Assert.Equal(new SKSize(800, 600), game.GameDimensions);
+        var builder = Theatre.Create();
+        builder.Scenes.Add<OverlayScreen>();
+        builder.SetOpeningScene<OverlayScreen>();
+        var game = builder.Open();
+        Assert.Equal(new SKSize(800, 600), game.StageSize);
     }
 
     [Fact]
     public void GameDimensions_CustomValue_PropagatestoGame()
     {
-        var builder = GameBuilder.CreateDefault();
-        builder.SetGameDimensions(1200, 600);
-        builder.Screens.Add<OverlayScreen>();
-        builder.SetInitialScreen<OverlayScreen>();
-        var game = builder.Build();
-        Assert.Equal(new SKSize(1200, 600), game.GameDimensions);
+        var builder = Theatre.Create();
+        builder.SetStageSize(1200, 600);
+        builder.Scenes.Add<OverlayScreen>();
+        builder.SetOpeningScene<OverlayScreen>();
+        var game = builder.Open();
+        Assert.Equal(new SKSize(1200, 600), game.StageSize);
     }
 
     [Fact]
     public void Build_NoInitialScreen_Throws()
     {
-        var builder = GameBuilder.CreateDefault();
-        var ex = Record.Exception(() => builder.Build());
+        var builder = Theatre.Create();
+        var ex = Record.Exception(() => builder.Open());
         Assert.IsType<InvalidOperationException>(ex);
     }
 
     [Fact]
     public void Build_WithOneScreen_ReturnsGame()
     {
-        var builder = GameBuilder.CreateDefault();
-        builder.Screens.Add<OverlayScreen>();
-        builder.SetInitialScreen<OverlayScreen>();
-        var game = builder.Build();
+        var builder = Theatre.Create();
+        builder.Scenes.Add<OverlayScreen>();
+        builder.SetOpeningScene<OverlayScreen>();
+        var game = builder.Open();
         Assert.NotNull(game);
     }
 
     [Fact]
     public void CreateDefault_ExposesScreensCollection()
     {
-        var builder = GameBuilder.CreateDefault();
-        Assert.NotNull(builder.Screens);
+        var builder = Theatre.Create();
+        Assert.NotNull(builder.Scenes);
     }
 
     [Fact]
     public void CreateDefault_ExposesAssetsCollection()
     {
-        var builder = GameBuilder.CreateDefault();
-        Assert.NotNull(builder.Assets);
+        var builder = Theatre.Create();
+        Assert.NotNull(builder.Props);
     }
 
     [Fact]
     public void CreateDefault_ExposesConfiguration()
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
         Assert.NotNull(builder.Configuration);
     }
 
     [Fact]
     public void CreateDefault_ExposesServices()
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
         Assert.NotNull(builder.Services);
     }
 
@@ -79,13 +79,13 @@ public class GameBuilderTests
     {
         // The initial screen is activated immediately by Build()
         var tracker = new ScreenTracker();
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
         builder.Services.AddSingleton(tracker);
-        builder.Screens
+        builder.Scenes
                .Add<ScreenA>()
                .Add<ScreenB>();
-        builder.SetInitialScreen<ScreenA>();
-        builder.Build();
+        builder.SetOpeningScene<ScreenA>();
+        builder.Open();
         Assert.True(tracker.AActivated);
         Assert.False(tracker.BActivated);
     }
@@ -94,11 +94,11 @@ public class GameBuilderTests
     public void Services_RegisteredSingleton_IsAvailableToScreens()
     {
         var tracker = new ScreenTracker();
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
         builder.Services.AddSingleton(tracker);
-        builder.Screens.Add<ScreenA>();
-        builder.SetInitialScreen<ScreenA>();
-        var game = builder.Build();
+        builder.Scenes.Add<ScreenA>();
+        builder.SetOpeningScene<ScreenA>();
+        var game = builder.Open();
         // ScreenA's constructor took the tracker singleton — it was able to call OnActivated
         Assert.True(tracker.AActivated);
     }
@@ -107,13 +107,13 @@ public class GameBuilderTests
     public void SetInitialScreen_CanChooseLaterScreen()
     {
         var tracker = new ScreenTracker();
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
         builder.Services.AddSingleton(tracker);
-        builder.Screens
+        builder.Scenes
                .Add<ScreenA>()
                .Add<ScreenB>();
-        builder.SetInitialScreen<ScreenB>(); // explicitly choose a non-first screen
-        builder.Build();
+        builder.SetOpeningScene<ScreenB>(); // explicitly choose a non-first screen
+        builder.Open();
         Assert.False(tracker.AActivated);
         Assert.True(tracker.BActivated);
     }
@@ -121,38 +121,38 @@ public class GameBuilderTests
     [Fact]
     public void Build_ExposesServicesOnGame()
     {
-        var builder = GameBuilder.CreateDefault();
-        builder.Screens.Add<OverlayScreen>();
-        builder.SetInitialScreen<OverlayScreen>();
-        var game = builder.Build();
+        var builder = Theatre.Create();
+        builder.Scenes.Add<OverlayScreen>();
+        builder.SetOpeningScene<OverlayScreen>();
+        var game = builder.Open();
         Assert.NotNull(game.Services);
     }
 
     [Fact]
-    public void Build_ServicesContainsIScreenCoordinator()
+    public void Build_ServicesContainsIDirector()
     {
-        var builder = GameBuilder.CreateDefault();
-        builder.Screens.Add<OverlayScreen>();
-        builder.SetInitialScreen<OverlayScreen>();
-        var game = builder.Build();
-        var coordinator = game.Services.GetService<IScreenCoordinator>();
+        var builder = Theatre.Create();
+        builder.Scenes.Add<OverlayScreen>();
+        builder.SetOpeningScene<OverlayScreen>();
+        var game = builder.Open();
+        var coordinator = game.Services.GetService<IDirector>();
         Assert.NotNull(coordinator);
     }
 
-    private sealed class OverlayScreen : GameScreen
+    private sealed class OverlayScreen : Scene
     {
         public override void Update(float dt) { }
         public override void Draw(SKCanvas c, int w, int h) { }
     }
 
-    private sealed class ScreenA(ScreenTracker t) : GameScreen
+    private sealed class ScreenA(ScreenTracker t) : Scene
     {
         public override void Update(float dt) { }
         public override void Draw(SKCanvas c, int w, int h) { }
         public override void OnActivated() => t.AActivated = true;
     }
 
-    private sealed class ScreenB(ScreenTracker t) : GameScreen
+    private sealed class ScreenB(ScreenTracker t) : Scene
     {
         public override void Update(float dt) { }
         public override void Draw(SKCanvas c, int w, int h) { }

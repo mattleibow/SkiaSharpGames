@@ -5,7 +5,7 @@ using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;
 
-internal sealed class GameOverScreen(PongGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class GameOverScreen(PongGameState state, IDirector coordinator) : Scene
 {
     private static readonly SKPaint _overlayPaint = new() { IsAntialias = true };
 
@@ -28,11 +28,11 @@ internal sealed class GameOverScreen(PongGameState state, IScreenCoordinator coo
     }
 
     public override void OnPointerDown(float x, float y) =>
-        coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+        coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+            coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
     }
 }

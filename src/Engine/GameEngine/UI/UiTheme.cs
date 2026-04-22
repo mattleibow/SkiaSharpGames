@@ -14,7 +14,7 @@ public sealed class UiTheme
     public UiAppearance<UiSwitch> Switch { get; set; } = UiSwitchAppearance.Default;
     public UiAppearance<UiSlider> Slider { get; set; } = UiSliderAppearance.Default;
     public UiAppearance<UiJoystick> Joystick { get; set; } = UiJoystickAppearance.Default;
-    public UiAppearance<UiPointer> Pointer { get; set; } = UiPointerAppearance.Default;
+    public UiAppearance<Spotlight> Spotlight { get; set; } = SpotlightAppearance.Default;
     public UiAppearance<UiLabel> Label { get; set; } = UiLabelAppearance.Default;
 
     /// <summary>
@@ -28,7 +28,7 @@ public sealed class UiTheme
         Switch = other.Switch;
         Slider = other.Slider;
         Joystick = other.Joystick;
-        Pointer = other.Pointer;
+        Spotlight = other.Spotlight;
         Label = other.Label;
     }
 }
@@ -42,7 +42,7 @@ public static class UiThemes
         Switch = UiSwitchAppearance.Default,
         Slider = UiSliderAppearance.Default,
         Joystick = UiJoystickAppearance.Default,
-        Pointer = UiPointerAppearance.Default,
+        Spotlight = SpotlightAppearance.Default,
     };
 
     public static UiTheme BoldCute => new()

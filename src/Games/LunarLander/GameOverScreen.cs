@@ -6,10 +6,10 @@ using static SkiaSharpGames.LunarLander.LunarLanderConstants;
 namespace SkiaSharpGames.LunarLander;
 
 /// <summary>
-/// Game-over overlay drawn on top of the frozen play screen.
+/// Stage-over overlay drawn on top of the frozen play screen.
 /// Shows "LANDED SAFELY!" or "CRASHED!" based on the game state.
 /// </summary>
-internal sealed class GameOverScreen(LunarLanderGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class GameOverScreen(LunarLanderGameState state, IDirector coordinator) : Scene
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha(186) };
 
@@ -40,11 +40,11 @@ internal sealed class GameOverScreen(LunarLanderGameState state, IScreenCoordina
     }
 
     public override void OnPointerDown(float x, float y)
-        => coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+        => coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+            coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
     }
 }

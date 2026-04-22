@@ -5,7 +5,7 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// <summary>
 /// A themed button entity with built-in collision, sprite, and readable state.
 /// <para>
-/// Add to any entity group and use <see cref="Entity.FindChildCollision"/> for
+/// Add to any entity group and use <see cref="Actor.FindChildCollision"/> for
 /// hit-testing. Read <see cref="IsPressed"/> to determine the current state.
 /// </para>
 /// <example><code>

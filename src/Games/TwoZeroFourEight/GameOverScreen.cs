@@ -5,7 +5,7 @@ using static SkiaSharpGames.TwoZeroFourEight.TwoZeroFourEightConstants;
 
 namespace SkiaSharpGames.TwoZeroFourEight;
 
-internal sealed class GameOverScreen(TwoZeroFourEightGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class GameOverScreen(TwoZeroFourEightGameState state, IDirector coordinator) : Scene
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.65f)), IsAntialias = true };
 
@@ -30,11 +30,11 @@ internal sealed class GameOverScreen(TwoZeroFourEightGameState state, IScreenCoo
     }
 
     public override void OnPointerDown(float x, float y) =>
-        coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+        coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+            coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
     }
 }

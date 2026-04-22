@@ -5,33 +5,33 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
-/// Default implementation of <see cref="IScreenCoordinator"/> and <see cref="IScreenDrawable"/>.
+/// Default implementation of <see cref="IDirector"/> and <see cref="IStageRenderer"/>.
 /// Manages the active screen, overlay stack, and running transitions.
-/// Registered as a singleton in the game's own DI container by <see cref="GameBuilder.Build"/>.
+/// Registered as a singleton in the game's own DI container by <see cref="Theatre.Open"/>.
 /// </summary>
-internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
+internal sealed class Director : IDirector, IStageRenderer
 {
     private readonly IServiceProvider _services;
     private readonly Type _initialScreenType;
-    private GameScreen? _current;
-    private readonly List<GameScreen> _overlays = [];
+    private Scene? _current;
+    private readonly List<Scene> _overlays = [];
     private ActiveTransition? _activeTransition;
 
     private sealed class ActiveTransition(
-        GameScreen outgoing,
-        GameScreen incoming,
-        IScreenTransition transition)
+        Scene outgoing,
+        Scene incoming,
+        ICurtain transition)
     {
-        public GameScreen Outgoing { get; } = outgoing;
-        public GameScreen Incoming { get; } = incoming;
-        public IScreenTransition Transition { get; } = transition;
+        public Scene Outgoing { get; } = outgoing;
+        public Scene Incoming { get; } = incoming;
+        public ICurtain Transition { get; } = transition;
         public float Progress { get; set; }
     }
 
-    internal ScreenCoordinator(IServiceProvider services, IOptions<GameOptions> options)
+    internal Director(IServiceProvider services, IOptions<StageOptions> options)
     {
         _services = services;
-        _initialScreenType = options.Value.InitialScreenType!;
+        _initialScreenType = options.Value.OpeningSceneType!;
     }
 
     internal void Initialize() => EnsureInitialized();
@@ -41,16 +41,16 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
         if (_current is not null)
             return;
 
-        _current = (GameScreen)_services.GetRequiredService(_initialScreenType);
+        _current = (Scene)_services.GetRequiredService(_initialScreenType);
         _current.OnActivating();
         _current.OnActivated();
     }
 
-    // ── IScreenCoordinator ────────────────────────────────────────────────
+    // ── IDirector ────────────────────────────────────────────────
 
     /// <inheritdoc/>
-    public void TransitionTo<TScreen>(IScreenTransition? transition = null)
-        where TScreen : GameScreen
+    public void TransitionTo<TScreen>(ICurtain? transition = null)
+        where TScreen : Scene
     {
         EnsureInitialized();
 
@@ -93,7 +93,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
     }
 
     /// <inheritdoc/>
-    public void PushOverlay<TOverlay>() where TOverlay : GameScreen
+    public void PushOverlay<TOverlay>() where TOverlay : Scene
     {
         EnsureInitialized();
 
@@ -127,7 +127,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
     }
 
     /// <inheritdoc/>
-    public GameScreen ActiveInputScreen
+    public Scene ActiveInputScene
     {
         get
         {
@@ -138,7 +138,7 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
         }
     }
 
-    // ── IScreenDrawable ───────────────────────────────────────────────────
+    // ── IStageRenderer ───────────────────────────────────────────────────
 
     /// <inheritdoc/>
     public void Update(float deltaTime)
@@ -197,6 +197,6 @@ internal sealed class ScreenCoordinator : IScreenCoordinator, IScreenDrawable
 
     // ── Private helpers ───────────────────────────────────────────────────
 
-    private TScreen ResolveScreen<TScreen>() where TScreen : GameScreen =>
+    private TScreen ResolveScreen<TScreen>() where TScreen : Scene =>
         _services.GetRequiredService<TScreen>();
 }

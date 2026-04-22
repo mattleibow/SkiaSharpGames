@@ -3,7 +3,7 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine.UI;
 
 /// <summary>Base for interactive UI controls with rectangular bounds.</summary>
-public abstract class UiControl : UiEntity
+public abstract class UiControl : UiActor
 {
     protected UiControl(float width, float height, UiTheme theme) : base(theme)
     {

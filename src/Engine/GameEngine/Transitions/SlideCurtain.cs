@@ -8,7 +8,7 @@ public enum SlideDirection { Up, Down, Left, Right }
 /// <summary>
 /// A slide transition: the incoming screen slides in from one edge, revealing it on top of the outgoing screen.
 /// </summary>
-public sealed class SlideTransition : IScreenTransition
+public sealed class SlideCurtain : ICurtain
 {
     /// <summary>Edge from which the incoming screen enters. Defaults to <see cref="SlideDirection.Left"/>.</summary>
     public SlideDirection Direction { get; init; } = SlideDirection.Left;

@@ -4,7 +4,7 @@ using SkiaSharpGames.GameEngine.UI;
 
 namespace SkiaSharpGames.CastleAttack;
 
-internal sealed class FloatText : Entity
+internal sealed class FloatText : Actor
 {
     public float Life;
     public string Text = "";

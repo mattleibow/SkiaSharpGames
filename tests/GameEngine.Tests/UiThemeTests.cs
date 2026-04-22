@@ -23,12 +23,12 @@ public class UiThemeTests
         var retro = new UiTheme();
         retro.ApplyFrom(UiThemes.Retro);
 
-        var builder = GameBuilder.CreateDefault();
-        builder.Screens.Add<BlankScreen>();
-        builder.SetInitialScreen<BlankScreen>();
+        var builder = Theatre.Create();
+        builder.Scenes.Add<BlankScreen>();
+        builder.SetOpeningScene<BlankScreen>();
         builder.SetUiTheme(retro);
 
-        var game = builder.Build();
+        var game = builder.Open();
         var theme = game.Services.GetRequiredService<UiTheme>();
 
         Assert.Same(retro, theme);
@@ -54,18 +54,18 @@ public class UiThemeTests
     [Fact]
     public void Theme_HasPointerAppearance()
     {
-        Assert.IsType<UiCrosshairAppearance>(UiThemes.Simple.Pointer);
+        Assert.IsType<UiCrosshairAppearance>(UiThemes.Simple.Spotlight);
     }
 
-    private static Game BuildBareGame()
+    private static Stage BuildBareGame()
     {
-        var builder = GameBuilder.CreateDefault();
-        builder.Screens.Add<BlankScreen>();
-        builder.SetInitialScreen<BlankScreen>();
-        return builder.Build();
+        var builder = Theatre.Create();
+        builder.Scenes.Add<BlankScreen>();
+        builder.SetOpeningScene<BlankScreen>();
+        return builder.Open();
     }
 
-    private sealed class BlankScreen : GameScreen
+    private sealed class BlankScreen : Scene
     {
         public override void Draw(SKCanvas canvas, int width, int height) { }
     }

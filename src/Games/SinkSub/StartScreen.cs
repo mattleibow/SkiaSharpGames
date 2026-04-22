@@ -5,7 +5,7 @@ using static SkiaSharpGames.SinkSub.SinkSubConstants;
 
 namespace SkiaSharpGames.SinkSub;
 
-internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
+internal sealed class StartScreen(IDirector coordinator) : Scene
 {
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
 
@@ -34,11 +34,11 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     }
 
     public override void OnPointerDown(float x, float y) =>
-        coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+        coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+            coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
     }
 }

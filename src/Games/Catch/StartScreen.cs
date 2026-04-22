@@ -5,7 +5,7 @@ using static SkiaSharpGames.Catch.CatchConstants;
 
 namespace SkiaSharpGames.Catch;
 
-internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
+internal sealed class StartScreen(IDirector coordinator) : Scene
 {
     private readonly UiLabel _title = new() { Text = "CATCH", FontSize = 78f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 225f };
     private readonly UiLabel _subtitle = new() { Text = "Catch the falling circles", FontSize = 30f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 285f };
@@ -27,11 +27,11 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     }
 
     public override void OnPointerDown(float x, float y) =>
-        coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+        coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+            coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
     }
 }

@@ -6,7 +6,7 @@ namespace SkiaSharpGames.GameEngine;
 /// A transition that fades the outgoing screen to a solid colour and then reveals the incoming screen.
 /// The total duration is split evenly: first half fades out, second half fades in.
 /// </summary>
-public sealed class FadeToColorTransition : IScreenTransition
+public sealed class FadeCurtain : ICurtain
 {
     private readonly SKPaint _overlayPaint = new() { IsAntialias = true };
 

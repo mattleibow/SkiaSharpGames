@@ -5,13 +5,13 @@ namespace SkiaSharpGames.GameEngine;
 /// </summary>
 public static class CollisionResolver
 {
-    // ── Entity API (uses WorldX/WorldY and Collider) ──────────────────
+    // ── Actor API (uses WorldX/WorldY and Collider) ──────────────────
 
     /// <summary>
     /// Returns <see langword="true"/> when the two entities' colliders overlap
     /// in world space. Returns false if either entity has no collider.
     /// </summary>
-    public static bool Overlaps(Entity a, Entity b)
+    public static bool Overlaps(Actor a, Actor b)
     {
         if (a.Collider is null || b.Collider is null) return false;
         return TryGetHit(a.WorldX, a.WorldY, a.Collider,
@@ -23,7 +23,7 @@ public static class CollisionResolver
     /// <paramref name="hit"/> with the collision normal and penetration.
     /// Returns false if either entity has no collider.
     /// </summary>
-    public static bool TryGetHit(Entity a, Entity b, out CollisionHit hit)
+    public static bool TryGetHit(Actor a, Actor b, out CollisionHit hit)
     {
         if (a.Collider is null || b.Collider is null)
         {

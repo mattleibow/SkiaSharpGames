@@ -5,7 +5,7 @@ using static SkiaSharpGames.SinkSub.SinkSubConstants;
 
 namespace SkiaSharpGames.SinkSub;
 
-internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(SinkSubGameState state, IDirector coordinator) : Scene
 {
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
 
@@ -17,9 +17,9 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
     private readonly UiLabel _waveIncomingText = new() { FontSize = 28f, Color = AccentColor, Align = TextAlign.Center };
 
     private readonly Ship _ship = new();
-    private readonly Entity _submarines = new();
-    private readonly Entity _depthCharges = new();
-    private readonly Entity _mines = new();
+    private readonly Actor _submarines = new();
+    private readonly Actor _depthCharges = new();
+    private readonly Actor _mines = new();
 
     private bool _leftHeld;
     private bool _rightHeld;
@@ -287,7 +287,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IScreenCoordinator coor
         }
     }
 
-    private static void ClearChildren(Entity parent)
+    private static void ClearChildren(Actor parent)
     {
         while (parent.ChildCount > 0)
             parent.RemoveChild(parent.Children[^1]);

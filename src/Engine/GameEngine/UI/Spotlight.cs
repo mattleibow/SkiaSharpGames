@@ -5,9 +5,9 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// <summary>
 /// A visible pointer/cursor entity with a point collider for hit testing.
 /// <para>
-/// Opt in by setting <see cref="GameScreen.Pointer"/> on any screen.
+/// Opt in by setting <see cref="Scene.Spotlight"/> on any screen.
 /// The engine automatically updates position from pointer events.
-/// Draw it last in your screen's <see cref="GameScreen.Draw"/> to keep it on top.
+/// Draw it last in your screen's <see cref="Scene.Draw"/> to keep it on top.
 /// </para>
 /// <para>
 /// The default appearance is a crosshair. Swap via <see cref="Appearance"/>:
@@ -15,17 +15,17 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// </para>
 /// <example><code>
 /// // In your screen constructor:
-/// Pointer = new UiPointer();
+/// Pointer = new Spotlight();
 ///
 /// // In OnPointerDown:
 /// var hit = Pointer!.FindHit(_controls);
 /// if (hit is UiButton btn) btn.IsPressed = true;
 ///
 /// // At end of Draw:
-/// Pointer?.Draw(canvas);
+/// Spotlight?.Draw(canvas);
 /// </code></example>
 /// </summary>
-public class UiPointer : UiEntity
+public class Spotlight : UiActor
 {
     /// <summary>
     /// Creates a new pointer entity with a point collider.
@@ -33,9 +33,9 @@ public class UiPointer : UiEntity
     /// </summary>
     /// <param name="theme">
     /// Optional theme for resolving the pointer appearance.
-    /// When null, falls back to <see cref="UiPointerAppearance.Default"/>.
+    /// When null, falls back to <see cref="SpotlightAppearance.Default"/>.
     /// </param>
-    public UiPointer(UiTheme? theme = null) : base(theme)
+    public Spotlight(UiTheme? theme = null) : base(theme)
     {
         Collider = new CircleCollider { Radius = 1f };
         Visible = false;
@@ -46,26 +46,26 @@ public class UiPointer : UiEntity
 
     /// <summary>
     /// Optional per-pointer appearance override. When null, uses the theme's default or
-    /// <see cref="UiPointerAppearance.Default"/>.
+    /// <see cref="SpotlightAppearance.Default"/>.
     /// </summary>
-    public UiAppearance<UiPointer>? Appearance { get; set; }
+    public UiAppearance<Spotlight>? Appearance { get; set; }
 
     /// <summary>
     /// Finds the first child of <paramref name="container"/> that the pointer overlaps.
     /// </summary>
-    public Entity? FindHit(Entity container)
+    public Actor? FindHit(Actor container)
         => container.FindChildCollision(this, out _);
 
     /// <summary>
     /// Finds the first child of <paramref name="container"/> that the pointer overlaps,
     /// returning collision details.
     /// </summary>
-    public Entity? FindHit(Entity container, out CollisionHit hit)
+    public Actor? FindHit(Actor container, out CollisionHit hit)
         => container.FindChildCollision(this, out hit);
 
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? Theme?.Pointer ?? UiPointerAppearance.Default).Draw(canvas, this);
+        (Appearance ?? Theme?.Spotlight ?? SpotlightAppearance.Default).Draw(canvas, this);
     }
 }

@@ -5,7 +5,7 @@ using static SkiaSharpGames.Asteroids.AsteroidsConstants;
 
 namespace SkiaSharpGames.Asteroids;
 
-internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator coordinator, UiTheme themes) : GameScreen
+internal sealed class PlayScreen(AsteroidsGameState state, IDirector coordinator, UiTheme themes) : Scene
 {
     private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha(80), IsAntialias = true };
     private static readonly SKPaint _livesShipPaint = new() { Color = ShipColor, IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
@@ -15,9 +15,9 @@ internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator co
     private readonly UiLabel _controlsText = new() { Text = "ARROWS rotate/thrust  SPACE fire", FontSize = 16f, Color = HudDimColor, Align = TextAlign.Center };
 
     private readonly Ship _ship = new();
-    private readonly Entity _bullets = new();
-    private readonly Entity _asteroids = new();
-    private readonly Entity _debris = new();
+    private readonly Actor _bullets = new();
+    private readonly Actor _asteroids = new();
+    private readonly Actor _debris = new();
     private readonly List<SKPoint> _stars = [];
 
     // ── Touch control pad ────────────────────────────────────────────────
@@ -224,7 +224,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator co
         // Bullets vs asteroids
         for (int i = bulletList.Count - 1; i >= 0; i--)
         {
-            var bullet = bulletList[i];
+            var bullet = (Bullet)bulletList[i];
             if (!bullet.Active) continue;
 
             for (int j = asteroidList.Count - 1; j >= 0; j--)
@@ -378,7 +378,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator co
     {
         if (_endTriggered) return;
         _endTriggered = true;
-        coordinator.TransitionTo<GameOverScreen>(new DissolveTransition());
+        coordinator.TransitionTo<GameOverScreen>(new DissolveCurtain());
     }
 
     // ── Draw ──────────────────────────────────────────────────────────────
@@ -391,7 +391,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator co
         foreach (var star in _stars)
             canvas.DrawRect(star.X, star.Y, 1.5f, 1.5f, _starPaint);
 
-        // Game entities
+        // Stage entities
         _asteroids.Draw(canvas);
         _bullets.Draw(canvas);
         _debris.Draw(canvas);
@@ -451,7 +451,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IScreenCoordinator co
         appearance.DrawDirect(canvas, RightBtnRect, ">", _touchRight, fontSize: 20f);
     }
 
-    private static void ClearChildren(Entity parent)
+    private static void ClearChildren(Actor parent)
     {
         while (parent.ChildCount > 0)
             parent.RemoveChild(parent.Children[^1]);

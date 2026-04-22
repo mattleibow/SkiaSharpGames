@@ -6,7 +6,7 @@ using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 namespace SkiaSharpGames.CastleAttack;
 
 /// <summary>Active gameplay screen for Castle Attack.</summary>
-internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(CastleAttackGameState state, IDirector coordinator) : Scene
 {
     // ── State ─────────────────────────────────────────────────────────────
     private readonly List<Wall> _walls = [];

@@ -5,21 +5,21 @@ namespace SkiaSharpGames.Breakout;
 
 public static class BreakoutGame
 {
-    public static Game Create()
+    public static Stage Create()
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
 
-        builder.SetGameDimensions(BreakoutConstants.GameWidth, BreakoutConstants.GameHeight);
+        builder.SetStageSize(BreakoutConstants.GameWidth, BreakoutConstants.GameHeight);
         builder.Services.AddSingleton<BreakoutGameState>();
 
-        builder.Screens
+        builder.Scenes
                .Add<StartScreen>()
                .Add<PlayScreen>()
                .Add<GameOverScreen>()
                .Add<VictoryScreen>();
 
-        builder.SetInitialScreen<StartScreen>();
+        builder.SetOpeningScene<StartScreen>();
 
-        return builder.Build();
+        return builder.Open();
     }
 }

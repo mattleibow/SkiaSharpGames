@@ -4,7 +4,7 @@ using Xunit;
 
 namespace SkiaSharpGames.GameEngine.Tests;
 
-public class FadeToColorTransitionTests
+public class FadeCurtainTests
 {
     private static SKCanvas MakeCanvas() => new(new SKBitmap(800, 600));
 
@@ -16,7 +16,7 @@ public class FadeToColorTransitionTests
     [InlineData(1f)]
     public void Draw_DoesNotThrow_AtVariousProgress(float progress)
     {
-        var t = new FadeToColorTransition();
+        var t = new FadeCurtain();
         var ex = Record.Exception(() => t.Draw(MakeCanvas(), progress, _ => { }, _ => { }, 800, 600));
         Assert.Null(ex);
     }
@@ -25,7 +25,7 @@ public class FadeToColorTransitionTests
     public void Draw_FirstHalf_CallsOutgoingCallback()
     {
         bool outCalled = false;
-        var t = new FadeToColorTransition();
+        var t = new FadeCurtain();
         t.Draw(MakeCanvas(), 0.2f, _ => outCalled = true, _ => { }, 800, 600);
         Assert.True(outCalled);
     }
@@ -34,7 +34,7 @@ public class FadeToColorTransitionTests
     public void Draw_SecondHalf_CallsIncomingCallback()
     {
         bool inCalled = false;
-        var t = new FadeToColorTransition();
+        var t = new FadeCurtain();
         t.Draw(MakeCanvas(), 0.8f, _ => { }, _ => inCalled = true, 800, 600);
         Assert.True(inCalled);
     }

@@ -5,7 +5,7 @@ using static SkiaSharpGames.Snake.SnakeConstants;
 
 namespace SkiaSharpGames.Snake;
 
-internal sealed class PlayScreen(SnakeGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(SnakeGameState state, IDirector coordinator) : Scene
 {
     private readonly GridEntity _grid = new();
     private readonly SnakeEntity _snake = new();

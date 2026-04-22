@@ -10,13 +10,13 @@ internal sealed class GalleryGame(
     string title,
     string description,
     string emoji,
-    Func<Game> factory) : IGalleryGame
+    Func<Stage> factory) : IGalleryGame
 {
     public string Slug => slug;
     public string Title => title;
     public string Description => description;
     public string Emoji => emoji;
-    public Game CreateGame() => factory();
+    public Stage CreateGame() => factory();
 }
 
 /// <summary>
@@ -73,7 +73,7 @@ public static class GalleryGameRegistration
         return services;
     }
 
-    private static void Register(IServiceCollection services, string slug, string title, string emoji, string description, Func<Game> factory)
+    private static void Register(IServiceCollection services, string slug, string title, string emoji, string description, Func<Stage> factory)
     {
         var game = new GalleryGame(slug, title, description, emoji, factory);
         services.AddSingleton<IGalleryGame>(game);

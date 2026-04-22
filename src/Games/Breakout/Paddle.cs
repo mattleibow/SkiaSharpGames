@@ -8,7 +8,7 @@ namespace SkiaSharpGames.Breakout;
 /// The player's paddle entity. Position (X, Y) is the centre of the rectangle.
 /// Width is animated; all width-related state (animation, collider sync) lives here.
 /// </summary>
-internal sealed class Paddle : Entity
+internal sealed class Paddle : Actor
 {
     private readonly AnimatedFloat _width = new(DefaultPaddleWidth);
     private readonly SKPaint _paint = new() { IsAntialias = true };

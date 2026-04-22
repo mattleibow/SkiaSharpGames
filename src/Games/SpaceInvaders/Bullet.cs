@@ -4,7 +4,7 @@ using static SkiaSharpGames.SpaceInvaders.SpaceInvadersConstants;
 
 namespace SkiaSharpGames.SpaceInvaders;
 
-internal sealed class Bullet : Entity
+internal sealed class Bullet : Actor
 {
     private static readonly SKPaint _playerBulletPaint = new() { Color = PlayerBulletColor, IsAntialias = true };
     private static readonly SKPaint _enemyBulletPaint = new() { Color = EnemyBulletColor, IsAntialias = true };

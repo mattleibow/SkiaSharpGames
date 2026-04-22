@@ -5,7 +5,7 @@ using static SkiaSharpGames.Snake.SnakeConstants;
 namespace SkiaSharpGames.Snake;
 
 /// <summary>The food pickup. Positions itself on a grid cell and has a collider for overlap tests.</summary>
-internal sealed class FoodEntity : Entity
+internal sealed class FoodEntity : Actor
 {
     private static readonly SKPaint _paint = new() { IsAntialias = true };
 

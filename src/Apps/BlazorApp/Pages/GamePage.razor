@@ -5,7 +5,7 @@
 @if (_game is not null)
 {
     <PageTitle>@_entry!.Title – SkiaSharp Games</PageTitle>
-    <GameView Game="_game" />
+    <GameView Stage="_game" />
 }
 else
 {
@@ -17,7 +17,7 @@ else
     [Parameter] public string Slug { get; set; } = "";
 
     private IGalleryGame? _entry;
-    private Game? _game;
+    private Stage? _game;
 
     protected override void OnParametersSet()
     {

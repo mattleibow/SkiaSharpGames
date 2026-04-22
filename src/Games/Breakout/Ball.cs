@@ -7,7 +7,7 @@ namespace SkiaSharpGames.Breakout;
 /// <summary>
 /// The player's ball entity. Position (X, Y) is the centre of the circle.
 /// </summary>
-internal sealed class Ball : Entity
+internal sealed class Ball : Actor
 {
     private readonly SKPaint _paint = new() { IsAntialias = true };
     private readonly SKPaint _glowPaint = new() { IsAntialias = true };

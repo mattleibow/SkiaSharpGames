@@ -4,7 +4,7 @@ using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
 namespace SkiaSharpGames.CastleAttack;
 
-internal sealed class Boulder : Entity
+internal sealed class Boulder : Actor
 {
     public int TargetWallIdx;
 

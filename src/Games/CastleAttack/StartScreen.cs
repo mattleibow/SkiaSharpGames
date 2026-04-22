@@ -6,7 +6,7 @@ using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 namespace SkiaSharpGames.CastleAttack;
 
 /// <summary>Start/title screen for Castle Attack. Shows the background and instructions.</summary>
-internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
+internal sealed class StartScreen(IDirector coordinator) : Scene
 {
     // ── Cached paints ─────────────────────────────────────────────────────
     private static readonly SKPaint OverlayPaint = new();
@@ -64,12 +64,12 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     }
 
     public override void OnPointerDown(float x, float y)
-        => coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+        => coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+            coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
     }
 
     private static void DrawBackground(SKCanvas canvas)

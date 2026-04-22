@@ -3,7 +3,7 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine.Testing;
 
 /// <summary>
-/// A rendered frame captured by <see cref="GameTestHarness"/>. Provides pixel-level
+/// A rendered frame captured by <see cref="Rehearsal"/>. Provides pixel-level
 /// inspection, region assertions, and PNG export for debugging.
 /// </summary>
 public sealed class FrameSnapshot : IDisposable

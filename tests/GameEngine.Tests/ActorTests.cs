@@ -3,14 +3,14 @@ using Xunit;
 
 namespace SkiaSharpGames.GameEngine.Tests;
 
-public class EntityTests
+public class ActorTests
 {
     // ── Position & World Position ─────────────────────────────────────
 
     [Fact]
     public void RootEntity_WorldPosition_EqualsLocalPosition()
     {
-        var entity = new Entity { X = 10f, Y = 20f };
+        var entity = new Actor { X = 10f, Y = 20f };
         Assert.Equal(10f, entity.WorldX);
         Assert.Equal(20f, entity.WorldY);
     }
@@ -18,8 +18,8 @@ public class EntityTests
     [Fact]
     public void ChildEntity_WorldPosition_IsParentPlusLocal()
     {
-        var parent = new Entity { X = 100f, Y = 200f };
-        var child = new Entity { X = 10f, Y = 20f };
+        var parent = new Actor { X = 100f, Y = 200f };
+        var child = new Actor { X = 10f, Y = 20f };
         parent.AddChild(child);
 
         Assert.Equal(110f, child.WorldX);
@@ -29,9 +29,9 @@ public class EntityTests
     [Fact]
     public void NestedChildren_WorldPosition_AccumulatesAllAncestors()
     {
-        var root = new Entity { X = 10f, Y = 10f };
-        var mid = new Entity { X = 20f, Y = 20f };
-        var leaf = new Entity { X = 5f, Y = 5f };
+        var root = new Actor { X = 10f, Y = 10f };
+        var mid = new Actor { X = 20f, Y = 20f };
+        var leaf = new Actor { X = 5f, Y = 5f };
         root.AddChild(mid);
         mid.AddChild(leaf);
 
@@ -42,8 +42,8 @@ public class EntityTests
     [Fact]
     public void ParentPositionChange_PropagatesWorldToChildren()
     {
-        var parent = new Entity { X = 0f, Y = 0f };
-        var child = new Entity { X = 10f, Y = 10f };
+        var parent = new Actor { X = 0f, Y = 0f };
+        var child = new Actor { X = 10f, Y = 10f };
         parent.AddChild(child);
 
         Assert.Equal(10f, child.WorldX);
@@ -56,9 +56,9 @@ public class EntityTests
     [Fact]
     public void ChildPositionChange_UpdatesOwnWorldOnly()
     {
-        var parent = new Entity { X = 100f, Y = 200f };
-        var child1 = new Entity { X = 10f, Y = 10f };
-        var child2 = new Entity { X = 20f, Y = 20f };
+        var parent = new Actor { X = 100f, Y = 200f };
+        var child1 = new Actor { X = 10f, Y = 10f };
+        var child2 = new Actor { X = 20f, Y = 20f };
         parent.AddChild(child1);
         parent.AddChild(child2);
 
@@ -72,7 +72,7 @@ public class EntityTests
     [Fact]
     public void RootEntity_WorldRotation_EqualsLocalRotation()
     {
-        var entity = new Entity { Rotation = MathF.PI / 4f };
+        var entity = new Actor { Rotation = MathF.PI / 4f };
         // WorldMatrix should rotate (1,0) by 45°
         var mapped = entity.WorldMatrix.MapPoint(1f, 0f);
         float expectedX = MathF.Cos(MathF.PI / 4f);
@@ -84,8 +84,8 @@ public class EntityTests
     [Fact]
     public void ParentRotation_AffectsChildWorldPosition()
     {
-        var parent = new Entity { X = 0f, Y = 0f, Rotation = MathF.PI / 2f }; // 90°
-        var child = new Entity { X = 10f, Y = 0f };
+        var parent = new Actor { X = 0f, Y = 0f, Rotation = MathF.PI / 2f }; // 90°
+        var child = new Actor { X = 10f, Y = 0f };
         parent.AddChild(child);
 
         // 90° rotation: (10, 0) → (0, 10)
@@ -96,8 +96,8 @@ public class EntityTests
     [Fact]
     public void ParentRotation_AccumulatesChildRotation()
     {
-        var parent = new Entity { Rotation = MathF.PI / 4f };
-        var child = new Entity { Rotation = MathF.PI / 4f };
+        var parent = new Actor { Rotation = MathF.PI / 4f };
+        var child = new Actor { Rotation = MathF.PI / 4f };
         parent.AddChild(child);
 
         // 45° + 45° = 90°: WorldMatrix should rotate (1,0) to (0,1)
@@ -109,8 +109,8 @@ public class EntityTests
     [Fact]
     public void NoParentRotation_UsesSimpleAddition()
     {
-        var parent = new Entity { X = 100f, Y = 100f }; // rotation = 0
-        var child = new Entity { X = 50f, Y = 50f };
+        var parent = new Actor { X = 100f, Y = 100f }; // rotation = 0
+        var child = new Actor { X = 50f, Y = 50f };
         parent.AddChild(child);
 
         Assert.Equal(150f, child.WorldX);
@@ -122,8 +122,8 @@ public class EntityTests
     [Fact]
     public void AddChild_SetsParentAndRecalculatesWorld()
     {
-        var parent = new Entity { X = 100f, Y = 100f };
-        var child = new Entity { X = 10f, Y = 10f };
+        var parent = new Actor { X = 100f, Y = 100f };
+        var child = new Actor { X = 10f, Y = 10f };
 
         parent.AddChild(child);
 
@@ -135,9 +135,9 @@ public class EntityTests
     [Fact]
     public void AddChild_RemovesFromPreviousParent()
     {
-        var parent1 = new Entity();
-        var parent2 = new Entity { X = 50f, Y = 50f };
-        var child = new Entity { X = 10f, Y = 10f };
+        var parent1 = new Actor();
+        var parent2 = new Actor { X = 50f, Y = 50f };
+        var child = new Actor { X = 10f, Y = 10f };
 
         parent1.AddChild(child);
         Assert.Single(parent1.Children);
@@ -152,8 +152,8 @@ public class EntityTests
     [Fact]
     public void RemoveChild_ClearsParentAndRecalculates()
     {
-        var parent = new Entity { X = 100f, Y = 100f };
-        var child = new Entity { X = 10f, Y = 10f };
+        var parent = new Actor { X = 100f, Y = 100f };
+        var child = new Actor { X = 10f, Y = 10f };
         parent.AddChild(child);
 
         parent.RemoveChild(child);
@@ -166,9 +166,9 @@ public class EntityTests
     [Fact]
     public void RemoveInactiveChildren_RemovesOnlyInactive()
     {
-        var parent = new Entity();
-        var active = new Entity { Active = true };
-        var inactive = new Entity { Active = false };
+        var parent = new Actor();
+        var active = new Actor { Active = true };
+        var inactive = new Actor { Active = false };
         parent.AddChild(active);
         parent.AddChild(inactive);
 
@@ -183,11 +183,11 @@ public class EntityTests
     [Fact]
     public void ChildCount_ReflectsChildren()
     {
-        var parent = new Entity();
+        var parent = new Actor();
         Assert.Equal(0, parent.ChildCount);
 
-        parent.AddChild(new Entity());
-        parent.AddChild(new Entity());
+        parent.AddChild(new Actor());
+        parent.AddChild(new Actor());
         Assert.Equal(2, parent.ChildCount);
     }
 
@@ -196,7 +196,7 @@ public class EntityTests
     [Fact]
     public void Update_StepsRigidbody()
     {
-        var entity = new Entity
+        var entity = new Actor
         {
             X = 0f, Y = 0f,
             Rigidbody = new Rigidbody2D { VelocityX = 100f, VelocityY = 50f }
@@ -211,8 +211,8 @@ public class EntityTests
     [Fact]
     public void Update_RecursesIntoActiveChildren()
     {
-        var parent = new Entity();
-        var child = new Entity
+        var parent = new Actor();
+        var child = new Actor
         {
             Rigidbody = new Rigidbody2D { VelocityX = 10f }
         };
@@ -226,7 +226,7 @@ public class EntityTests
     [Fact]
     public void Update_SkipsInactiveEntities()
     {
-        var entity = new Entity
+        var entity = new Actor
         {
             Active = false,
             Rigidbody = new Rigidbody2D { VelocityX = 100f }
@@ -279,7 +279,7 @@ public class EntityTests
     public void Draw_RecursesIntoChildren()
     {
         var child = new TrackingEntity();
-        var parent = new Entity();
+        var parent = new Actor();
         parent.AddChild(child);
 
         using var surface = SKSurface.Create(new SKImageInfo(100, 100));
@@ -292,8 +292,8 @@ public class EntityTests
     [Fact]
     public void Overlaps_ReturnsTrueForOverlappingEntities()
     {
-        var a = new Entity { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
-        var b = new Entity { X = 5f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
+        var a = new Actor { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
+        var b = new Actor { X = 5f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
 
         Assert.True(a.Overlaps(b));
     }
@@ -301,8 +301,8 @@ public class EntityTests
     [Fact]
     public void Overlaps_ReturnsFalseForDistantEntities()
     {
-        var a = new Entity { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 5f } };
-        var b = new Entity { X = 100f, Y = 0f, Collider = new CircleCollider { Radius = 5f } };
+        var a = new Actor { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 5f } };
+        var b = new Actor { X = 100f, Y = 0f, Collider = new CircleCollider { Radius = 5f } };
 
         Assert.False(a.Overlaps(b));
     }
@@ -310,8 +310,8 @@ public class EntityTests
     [Fact]
     public void Overlaps_ReturnsFalseWithoutCollider()
     {
-        var a = new Entity { X = 0f, Y = 0f };
-        var b = new Entity { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
+        var a = new Actor { X = 0f, Y = 0f };
+        var b = new Actor { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
 
         Assert.False(a.Overlaps(b));
     }
@@ -319,13 +319,13 @@ public class EntityTests
     [Fact]
     public void BounceOff_ReflectsVelocity()
     {
-        var ball = new Entity
+        var ball = new Actor
         {
             X = 5f, Y = 0f,
             Collider = new CircleCollider { Radius = 10f },
             Rigidbody = new Rigidbody2D { VelocityX = -100f }
         };
-        var wall = new Entity
+        var wall = new Actor
         {
             X = 0f, Y = 0f,
             Collider = new RectCollider { Width = 2f, Height = 100f }
@@ -339,8 +339,8 @@ public class EntityTests
     [Fact]
     public void BounceOff_ReturnsFalseWithoutRigidbody()
     {
-        var a = new Entity { Collider = new CircleCollider { Radius = 10f } };
-        var b = new Entity { Collider = new CircleCollider { Radius = 10f } };
+        var a = new Actor { Collider = new CircleCollider { Radius = 10f } };
+        var b = new Actor { Collider = new CircleCollider { Radius = 10f } };
 
         Assert.False(a.BounceOff(b));
     }
@@ -350,15 +350,15 @@ public class EntityTests
     [Fact]
     public void WorldBoundingBox_NullWithoutCollider()
     {
-        var entity = new Entity { X = 10f, Y = 10f };
+        var entity = new Actor { X = 10f, Y = 10f };
         Assert.Null(entity.WorldBoundingBox);
     }
 
     [Fact]
     public void WorldBoundingBox_UsesWorldPosition()
     {
-        var parent = new Entity { X = 100f, Y = 100f };
-        var child = new Entity
+        var parent = new Actor { X = 100f, Y = 100f };
+        var child = new Actor
         {
             X = 10f, Y = 10f,
             Collider = new RectCollider { Width = 20f, Height = 20f }
@@ -377,7 +377,7 @@ public class EntityTests
     [Fact]
     public void WorldBoundingBox_WithRotation_ReturnsConservativeAABB()
     {
-        var entity = new Entity
+        var entity = new Actor
         {
             X = 0f, Y = 0f,
             Rotation = MathF.PI / 4f, // 45°
@@ -396,20 +396,20 @@ public class EntityTests
     [Fact]
     public void ChildrenBoundingBox_NullWithNoChildren()
     {
-        var entity = new Entity();
+        var entity = new Actor();
         Assert.Null(entity.ChildrenBoundingBox);
     }
 
     [Fact]
     public void ChildrenBoundingBox_EnclosesAllActiveChildren()
     {
-        var parent = new Entity();
-        parent.AddChild(new Entity
+        var parent = new Actor();
+        parent.AddChild(new Actor
         {
             X = 0f, Y = 0f,
             Collider = new RectCollider { Width = 10f, Height = 10f }
         });
-        parent.AddChild(new Entity
+        parent.AddChild(new Actor
         {
             X = 100f, Y = 0f,
             Collider = new RectCollider { Width = 10f, Height = 10f }
@@ -424,13 +424,13 @@ public class EntityTests
     [Fact]
     public void ChildrenBoundingBox_SkipsInactiveChildren()
     {
-        var parent = new Entity();
-        parent.AddChild(new Entity
+        var parent = new Actor();
+        parent.AddChild(new Actor
         {
             X = 0f, Y = 0f,
             Collider = new RectCollider { Width = 10f, Height = 10f }
         });
-        parent.AddChild(new Entity
+        parent.AddChild(new Actor
         {
             X = 1000f, Y = 0f, Active = false,
             Collider = new RectCollider { Width = 10f, Height = 10f }
@@ -446,15 +446,15 @@ public class EntityTests
     [Fact]
     public void FindChildCollision_FindsOverlappingChild()
     {
-        var parent = new Entity();
-        var brick = new Entity
+        var parent = new Actor();
+        var brick = new Actor
         {
             X = 50f, Y = 50f,
             Collider = new RectCollider { Width = 20f, Height = 20f }
         };
         parent.AddChild(brick);
 
-        var ball = new Entity
+        var ball = new Actor
         {
             X = 55f, Y = 55f,
             Collider = new CircleCollider { Radius = 5f }
@@ -467,14 +467,14 @@ public class EntityTests
     [Fact]
     public void FindChildCollision_ReturnsNullWhenNoOverlap()
     {
-        var parent = new Entity();
-        parent.AddChild(new Entity
+        var parent = new Actor();
+        parent.AddChild(new Actor
         {
             X = 50f, Y = 50f,
             Collider = new RectCollider { Width = 20f, Height = 20f }
         });
 
-        var ball = new Entity
+        var ball = new Actor
         {
             X = 500f, Y = 500f,
             Collider = new CircleCollider { Radius = 5f }
@@ -487,14 +487,14 @@ public class EntityTests
     [Fact]
     public void FindChildCollision_SkipsInactiveChildren()
     {
-        var parent = new Entity();
-        parent.AddChild(new Entity
+        var parent = new Actor();
+        parent.AddChild(new Actor
         {
             X = 0f, Y = 0f, Active = false,
             Collider = new RectCollider { Width = 100f, Height = 100f }
         });
 
-        var ball = new Entity
+        var ball = new Actor
         {
             X = 0f, Y = 0f,
             Collider = new CircleCollider { Radius = 5f }
@@ -506,14 +506,14 @@ public class EntityTests
     [Fact]
     public void FindChildCollision_ReturnsNullWhenOtherHasNoCollider()
     {
-        var parent = new Entity();
-        parent.AddChild(new Entity
+        var parent = new Actor();
+        parent.AddChild(new Actor
         {
             X = 0f, Y = 0f,
             Collider = new RectCollider { Width = 100f, Height = 100f }
         });
 
-        var noCollider = new Entity { X = 0f, Y = 0f };
+        var noCollider = new Actor { X = 0f, Y = 0f };
 
         Assert.Null(parent.FindChildCollision(noCollider, out _));
     }
@@ -523,15 +523,15 @@ public class EntityTests
     [Fact]
     public void DefaultEntity_WorldMatrix_IsIdentity()
     {
-        var entity = new Entity();
+        var entity = new Actor();
         Assert.Equal(SKMatrix44.Identity, entity.WorldMatrix);
     }
 
     [Fact]
     public void WorldMatrix_ComposesParentAndChild()
     {
-        var parent = new Entity { X = 100f, Y = 200f };
-        var child = new Entity { X = 10f, Y = 20f };
+        var parent = new Actor { X = 100f, Y = 200f };
+        var child = new Actor { X = 10f, Y = 20f };
         parent.AddChild(child);
 
         // WorldMatrix should map origin to child's world position
@@ -543,7 +543,7 @@ public class EntityTests
     [Fact]
     public void LocalMatrix_MapPoint_ReturnsLocalPosition()
     {
-        var entity = new Entity { X = 42f, Y = 99f };
+        var entity = new Actor { X = 42f, Y = 99f };
         var mapped = entity.LocalMatrix.MapPoint(0f, 0f);
         Assert.Equal(42f, mapped.X, 1e-3f);
         Assert.Equal(99f, mapped.Y, 1e-3f);
@@ -552,7 +552,7 @@ public class EntityTests
     [Fact]
     public void LocalMatrix_WithRotation_RotatesPoints()
     {
-        var entity = new Entity { X = 0f, Y = 0f, Rotation = MathF.PI / 2f };
+        var entity = new Actor { X = 0f, Y = 0f, Rotation = MathF.PI / 2f };
         // Rotating (10, 0) by 90° should give (0, 10)
         var mapped = entity.LocalMatrix.MapPoint(10f, 0f);
         Assert.Equal(0f, mapped.X, 1e-3f);
@@ -561,7 +561,7 @@ public class EntityTests
 
     // ── Test helpers ──────────────────────────────────────────────────
 
-    private sealed class TestEntity : Entity
+    private sealed class TestEntity : Actor
     {
         public bool OnUpdateCalled;
         public float LastDeltaTime;
@@ -573,9 +573,113 @@ public class EntityTests
         }
     }
 
-    private sealed class TrackingEntity : Entity
+    private sealed class TrackingEntity : Actor
     {
         public bool DrawCalled;
         protected override void OnDraw(SKCanvas canvas) => DrawCalled = true;
+    }
+
+    // ── CaptureToImage ─────────────────────────────────────────────
+
+    [Fact]
+    public void CaptureToImage_ReturnsNonNullImage()
+    {
+        var entity = new TrackingEntity { X = 50f, Y = 50f };
+        using var image = entity.CaptureToImage(100, 100);
+        Assert.NotNull(image);
+        Assert.Equal(100, image.Width);
+        Assert.Equal(100, image.Height);
+    }
+
+    // ── SceneNode children with Actor ───────────────────────────────
+
+    [Fact]
+    public void Actor_ChildrenBoundingBox_IgnoresNonActorChildren()
+    {
+        var parent = new Actor();
+        parent.AddChild(new SceneNode()); // non-Actor child
+        parent.AddChild(new Actor
+        {
+            X = 10f, Y = 10f,
+            Collider = new RectCollider { Width = 20f, Height = 20f }
+        });
+
+        var bb = parent.ChildrenBoundingBox;
+        Assert.NotNull(bb);
+    }
+
+    [Fact]
+    public void Actor_FindChildCollision_IgnoresNonActorChildren()
+    {
+        var parent = new Actor();
+        parent.AddChild(new SceneNode()); // non-Actor child
+        parent.AddChild(new Actor
+        {
+            X = 0f, Y = 0f,
+            Collider = new RectCollider { Width = 100f, Height = 100f }
+        });
+
+        var ball = new Actor
+        {
+            X = 0f, Y = 0f,
+            Collider = new CircleCollider { Radius = 5f }
+        };
+
+        var hit = parent.FindChildCollision(ball, out _);
+        Assert.NotNull(hit);
+    }
+
+    [Fact]
+    public void Actor_Dump_IncludesName()
+    {
+        var entity = new Actor { Name = "testActor", X = 5f, Y = 10f };
+        var dump = entity.Dump();
+        Assert.Contains("testActor", dump);
+        Assert.Contains("5.0", dump);
+    }
+
+    [Fact]
+    public void Actor_Dump_IncludesChildTree()
+    {
+        var parent = new Actor { Name = "parent" };
+        var child = new Actor { Name = "child" };
+        parent.AddChild(child);
+        var dump = parent.Dump();
+        Assert.Contains("parent", dump);
+        Assert.Contains("child", dump);
+    }
+
+    [Fact]
+    public void Actor_Dump_IncludesNonActorChild()
+    {
+        var parent = new Actor { Name = "parent" };
+        var child = new SceneNode { Name = "sceneChild" };
+        parent.AddChild(child);
+        var dump = parent.Dump();
+        Assert.Contains("parent", dump);
+        Assert.Contains("sceneChild", dump);
+    }
+
+    [Fact]
+    public void Actor_RecalculatesWorld_WhenReparented()
+    {
+        var parent1 = new Actor { X = 100f };
+        var parent2 = new Actor { X = 200f };
+        var child = new Actor { X = 10f };
+        parent1.AddChild(child);
+        Assert.Equal(110f, child.WorldX, 1e-3f);
+        parent2.AddChild(child);
+        Assert.Equal(210f, child.WorldX, 1e-3f);
+    }
+
+    [Fact]
+    public void Actor_RecalculatesWorld_WhenRemoved()
+    {
+        var parent = new Actor { X = 100f };
+        var child = new Actor { X = 10f };
+        parent.AddChild(child);
+        Assert.Equal(110f, child.WorldX, 1e-3f);
+        parent.RemoveChild(child);
+        Assert.Equal(10f, child.WorldX, 1e-3f);
     }
 }

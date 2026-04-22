@@ -5,21 +5,21 @@ namespace SkiaSharpGames.CastleAttack;
 
 public static class CastleAttackGame
 {
-    public static Game Create()
+    public static Stage Create()
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
 
-        builder.SetGameDimensions(CastleAttackConstants.GameWidth, CastleAttackConstants.GameHeight);
+        builder.SetStageSize(CastleAttackConstants.GameWidth, CastleAttackConstants.GameHeight);
         builder.Services.AddSingleton<CastleAttackGameState>();
 
-        builder.Screens
+        builder.Scenes
                .Add<StartScreen>()
                .Add<PlayScreen>()
                .Add<GameOverScreen>()
                .Add<VictoryScreen>();
 
-        builder.SetInitialScreen<StartScreen>();
+        builder.SetOpeningScene<StartScreen>();
 
-        return builder.Build();
+        return builder.Open();
     }
 }

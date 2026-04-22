@@ -5,7 +5,7 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// <summary>
 /// Neon/cyberpunk crosshair pointer — glowing crosshair lines with neon color and blur.
 /// </summary>
-public record NeonPointerAppearance : UiAppearance<UiPointer>
+public record NeonPointerAppearance : UiAppearance<Spotlight>
 {
     private static readonly SKMaskFilter GlowFilter =
         SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 3f);
@@ -17,7 +17,7 @@ public record NeonPointerAppearance : UiAppearance<UiPointer>
     public static NeonPointerAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiPointer pointer)
+    public override void Draw(SKCanvas canvas, Spotlight pointer)
     {
         byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
         if (alpha == 0) return;

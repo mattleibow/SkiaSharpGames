@@ -5,7 +5,7 @@ using static SkiaSharpGames.SpaceInvaders.SpaceInvadersConstants;
 
 namespace SkiaSharpGames.SpaceInvaders;
 
-internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
+internal sealed class StartScreen(IDirector coordinator) : Scene
 {
     private readonly UiLabel _title = new() { Text = "SPACE INVADERS", FontSize = 72f, Color = AccentColor, Align = TextAlign.Center };
     private readonly UiLabel _subtitle = new() { Text = "Classic arcade invasion defense", FontSize = 26f, Color = SKColors.White, Align = TextAlign.Center };
@@ -27,11 +27,11 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     }
 
     public override void OnPointerDown(float x, float y) =>
-        coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+        coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+            coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
     }
 }

@@ -9,9 +9,9 @@ namespace SkiaSharpGames.GameEngine;
 /// </summary>
 /// <remarks>
 /// Screens that need to trigger transitions or push overlays should inject
-/// <see cref="IScreenCoordinator"/> in their constructor.
+/// <see cref="IDirector"/> in their constructor.
 /// </remarks>
-public abstract class GameScreen
+public abstract class Scene
 {
     /// <summary>
     /// True while this screen has an overlay on top of it and is therefore not being updated.
@@ -23,7 +23,7 @@ public abstract class GameScreen
     /// Optional visible pointer/cursor. When set, the engine automatically updates its
     /// position from pointer events. Draw it at the end of <see cref="Draw"/> to keep it on top.
     /// </summary>
-    public UiPointer? Pointer { get; protected set; }
+    public Spotlight? Spotlight { get; protected set; }
 
     // ── Virtual update and abstract draw ──────────────────────────────────
 
@@ -41,8 +41,8 @@ public abstract class GameScreen
     /// (0, 0) to (<paramref name="width"/>, <paramref name="height"/>).
     /// </summary>
     /// <param name="canvas">The SkiaSharp canvas to draw on. Already in game-space coordinates.</param>
-    /// <param name="width">Game-space width (equals <see cref="GameEngine.Game.GameDimensions"/>.Width).</param>
-    /// <param name="height">Game-space height (equals <see cref="GameEngine.Game.GameDimensions"/>.Height).</param>
+    /// <param name="width">Stage-space width (equals <see cref="GameEngine.Stage.StageSize"/>.Width).</param>
+    /// <param name="height">Stage-space height (equals <see cref="GameEngine.Stage.StageSize"/>.Height).</param>
     public abstract void Draw(SKCanvas canvas, int width, int height);
 
     // ── Input ─────────────────────────────────────────────────────────────

@@ -5,7 +5,7 @@ using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 namespace SkiaSharpGames.CastleAttack;
 
 /// <summary>A burning oil puddle that persists on the ground and damages enemies walking through it.</summary>
-internal sealed class OilPuddle : Entity
+internal sealed class OilPuddle : Actor
 {
     public float Life = OilPuddleDuration;
 

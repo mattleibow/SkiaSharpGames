@@ -6,7 +6,7 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// Pixel-art pointer appearance — simple 4px cross with no gap, 1px thick lines.
 /// No anti-aliasing for crisp pixel edges.
 /// </summary>
-public record PixelArtPointerAppearance : UiAppearance<UiPointer>
+public record PixelArtPointerAppearance : UiAppearance<Spotlight>
 {
     private static readonly SKPaint ShadowPaint = new()
     {
@@ -25,7 +25,7 @@ public record PixelArtPointerAppearance : UiAppearance<UiPointer>
     public static PixelArtPointerAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiPointer pointer)
+    public override void Draw(SKCanvas canvas, Spotlight pointer)
     {
         byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
         if (alpha == 0) return;

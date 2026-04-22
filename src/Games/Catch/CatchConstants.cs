@@ -4,7 +4,7 @@ namespace SkiaSharpGames.Catch;
 
 internal static class CatchConstants
 {
-    // ── Game dimensions ───────────────────────────────────────────────────
+    // ── Stage dimensions ───────────────────────────────────────────────────
     public const int GameWidth = 900;
     public const int GameHeight = 600;
 

@@ -5,7 +5,7 @@ using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;
 
-internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
+internal sealed class StartScreen(IDirector coordinator) : Scene
 {
     private readonly UiLabel _title = new() { Text = "2 PLAYER PONG", FontSize = 70f, Align = TextAlign.Center };
     private readonly UiLabel _leftControls = new() { Text = "Left: W / S", FontSize = 26f, Color = LeftPaddleColor, Align = TextAlign.Center };
@@ -27,11 +27,11 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     }
 
     public override void OnPointerDown(float x, float y) =>
-        coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+        coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+            coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
     }
 }

@@ -5,7 +5,7 @@ using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 namespace SkiaSharpGames.CastleAttack;
 
 /// <summary>A flaming log that rolls rightward from the walls, damaging enemies in its path.</summary>
-internal sealed class RollingLog : Entity
+internal sealed class RollingLog : Actor
 {
     public float RollAngle;
 

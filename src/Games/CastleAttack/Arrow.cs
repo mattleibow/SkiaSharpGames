@@ -4,7 +4,7 @@ using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
 namespace SkiaSharpGames.CastleAttack;
 
-internal sealed class Arrow : Entity
+internal sealed class Arrow : Actor
 {
     public bool IsEnemy;
     public int EnemyTargetWall;

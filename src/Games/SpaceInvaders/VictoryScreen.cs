@@ -5,7 +5,7 @@ using static SkiaSharpGames.SpaceInvaders.SpaceInvadersConstants;
 
 namespace SkiaSharpGames.SpaceInvaders;
 
-internal sealed class VictoryScreen(SpaceInvadersGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class VictoryScreen(SpaceInvadersGameState state, IDirector coordinator) : Scene
 {
     private static readonly SKPaint _overlayPaint = new() { Color = new SKColor(0x00, 0x1A, 0x10).WithAlpha((byte)(255 * 0.8f)), IsAntialias = true };
 
@@ -26,11 +26,11 @@ internal sealed class VictoryScreen(SpaceInvadersGameState state, IScreenCoordin
     }
 
     public override void OnPointerDown(float x, float y) =>
-        coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+        coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+            coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
     }
 }

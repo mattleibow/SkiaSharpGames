@@ -5,20 +5,20 @@ namespace SkiaSharpGames.Snake;
 
 public static class SnakeGame
 {
-    public static Game Create()
+    public static Stage Create()
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
 
-        builder.SetGameDimensions(SnakeConstants.GameWidth, SnakeConstants.GameHeight);
+        builder.SetStageSize(SnakeConstants.GameWidth, SnakeConstants.GameHeight);
         builder.Services.AddSingleton<SnakeGameState>();
 
-        builder.Screens
+        builder.Scenes
                .Add<StartScreen>()
                .Add<PlayScreen>()
                .Add<GameOverScreen>();
 
-        builder.SetInitialScreen<StartScreen>();
+        builder.SetOpeningScene<StartScreen>();
 
-        return builder.Build();
+        return builder.Open();
     }
 }

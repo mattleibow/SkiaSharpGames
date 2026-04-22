@@ -1,7 +1,7 @@
 namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
-/// A velocity-driven movement component. Attach one to any <see cref="Entity"/> that should
+/// A velocity-driven movement component. Attach one to any <see cref="Actor"/> that should
 /// move; static objects simply omit it.
 /// </summary>
 /// <remarks>
@@ -41,7 +41,7 @@ public sealed class Rigidbody2D
     }
 
     /// <summary>Advances <paramref name="owner"/>'s position by velocity × <paramref name="deltaTime"/>.</summary>
-    public void Step(Entity owner, float deltaTime)
+    public void Step(Actor owner, float deltaTime)
     {
         owner.X += VelocityX * deltaTime;
         owner.Y += VelocityY * deltaTime;

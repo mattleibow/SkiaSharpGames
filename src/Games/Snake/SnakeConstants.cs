@@ -9,7 +9,7 @@ internal static class SnakeConstants
     public const int GridCols = 25;
     public const int GridRows = 25;
 
-    // ── Game dimensions ───────────────────────────────────────────────────
+    // ── Stage dimensions ───────────────────────────────────────────────────
     public const int GameWidth = CellSize * GridCols;   // 600
     public const int GameHeight = CellSize * GridRows;  // 600
 

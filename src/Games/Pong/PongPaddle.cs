@@ -4,7 +4,7 @@ using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;
 
-internal sealed class PongPaddle : Entity
+internal sealed class PongPaddle : Actor
 {
     private readonly SKPaint _paint = new() { IsAntialias = true };
 

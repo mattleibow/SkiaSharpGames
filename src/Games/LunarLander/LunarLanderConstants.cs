@@ -5,7 +5,7 @@ namespace SkiaSharpGames.LunarLander;
 /// <summary>All layout, physics, and colour constants for the Lunar Lander game.</summary>
 internal static class LunarLanderConstants
 {
-    // ── Game dimensions ───────────────────────────────────────────────────
+    // ── Stage dimensions ───────────────────────────────────────────────────
     public const int GameWidth = 800;
     public const int GameHeight = 600;
 

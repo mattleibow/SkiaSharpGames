@@ -7,7 +7,7 @@ namespace SkiaSharpGames.Asteroids;
 /// <summary>
 /// A short-lived particle spawned when an asteroid or ship is destroyed.
 /// </summary>
-internal sealed class Debris : Entity
+internal sealed class Debris : Actor
 {
     private static readonly SKPaint _paint = new()
     {

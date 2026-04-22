@@ -11,7 +11,7 @@ internal enum AsteroidSize
     Small
 }
 
-internal sealed class Asteroid : Entity
+internal sealed class Asteroid : Actor
 {
     private static readonly SKPaint _strokePaint = new()
     {

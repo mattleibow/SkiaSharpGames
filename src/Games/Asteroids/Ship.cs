@@ -4,7 +4,7 @@ using static SkiaSharpGames.Asteroids.AsteroidsConstants;
 
 namespace SkiaSharpGames.Asteroids;
 
-internal sealed class Ship : Entity
+internal sealed class Ship : Actor
 {
     private static readonly SKPaint _strokePaint = new()
     {

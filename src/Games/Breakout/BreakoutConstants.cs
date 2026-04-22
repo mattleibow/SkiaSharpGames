@@ -5,7 +5,7 @@ namespace SkiaSharpGames.Breakout;
 /// <summary>All layout, physics, and colour constants for the Breakout game.</summary>
 internal static class BreakoutConstants
 {
-    // ── Game dimensions ───────────────────────────────────────────────────
+    // ── Stage dimensions ───────────────────────────────────────────────────
     public const int GameWidth = 800;
     public const int GameHeight = 600;
 

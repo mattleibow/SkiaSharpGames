@@ -5,7 +5,7 @@ using static SkiaSharpGames.Asteroids.AsteroidsConstants;
 
 namespace SkiaSharpGames.Asteroids;
 
-internal sealed class GameOverScreen(AsteroidsGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class GameOverScreen(AsteroidsGameState state, IDirector coordinator) : Scene
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)), IsAntialias = true };
 
@@ -30,11 +30,11 @@ internal sealed class GameOverScreen(AsteroidsGameState state, IScreenCoordinato
     }
 
     public override void OnPointerDown(float x, float y) =>
-        coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+        coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+            coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
     }
 }

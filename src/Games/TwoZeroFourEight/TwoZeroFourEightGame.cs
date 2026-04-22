@@ -5,20 +5,20 @@ namespace SkiaSharpGames.TwoZeroFourEight;
 
 public static class TwoZeroFourEightGame
 {
-    public static Game Create()
+    public static Stage Create()
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
 
-        builder.SetGameDimensions(TwoZeroFourEightConstants.GameWidth, TwoZeroFourEightConstants.GameHeight);
+        builder.SetStageSize(TwoZeroFourEightConstants.GameWidth, TwoZeroFourEightConstants.GameHeight);
         builder.Services.AddSingleton<TwoZeroFourEightGameState>();
 
-        builder.Screens
+        builder.Scenes
                .Add<StartScreen>()
                .Add<PlayScreen>()
                .Add<GameOverScreen>();
 
-        builder.SetInitialScreen<StartScreen>();
+        builder.SetOpeningScene<StartScreen>();
 
-        return builder.Build();
+        return builder.Open();
     }
 }

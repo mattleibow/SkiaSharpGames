@@ -4,7 +4,7 @@ namespace SkiaSharpGames.BlazorApp;
 
 /// <summary>
 /// Describes a game in the gallery. Provides metadata for the home page
-/// and a factory to create the <see cref="Game"/> instance.
+/// and a factory to create the <see cref="Stage"/> instance.
 /// </summary>
 public interface IGalleryGame
 {
@@ -20,6 +20,6 @@ public interface IGalleryGame
     /// <summary>Emoji shown on the gallery card banner.</summary>
     string Emoji { get; }
 
-    /// <summary>Creates a new, ready-to-run Game instance.</summary>
-    Game CreateGame();
+    /// <summary>Creates a new, ready-to-run Stage instance.</summary>
+    Stage CreateGame();
 }

@@ -4,7 +4,7 @@ using static SkiaSharpGames.Breakout.BreakoutConstants;
 
 namespace SkiaSharpGames.Breakout;
 
-internal sealed class FallingPowerUp : Entity
+internal sealed class FallingPowerUp : Actor
 {
     private readonly SKPaint _paint = new() { IsAntialias = true };
 

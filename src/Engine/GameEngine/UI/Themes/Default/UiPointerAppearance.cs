@@ -6,7 +6,7 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// Crosshair pointer appearance — two thin lines with a gap in the center.
 /// This is the default pointer appearance.
 /// </summary>
-public record UiCrosshairAppearance : UiAppearance<UiPointer>
+public record UiCrosshairAppearance : UiAppearance<Spotlight>
 {
     private static readonly SKPaint StrokeDark = new()
     {
@@ -23,7 +23,7 @@ public record UiCrosshairAppearance : UiAppearance<UiPointer>
     public static UiCrosshairAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiPointer pointer)
+    public override void Draw(SKCanvas canvas, Spotlight pointer)
     {
         byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
         if (alpha == 0) return;
@@ -48,7 +48,7 @@ public record UiCrosshairAppearance : UiAppearance<UiPointer>
 /// <summary>
 /// Dot pointer appearance — small filled circle with a contrasting outline.
 /// </summary>
-public record UiDotAppearance : UiAppearance<UiPointer>
+public record UiDotAppearance : UiAppearance<Spotlight>
 {
     private static readonly SKPaint FillLight = new()
     {
@@ -63,7 +63,7 @@ public record UiDotAppearance : UiAppearance<UiPointer>
     public static UiDotAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiPointer pointer)
+    public override void Draw(SKCanvas canvas, Spotlight pointer)
     {
         byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
         if (alpha == 0) return;
@@ -79,7 +79,7 @@ public record UiDotAppearance : UiAppearance<UiPointer>
 /// <summary>
 /// Ring pointer appearance — hollow circle that shrinks on press.
 /// </summary>
-public record UiRingAppearance : UiAppearance<UiPointer>
+public record UiRingAppearance : UiAppearance<Spotlight>
 {
     private static readonly SKPaint StrokeDark = new()
     {
@@ -96,7 +96,7 @@ public record UiRingAppearance : UiAppearance<UiPointer>
     public static UiRingAppearance Default { get; } = new();
 
     /// <inheritdoc />
-    public override void Draw(SKCanvas canvas, UiPointer pointer)
+    public override void Draw(SKCanvas canvas, Spotlight pointer)
     {
         byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
         if (alpha == 0) return;
@@ -109,9 +109,9 @@ public record UiRingAppearance : UiAppearance<UiPointer>
     }
 }
 
-/// <summary>Provides <c>UiPointerAppearance.Default</c> as an alias for <see cref="UiCrosshairAppearance"/>.</summary>
-public static class UiPointerAppearance
+/// <summary>Provides <c>SpotlightAppearance.Default</c> as an alias for <see cref="UiCrosshairAppearance"/>.</summary>
+public static class SpotlightAppearance
 {
     /// <summary>The default pointer appearance (crosshair).</summary>
-    public static UiAppearance<UiPointer> Default { get; } = UiCrosshairAppearance.Default;
+    public static UiAppearance<Spotlight> Default { get; } = UiCrosshairAppearance.Default;
 }

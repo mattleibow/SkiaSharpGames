@@ -5,7 +5,7 @@ using static SkiaSharpGames.Snake.SnakeConstants;
 namespace SkiaSharpGames.Snake;
 
 /// <summary>The snake entity. Owns the body segment list and renders the chain of segments.</summary>
-internal sealed class SnakeEntity : Entity
+internal sealed class SnakeEntity : Actor
 {
     private static readonly SKPaint _paint = new() { IsAntialias = true };
 

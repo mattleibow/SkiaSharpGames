@@ -5,20 +5,20 @@ namespace SkiaSharpGames.Pong;
 
 public static class PongGame
 {
-    public static Game Create()
+    public static Stage Create()
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
 
-        builder.SetGameDimensions(PongConstants.GameWidth, PongConstants.GameHeight);
+        builder.SetStageSize(PongConstants.GameWidth, PongConstants.GameHeight);
         builder.Services.AddSingleton<PongGameState>();
 
-        builder.Screens
+        builder.Scenes
                .Add<StartScreen>()
                .Add<PlayScreen>()
                .Add<GameOverScreen>();
 
-        builder.SetInitialScreen<StartScreen>();
+        builder.SetOpeningScene<StartScreen>();
 
-        return builder.Build();
+        return builder.Open();
     }
 }

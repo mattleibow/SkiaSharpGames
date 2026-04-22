@@ -6,7 +6,7 @@ using static SkiaSharpGames.Breakout.BreakoutConstants;
 namespace SkiaSharpGames.Breakout;
 
 /// <summary>Start/title screen: decorative brick grid + instructions. Click to start the game.</summary>
-internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
+internal sealed class StartScreen(IDirector coordinator) : Scene
 {
     private readonly UiLabel _title = new() { Text = "BREAKOUT", FontSize = 72f, Color = SKColors.White, Align = TextAlign.Center };
     private readonly UiLabel _startPrompt = new() { Text = "Click or Tap to Start", FontSize = 28f, Color = AccentColor, Align = TextAlign.Center };
@@ -53,11 +53,11 @@ internal sealed class StartScreen(IScreenCoordinator coordinator) : GameScreen
     }
 
     public override void OnPointerDown(float x, float y)
-        => coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+        => coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+            coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
     }
 }

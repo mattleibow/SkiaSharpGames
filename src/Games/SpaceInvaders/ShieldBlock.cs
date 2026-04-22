@@ -4,7 +4,7 @@ using static SkiaSharpGames.SpaceInvaders.SpaceInvadersConstants;
 
 namespace SkiaSharpGames.SpaceInvaders;
 
-internal sealed class ShieldBlock : Entity
+internal sealed class ShieldBlock : Actor
 {
     private static readonly SKPaint _paint = new() { IsAntialias = true };
 

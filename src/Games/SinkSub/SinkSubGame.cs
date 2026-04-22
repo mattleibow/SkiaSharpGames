@@ -5,20 +5,20 @@ namespace SkiaSharpGames.SinkSub;
 
 public static class SinkSubGame
 {
-    public static Game Create()
+    public static Stage Create()
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
 
-        builder.SetGameDimensions(SinkSubConstants.GameWidth, SinkSubConstants.GameHeight);
+        builder.SetStageSize(SinkSubConstants.GameWidth, SinkSubConstants.GameHeight);
         builder.Services.AddSingleton<SinkSubGameState>();
 
-        builder.Screens
+        builder.Scenes
                .Add<StartScreen>()
                .Add<PlayScreen>()
                .Add<GameOverScreen>();
 
-        builder.SetInitialScreen<StartScreen>();
+        builder.SetOpeningScene<StartScreen>();
 
-        return builder.Build();
+        return builder.Open();
     }
 }

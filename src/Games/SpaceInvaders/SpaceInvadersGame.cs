@@ -5,21 +5,21 @@ namespace SkiaSharpGames.SpaceInvaders;
 
 public static class SpaceInvadersGame
 {
-    public static Game Create()
+    public static Stage Create()
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
 
-        builder.SetGameDimensions(SpaceInvadersConstants.GameWidth, SpaceInvadersConstants.GameHeight);
+        builder.SetStageSize(SpaceInvadersConstants.GameWidth, SpaceInvadersConstants.GameHeight);
         builder.Services.AddSingleton<SpaceInvadersGameState>();
 
-        builder.Screens
+        builder.Scenes
                .Add<StartScreen>()
                .Add<PlayScreen>()
                .Add<GameOverScreen>()
                .Add<VictoryScreen>();
 
-        builder.SetInitialScreen<StartScreen>();
+        builder.SetOpeningScene<StartScreen>();
 
-        return builder.Build();
+        return builder.Open();
     }
 }

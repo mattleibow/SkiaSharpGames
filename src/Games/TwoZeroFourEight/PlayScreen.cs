@@ -5,7 +5,7 @@ using static SkiaSharpGames.TwoZeroFourEight.TwoZeroFourEightConstants;
 
 namespace SkiaSharpGames.TwoZeroFourEight;
 
-internal sealed class PlayScreen(TwoZeroFourEightGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector coordinator) : Scene
 {
     private const float SlideDuration = 0.12f;
     private const float SpawnDuration = 0.16f;
@@ -105,7 +105,7 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IScreenCoordin
         {
             case "r":
             case "R":
-                coordinator.TransitionTo<PlayScreen>(new DissolveTransition());
+                coordinator.TransitionTo<PlayScreen>(new DissolveCurtain());
                 return;
         }
 

@@ -6,7 +6,7 @@ using static SkiaSharpGames.Breakout.BreakoutConstants;
 namespace SkiaSharpGames.Breakout;
 
 /// <summary>Active gameplay screen: ball, paddle, bricks, power-ups, HUD.</summary>
-internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class PlayScreen(BreakoutGameState state, IDirector coordinator) : Scene
 {
     // ── Entities ──────────────────────────────────────────────────────────
     private readonly Ball _ball = new();
@@ -26,9 +26,9 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
     // ── Keyboard tracking ──────────────────────────────────────────────────
     private bool _leftHeld, _rightHeld;
 
-    // ── Entity groups (parenting) ─────────────────────────────────────────
-    private readonly Entity _bricks = new();
-    private readonly Entity _powerUps = new();
+    // ── Actor groups (parenting) ─────────────────────────────────────────
+    private readonly Actor _bricks = new();
+    private readonly Actor _powerUps = new();
 
     // ── Text sprites ──────────────────────────────────────────────────────
     private readonly UiLabel _scoreText = new() { FontSize = 20f, Color = SKColors.White };
@@ -130,7 +130,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
             _paddle.X = Math.Clamp(_paddle.X + direction * PaddleSpeed * deltaTime, halfW, GameWidth - halfW);
         }
 
-        // Entity.Update handles rigidbody step + sprite update via OnUpdate
+        // Actor.Update handles rigidbody step + sprite update via OnUpdate
         _paddle.Update(deltaTime);
         _ball.Update(deltaTime);
         _bricks.Update(deltaTime);
@@ -267,7 +267,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IScreenCoordinator coo
 
     internal void DrawGameContent(SKCanvas canvas)
     {
-        // Entity groups draw all children recursively
+        // Actor groups draw all children recursively
         _bricks.Draw(canvas);
         _powerUps.Draw(canvas);
 

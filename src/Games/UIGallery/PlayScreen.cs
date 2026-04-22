@@ -4,7 +4,7 @@ using SkiaSharpGames.GameEngine.UI;
 
 namespace SkiaSharpGames.UIGallery;
 
-internal sealed class PlayScreen : GameScreen
+internal sealed class PlayScreen : Scene
 {
     private static readonly string[] ThemeNames = ["Bold/Cute", "Retro", "Simple", "Pixel Art", "Neon"];
     private static readonly UiTheme[] ThemeOptions = [UiThemes.BoldCute, UiThemes.Retro, UiThemes.Simple, UiThemes.PixelArt, UiThemes.Neon];
@@ -12,8 +12,8 @@ internal sealed class PlayScreen : GameScreen
     private readonly UIGalleryState _state;
     private readonly UiTheme _theme;
 
-    private readonly Entity _themeButtons = new();
-    private readonly Entity _controls = new();
+    private readonly Actor _themeButtons = new();
+    private readonly Actor _controls = new();
 
     private readonly UiButton[] _themeButtonList;
 
@@ -74,7 +74,7 @@ internal sealed class PlayScreen : GameScreen
 
         ConfigureOverrides();
 
-        Pointer = new UiPointer();
+        Spotlight = new Spotlight();
     }
 
     public override void OnActivated()
@@ -91,7 +91,7 @@ internal sealed class PlayScreen : GameScreen
     {
         // Pointer position is already set by the engine
 
-        if (Pointer!.FindHit(_themeButtons) is UiButton themeButton)
+        if (Spotlight!.FindHit(_themeButtons) is UiButton themeButton)
         {
             int idx = Array.IndexOf(_themeButtonList, themeButton);
             if (idx >= 0) { ApplyTheme(idx); return; }
@@ -100,7 +100,7 @@ internal sealed class PlayScreen : GameScreen
         _primaryButton.IsPressed = false;
         _overrideButton.IsPressed = false;
 
-        var hit = Pointer!.FindHit(_controls);
+        var hit = Spotlight!.FindHit(_controls);
 
         switch (hit)
         {
@@ -178,7 +178,7 @@ internal sealed class PlayScreen : GameScreen
         var norm = _joystick.NormalizedDelta;
         DrawText(canvas, textPaint, labelFont, $"Joystick X:{norm.X:F2} Y:{norm.Y:F2}", new SKColor(0xD0, 0xDC, 0xEA), 500f, 500f);
 
-        Pointer?.Draw(canvas);
+        Spotlight?.Draw(canvas);
     }
 
     private void ConfigureOverrides()

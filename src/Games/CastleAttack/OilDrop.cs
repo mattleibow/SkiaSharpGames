@@ -5,7 +5,7 @@ using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 namespace SkiaSharpGames.CastleAttack;
 
 /// <summary>A boiling oil drop that falls from a wall and creates a puddle on impact.</summary>
-internal sealed class OilDrop : Entity
+internal sealed class OilDrop : Actor
 {
     private static readonly SKPaint CorePaint = new() { Color = ColOil, IsAntialias = true };
     private static readonly SKPaint GlowPaint = new() { Color = new SKColor(0xFF, 0x6B, 0x00, 60), IsAntialias = true };

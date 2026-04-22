@@ -3,7 +3,7 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
-/// An axis-aligned rectangular collision shape attached to an <see cref="Entity"/>.
+/// An axis-aligned rectangular collision shape attached to an <see cref="Actor"/>.
 /// </summary>
 public sealed class RectCollider : Collider2D
 {

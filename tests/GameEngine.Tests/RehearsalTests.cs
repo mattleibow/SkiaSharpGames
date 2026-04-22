@@ -17,7 +17,7 @@ file sealed class HarnessState
     public bool GameStarted { get; set; }
 }
 
-file sealed class HarnessStartScreen(HarnessState state, IScreenCoordinator coordinator) : GameScreen
+file sealed class HarnessStartScreen(HarnessState state, IDirector coordinator) : Scene
 {
     public override void Draw(SKCanvas canvas, int width, int height)
     {
@@ -39,9 +39,9 @@ file sealed class HarnessStartScreen(HarnessState state, IScreenCoordinator coor
     }
 }
 
-file sealed class HarnessPlayScreen(HarnessState state) : GameScreen
+file sealed class HarnessPlayScreen(HarnessState state) : Scene
 {
-    private readonly Entity _ball = new()
+    private readonly Actor _ball = new()
     {
         X = 400f, Y = 300f,
         Collider = new CircleCollider { Radius = 10f },
@@ -73,22 +73,22 @@ file sealed class HarnessPlayScreen(HarnessState state) : GameScreen
         state.LastKey = key;
     }
 
-    public Entity Ball => _ball;
+    public Actor Ball => _ball;
 }
 
 // ── Harness tests ─────────────────────────────────────────────────────────
 
-public class GameTestHarnessTests
+public class RehearsalTests
 {
-    private static GameTestHarness CreateHarness()
+    private static Rehearsal CreateHarness()
     {
-        return GameTestHarness.Create(builder =>
+        return Rehearsal.Create(builder =>
         {
             builder.Services.AddSingleton<HarnessState>();
-            builder.Screens
+            builder.Scenes
                 .Add<HarnessStartScreen>()
                 .Add<HarnessPlayScreen>();
-            builder.SetInitialScreen<HarnessStartScreen>();
+            builder.SetOpeningScene<HarnessStartScreen>();
         });
     }
 
@@ -169,7 +169,7 @@ public class GameTestHarnessTests
         using var h = CreateHarness();
         h.RunFrame();
 
-        var state = h.Game.Services.GetRequiredService<HarnessState>();
+        var state = h.Stage.Services.GetRequiredService<HarnessState>();
         Assert.False(state.GameStarted);
 
         // Click the "Start" button at center of red rect
@@ -191,7 +191,7 @@ public class GameTestHarnessTests
         h.Click(400, 275);
         h.RunFrame();
 
-        var state = h.Game.Services.GetRequiredService<HarnessState>();
+        var state = h.Stage.Services.GetRequiredService<HarnessState>();
         h.KeyTap("Space");
         Assert.Equal("Space", state.LastKey);
     }
@@ -224,21 +224,21 @@ public class GameTestHarnessTests
         Assert.True(diff > 0.01f, $"Expected visible difference, got {diff:P2}");
     }
 
-    // ── Entity dump ───────────────────────────────────────────────────
+    // ── Actor dump ───────────────────────────────────────────────────
 
     [Fact]
     public void Entity_Dump_ShowsHierarchy()
     {
-        var parent = new Entity { X = 100f, Y = 200f };
-        var child = new Entity { X = 10f, Y = 20f, Alpha = 0.5f };
+        var parent = new Actor { X = 100f, Y = 200f };
+        var child = new Actor { X = 10f, Y = 20f, Alpha = 0.5f };
         child.Collider = new CircleCollider { Radius = 5f };
         child.Rigidbody = new Rigidbody2D { VelocityX = 50f };
         parent.AddChild(child);
 
         string dump = parent.Dump();
 
-        Assert.Contains("Entity @ (100.0, 200.0)", dump);
-        Assert.Contains("Entity @ (10.0, 20.0)", dump);
+        Assert.Contains("Actor @ (100.0, 200.0)", dump);
+        Assert.Contains("Actor @ (10.0, 20.0)", dump);
         Assert.Contains("world=(110.0, 220.0)", dump);
         Assert.Contains("a=0.50", dump);
         Assert.Contains("collider: Circle r=5", dump);
@@ -248,7 +248,7 @@ public class GameTestHarnessTests
     [Fact]
     public void Entity_Dump_ShowsInactiveAndHidden()
     {
-        var entity = new Entity { Active = false, Visible = false };
+        var entity = new Actor { Active = false, Visible = false };
         string dump = entity.Dump();
         Assert.Contains("INACTIVE", dump);
         Assert.Contains("HIDDEN", dump);

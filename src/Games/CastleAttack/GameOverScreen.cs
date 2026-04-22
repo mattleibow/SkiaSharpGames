@@ -9,7 +9,7 @@ namespace SkiaSharpGames.CastleAttack;
 /// Defeat overlay drawn on top of the frozen play screen.
 /// Does not clear the canvas — relies on the base play screen being drawn first.
 /// </summary>
-internal sealed class GameOverScreen(CastleAttackGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class GameOverScreen(CastleAttackGameState state, IDirector coordinator) : Scene
 {
     private static readonly SKPaint OverlayPaint = new();
 
@@ -30,11 +30,11 @@ internal sealed class GameOverScreen(CastleAttackGameState state, IScreenCoordin
     }
 
     public override void OnPointerDown(float x, float y)
-        => coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+        => coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+            coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
     }
 }

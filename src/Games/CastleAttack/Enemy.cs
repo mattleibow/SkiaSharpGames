@@ -5,7 +5,7 @@ using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
 namespace SkiaSharpGames.CastleAttack;
 
-internal sealed class Enemy : Entity
+internal sealed class Enemy : Actor
 {
     public EnemyType Type;
     public float HP, MaxHP;

@@ -5,7 +5,7 @@ namespace SkiaSharpGames.CastleAttack;
 /// <summary>All layout, physics, and colour constants for the Castle Attack game.</summary>
 internal static class CastleAttackConstants
 {
-    // ── Game dimensions ───────────────────────────────────────────────────
+    // ── Stage dimensions ───────────────────────────────────────────────────
     public const int GameWidth = 1200;
     public const int GameHeight = 600;
 

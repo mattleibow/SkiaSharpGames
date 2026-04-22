@@ -6,11 +6,11 @@ namespace SkiaSharpGames.GameEngine;
 /// Handles the update and draw loop for the active screen stack.
 /// </summary>
 /// <remarks>
-/// <see cref="ScreenCoordinator"/> implements both this interface and
-/// <see cref="IScreenCoordinator"/>. Both are registered in the game's DI container so that
+/// <see cref="Director"/> implements both this interface and
+/// <see cref="IDirector"/>. Both are registered in the game's DI container so that
 /// consumers can depend on the narrowest interface they need.
 /// </remarks>
-public interface IScreenDrawable
+public interface IStageRenderer
 {
     /// <summary>Advances the screen stack by <paramref name="deltaTime"/> seconds.</summary>
     void Update(float deltaTime);

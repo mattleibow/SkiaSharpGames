@@ -5,20 +5,20 @@ namespace SkiaSharpGames.Catch;
 
 public static class CatchGame
 {
-    public static Game Create()
+    public static Stage Create()
     {
-        var builder = GameBuilder.CreateDefault();
+        var builder = Theatre.Create();
 
-        builder.SetGameDimensions(CatchConstants.GameWidth, CatchConstants.GameHeight);
+        builder.SetStageSize(CatchConstants.GameWidth, CatchConstants.GameHeight);
         builder.Services.AddSingleton<CatchGameState>();
 
-        builder.Screens
+        builder.Scenes
                .Add<StartScreen>()
                .Add<PlayScreen>()
                .Add<GameOverScreen>();
 
-        builder.SetInitialScreen<StartScreen>();
+        builder.SetOpeningScene<StartScreen>();
 
-        return builder.Build();
+        return builder.Open();
     }
 }

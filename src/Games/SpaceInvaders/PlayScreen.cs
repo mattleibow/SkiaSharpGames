@@ -5,7 +5,7 @@ using static SkiaSharpGames.SpaceInvaders.SpaceInvadersConstants;
 
 namespace SkiaSharpGames.SpaceInvaders;
 
-internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinator coordinator, UiTheme themes) : GameScreen
+internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector coordinator, UiTheme themes) : Scene
 {
     private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha((byte)(255 * 0.5f)), IsAntialias = true };
 
@@ -13,10 +13,10 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
     private readonly UiLabel _livesText = new() { FontSize = 24f, Color = AccentColor };
     private readonly UiLabel _controlsText = new() { Text = "LEFT RIGHT move    SPACE / ENTER fire", FontSize = 18f, Color = HudDimColor, Align = TextAlign.Center };
 
-    private readonly Entity _formation = new();
-    private readonly Entity _shields = new();
-    private readonly Entity _playerBullets = new();
-    private readonly Entity _enemyBullets = new();
+    private readonly Actor _formation = new();
+    private readonly Actor _shields = new();
+    private readonly Actor _playerBullets = new();
+    private readonly Actor _enemyBullets = new();
     private readonly PlayerCannon _player = new();
     private readonly List<SKPoint> _stars = [];
 
@@ -189,8 +189,8 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         for (int i = 0; i < invaders.Count; i++)
         {
             if (!invaders[i].Active) continue;
-            if (invaders[i].X < minX) minX = invaders[i].X;
-            if (invaders[i].X > maxX) maxX = invaders[i].X;
+            if (((Actor)invaders[i]).X < minX) minX = ((Actor)invaders[i]).X;
+            if (((Actor)invaders[i]).X > maxX) maxX = ((Actor)invaders[i]).X;
         }
 
         float nextLeft = minX - InvaderWidth / 2f + InvaderStepX * _invaderDirection;
@@ -203,9 +203,9 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
             if (!invaders[i].Active) continue;
 
             if (hitSide)
-                invaders[i].Y += InvaderStepDown;
+                ((Actor)invaders[i]).Y += InvaderStepDown;
             else
-                invaders[i].X += InvaderStepX * _invaderDirection;
+                ((Actor)invaders[i]).X += InvaderStepX * _invaderDirection;
         }
 
         if (hitSide)
@@ -311,7 +311,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
             {
                 var enemyBullet = enemyBulletList[j];
                 if (!enemyBullet.Active) continue;
-                if (bullet.Overlaps(enemyBullet))
+                if (bullet.Overlaps((Actor)enemyBullet))
                 {
                     enemyBullet.Active = false;
                     bullet.Active = false;
@@ -375,7 +375,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         {
             if (!invaders[i].Active) continue;
             anyAlive = true;
-            if (invaders[i].Y + InvaderHeight / 2f >= PlayerY - 24f)
+            if (((Actor)invaders[i]).Y + InvaderHeight / 2f >= PlayerY - 24f)
             {
                 TriggerGameOver();
                 return;
@@ -392,7 +392,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
             return;
 
         _endTriggered = true;
-        coordinator.TransitionTo<GameOverScreen>(new DissolveTransition());
+        coordinator.TransitionTo<GameOverScreen>(new DissolveCurtain());
     }
 
     private void TriggerVictory()
@@ -401,7 +401,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
             return;
 
         _endTriggered = true;
-        coordinator.TransitionTo<VictoryScreen>(new DissolveTransition());
+        coordinator.TransitionTo<VictoryScreen>(new DissolveCurtain());
     }
 
     private void BuildInvaders()
@@ -489,7 +489,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IScreenCoordinato
         appearance.DrawDirect(canvas, RightBtnRect, ">", _touchRight, fontSize: 22f);
     }
 
-    private static void ClearChildren(Entity parent)
+    private static void ClearChildren(Actor parent)
     {
         while (parent.ChildCount > 0)
             parent.RemoveChild(parent.Children[^1]);

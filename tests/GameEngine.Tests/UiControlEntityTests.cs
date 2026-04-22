@@ -86,11 +86,11 @@ public class UiControlEntityTests
     [Fact]
     public void UiButton_CollisionDetection_Works()
     {
-        var group = new Entity();
+        var group = new Actor();
         var button = new UiButton(100f, 40f, ThemeProvider) { X = 200f, Y = 100f };
         group.AddChild(button);
 
-        var probe = new Entity { Collider = new CircleCollider { Radius = 1f } };
+        var probe = new Actor { Collider = new CircleCollider { Radius = 1f } };
 
         probe.X = 200f; probe.Y = 100f;
         var hit = group.FindChildCollision(probe, out _);
@@ -334,12 +334,12 @@ public class UiControlEntityTests
         js.Draw(canvas);
     }
 
-    // ── Entity group collision ────────────────────────────────────────
+    // ── Actor group collision ────────────────────────────────────────
 
     [Fact]
     public void MixedControls_CollisionDetection()
     {
-        var group = new Entity();
+        var group = new Actor();
         var button = new UiButton(100f, 40f, ThemeProvider) { X = 100f, Y = 50f };
         var checkbox = new UiCheckbox(30f, 30f, ThemeProvider) { X = 100f, Y = 120f };
         var slider = new UiSlider(200f, 20f, ThemeProvider) { X = 200f, Y = 200f };
@@ -350,7 +350,7 @@ public class UiControlEntityTests
         group.AddChild(slider);
         group.AddChild(joystick);
 
-        var probe = new Entity { Collider = new CircleCollider { Radius = 1f } };
+        var probe = new Actor { Collider = new CircleCollider { Radius = 1f } };
 
         // Hit button
         probe.X = 100f; probe.Y = 50f;
@@ -384,7 +384,7 @@ public class UiControlEntityTests
         using var bitmap = new SKBitmap(800, 600);
         using var canvas = new SKCanvas(bitmap);
 
-        var group = new Entity();
+        var group = new Actor();
         group.AddChild(new UiButton(100f, 40f, ThemeProvider) { X = 100f, Y = 50f, Label = "OK" });
         group.AddChild(new UiCheckbox(30f, 30f, ThemeProvider) { X = 100f, Y = 120f, IsChecked = true });
         group.AddChild(new UiSwitch(80f, 30f, ThemeProvider) { X = 100f, Y = 170f, IsOn = true });

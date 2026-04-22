@@ -4,7 +4,7 @@ using static SkiaSharpGames.Asteroids.AsteroidsConstants;
 namespace SkiaSharpGames.Asteroids;
 
 /// <summary>
-/// Game-local text and overlay drawing helpers with cached paints and fonts.
+/// Stage-local text and overlay drawing helpers with cached paints and fonts.
 /// </summary>
 internal static class TextRenderer
 {

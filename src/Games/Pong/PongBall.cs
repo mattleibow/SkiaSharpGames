@@ -4,7 +4,7 @@ using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;
 
-internal sealed class PongBall : Entity
+internal sealed class PongBall : Actor
 {
     private readonly SKPaint _paint = new() { IsAntialias = true };
     private readonly SKPaint _glowPaint = new() { IsAntialias = true, MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 2f) };

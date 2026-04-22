@@ -6,7 +6,7 @@ namespace SkiaSharpGames.GameEngine;
 /// A cross-dissolve transition: the outgoing screen fades out while the incoming screen fades in.
 /// At any point during the transition both screens are visible, blended by <c>progress</c>.
 /// </summary>
-public sealed class DissolveTransition : IScreenTransition
+public sealed class DissolveCurtain : ICurtain
 {
     /// <inheritdoc />
     public float Duration { get; init; } = 0.4f;

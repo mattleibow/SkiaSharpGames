@@ -16,9 +16,9 @@ public class GameSmokeTests
     private const float PlayDuration = 3f;
     private const float DeltaTime = 1f / 60f;
 
-    private static void RunMenuThenPlay(Game game)
+    private static void RunMenuThenPlay(Stage game)
     {
-        using var harness = GameTestHarness.FromGame(game);
+        using var harness = Rehearsal.FromStage(game);
 
         // Run the start/menu screen for 3 seconds
         harness.RunFor(MenuDuration, DeltaTime);
@@ -33,8 +33,8 @@ public class GameSmokeTests
 
         // Transition to play screen via click (all games support this)
         harness.Click(
-            game.GameDimensions.Width / 2f,
-            game.GameDimensions.Height / 2f);
+            game.StageSize.Width / 2f,
+            game.StageSize.Height / 2f);
 
         // Let transition complete
         harness.RunFor(1f, DeltaTime);
@@ -101,7 +101,7 @@ public class GameSmokeTests
     {
         // UIGallery has no start screen — it goes directly to PlayScreen
         var game = UIGallery.UIGalleryGame.Create();
-        using var harness = GameTestHarness.FromGame(game);
+        using var harness = Rehearsal.FromStage(game);
 
         harness.RunFor(3f, DeltaTime);
 

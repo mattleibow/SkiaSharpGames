@@ -5,7 +5,7 @@ using static SkiaSharpGames.Snake.SnakeConstants;
 
 namespace SkiaSharpGames.Snake;
 
-internal sealed class GameOverScreen(SnakeGameState state, IScreenCoordinator coordinator) : GameScreen
+internal sealed class GameOverScreen(SnakeGameState state, IDirector coordinator) : Scene
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)) };
 
@@ -35,11 +35,11 @@ internal sealed class GameOverScreen(SnakeGameState state, IScreenCoordinator co
     }
 
     public override void OnPointerDown(float x, float y) =>
-        coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+        coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {
         if (key is " " or "Enter")
-            coordinator.TransitionTo<StartScreen>(new DissolveTransition());
+            coordinator.TransitionTo<StartScreen>(new DissolveCurtain());
     }
 }

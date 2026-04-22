@@ -3,7 +3,7 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
-/// A circular collision shape attached to an <see cref="Entity"/>.
+/// A circular collision shape attached to an <see cref="Actor"/>.
 /// </summary>
 public sealed class CircleCollider : Collider2D
 {

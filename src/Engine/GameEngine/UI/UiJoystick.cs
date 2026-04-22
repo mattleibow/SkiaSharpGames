@@ -26,7 +26,7 @@ namespace SkiaSharpGames.GameEngine.UI;
 /// float ny = joystick.NormalizedDelta.Y; // -1..1
 /// </code></example>
 /// </summary>
-public class UiJoystick : UiEntity
+public class UiJoystick : UiActor
 {
     /// <summary>
     /// Creates a new joystick entity with the given radius and theme.

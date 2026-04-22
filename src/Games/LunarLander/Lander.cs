@@ -8,7 +8,7 @@ namespace SkiaSharpGames.LunarLander;
 /// The player's lander entity. Demonstrates rotation and child entities:
 /// flame entities are children that rotate with the lander automatically.
 /// </summary>
-internal sealed class Lander : Entity
+internal sealed class Lander : Actor
 {
     private readonly SKPaint _bodyPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _legPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2f };

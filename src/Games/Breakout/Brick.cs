@@ -4,7 +4,7 @@ using static SkiaSharpGames.Breakout.BreakoutConstants;
 
 namespace SkiaSharpGames.Breakout;
 
-internal sealed class Brick : Entity
+internal sealed class Brick : Actor
 {
     private readonly SKPaint _paint = new() { IsAntialias = true };
     private readonly SKPaint _shimmerPaint = new() { IsAntialias = true };

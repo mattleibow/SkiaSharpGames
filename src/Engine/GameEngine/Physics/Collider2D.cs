@@ -3,7 +3,7 @@ using SkiaSharp;
 namespace SkiaSharpGames.GameEngine;
 
 /// <summary>
-/// Base type for simple 2D colliders attached to an <see cref="Entity"/>.
+/// Base type for simple 2D colliders attached to an <see cref="Actor"/>.
 /// The collider describes the hit shape around a centre point; the entity's
 /// world position is passed to <see cref="BoundingBox"/> and used by
 /// <see cref="CollisionResolver"/>.

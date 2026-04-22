@@ -16,6 +16,6 @@ public static class NeonTheme
         Slider = NeonSliderAppearance.Default,
         Joystick = NeonJoystickAppearance.Default,
         Label = NeonLabelAppearance.Default,
-        Pointer = NeonPointerAppearance.Default,
+        Spotlight = NeonPointerAppearance.Default,
     };
 }

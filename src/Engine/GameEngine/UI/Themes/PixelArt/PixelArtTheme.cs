@@ -14,7 +14,7 @@ public static class PixelArtTheme
         Switch = PixelArtSwitchAppearance.Default,
         Slider = PixelArtSliderAppearance.Default,
         Joystick = PixelArtJoystickAppearance.Default,
-        Pointer = PixelArtPointerAppearance.Default,
+        Spotlight = PixelArtPointerAppearance.Default,
         Label = PixelArtLabelAppearance.Default,
     };
 }

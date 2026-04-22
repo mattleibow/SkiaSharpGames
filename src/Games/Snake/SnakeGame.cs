@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using SkiaSharpGames.GameEngine;
+using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.Snake;
 
@@ -7,7 +7,7 @@ public static class SnakeGame
 {
     public static Stage Create()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
 
         builder.SetStageSize(SnakeConstants.GameWidth, SnakeConstants.GameHeight);
         builder.Services.AddSingleton<SnakeGameState>();

@@ -1,8 +1,8 @@
 using SkiaSharp;
-using SkiaSharpGames.GameEngine;
+using SkiaSharp.Theatre;
 using Xunit;
 
-namespace SkiaSharpGames.GameEngine.Tests;
+namespace SkiaSharp.Theatre.Tests;
 
 /// <summary>Tests for <see cref="Scene"/> default virtual method implementations.</summary>
 public class SceneTests

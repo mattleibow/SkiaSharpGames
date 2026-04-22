@@ -1,6 +1,5 @@
 using SkiaSharp;
-using SkiaSharpGames.GameEngine;
-using SkiaSharpGames.GameEngine.UI;
+using SkiaSharp.Theatre;
 using static SkiaSharpGames.TwoZeroFourEight.TwoZeroFourEightConstants;
 
 namespace SkiaSharpGames.TwoZeroFourEight;

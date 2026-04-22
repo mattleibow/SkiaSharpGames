@@ -1,8 +1,8 @@
 using SkiaSharp;
-using SkiaSharpGames.GameEngine;
+using SkiaSharp.Theatre;
 using Xunit;
 
-namespace SkiaSharpGames.GameEngine.Tests;
+namespace SkiaSharp.Theatre.Tests;
 
 public class DissolveCurtainTests
 {

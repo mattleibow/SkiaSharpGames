@@ -1,10 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
-using SkiaSharpGames.GameEngine;
-using SkiaSharpGames.GameEngine.UI;
+using SkiaSharp.Theatre;
 using Xunit;
 
-namespace SkiaSharpGames.GameEngine.Tests;
+namespace SkiaSharp.Theatre.Tests;
 
 public class UiThemeTests
 {
@@ -23,7 +22,7 @@ public class UiThemeTests
         var retro = new UiTheme();
         retro.ApplyFrom(UiThemes.Retro);
 
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.Scenes.Add<BlankScreen>();
         builder.SetOpeningScene<BlankScreen>();
         builder.SetUiTheme(retro);
@@ -59,7 +58,7 @@ public class UiThemeTests
 
     private static Stage BuildBareGame()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.Scenes.Add<BlankScreen>();
         builder.SetOpeningScene<BlankScreen>();
         return builder.Open();

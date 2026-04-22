@@ -1,6 +1,5 @@
 using SkiaSharp;
-using SkiaSharpGames.GameEngine;
-using SkiaSharpGames.GameEngine.UI;
+using SkiaSharp.Theatre;
 using static SkiaSharpGames.LunarLander.LunarLanderConstants;
 
 namespace SkiaSharpGames.LunarLander;

@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Engine\GameEngine\SkiaSharpGames.GameEngine.csproj" />
+    <ProjectReference Include="..\..\Engine\Theatre\SkiaSharp.Theatre.csproj" />
     <ProjectReference Include="..\..\Games\Breakout\SkiaSharpGames.Breakout.csproj" />
     <ProjectReference Include="..\..\Games\CastleAttack\SkiaSharpGames.CastleAttack.csproj" />
     <ProjectReference Include="..\..\Games\SinkSub\SkiaSharpGames.SinkSub.csproj" />

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using SkiaSharpGames.GameEngine;
+using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.Breakout;
 
@@ -7,7 +7,7 @@ public static class BreakoutGame
 {
     public static Stage Create()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
 
         builder.SetStageSize(BreakoutConstants.GameWidth, BreakoutConstants.GameHeight);
         builder.Services.AddSingleton<BreakoutGameState>();

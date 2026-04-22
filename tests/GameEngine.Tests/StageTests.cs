@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
-using SkiaSharpGames.GameEngine;
+using SkiaSharp.Theatre;
 using Xunit;
 
-namespace SkiaSharpGames.GameEngine.Tests;
+namespace SkiaSharp.Theatre.Tests;
 
 // ── Observable state shared between screens via DI ────────────────────────
 
@@ -63,7 +63,7 @@ file static class TestGameFactory
     {
         var tracker = new ScreenTracker();
 
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.Services.AddSingleton(tracker);
         builder.Scenes
                .Add<ScreenA>()
@@ -391,7 +391,7 @@ file static class InputTestFactory
     public static (Stage game, InputTracker tracker) Create()
     {
         var tracker = new InputTracker();
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.Services.AddSingleton(tracker);
         builder.Scenes
                .Add<InputCapturingScreen>()

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using SkiaSharpGames.GameEngine;
+using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.LunarLander;
 
@@ -7,7 +7,7 @@ public static class LunarLanderGame
 {
     public static Stage Create()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
 
         builder.SetStageSize(LunarLanderConstants.GameWidth, LunarLanderConstants.GameHeight);
         builder.Services.AddSingleton<LunarLanderGameState>();

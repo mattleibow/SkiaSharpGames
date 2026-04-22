@@ -1,9 +1,20 @@
 using SkiaSharp;
-using SkiaSharpGames.GameEngine;
-using SkiaSharpGames.GameEngine.Testing;
+using SkiaSharp.Theatre;
+using SkiaSharp.Theatre.Testing;
+using SkiaSharpGames.Asteroids;
+using SkiaSharpGames.Breakout;
+using SkiaSharpGames.CastleAttack;
+using SkiaSharpGames.Catch;
+using SkiaSharpGames.LunarLander;
+using SkiaSharpGames.Pong;
+using SkiaSharpGames.SinkSub;
+using SkiaSharpGames.Snake;
+using SkiaSharpGames.SpaceInvaders;
+using SkiaSharpGames.TwoZeroFourEight;
+using SkiaSharpGames.UIGallery;
 using Xunit;
 
-namespace SkiaSharpGames.Games.Tests;
+namespace SkiaSharp.Theatre.Games.Tests;
 
 /// <summary>
 /// Smoke tests for every game: run the start screen for 3 seconds,
@@ -58,49 +69,49 @@ public class GameSmokeTests
 
     [Fact]
     public void Asteroids_MenuThenPlay()
-        => RunMenuThenPlay(Asteroids.AsteroidsGame.Create());
+        => RunMenuThenPlay(AsteroidsGame.Create());
 
     [Fact]
     public void Breakout_MenuThenPlay()
-        => RunMenuThenPlay(Breakout.BreakoutGame.Create());
+        => RunMenuThenPlay(BreakoutGame.Create());
 
     [Fact]
     public void CastleAttack_MenuThenPlay()
-        => RunMenuThenPlay(CastleAttack.CastleAttackGame.Create());
+        => RunMenuThenPlay(CastleAttackGame.Create());
 
     [Fact]
     public void Catch_MenuThenPlay()
-        => RunMenuThenPlay(Catch.CatchGame.Create());
+        => RunMenuThenPlay(CatchGame.Create());
 
     [Fact]
     public void LunarLander_MenuThenPlay()
-        => RunMenuThenPlay(LunarLander.LunarLanderGame.Create());
+        => RunMenuThenPlay(LunarLanderGame.Create());
 
     [Fact]
     public void Pong_MenuThenPlay()
-        => RunMenuThenPlay(Pong.PongGame.Create());
+        => RunMenuThenPlay(PongGame.Create());
 
     [Fact]
     public void SinkSub_MenuThenPlay()
-        => RunMenuThenPlay(SinkSub.SinkSubGame.Create());
+        => RunMenuThenPlay(SinkSubGame.Create());
 
     [Fact]
     public void Snake_MenuThenPlay()
-        => RunMenuThenPlay(Snake.SnakeGame.Create());
+        => RunMenuThenPlay(SnakeGame.Create());
 
     [Fact]
     public void SpaceInvaders_MenuThenPlay()
-        => RunMenuThenPlay(SpaceInvaders.SpaceInvadersGame.Create());
+        => RunMenuThenPlay(SpaceInvadersGame.Create());
 
     [Fact]
     public void TwoZeroFourEight_MenuThenPlay()
-        => RunMenuThenPlay(TwoZeroFourEight.TwoZeroFourEightGame.Create());
+        => RunMenuThenPlay(TwoZeroFourEightGame.Create());
 
     [Fact]
     public void UIGallery_PlayScreen()
     {
         // UIGallery has no start screen — it goes directly to PlayScreen
-        var game = UIGallery.UIGalleryGame.Create();
+        var game = UIGalleryGame.Create();
         using var harness = Rehearsal.FromStage(game);
 
         harness.RunFor(3f, DeltaTime);

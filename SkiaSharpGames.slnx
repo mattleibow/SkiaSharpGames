@@ -5,11 +5,11 @@
     <Project Path="src/Apps/BlazorApp/SkiaSharpGames.BlazorApp.csproj" />
   </Folder>
   <Folder Name="/src/Engine/" />
-  <Folder Name="/src/Engine/GameEngine/">
-    <Project Path="src/Engine/GameEngine/SkiaSharpGames.GameEngine.csproj" />
+  <Folder Name="/src/Engine/Theatre/">
+    <Project Path="src/Engine/Theatre/SkiaSharp.Theatre.csproj" />
   </Folder>
-  <Folder Name="/src/Engine/GameEngine.Testing/">
-    <Project Path="src/Engine/GameEngine.Testing/SkiaSharpGames.GameEngine.Testing.csproj" />
+  <Folder Name="/src/Engine/Theatre.Testing/">
+    <Project Path="src/Engine/Theatre.Testing/SkiaSharp.Theatre.Testing.csproj" />
   </Folder>
   <Folder Name="/src/Games/" />
   <Folder Name="/src/Games/Asteroids/">
@@ -47,9 +47,9 @@
   </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/GameEngine.Tests/">
-    <Project Path="tests/GameEngine.Tests/SkiaSharpGames.GameEngine.Tests.csproj" />
+    <Project Path="tests/GameEngine.Tests/SkiaSharp.Theatre.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/Games.Tests/">
-    <Project Path="tests/Games.Tests/SkiaSharpGames.Games.Tests.csproj" />
+    <Project Path="tests/Games.Tests/SkiaSharp.Theatre.Games.Tests.csproj" />
   </Folder>
 </Solution>

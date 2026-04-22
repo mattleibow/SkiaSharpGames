@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using SkiaSharpGames.GameEngine;
-using SkiaSharpGames.GameEngine.UI;
+using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.UIGallery;
 
@@ -8,7 +7,7 @@ public static class UIGalleryGame
 {
     public static Stage Create()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
 
         builder.SetStageSize(800f, 600f);
         builder.Services.AddSingleton<UIGalleryState>();

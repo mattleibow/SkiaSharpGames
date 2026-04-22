@@ -222,7 +222,7 @@ Concrete visuals such as Breakout bricks/balls, Castle Attack enemies/archers, o
 ## Adding a new game
 
 1. Create a new class library under `src/Games/<GameName>/` named `SkiaSharpGames.<GameName>`.
-2. Reference `SkiaSharpGames.GameEngine` and `SkiaSharp`.
+2. Reference `SkiaSharp.Theatre` and `SkiaSharp`.
 3. Build the game with `GameBuilder.CreateDefault()`.
 4. Register one or more `GameScreen` types and set the initial screen.
 5. Create sprites for all game visuals with cached `SKPaint` fields.

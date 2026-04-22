@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using SkiaSharpGames.GameEngine;
+using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.Catch;
 
@@ -7,7 +7,7 @@ public static class CatchGame
 {
     public static Stage Create()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
 
         builder.SetStageSize(CatchConstants.GameWidth, CatchConstants.GameHeight);
         builder.Services.AddSingleton<CatchGameState>();

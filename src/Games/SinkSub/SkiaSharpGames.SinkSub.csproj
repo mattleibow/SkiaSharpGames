@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Engine\GameEngine\SkiaSharpGames.GameEngine.csproj" />
+    <ProjectReference Include="..\..\Engine\Theatre\SkiaSharp.Theatre.csproj" />
   </ItemGroup>
 
 </Project>

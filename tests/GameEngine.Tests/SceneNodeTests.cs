@@ -1,7 +1,7 @@
 using SkiaSharp;
 using Xunit;
 
-namespace SkiaSharpGames.GameEngine.Tests;
+namespace SkiaSharp.Theatre.Tests;
 
 public class SceneNodeTests
 {

@@ -1,0 +1,202 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using SkiaSharp;
+
+namespace SkiaSharp.Theatre;
+
+/// <summary>
+/// Default implementation of <see cref="IDirector"/> and <see cref="IStageRenderer"/>.
+/// Manages the active screen, overlay stack, and running transitions.
+/// Registered as a singleton in the game's own DI container by <see cref="StageBuilder.Open"/>.
+/// </summary>
+internal sealed class Director : IDirector, IStageRenderer
+{
+    private readonly IServiceProvider _services;
+    private readonly Type _initialScreenType;
+    private Scene? _current;
+    private readonly List<Scene> _overlays = [];
+    private ActiveTransition? _activeTransition;
+
+    private sealed class ActiveTransition(
+        Scene outgoing,
+        Scene incoming,
+        ICurtain transition)
+    {
+        public Scene Outgoing { get; } = outgoing;
+        public Scene Incoming { get; } = incoming;
+        public ICurtain Transition { get; } = transition;
+        public float Progress { get; set; }
+    }
+
+    internal Director(IServiceProvider services, IOptions<StageOptions> options)
+    {
+        _services = services;
+        _initialScreenType = options.Value.OpeningSceneType!;
+    }
+
+    internal void Initialize() => EnsureInitialized();
+
+    private void EnsureInitialized()
+    {
+        if (_current is not null)
+            return;
+
+        _current = (Scene)_services.GetRequiredService(_initialScreenType);
+        _current.OnActivating();
+        _current.OnActivated();
+    }
+
+    // ── IDirector ────────────────────────────────────────────────
+
+    /// <inheritdoc/>
+    public void TransitionTo<TScreen>(ICurtain? transition = null)
+        where TScreen : Scene
+    {
+        EnsureInitialized();
+
+        // Cancel any running transition: both the outgoing (already deactivating) and the
+        // incoming (was activating but never completed) are now fully removed.
+        if (_activeTransition != null)
+        {
+            _activeTransition.Outgoing.OnDeactivated();
+            _activeTransition.Incoming.OnDeactivating();
+            _activeTransition.Incoming.OnDeactivated();
+            _activeTransition = null;
+        }
+
+        // Clear overlay stack
+        foreach (var overlay in _overlays)
+        {
+            overlay.OnDeactivating();
+            overlay.OnDeactivated();
+        }
+        _overlays.Clear();
+
+        var incoming = ResolveScreen<TScreen>();
+
+        if (transition is null || transition.Duration <= 0f)
+        {
+            _current!.OnDeactivating();
+            _current.OnDeactivated();
+            _current = incoming;
+            _current.IsPaused = false;
+            _current.OnActivating();
+            _current.OnActivated();
+        }
+        else
+        {
+            _current!.IsPaused = true;
+            _current.OnDeactivating();
+            incoming.OnActivating();
+            _activeTransition = new ActiveTransition(_current, incoming, transition);
+        }
+    }
+
+    /// <inheritdoc/>
+    public void PushOverlay<TOverlay>() where TOverlay : Scene
+    {
+        EnsureInitialized();
+
+        if (_overlays.Count == 0)
+        {
+            _current!.IsPaused = true;
+            _current.OnPaused();
+        }
+
+        var overlay = ResolveScreen<TOverlay>();
+        overlay.OnActivating();
+        overlay.OnActivated();
+        _overlays.Add(overlay);
+    }
+
+    /// <inheritdoc/>
+    public void PopOverlay()
+    {
+        if (_overlays.Count == 0)
+            return;
+
+        _overlays[^1].OnDeactivating();
+        _overlays[^1].OnDeactivated();
+        _overlays.RemoveAt(_overlays.Count - 1);
+
+        if (_overlays.Count == 0)
+        {
+            _current!.IsPaused = false;
+            _current.OnResumed();
+        }
+    }
+
+    /// <inheritdoc/>
+    public Scene ActiveInputScene
+    {
+        get
+        {
+            EnsureInitialized();
+            return _activeTransition is not null ? _activeTransition.Incoming :
+                   _overlays.Count > 0 ? _overlays[^1] :
+                                         _current!;
+        }
+    }
+
+    // ── IStageRenderer ───────────────────────────────────────────────────
+
+    /// <inheritdoc/>
+    public void Update(float deltaTime)
+    {
+        EnsureInitialized();
+
+        if (_activeTransition is not null)
+        {
+            _activeTransition.Progress +=
+                deltaTime / _activeTransition.Transition.Duration;
+
+            if (_activeTransition.Progress >= 1f)
+            {
+                var outgoing = _activeTransition.Outgoing;
+                var incoming = _activeTransition.Incoming;
+                _activeTransition = null;
+                _current = incoming;
+                _current.IsPaused = false;
+                outgoing.OnDeactivated();
+                incoming.OnActivated();
+                // Fall through so the new screen gets its first update on this frame
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        if (_overlays.Count > 0)
+            _overlays[^1].Update(deltaTime);
+        else
+            _current!.Update(deltaTime);
+    }
+
+    /// <inheritdoc/>
+    public void Draw(SKCanvas canvas, int width, int height)
+    {
+        EnsureInitialized();
+
+        if (_activeTransition is not null)
+        {
+            float progress = Math.Clamp(_activeTransition.Progress, 0f, 1f);
+            _activeTransition.Transition.Draw(
+                canvas, progress,
+                c => _activeTransition.Outgoing.Draw(c, width, height),
+                c => _activeTransition.Incoming.Draw(c, width, height),
+                width, height);
+        }
+        else
+        {
+            _current!.Draw(canvas, width, height);
+            foreach (var overlay in _overlays)
+                overlay.Draw(canvas, width, height);
+        }
+    }
+
+    // ── Private helpers ───────────────────────────────────────────────────
+
+    private TScreen ResolveScreen<TScreen>() where TScreen : Scene =>
+        _services.GetRequiredService<TScreen>();
+}

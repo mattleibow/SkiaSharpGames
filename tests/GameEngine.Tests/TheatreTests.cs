@@ -1,16 +1,16 @@
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
-using SkiaSharpGames.GameEngine;
+using SkiaSharp.Theatre;
 using Xunit;
 
-namespace SkiaSharpGames.GameEngine.Tests;
+namespace SkiaSharp.Theatre.Tests;
 
-public class TheatreTests
+public class StageBuilderTests
 {
     [Fact]
     public void GameDimensions_DefaultIs800x600()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.Scenes.Add<OverlayScreen>();
         builder.SetOpeningScene<OverlayScreen>();
         var game = builder.Open();
@@ -20,7 +20,7 @@ public class TheatreTests
     [Fact]
     public void GameDimensions_CustomValue_PropagatestoGame()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.SetStageSize(1200, 600);
         builder.Scenes.Add<OverlayScreen>();
         builder.SetOpeningScene<OverlayScreen>();
@@ -31,7 +31,7 @@ public class TheatreTests
     [Fact]
     public void Build_NoInitialScreen_Throws()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         var ex = Record.Exception(() => builder.Open());
         Assert.IsType<InvalidOperationException>(ex);
     }
@@ -39,7 +39,7 @@ public class TheatreTests
     [Fact]
     public void Build_WithOneScreen_ReturnsGame()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.Scenes.Add<OverlayScreen>();
         builder.SetOpeningScene<OverlayScreen>();
         var game = builder.Open();
@@ -49,28 +49,28 @@ public class TheatreTests
     [Fact]
     public void CreateDefault_ExposesScreensCollection()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         Assert.NotNull(builder.Scenes);
     }
 
     [Fact]
     public void CreateDefault_ExposesAssetsCollection()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         Assert.NotNull(builder.Props);
     }
 
     [Fact]
     public void CreateDefault_ExposesConfiguration()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         Assert.NotNull(builder.Configuration);
     }
 
     [Fact]
     public void CreateDefault_ExposesServices()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         Assert.NotNull(builder.Services);
     }
 
@@ -79,7 +79,7 @@ public class TheatreTests
     {
         // The initial screen is activated immediately by Build()
         var tracker = new ScreenTracker();
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.Services.AddSingleton(tracker);
         builder.Scenes
                .Add<ScreenA>()
@@ -94,7 +94,7 @@ public class TheatreTests
     public void Services_RegisteredSingleton_IsAvailableToScreens()
     {
         var tracker = new ScreenTracker();
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.Services.AddSingleton(tracker);
         builder.Scenes.Add<ScreenA>();
         builder.SetOpeningScene<ScreenA>();
@@ -107,7 +107,7 @@ public class TheatreTests
     public void SetInitialScreen_CanChooseLaterScreen()
     {
         var tracker = new ScreenTracker();
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.Services.AddSingleton(tracker);
         builder.Scenes
                .Add<ScreenA>()
@@ -121,7 +121,7 @@ public class TheatreTests
     [Fact]
     public void Build_ExposesServicesOnGame()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.Scenes.Add<OverlayScreen>();
         builder.SetOpeningScene<OverlayScreen>();
         var game = builder.Open();
@@ -131,7 +131,7 @@ public class TheatreTests
     [Fact]
     public void Build_ServicesContainsIDirector()
     {
-        var builder = Theatre.Create();
+        var builder = StageBuilder.Create();
         builder.Scenes.Add<OverlayScreen>();
         builder.SetOpeningScene<OverlayScreen>();
         var game = builder.Open();

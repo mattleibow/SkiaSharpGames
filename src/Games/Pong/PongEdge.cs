@@ -1,4 +1,4 @@
-using SkiaSharpGames.GameEngine;
+using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.Pong;
 

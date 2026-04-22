@@ -5,6 +5,8 @@ namespace SkiaSharpGames.CastleAttack;
 
 internal sealed class FloatText : Entity
 {
+    public const float DefaultLife = 1.4f;
+
     public float Life;
     public string Text = "";
     public SKColor Color = SKColors.White;
@@ -28,7 +30,7 @@ internal sealed class FloatText : Entity
         Life -= deltaTime;
         _label.Text = Text;
         _label.Color = Color;
-        _label.Alpha = Math.Clamp(Life / 1.4f, 0f, 1f);
+        _label.Alpha = Math.Clamp(Life / DefaultLife, 0f, 1f);
         if (Life <= 0f) Active = false;
     }
 }

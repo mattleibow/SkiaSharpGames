@@ -891,7 +891,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         => _archerCount = _walls.Count(w => w.HasArcher && !w.IsDestroyed);
 
     private void SpawnText(string text, float x, float y, SKColor color)
-        => _effectsRoot.AddChild(new FloatText { Text = text, X = x, Y = y, Life = 1.4f, Color = color });
+        => _effectsRoot.AddChild(new FloatText { Text = text, X = x, Y = y, Life = FloatText.DefaultLife, Color = color });
 
     // ── Draw ──────────────────────────────────────────────────────────────
 

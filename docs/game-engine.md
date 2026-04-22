@@ -60,6 +60,18 @@ Each game is split into screens such as:
 
 `GameScreen` handles gameplay state and rendering for that mode. Screens are switched by `IScreenCoordinator`.
 
+### ScreenCoordinator
+
+`ScreenCoordinator` owns screen-stack orchestration:
+
+- active screen selection
+- transition progress and transition drawing
+- overlay push/pop
+- active input routing
+- screen lifecycle callbacks (`OnActivating`, `OnActivated`, `OnDeactivating`, `OnDeactivated`, pause/resume)
+
+Screen logic should stay in the screen; cross-screen flow stays in the coordinator.
+
 ### Entity
 
 `Entity` is the single source of truth for world position:
@@ -68,6 +80,8 @@ Each game is split into screens such as:
 - `Active` controls whether it should still participate in the game
 
 An entity does **not** try to be a full engine object. It is just the anchor that physics, collisions, and drawing read from.
+
+Entity children are useful for ownership-driven rendering composition (for example, floating combat text as a text-label child entity instead of ad-hoc screen draw calls).
 
 ### Rigidbody2D
 

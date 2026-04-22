@@ -185,6 +185,7 @@ This keeps the engine deliberately small and explicit. There is no hidden solver
 | `Game` | Root runtime object hosted by the Blazor view |
 | `GameBuilder` | Registers screens, services, assets, and the initial screen |
 | `GameScreen` | One gameplay mode or overlay |
+| `ScreenCoordinator` | Transitions, overlay stack, active input screen, and screen lifecycle |
 | `Entity` | Center-based object position |
 | `Sprite` | Abstract visual base; concrete sprites live with each game |
 | `Rigidbody2D` | Velocity and bounce helpers |
@@ -193,7 +194,7 @@ This keeps the engine deliberately small and explicit. There is no hidden solver
 | `CountdownTimer` | Cooldowns and temporary effects |
 | `AnimatedFloat` / `LoopedAnimation` | Smooth values and repeating effects |
 
-Concrete visuals such as Breakout bricks/balls, Castle Attack enemies/archers, or Sink Sub ships/submarines live in their own game libraries. Each game is a standalone class library (`SkiaSharpGames.<GameName>`) that references only the engine and SkiaSharp. The engine keeps only the sprite contract — no shared drawing helpers. Each game owns its own `TextRenderer` for text/overlay rendering with cached paints and fonts.
+Concrete visuals such as Breakout bricks/balls, Castle Attack enemies/archers, or Sink Sub ships/submarines live in their own game libraries. Each game is a standalone class library (`SkiaSharpGames.<GameName>`) that references only the engine and SkiaSharp. The engine keeps only core contracts (`Entity`, `Sprite`, collisions, transitions, `TextSprite`) and each game owns composition/orchestration in its screens.
 
 ## Adding a new game
 

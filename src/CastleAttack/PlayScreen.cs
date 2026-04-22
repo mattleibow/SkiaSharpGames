@@ -12,7 +12,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     private readonly List<Enemy> _enemies = [];
     private readonly List<Arrow> _arrows = [];
     private readonly List<Boulder> _boulders = [];
-    private readonly List<FloatText> _texts = [];
+    private readonly Entity _effectsRoot = new();
     private readonly List<OilDrop> _oilDrops = [];
     private readonly List<OilPuddle> _oilPuddles = [];
     private readonly List<RollingLog> _logs = [];
@@ -55,16 +55,16 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     private readonly ButtonSprite _buttonSprite = new();
 
     // ── HUD text sprites ─────────────────────────────────────────────────
-    private readonly TextSprite _scoreText = new() { Size = 20f, Color = ColHud };
-    private readonly TextSprite _levelText = new() { Size = 20f, Color = ColHud, Align = TextAlign.Right };
-    private readonly TextSprite _archerText = new() { Size = 16f, Color = ColArcher };
-    private readonly TextSprite _workerText = new() { Size = 16f, Color = ColWorker };
-    private readonly TextSprite _keepLabel = new() { Text = "Keep", Size = 11f, Color = ColDim };
-    private readonly TextSprite _aimText = new() { Size = 15f, Color = ColDim, Align = TextAlign.Center };
-    private readonly TextSprite _cooldownDot = new() { Text = "*", Size = 12f, Align = TextAlign.Center };
-    private readonly TextSprite _lordHpText = new() { Size = 16f };
-    private readonly TextSprite _accuracyText = new() { Size = 15f, Color = ColGold, Align = TextAlign.Center };
-    private readonly TextSprite _keepProgressText = new() { Size = 13f, Align = TextAlign.Center };
+    private readonly UiLabel _scoreText = new() { X = 8f, Y = 26f, Size = 20f, Color = ColHud };
+    private readonly UiLabel _levelText = new() { X = GameWidth - 8f, Y = 26f, Size = 20f, Color = ColHud, Align = TextAlign.Right };
+    private readonly UiLabel _archerText = new() { X = 8f, Y = 50f, Size = 16f, Color = ColArcher };
+    private readonly UiLabel _workerText = new() { X = 8f, Y = 70f, Size = 16f, Color = ColWorker };
+    private readonly UiLabel _keepLabel = new() { X = 8f, Y = 79f, Text = "Keep", Size = 11f, Color = ColDim };
+    private readonly UiLabel _aimText = new() { X = GameWidth / 2f, Y = 20f, Size = 15f, Color = ColDim, Align = TextAlign.Center };
+    private readonly UiLabel _cooldownDot = new() { X = GameWidth / 2f, Y = 38f, Text = "*", Size = 12f, Align = TextAlign.Center };
+    private readonly UiLabel _lordHpText = new() { X = GameWidth - 160f, Y = 50f, Size = 16f };
+    private readonly UiLabel _accuracyText = new() { X = GameWidth / 2f, Y = 60f, Size = 15f, Color = ColGold, Align = TextAlign.Center };
+    private readonly UiLabel _keepProgressText = new() { Size = 13f, Align = TextAlign.Center };
 
     // ── Cached paints (background / keep / HUD / aim) ────────────────────
     private static readonly SKPaint SkyPaint = new();
@@ -141,7 +141,8 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         _enemies.Clear();
         _arrows.Clear();
         _boulders.Clear();
-        _texts.Clear();
+        while (_effectsRoot.ChildCount > 0)
+            _effectsRoot.RemoveChild(_effectsRoot.Children[^1]);
         _oilDrops.Clear();
         _oilPuddles.Clear();
         _logs.Clear();
@@ -385,11 +386,8 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         UpdateOil(deltaTime);
         UpdateLogs(deltaTime);
 
-        for (int i = _texts.Count - 1; i >= 0; i--)
-        {
-            _texts[i].Update(deltaTime);
-            if (!_texts[i].Active) _texts.RemoveAt(i);
-        }
+        _effectsRoot.Update(deltaTime);
+        _effectsRoot.RemoveInactiveChildren();
     }
 
     // ── Spawning ──────────────────────────────────────────────────────────
@@ -893,7 +891,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
         => _archerCount = _walls.Count(w => w.HasArcher && !w.IsDestroyed);
 
     private void SpawnText(string text, float x, float y, SKColor color)
-        => _texts.Add(new FloatText { Text = text, X = x, Y = y, Life = 1.4f, Color = color });
+        => _effectsRoot.AddChild(new FloatText { Text = text, X = x, Y = y, Life = 1.4f, Color = color });
 
     // ── Draw ──────────────────────────────────────────────────────────────
 
@@ -965,7 +963,9 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             _keepProgressText.Text = "COMPLETE!";
             _keepProgressText.Color = ColGold;
         }
-        canvas.Save(); canvas.Translate((KeepLeft + KeepRight) / 2f, KeepBaseY - KeepFullH - 20f); _keepProgressText.Draw(canvas); canvas.Restore();
+        _keepProgressText.X = (KeepLeft + KeepRight) / 2f;
+        _keepProgressText.Y = KeepBaseY - KeepFullH - 20f;
+        _keepProgressText.Draw(canvas);
     }
 
     // ── Walls ─────────────────────────────────────────────────────────────
@@ -1151,29 +1151,31 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     private void DrawHud(SKCanvas canvas)
     {
         _scoreText.Text = $"Score: {state.Score}";
-        canvas.Save(); canvas.Translate(8f, 26f); _scoreText.Draw(canvas); canvas.Restore();
+        _scoreText.Draw(canvas);
 
         _levelText.Text = $"Level {state.Level}";
-        canvas.Save(); canvas.Translate(GameWidth - 8f, 26f); _levelText.Draw(canvas); canvas.Restore();
+        _levelText.Draw(canvas);
 
         _archerText.Text = $"Archers: {_archerCount}";
-        canvas.Save(); canvas.Translate(8f, 50f); _archerText.Draw(canvas); canvas.Restore();
+        _archerText.Draw(canvas);
         _workerText.Text = $"Workers: {_workerCount}";
-        canvas.Save(); canvas.Translate(8f, 70f); _workerText.Draw(canvas); canvas.Restore();
+        _workerText.Draw(canvas);
 
         float barX = 8f, barY = 82f, barW = 140f, barH = 10f;
         canvas.DrawRect(SKRect.Create(barX, barY, barW, barH), HudBarBg);
         canvas.DrawRect(SKRect.Create(barX, barY, barW * _keepProgress, barH), HudBarFg);
-        canvas.Save(); canvas.Translate(barX, barY - 3f); _keepLabel.Draw(canvas); canvas.Restore();
+        _keepLabel.X = barX;
+        _keepLabel.Y = barY - 3f;
+        _keepLabel.Draw(canvas);
 
         _aimText.Text = $"Aim: {_aimAngle:F0} deg";
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 20f); _aimText.Draw(canvas); canvas.Restore();
+        _aimText.Draw(canvas);
 
         if (_arrowCooldown.Active)
         {
             float r = _arrowCooldown.Remaining / ArrowCooldownTime;
             _cooldownDot.Color = new SKColor(0xFF, 0xFF, 0xFF, (byte)(r * 200));
-            canvas.Save(); canvas.Translate(GameWidth / 2f, 38f); _cooldownDot.Draw(canvas); canvas.Restore();
+            _cooldownDot.Draw(canvas);
         }
 
         if (_lordActive)
@@ -1181,13 +1183,13 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
             float ratio = _lordHP / 10f;
             _lordHpText.Text = $"Lord HP: {_lordHP:F0}";
             _lordHpText.Color = ratio < 0.3f ? ColRed : ColGold;
-            canvas.Save(); canvas.Translate(GameWidth - 160f, 50f); _lordHpText.Draw(canvas); canvas.Restore();
+            _lordHpText.Draw(canvas);
         }
 
         if (_archerCount == 1 && _accuracyMult > 1)
         {
             _accuracyText.Text = $"Accuracy x{_accuracyMult}";
-            canvas.Save(); canvas.Translate(GameWidth / 2f, 60f); _accuracyText.Draw(canvas); canvas.Restore();
+            _accuracyText.Draw(canvas);
         }
 
         DrawTouchButtons(canvas);
@@ -1226,10 +1228,5 @@ internal sealed class PlayScreen(CastleAttackGameState state, IScreenCoordinator
     // ── Float texts ───────────────────────────────────────────────────────
 
     private void DrawFloatTexts(SKCanvas canvas)
-    {
-        foreach (var t in _texts)
-        {
-            t.Draw(canvas);
-        }
-    }
+        => _effectsRoot.Draw(canvas);
 }

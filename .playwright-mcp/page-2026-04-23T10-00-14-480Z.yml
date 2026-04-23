@@ -1,9 +1,0 @@
-- generic [ref=e7]:
-  - banner [ref=e8]:
-    - link "🎮 SkiaSharp Games" [ref=e9] [cursor=pointer]:
-      - /url: /
-    - link "GitHub ↗" [ref=e10] [cursor=pointer]:
-      - /url: https://github.com/mattleibow/SkiaSharpGames
-  - main [ref=e11]:
-    - heading "Not Found" [level=3] [ref=e12]
-    - paragraph [ref=e13]: Sorry, the content you are looking for does not exist.

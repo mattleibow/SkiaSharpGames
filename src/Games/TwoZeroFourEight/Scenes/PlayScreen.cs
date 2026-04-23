@@ -13,11 +13,11 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
     private static readonly SKPaint _boardPaint = new() { Color = BoardColor, IsAntialias = true };
     private static readonly SKPaint _tilePaint = new() { IsAntialias = true };
 
-    private readonly HudLabel _headerText = new() { Text = "2048", FontSize = 68f, Color = HeaderColor };
-    private readonly HudLabel _scoreText = new() { FontSize = 24f, Color = HeaderColor };
-    private readonly HudLabel _bestText = new() { FontSize = 24f, Color = HeaderColor };
-    private readonly HudLabel _controlsText = new() { Text = "Arrow keys / WASD / swipe to move", FontSize = 20f, Color = HeaderColor, Align = TextAlign.Center };
-    private readonly HudLabel _footerText = new() { FontSize = 22f, Color = HeaderColor, Align = TextAlign.Center };
+    private readonly HudLabel _headerText = new() { Text = "2048", FontSize = 68f, Color = HeaderColor, X = 90f, Y = 94f };
+    private readonly HudLabel _scoreText = new() { FontSize = 24f, Color = HeaderColor, X = GameWidth - 280f, Y = 72f };
+    private readonly HudLabel _bestText = new() { FontSize = 24f, Color = HeaderColor, X = GameWidth - 280f, Y = 102f };
+    private readonly HudLabel _controlsText = new() { Text = "Arrow keys / WASD / swipe to move", FontSize = 20f, Color = HeaderColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 64f };
+    private readonly HudLabel _footerText = new() { FontSize = 22f, Color = HeaderColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 565f };
     private readonly HudLabel _tileText = new();
 
     private readonly int[,] _board = new int[GridSize, GridSize];
@@ -39,6 +39,18 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
     private bool IsSpawnAnimating => _spawnTile is { Progress: < 1f };
 
     private bool IsAnimating => _slideActive || IsSpawnAnimating;
+
+    public override void OnActivating()
+    {
+        if (ChildCount == 0)
+        {
+            Children.Add(_headerText);
+            Children.Add(_scoreText);
+            Children.Add(_bestText);
+            Children.Add(_controlsText);
+            Children.Add(_footerText);
+        }
+    }
 
     public override void OnActivated()
     {
@@ -73,6 +85,13 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
             spawn.Progress = MathF.Min(1f, spawn.Progress + deltaTime / SpawnDuration);
             _spawnTile = spawn;
         }
+
+        // Update HUD label text
+        _scoreText.Text = $"Score: {state.Score}";
+        _bestText.Text = $"Best: {state.BestScore}";
+        _footerText.Text = state.HasReached2048
+            ? "2048 reached! Keep going..."
+            : "Merge tiles to reach 2048";
     }
 
     public override void OnPointerDown(float x, float y)
@@ -140,16 +159,6 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
     {
         canvas.Clear(BackgroundColor);
 
-        canvas.Save(); canvas.Translate(90f, 94f); _headerText.Draw(canvas); canvas.Restore();
-
-        _scoreText.Text = $"Score: {state.Score}";
-        canvas.Save(); canvas.Translate(GameWidth - 280f, 72f); _scoreText.Draw(canvas); canvas.Restore();
-
-        _bestText.Text = $"Best: {state.BestScore}";
-        canvas.Save(); canvas.Translate(GameWidth - 280f, 102f); _bestText.Draw(canvas); canvas.Restore();
-
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 64f); _controlsText.Draw(canvas); canvas.Restore();
-
         var boardRect = SKRect.Create(BoardX, BoardY, BoardPixelSize, BoardPixelSize);
         canvas.DrawRoundRect(boardRect, 18f, 18f, _boardPaint);
 
@@ -174,11 +183,6 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
 
         if (IsSpawnAnimating && _spawnTile is { } spawnTile)
             DrawTile(canvas, spawnTile.Row, spawnTile.Col, spawnTile.Value, Easing.BackOut(spawnTile.Progress));
-
-        _footerText.Text = state.HasReached2048
-            ? "2048 reached! Keep going..."
-            : "Merge tiles to reach 2048";
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 565f); _footerText.Draw(canvas); canvas.Restore();
     }
 
     private void DrawSlideTiles(SKCanvas canvas)

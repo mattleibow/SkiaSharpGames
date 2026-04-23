@@ -12,7 +12,7 @@ namespace SkiaSharpGames.LunarLander;
 internal sealed class PlayScreen(LunarLanderGameState state, IDirector director) : Scene
 {
     // ── Entities ──────────────────────────────────────────────────────────
-    private readonly Lander _lander = new();
+    private readonly Lander _lander = new() { Name = "lander" };
     private readonly Terrain _terrain = new();
 
     // ── Input state ──────────────────────────────────────────────────────
@@ -40,9 +40,9 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
     private readonly float[] _starBrightness = new float[StarCount];
 
     // ── HUD text ──────────────────────────────────────────────────────────
-    private readonly HudLabel _fuelText = new() { FontSize = 18f, Color = HudColor };
-    private readonly HudLabel _speedText = new() { FontSize = 18f, Color = HudColor, Align = TextAlign.Right };
-    private readonly HudLabel _altText = new() { FontSize = 18f, Color = HudColor, Align = TextAlign.Center };
+    private readonly HudLabel _fuelText = new() { FontSize = 18f, Color = HudColor, X = 20f, Y = 46f };
+    private readonly HudLabel _speedText = new() { FontSize = 18f, Color = HudColor, Align = TextAlign.Right, X = GameWidth - 20f, Y = 30f };
+    private readonly HudLabel _altText = new() { FontSize = 18f, Color = HudColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 30f };
 
     // ── Paints ────────────────────────────────────────────────────────────
     private readonly SKPaint _fuelBarBg = new() { Color = new SKColor(0x33, 0x33, 0x44), Style = SKPaintStyle.Fill };
@@ -77,6 +77,14 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
         {
             _stars[i] = new SKPoint(_rng.Next(0, GameWidth), _rng.Next(0, GameHeight));
             _starBrightness[i] = 0.3f + (float)_rng.NextDouble() * 0.7f;
+        }
+
+        if (ChildCount == 0)
+        {
+            Children.Add(_lander);
+            Children.Add(_fuelText);
+            Children.Add(_speedText);
+            Children.Add(_altText);
         }
     }
 
@@ -176,8 +184,13 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
         _lander.LeftFlame.Visible = wantRight && hasFuel;
         _lander.RightFlame.Visible = wantLeft && hasFuel;
 
-        // Update lander (rigidbody step + sprite + children)
-        _lander.Update(deltaTime);
+        // Update HUD labels
+        _fuelText.Text = $"FUEL {state.Fuel:F0}";
+        float speed = _lander.Rigidbody.Speed;
+        _speedText.Color = speed > MaxLandingSpeed ? DangerColor : HudColor;
+        _speedText.Text = $"SPD {speed:F0}";
+        float altitude = MathF.Max(0f, _terrain.GetHeightAt(_lander.X) - _lander.Y - LanderHeight / 2f);
+        _altText.Text = $"ALT {altitude:F0}";
 
         // Landing / crash detection
         CheckLanding();
@@ -246,38 +259,22 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
             canvas.DrawCircle(_stars[i].X, _stars[i].Y, 1.2f, starPaint);
         }
 
-        // Terrain
+        // Terrain (not a SceneNode — draw manually)
         _terrain.Draw(canvas);
 
-        // Lander — one call draws hull + all flame children automatically!
-        _lander.Draw(canvas);
-
-        // HUD
+        // HUD fuel bar (labels auto-draw as children)
         DrawHud(canvas);
         DrawControlPad(canvas);
     }
 
     private void DrawHud(SKCanvas canvas)
     {
-        // Fuel bar
+        // Fuel bar (labels auto-draw as children)
         float barX = 20f, barY = 16f, barW = 120f, barH = 14f;
         canvas.DrawRect(barX, barY, barW, barH, _fuelBarBg);
         float fuelFrac = state.Fuel / FuelMax;
         _fuelBarFg.Color = fuelFrac > 0.3f ? PadColor : DangerColor;
         canvas.DrawRect(barX, barY, barW * fuelFrac, barH, _fuelBarFg);
-        _fuelText.Text = $"FUEL {state.Fuel:F0}";
-        canvas.Save(); canvas.Translate(barX, barY + barH + 16f); _fuelText.Draw(canvas); canvas.Restore();
-
-        // Speed
-        float speed = _lander.Rigidbody.Speed;
-        _speedText.Color = speed > MaxLandingSpeed ? DangerColor : HudColor;
-        _speedText.Text = $"SPD {speed:F0}";
-        canvas.Save(); canvas.Translate(GameWidth - 20f, 30f); _speedText.Draw(canvas); canvas.Restore();
-
-        // Altitude
-        float altitude = MathF.Max(0f, _terrain.GetHeightAt(_lander.X) - _lander.Y - LanderHeight / 2f);
-        _altText.Text = $"ALT {altitude:F0}";
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 30f); _altText.Draw(canvas); canvas.Restore();
     }
 
     private void DrawControlPad(SKCanvas canvas)

@@ -12,9 +12,19 @@ internal sealed class GameOverScreen(LunarLanderGameState state, IDirector direc
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha(186) };
 
-    private readonly HudLabel _titleText = new() { FontSize = 56f, Align = TextAlign.Center };
-    private readonly HudLabel _detailText = new() { FontSize = 24f, Color = DimColor, Align = TextAlign.Center };
-    private readonly HudLabel _promptText = new() { Text = "Click or Tap to Play Again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly HudLabel _titleText = new() { FontSize = 56f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 260f };
+    private readonly HudLabel _detailText = new() { FontSize = 24f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 310f };
+    private readonly HudLabel _promptText = new() { Text = "Click or Tap to Play Again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 380f };
+
+    public override void OnActivating()
+    {
+        if (ChildCount == 0)
+        {
+            Children.Add(_titleText);
+            Children.Add(_detailText);
+            Children.Add(_promptText);
+        }
+    }
 
     protected override void OnDraw(SKCanvas canvas)
     {
@@ -32,10 +42,6 @@ internal sealed class GameOverScreen(LunarLanderGameState state, IDirector direc
             _titleText.Color = DangerColor;
             _detailText.Text = "Too fast or wrong angle!";
         }
-
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 260f); _titleText.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 310f); _detailText.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 380f); _promptText.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y)

@@ -8,24 +8,28 @@ internal sealed class GameOverScreen(TwoZeroFourEightGameState state, IDirector 
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.65f)), IsAntialias = true };
 
-    private readonly HudLabel _titleText = new() { Text = "GAME OVER", FontSize = 72f, Color = LightTextColor, Align = TextAlign.Center };
-    private readonly HudLabel _scoreText = new() { FontSize = 30f, Color = LightTextColor, Align = TextAlign.Center };
-    private readonly HudLabel _bestText = new() { FontSize = 28f, Color = LightTextColor, Align = TextAlign.Center };
-    private readonly HudLabel _restartText = new() { Text = "Click, tap, Enter, or Space to restart", FontSize = 22f, Color = LightTextColor, Align = TextAlign.Center };
+    private readonly HudLabel _titleText = new() { Text = "GAME OVER", FontSize = 72f, Color = LightTextColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 250f };
+    private readonly HudLabel _scoreText = new() { FontSize = 30f, Color = LightTextColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 320f };
+    private readonly HudLabel _bestText = new() { FontSize = 28f, Color = LightTextColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 360f };
+    private readonly HudLabel _restartText = new() { Text = "Click, tap, Enter, or Space to restart", FontSize = 22f, Color = LightTextColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 425f };
+
+    public override void OnActivating()
+    {
+        if (ChildCount == 0)
+        {
+            Children.Add(_titleText);
+            Children.Add(_scoreText);
+            Children.Add(_bestText);
+            Children.Add(_restartText);
+        }
+    }
 
     protected override void OnDraw(SKCanvas canvas)
     {
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), _overlayPaint);
 
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 250f); _titleText.Draw(canvas); canvas.Restore();
-
         _scoreText.Text = $"Score: {state.Score}";
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 320f); _scoreText.Draw(canvas); canvas.Restore();
-
         _bestText.Text = $"Best: {state.BestScore}";
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 360f); _bestText.Draw(canvas); canvas.Restore();
-
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 425f); _restartText.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y) =>

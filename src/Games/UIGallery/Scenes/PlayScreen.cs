@@ -13,8 +13,8 @@ internal sealed class PlayScreen : Scene
 
     private readonly UIGalleryState _state;
 
-    private readonly Actor _themeButtons = new();
-    private readonly Actor _controls = new();
+    private readonly Actor _themeButtons = new() { Name = "themeButtons" };
+    private readonly Actor _controls = new() { Name = "controls" };
 
     private readonly HudButton[] _themeButtonList;
 
@@ -75,6 +75,10 @@ internal sealed class PlayScreen : Scene
         ConfigureOverrides();
 
         Pointer = new HudPointer();
+
+        Children.Add(_themeButtons);
+        Children.Add(_controls);
+        Children.Add(Pointer);
     }
 
     public override void OnActivated()
@@ -168,9 +172,6 @@ internal sealed class PlayScreen : Scene
         // Update theme button styles to show selection
         UpdateThemeButtonStyles();
 
-        _themeButtons.Draw(canvas);
-        _controls.Draw(canvas);
-
         DrawText(canvas, textPaint, labelFont, "Checkbox", SKColors.White, 86f, 229f);
         DrawText(canvas, textPaint, labelFont, "Switch (slide + toggle)", SKColors.White, 40f, 332f);
         DrawText(canvas, textPaint, labelFont, $"Slider: {(int)(_slider.Value * 100f)}", SKColors.White, 40f, 402f);
@@ -178,8 +179,6 @@ internal sealed class PlayScreen : Scene
 
         var norm = _joystick.NormalizedDelta;
         DrawText(canvas, textPaint, labelFont, $"Joystick X:{norm.X:F2} Y:{norm.Y:F2}", new SKColor(0xD0, 0xDC, 0xEA), 500f, 500f);
-
-        Pointer?.Draw(canvas);
     }
 
     private void ConfigureOverrides()

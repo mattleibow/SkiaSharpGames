@@ -9,15 +9,15 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
 {
     private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha((byte)(255 * 0.5f)), IsAntialias = true };
 
-    private readonly HudLabel _scoreText = new() { FontSize = 24f, Color = SKColors.White };
-    private readonly HudLabel _livesText = new() { FontSize = 24f, Color = AccentColor };
-    private readonly HudLabel _controlsText = new() { Text = "LEFT RIGHT move    SPACE / ENTER fire", FontSize = 18f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 24f, Color = SKColors.White, X = 20f, Y = 34f };
+    private readonly HudLabel _livesText = new() { Name = "lives", FontSize = 24f, Color = AccentColor, Align = TextAlign.Right, X = GameWidth - 20f, Y = 34f };
+    private readonly HudLabel _controlsText = new() { Text = "LEFT RIGHT move    SPACE / ENTER fire", FontSize = 18f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = GameHeight - 12f };
 
-    private readonly Actor _formation = new();
-    private readonly Actor _shields = new();
-    private readonly Actor _playerBullets = new();
-    private readonly Actor _enemyBullets = new();
-    private readonly PlayerCannon _player = new();
+    private readonly Actor _formation = new() { Name = "formation" };
+    private readonly Actor _shields = new() { Name = "shields" };
+    private readonly Actor _playerBullets = new() { Name = "playerBullets" };
+    private readonly Actor _enemyBullets = new() { Name = "enemyBullets" };
+    private readonly PlayerCannon _player = new() { Name = "player" };
     private readonly List<SKPoint> _stars = [];
 
     // ── Touch control pad ────────────────────────────────────────────────
@@ -50,6 +50,18 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
             var random = new Random(406);
             for (int i = 0; i < 96; i++)
                 _stars.Add(new SKPoint(random.NextSingle() * GameWidth, random.NextSingle() * GameHeight));
+        }
+
+        if (ChildCount == 0)
+        {
+            Children.Add(_formation);
+            Children.Add(_shields);
+            Children.Add(_playerBullets);
+            Children.Add(_enemyBullets);
+            Children.Add(_player);
+            Children.Add(_scoreText);
+            Children.Add(_livesText);
+            Children.Add(_controlsText);
         }
 
         state.Score = 0;
@@ -275,10 +287,6 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
 
     private void UpdateBullets(float deltaTime)
     {
-        // Update bullet positions via rigidbody
-        _playerBullets.Update(deltaTime);
-        _enemyBullets.Update(deltaTime);
-
         // Player bullets vs invaders, shields, and enemy bullets
         var playerBulletList = _playerBullets.Children;
         for (int i = playerBulletList.Count - 1; i >= 0; i--)
@@ -458,20 +466,8 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
         foreach (var star in _stars)
             canvas.DrawRect(star.X, star.Y, 2f, 2f, _starPaint);
 
-        _formation.Draw(canvas);
-        _shields.Draw(canvas);
-        _playerBullets.Draw(canvas);
-        _enemyBullets.Draw(canvas);
-        _player.Draw(canvas);
-
         _scoreText.Text = $"SCORE: {state.Score:0000}";
-        canvas.Save(); canvas.Translate(20f, 34f); _scoreText.Draw(canvas); canvas.Restore();
-
         _livesText.Text = $"LIVES: {state.Lives}";
-        float livesWidth = _livesText.MeasureWidth();
-        canvas.Save(); canvas.Translate(GameWidth - livesWidth - 20f, 34f); _livesText.Draw(canvas); canvas.Restore();
-
-        canvas.Save(); canvas.Translate(GameWidth / 2f, GameHeight - 12f); _controlsText.Draw(canvas); canvas.Restore();
 
         DrawControlPad(canvas);
     }

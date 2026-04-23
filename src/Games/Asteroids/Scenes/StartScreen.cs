@@ -6,13 +6,13 @@ namespace SkiaSharpGames.Asteroids;
 
 internal sealed class StartScreen(IDirector director) : Scene
 {
-    private readonly HudLabel _title = new() { Text = "ASTEROIDS", FontSize = 72f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly HudLabel _subtitle = new() { Text = "Classic arcade space shooter", FontSize = 26f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly HudLabel _moveHint = new() { Text = "Rotate: Arrow keys or A/D", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center };
-    private readonly HudLabel _thrustHint = new() { Text = "Thrust: Up arrow or W", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center };
-    private readonly HudLabel _fireHint = new() { Text = "Fire: Space or Enter", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center };
-    private readonly HudLabel _goal = new() { Text = "Destroy all asteroids to survive", FontSize = 24f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly HudLabel _startPrompt = new() { Text = "Click, tap, or press Space to start", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly HudLabel _title = new() { Text = "ASTEROIDS", FontSize = 72f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 195f };
+    private readonly HudLabel _subtitle = new() { Text = "Classic arcade space shooter", FontSize = 26f, Color = SKColors.White, Align = TextAlign.Center, X = GameWidth / 2f, Y = 240f };
+    private readonly HudLabel _moveHint = new() { Text = "Rotate: Arrow keys or A/D", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 310f };
+    private readonly HudLabel _thrustHint = new() { Text = "Thrust: Up arrow or W", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 342f };
+    private readonly HudLabel _fireHint = new() { Text = "Fire: Space or Enter", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 374f };
+    private readonly HudLabel _goal = new() { Text = "Destroy all asteroids to survive", FontSize = 24f, Color = SKColors.White, Align = TextAlign.Center, X = GameWidth / 2f, Y = 430f };
+    private readonly HudLabel _startPrompt = new() { Text = "Click, tap, or press Space to start", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 490f };
 
     // Decorative asteroids drifting in the background
     private readonly List<(float x, float y, float vx, float vy, float r, SKPath path)> _bgAsteroids = [];
@@ -36,6 +36,17 @@ internal sealed class StartScreen(IDirector director) : Scene
                 var path = GenerateAsteroidPath(radius, rng.Next());
                 _bgAsteroids.Add((x, y, vx, vy, radius, path));
             }
+        }
+
+        if (ChildCount == 0)
+        {
+            Children.Add(_title);
+            Children.Add(_subtitle);
+            Children.Add(_moveHint);
+            Children.Add(_thrustHint);
+            Children.Add(_fireHint);
+            Children.Add(_goal);
+            Children.Add(_startPrompt);
         }
     }
 
@@ -67,14 +78,6 @@ internal sealed class StartScreen(IDirector director) : Scene
             canvas.DrawPath(a.path, paint);
             canvas.Restore();
         }
-
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 195f); _title.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 240f); _subtitle.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 310f); _moveHint.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 342f); _thrustHint.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 374f); _fireHint.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 430f); _goal.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 490f); _startPrompt.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y) =>

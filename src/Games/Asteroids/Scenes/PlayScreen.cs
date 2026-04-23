@@ -10,14 +10,14 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
     private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha(80), IsAntialias = true };
     private static readonly SKPaint _livesShipPaint = new() { Color = ShipColor, IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
 
-    private readonly HudLabel _scoreText = new() { FontSize = 24f, Color = SKColors.White };
-    private readonly HudLabel _levelText = new() { FontSize = 18f, Color = HudDimColor, Align = TextAlign.Center };
-    private readonly HudLabel _controlsText = new() { Text = "ARROWS rotate/thrust  SPACE fire", FontSize = 16f, Color = HudDimColor, Align = TextAlign.Center };
+    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 24f, Color = SKColors.White, X = 20f, Y = 34f };
+    private readonly HudLabel _levelText = new() { Name = "level", FontSize = 18f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 34f };
+    private readonly HudLabel _controlsText = new() { Text = "ARROWS rotate/thrust  SPACE fire", FontSize = 16f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = GameHeight - 10f };
 
-    private readonly Ship _ship = new();
-    private readonly Actor _bullets = new();
-    private readonly Actor _asteroids = new();
-    private readonly Actor _debris = new();
+    private readonly Ship _ship = new() { Name = "ship" };
+    private readonly Actor _bullets = new() { Name = "bullets" };
+    private readonly Actor _asteroids = new() { Name = "asteroids" };
+    private readonly Actor _debris = new() { Name = "debris" };
     private readonly List<SKPoint> _stars = [];
 
     // ── Touch control pad ────────────────────────────────────────────────
@@ -48,6 +48,17 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
             var random = new Random(815);
             for (int i = 0; i < 80; i++)
                 _stars.Add(new SKPoint(random.NextSingle() * GameWidth, random.NextSingle() * GameHeight));
+        }
+
+        if (ChildCount == 0)
+        {
+            Children.Add(_asteroids);
+            Children.Add(_bullets);
+            Children.Add(_debris);
+            Children.Add(_ship);
+            Children.Add(_scoreText);
+            Children.Add(_levelText);
+            Children.Add(_controlsText);
         }
 
         state.Score = 0;
@@ -148,7 +159,6 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
         if (_shipAlive)
         {
             UpdateShipInput(deltaTime);
-            _ship.Update(deltaTime);
         }
         else
         {
@@ -163,10 +173,6 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
                 RespawnShip();
             }
         }
-
-        _bullets.Update(deltaTime);
-        _asteroids.Update(deltaTime);
-        _debris.Update(deltaTime);
 
         CheckCollisions();
         CheckLevelComplete();
@@ -297,6 +303,8 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
     private void DestroyShip()
     {
         _shipAlive = false;
+        _ship.Active = false;
+        _ship.Visible = false;
         state.Lives--;
         _respawnTimer = 2f;
 
@@ -319,6 +327,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
         _ship.VelocityY = 0f;
         _ship.Thrusting = false;
         _ship.Active = true;
+        _ship.Visible = true;
     }
 
     private void SpawnDebris(float x, float y, int count)
@@ -391,27 +400,11 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
         foreach (var star in _stars)
             canvas.DrawRect(star.X, star.Y, 1.5f, 1.5f, _starPaint);
 
-        // Stage actors
-        _asteroids.Draw(canvas);
-        _bullets.Draw(canvas);
-        _debris.Draw(canvas);
-
-        if (_shipAlive)
-        {
-            _ship.Draw(canvas);
-        }
-
         // HUD
         _scoreText.Text = $"{state.Score:00000}";
-        canvas.Save(); canvas.Translate(20f, 34f); _scoreText.Draw(canvas); canvas.Restore();
+        _levelText.Text = $"LEVEL {state.Level}";
 
         DrawLivesIndicator(canvas);
-
-        _levelText.Text = $"LEVEL {state.Level}";
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 34f); _levelText.Draw(canvas); canvas.Restore();
-
-        canvas.Save(); canvas.Translate(GameWidth / 2f, GameHeight - 10f); _controlsText.Draw(canvas); canvas.Restore();
-
         DrawControlPad(canvas);
     }
 

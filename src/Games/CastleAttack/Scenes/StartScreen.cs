@@ -16,12 +16,12 @@ internal sealed class StartScreen(IDirector director) : Scene
     private static readonly SKPath HillPath;
 
     // ── Text sprites ──────────────────────────────────────────────────────
-    private readonly HudLabel _title = new() { Text = "CASTLE ATTACK", FontSize = 68f, Color = ColGold, Align = TextAlign.Center };
-    private readonly HudLabel _subtitle = new() { Text = "Defend the castle until the keep is complete!", FontSize = 22f, Color = ColHud, Align = TextAlign.Center };
-    private readonly HudLabel _tapLine = new() { Text = "Tap the battlefield to aim & fire", FontSize = 17f, Color = ColAccent, Align = TextAlign.Center };
-    private readonly HudLabel _btnLine = new() { Text = "Use the on-screen buttons at the bottom for all actions", FontSize = 16f, Color = ColDim, Align = TextAlign.Center };
-    private readonly HudLabel _kbLine = new() { Text = "Keyboard: LEFT RIGHT aim  |  SPACE fire  |  UP DN convert  |  Z X C weapons", FontSize = 14f, Color = ColDim, Align = TextAlign.Center };
-    private readonly HudLabel _startLine = new() { Text = "Tap or Click to Start", FontSize = 24f, Color = ColAccent, Align = TextAlign.Center };
+    private readonly HudLabel _title = new() { Text = "CASTLE ATTACK", FontSize = 68f, Color = ColGold, Align = TextAlign.Center, X = GameWidth / 2f, Y = 190f };
+    private readonly HudLabel _subtitle = new() { Text = "Defend the castle until the keep is complete!", FontSize = 22f, Color = ColHud, Align = TextAlign.Center, X = GameWidth / 2f, Y = 258f };
+    private readonly HudLabel _tapLine = new() { Text = "Tap the battlefield to aim & fire", FontSize = 17f, Color = ColAccent, Align = TextAlign.Center, X = GameWidth / 2f, Y = 308f };
+    private readonly HudLabel _btnLine = new() { Text = "Use the on-screen buttons at the bottom for all actions", FontSize = 16f, Color = ColDim, Align = TextAlign.Center, X = GameWidth / 2f, Y = 334f };
+    private readonly HudLabel _kbLine = new() { Text = "Keyboard: LEFT RIGHT aim  |  SPACE fire  |  UP DN convert  |  Z X C weapons", FontSize = 14f, Color = ColDim, Align = TextAlign.Center, X = GameWidth / 2f, Y = 360f };
+    private readonly HudLabel _startLine = new() { Text = "Tap or Click to Start", FontSize = 24f, Color = ColAccent, Align = TextAlign.Center, X = GameWidth / 2f, Y = 420f };
 
     static StartScreen()
     {
@@ -39,6 +39,19 @@ internal sealed class StartScreen(IDirector director) : Scene
         HillPath.Close();
     }
 
+    public override void OnActivating()
+    {
+        if (ChildCount == 0)
+        {
+            Children.Add(_title);
+            Children.Add(_subtitle);
+            Children.Add(_tapLine);
+            Children.Add(_btnLine);
+            Children.Add(_kbLine);
+            Children.Add(_startLine);
+        }
+    }
+
     protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(ColSky);
@@ -47,19 +60,6 @@ internal sealed class StartScreen(IDirector director) : Scene
 
         OverlayPaint.Color = SKColors.Black.WithAlpha((byte)(255 * 0.6f));
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), OverlayPaint);
-
-        float cx = GameWidth / 2f;
-        canvas.Save(); canvas.Translate(cx, 190f); _title.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(cx, 258f); _subtitle.Draw(canvas); canvas.Restore();
-
-        float y = 308f;
-        canvas.Save(); canvas.Translate(cx, y); _tapLine.Draw(canvas); canvas.Restore();
-        y += 26f;
-        canvas.Save(); canvas.Translate(cx, y); _btnLine.Draw(canvas); canvas.Restore();
-        y += 26f;
-        canvas.Save(); canvas.Translate(cx, y); _kbLine.Draw(canvas); canvas.Restore();
-
-        canvas.Save(); canvas.Translate(cx, 420f); _startLine.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y)

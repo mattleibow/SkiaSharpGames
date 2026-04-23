@@ -12,20 +12,25 @@ internal sealed class GameOverScreen(CastleAttackGameState state, IDirector dire
 {
     private static readonly SKPaint OverlayPaint = new();
 
-    private readonly HudLabel _defeatText = new() { Text = "DEFEAT", FontSize = 72f, Color = ColRed, Align = TextAlign.Center };
-    private readonly HudLabel _scoreText = new() { FontSize = 32f, Color = ColHud, Align = TextAlign.Center };
-    private readonly HudLabel _retryText = new() { Text = "Click or Tap to Try Again", FontSize = 22f, Color = ColAccent, Align = TextAlign.Center };
+    private readonly HudLabel _defeatText = new() { Text = "DEFEAT", FontSize = 72f, Color = ColRed, Align = TextAlign.Center, X = GameWidth / 2f, Y = 250f };
+    private readonly HudLabel _scoreText = new() { FontSize = 32f, Color = ColHud, Align = TextAlign.Center, X = GameWidth / 2f, Y = 315f };
+    private readonly HudLabel _retryText = new() { Text = "Click or Tap to Try Again", FontSize = 22f, Color = ColAccent, Align = TextAlign.Center, X = GameWidth / 2f, Y = 370f };
+
+    public override void OnActivating()
+    {
+        if (ChildCount == 0)
+        {
+            Children.Add(_defeatText);
+            Children.Add(_scoreText);
+            Children.Add(_retryText);
+        }
+        _scoreText.Text = $"Score: {state.Score}";
+    }
 
     protected override void OnDraw(SKCanvas canvas)
     {
         OverlayPaint.Color = SKColors.Black.WithAlpha((byte)(255 * 0.75f));
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), OverlayPaint);
-
-        float cx = GameWidth / 2f;
-        canvas.Save(); canvas.Translate(cx, 250f); _defeatText.Draw(canvas); canvas.Restore();
-        _scoreText.Text = $"Score: {state.Score}";
-        canvas.Save(); canvas.Translate(cx, 315f); _scoreText.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(cx, 370f); _retryText.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y)

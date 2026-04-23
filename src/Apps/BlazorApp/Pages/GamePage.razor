@@ -5,7 +5,18 @@
 @if (_stage is not null)
 {
     <PageTitle>@_entry!.Title – SkiaSharp Games</PageTitle>
-    <GameView Stage="_stage" />
+    <div class="game-page @(_inspectorOpen ? "inspector-open" : "")">
+        <div class="game-viewport">
+            <GameView Stage="_stage" />
+        </div>
+        @if (_inspectorOpen)
+        {
+            <div class="inspector-panel">
+                <InspectorPanel Stage="_stage" />
+            </div>
+        }
+        <button class="inspector-toggle" @onclick="ToggleInspector" title="Toggle Inspector">🔍</button>
+    </div>
 }
 else
 {
@@ -18,11 +29,21 @@ else
 
     private IGalleryGame? _entry;
     private Stage? _stage;
+    private bool _inspectorOpen;
 
     protected override void OnParametersSet()
     {
         _entry = GalleryGames.FirstOrDefault(g =>
             string.Equals(g.Slug, Slug, StringComparison.OrdinalIgnoreCase));
         _stage = _entry?.CreateStage();
+    }
+
+    private void ToggleInspector()
+    {
+        _inspectorOpen = !_inspectorOpen;
+
+        var inspector = _stage?.Services.GetService<IStageInspector>();
+        if (inspector is not null)
+            inspector.IsEnabled = _inspectorOpen;
     }
 }

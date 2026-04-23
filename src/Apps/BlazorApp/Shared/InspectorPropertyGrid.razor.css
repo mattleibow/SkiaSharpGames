@@ -1,0 +1,37 @@
+.prop-grid {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.prop-grid tr {
+    border-bottom: 1px solid rgba(30, 45, 61, 0.5);
+}
+
+.prop-grid tr:hover {
+    background: rgba(148, 163, 184, 0.05);
+}
+
+.prop-key {
+    padding: 4px 8px 4px 12px;
+    color: #64748b;
+    font-size: 11px;
+    white-space: nowrap;
+    width: 80px;
+    vertical-align: top;
+}
+
+.prop-val {
+    padding: 4px 12px 4px 4px;
+    color: #e2e8f0;
+    font-size: 12px;
+    word-break: break-all;
+}
+
+.type-val {
+    color: #7dd3fc;
+}
+
+.num-val {
+    color: #a78bfa;
+    font-variant-numeric: tabular-nums;
+}

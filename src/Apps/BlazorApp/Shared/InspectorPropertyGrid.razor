@@ -1,0 +1,85 @@
+@namespace SkiaSharpGames.BlazorApp.Shared
+
+<table class="prop-grid">
+    <tr>
+        <td class="prop-key">Type</td>
+        <td class="prop-val type-val">@Node.TypeName</td>
+    </tr>
+    <tr>
+        <td class="prop-key">Name</td>
+        <td class="prop-val">@Node.DisplayName</td>
+    </tr>
+    <tr>
+        <td class="prop-key">Active</td>
+        <td class="prop-val">@BoolBadge(Node.Active)</td>
+    </tr>
+    @if (Node.Visible is not null)
+    {
+        <tr>
+            <td class="prop-key">Visible</td>
+            <td class="prop-val">@BoolBadge(Node.Visible.Value)</td>
+        </tr>
+    }
+    @if (Node.X is not null)
+    {
+        <tr>
+            <td class="prop-key">Position</td>
+            <td class="prop-val num-val">@($"{Node.X:F1}, {Node.Y:F1}")</td>
+        </tr>
+    }
+    @if (Node.WorldX is not null)
+    {
+        <tr>
+            <td class="prop-key">World</td>
+            <td class="prop-val num-val">@($"{Node.WorldX:F1}, {Node.WorldY:F1}")</td>
+        </tr>
+    }
+    @if (Node.Alpha is not null)
+    {
+        <tr>
+            <td class="prop-key">Alpha</td>
+            <td class="prop-val num-val">@($"{Node.Alpha:F2}")</td>
+        </tr>
+    }
+    @if (Node.Rotation is not null)
+    {
+        <tr>
+            <td class="prop-key">Rotation</td>
+            <td class="prop-val num-val">@($"{Node.Rotation:F2} rad")</td>
+        </tr>
+    }
+    @if (Node.ColliderInfo is not null)
+    {
+        <tr>
+            <td class="prop-key">Collider</td>
+            <td class="prop-val">@Node.ColliderInfo</td>
+        </tr>
+    }
+    @if (Node.VelocityInfo is not null)
+    {
+        <tr>
+            <td class="prop-key">Velocity</td>
+            <td class="prop-val num-val">@Node.VelocityInfo</td>
+        </tr>
+    }
+    @foreach (var kvp in Node.ExtraProperties)
+    {
+        <tr>
+            <td class="prop-key">@kvp.Key</td>
+            <td class="prop-val">@kvp.Value</td>
+        </tr>
+    }
+    @if (Node.Children.Count > 0)
+    {
+        <tr>
+            <td class="prop-key">Children</td>
+            <td class="prop-val num-val">@Node.Children.Count</td>
+        </tr>
+    }
+</table>
+
+@code {
+    [Parameter, EditorRequired] public InspectorNodeSnapshot Node { get; set; } = null!;
+
+    private static string BoolBadge(bool value) => value ? "✅ true" : "❌ false";
+}

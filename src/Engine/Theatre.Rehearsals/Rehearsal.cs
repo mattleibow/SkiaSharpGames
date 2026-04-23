@@ -161,7 +161,8 @@ public sealed class Rehearsal : IDisposable
     // ── Screen navigation ────────────────────────────────────────────
 
     /// <summary>Transitions to a different scene.</summary>
-    public void TransitionTo<TScene>(ICurtain? transition = null) where TScene : Scene
+    public void TransitionTo<TScene>(ICurtain? transition = null)
+        where TScene : Scene
     {
         var director = Stage.Services.GetRequiredService<IDirector>();
         director.TransitionTo<TScene>(transition);

@@ -9,7 +9,8 @@ public class HudControlEntityTests
 {
     private static readonly HudTheme Theme = DefaultTheme.Create();
 
-    private static T WithTheme<T>(T actor) where T : SceneNode
+    private static T WithTheme<T>(T actor)
+        where T : SceneNode
     {
         actor.HudTheme = Theme;
         return actor;

@@ -1,0 +1,65 @@
+.inspector-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: #cbd5e1;
+    font-family: 'Cascadia Code', 'Fira Code', 'SF Mono', monospace;
+    font-size: 12px;
+}
+
+.inspector-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid #1e2d3d;
+    flex-shrink: 0;
+}
+
+.inspector-header h3 {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+}
+
+.node-count {
+    font-size: 10px;
+    color: #64748b;
+}
+
+.inspector-tree {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #1e2d3d;
+}
+
+.tree-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.inspector-properties {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.props-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.placeholder {
+    padding: 12px;
+    color: #475569;
+    font-style: italic;
+    text-align: center;
+}

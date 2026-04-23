@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using SkiaSharp;
 
 namespace SkiaSharp.Theatre;
 
@@ -32,14 +31,14 @@ namespace SkiaSharp.Theatre;
 public sealed class Stage
 {
     private readonly IDirector _director;
-    private readonly IRenderer _drawable;
+    private readonly IRenderer _renderer;
 
-    internal Stage(IServiceProvider services, IOptions<StageOptions> options, IDirector director, IRenderer drawable)
+    internal Stage(IServiceProvider services, IOptions<StageOptions> options, IDirector director, IRenderer renderer)
     {
         Services = services;
         StageSize = options.Value.Dimensions;
         _director = director;
-        _drawable = drawable;
+        _renderer = renderer;
     }
 
     // ── Host API (called by GameView or any rendering host) ───────────────
@@ -64,7 +63,8 @@ public sealed class Stage
     public HudTheme? HudTheme { get; set; }
 
     /// <summary>Advances the game by <paramref name="deltaTime"/> seconds.</summary>
-    public void Update(float deltaTime) => _drawable.Update(deltaTime);
+    public void Update(float deltaTime) =>
+        _renderer.Update(deltaTime);
 
     /// <summary>Draws the current frame to <paramref name="canvas"/>.</summary>
     /// <remarks>
@@ -87,7 +87,12 @@ public sealed class Stage
         canvas.Save();
         canvas.Concat(viewport);
 
-        _drawable.Draw(canvas);
+        _renderer.Draw(canvas);
+
+        // Inspector overlay (drawn in game-space on top of the scene)
+        var inspector = Services.GetService<IStageInspector>();
+        if (inspector?.IsEnabled == true)
+            inspector.DrawOverlay(canvas, _director.ActiveInputScene);
 
         canvas.Restore();
     }
@@ -133,9 +138,11 @@ public sealed class Stage
     }
 
     /// <summary>Called when a key is pressed while the game canvas has focus.</summary>
-    public void OnKeyDown(string key) => _director.ActiveInputScene.OnKeyDown(key);
+    public void OnKeyDown(string key) =>
+        _director.ActiveInputScene.OnKeyDown(key);
 
     /// <summary>Called when a key is released while the game canvas has focus.</summary>
-    public void OnKeyUp(string key) => _director.ActiveInputScene.OnKeyUp(key);
+    public void OnKeyUp(string key) =>
+        _director.ActiveInputScene.OnKeyUp(key);
 }
 

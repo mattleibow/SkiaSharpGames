@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using SkiaSharp;
 
 namespace SkiaSharp.Theatre;
 
@@ -128,7 +127,8 @@ public sealed class StageBuilder
     /// for returning ones.
     /// </remarks>
     /// <returns>This builder, for method chaining.</returns>
-    public StageBuilder SetOpeningScene<TScene>() where TScene : Scene
+    public StageBuilder SetOpeningScene<TScene>()
+        where TScene : Scene
     {
         _initialSceneType = typeof(TScene);
         return this;
@@ -160,10 +160,13 @@ public sealed class StageBuilder
             opts.OpeningSceneType = _initialSceneType;
         });
 
+        // Inspector diagnostic service
+        _serviceCollection.AddSingleton<IStageInspector, StageInspector>();
+
         // Director is the single job that loads and moves between scenes.
         // Register the concrete type and both interfaces so consumers can depend on the
         // narrowest interface they need.
-        _serviceCollection.AddSingleton<Director>(
+        _serviceCollection.AddSingleton(
             sp => new Director(sp, sp.GetRequiredService<IOptions<StageOptions>>()));
         _serviceCollection.AddSingleton<IDirector>(
             sp => sp.GetRequiredService<Director>());
@@ -171,7 +174,7 @@ public sealed class StageBuilder
             sp => sp.GetRequiredService<Director>());
 
         // Stage is the public host API; constructed via factory to preserve the internal constructor.
-        _serviceCollection.AddSingleton<Stage>(
+        _serviceCollection.AddSingleton(
             sp => new Stage(sp,
                            sp.GetRequiredService<IOptions<StageOptions>>(),
                            sp.GetRequiredService<IDirector>(),

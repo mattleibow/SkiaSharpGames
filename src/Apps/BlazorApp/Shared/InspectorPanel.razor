@@ -1,0 +1,113 @@
+@namespace SkiaSharpGames.BlazorApp.Shared
+@implements IDisposable
+
+<div class="inspector-content">
+    <div class="inspector-tree">
+        <div class="inspector-header">
+            <h3>Scene Tree</h3>
+            @if (_snapshot is not null)
+            {
+                <span class="node-count">@_snapshot.TotalNodes nodes</span>
+            }
+        </div>
+        <div class="tree-scroll">
+            @if (_snapshot is not null)
+            {
+                <InspectorTreeNode Node="_snapshot.Root"
+                                   SelectedId="_selectedId"
+                                   OnSelect="SelectNode" />
+            }
+        </div>
+    </div>
+    <div class="inspector-properties">
+        <div class="inspector-header">
+            <h3>Properties</h3>
+        </div>
+        <div class="props-scroll">
+            @if (_selectedNode is not null)
+            {
+                <InspectorPropertyGrid Node="_selectedNode" />
+            }
+            else
+            {
+                <p class="placeholder">Select a node to inspect</p>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Stage Stage { get; set; } = null!;
+
+    private InspectorSnapshot? _snapshot;
+    private InspectorNodeSnapshot? _selectedNode;
+    private int _selectedId;
+    private IStageInspector? _inspector;
+    private Timer? _timer;
+
+    protected override void OnParametersSet()
+    {
+        _inspector = Stage.Services.GetService<IStageInspector>();
+        if (_inspector is not null)
+            _inspector.IsEnabled = true;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _timer = new Timer(_ => InvokeAsync(RefreshTree), null, 0, 200);
+        }
+    }
+
+    private void RefreshTree()
+    {
+        if (_inspector is null) return;
+        var scene = Stage.Services.GetRequiredService<IDirector>().ActiveInputScene;
+        _snapshot = _inspector.GetSnapshot(scene);
+
+        // Re-find selected node in new snapshot
+        if (_selectedId != 0)
+            _selectedNode = FindNode(_snapshot.Root, _selectedId);
+
+        StateHasChanged();
+    }
+
+    private void SelectNode(int id)
+    {
+        _selectedId = id;
+        _selectedNode = FindNode(_snapshot?.Root, id);
+
+        // Update engine selection for overlay highlight
+        if (_inspector is not null)
+        {
+            var scene = Stage.Services.GetRequiredService<IDirector>().ActiveInputScene;
+            _inspector.SelectedNode = FindSceneNode(scene, id);
+        }
+    }
+
+    private static SceneNode? FindSceneNode(SceneNode node, int id)
+    {
+        if (node.GetHashCode() == id) return node;
+        for (int i = 0; i < node.Children.Count; i++)
+        {
+            var found = FindSceneNode(node.Children[i], id);
+            if (found is not null) return found;
+        }
+        return null;
+    }
+
+    private static InspectorNodeSnapshot? FindNode(InspectorNodeSnapshot? node, int id)
+    {
+        if (node is null) return null;
+        if (node.Id == id) return node;
+        foreach (var child in node.Children)
+        {
+            var found = FindNode(child, id);
+            if (found is not null) return found;
+        }
+        return null;
+    }
+
+    public void Dispose() => _timer?.Dispose();
+}

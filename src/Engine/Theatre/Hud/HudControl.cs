@@ -1,5 +1,3 @@
-using SkiaSharp;
-
 namespace SkiaSharp.Theatre;
 
 /// <summary>Base for interactive UI controls with rectangular bounds.</summary>

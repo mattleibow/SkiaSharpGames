@@ -68,7 +68,7 @@ public class SceneNode
     /// <summary>
     /// Renders the node tree. Calls <see cref="OnDraw"/>, then recurses into active children.
     /// </summary>
-    public virtual void Draw(SkiaSharp.SKCanvas canvas)
+    public virtual void Draw(SKCanvas canvas)
     {
         if (!Active) return;
 
@@ -79,7 +79,7 @@ public class SceneNode
     }
 
     /// <summary>Override to render the node.</summary>
-    protected virtual void OnDraw(SkiaSharp.SKCanvas canvas) { }
+    protected virtual void OnDraw(SKCanvas canvas) { }
 
     /// <summary>
     /// Called when this node is added to a parent. Override to react to reparenting.

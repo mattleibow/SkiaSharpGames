@@ -1,5 +1,3 @@
-using SkiaSharp;
-
 namespace SkiaSharp.Theatre;
 
 /// <summary>
@@ -36,10 +34,6 @@ public abstract class Scene : SceneNode
     /// position from pointer events. Draw it at the end of <see cref="Draw"/> to keep it on top.
     /// </summary>
     public HudPointer? Pointer { get; protected set; }
-
-    // Scene uses SceneNode's Update/Draw pipeline:
-    // - Override OnUpdate(float deltaTime) for per-frame logic
-    // - Override OnDraw(SKCanvas canvas) for rendering
 
     // ── Input ─────────────────────────────────────────────────────────────
 

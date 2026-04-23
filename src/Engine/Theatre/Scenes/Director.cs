@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using SkiaSharp;
 
 namespace SkiaSharp.Theatre;
 
@@ -78,7 +77,7 @@ internal sealed class Director : IDirector, IRenderer
         }
         _sceneStack.Clear();
 
-        var incoming = ResolveScene<TScene>();
+        var incoming = _services.GetRequiredService<TScene>();
 
         if (transition is null || transition.Duration <= 0f)
         {
@@ -102,7 +101,8 @@ internal sealed class Director : IDirector, IRenderer
     }
 
     /// <inheritdoc/>
-    public void PushScene<TScene>() where TScene : Scene
+    public void PushScene<TScene>()
+        where TScene : Scene
     {
         EnsureInitialized();
 
@@ -112,7 +112,7 @@ internal sealed class Director : IDirector, IRenderer
             _current.OnPaused();
         }
 
-        var layer = ResolveScene<TScene>();
+        var layer = _services.GetRequiredService<TScene>();
         layer.Stage = _stage;
         layer.OnActivating();
         layer.OnActivated();
@@ -205,9 +205,4 @@ internal sealed class Director : IDirector, IRenderer
                 layer.Draw(canvas);
         }
     }
-
-    // ── Private helpers ───────────────────────────────────────────────────
-
-    private TScene ResolveScene<TScene>() where TScene : Scene =>
-        _services.GetRequiredService<TScene>();
 }

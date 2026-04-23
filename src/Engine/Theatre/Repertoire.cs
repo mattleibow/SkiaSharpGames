@@ -19,7 +19,8 @@ public sealed class Repertoire(IServiceCollection services)
     /// Registers <typeparamref name="TScene"/> as a transient in the game's DI container.
     /// Returns <see langword="this"/> for fluent chaining.
     /// </summary>
-    public Repertoire Add<TScene>() where TScene : Scene
+    public Repertoire Add<TScene>()
+        where TScene : Scene
     {
         services.AddTransient<TScene>();
         return this;

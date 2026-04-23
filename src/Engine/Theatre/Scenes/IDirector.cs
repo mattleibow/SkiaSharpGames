@@ -20,7 +20,8 @@ public interface IDirector
     /// Pushes a layered scene on top of the current scene.
     /// The current scene is paused (still drawn, not updated) while any layered scene is active.
     /// </summary>
-    void PushScene<TScene>() where TScene : Scene;
+    void PushScene<TScene>()
+        where TScene : Scene;
 
     /// <summary>
     /// Removes the topmost layered scene and resumes the underlying scene.

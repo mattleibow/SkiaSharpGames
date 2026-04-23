@@ -1,0 +1,60 @@
+@namespace SkiaSharpGames.BlazorApp.Shared
+
+<div class="tree-node @(_isSelected ? "selected" : "") @(!Node.Active ? "inactive" : "")"
+     @onclick="OnClick"
+     @onclick:stopPropagation>
+    @if (Node.Children.Count > 0)
+    {
+        <span class="expand" @onclick="Toggle" @onclick:stopPropagation>@(_expanded ? "▼" : "▶")</span>
+    }
+    else
+    {
+        <span class="expand-spacer"></span>
+    }
+    <span class="type-badge">@GetBadge()</span>
+    <span class="node-name">@Node.DisplayName</span>
+    @if (Node.Children.Count > 0)
+    {
+        <span class="child-count">(@Node.Children.Count)</span>
+    }
+    @if (Node.Visible == false)
+    {
+        <span class="visibility-icon" title="Hidden">👁‍🗨</span>
+    }
+</div>
+@if (_expanded)
+{
+    <div class="tree-children">
+        @foreach (var child in Node.Children)
+        {
+            <InspectorTreeNode Node="child" SelectedId="SelectedId" OnSelect="OnSelect" />
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public InspectorNodeSnapshot Node { get; set; } = null!;
+    [Parameter] public int SelectedId { get; set; }
+    [Parameter] public EventCallback<int> OnSelect { get; set; }
+
+    private bool _expanded = true;
+    private bool _isSelected => Node.Id == SelectedId;
+
+    private void Toggle() => _expanded = !_expanded;
+
+    private async Task OnClick() => await OnSelect.InvokeAsync(Node.Id);
+
+    private string GetBadge() => Node.TypeName switch
+    {
+        var t when t.EndsWith("Scene") => "🎬",
+        "HudLabel" => "🏷",
+        "HudButton" => "🔘",
+        "HudCheckbox" => "☑",
+        "HudSwitch" => "🔀",
+        "HudSlider" => "🎚",
+        "HudJoystick" => "🕹",
+        "HudPointer" => "👆",
+        "Actor" => "🎭",
+        _ => "📦"
+    };
+}

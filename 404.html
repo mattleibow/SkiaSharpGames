@@ -1,78 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SkiaSharp Games</title>
-    <base href="/SkiaSharpGames/" />
-    <link href="_framework/dotnet.1htbneiblo.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-9bgrkSau0Uwewecxusn6RjwkBpenIYOAECQMM2QGnwk=" />
-    <link rel="stylesheet" href="css/app.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <link href="SkiaSharpGames.BlazorApp.styles.css" rel="stylesheet" />
-    <script type="importmap">{
-  "imports": {
-    "./_framework/blazor.webassembly.js": "./_framework/blazor.webassembly.66stpp682q.js",
-    "./_framework/dotnet.js": "./_framework/dotnet.1htbneiblo.js",
-    "./_framework/dotnet.native.js": "./_framework/dotnet.native.wmsltlsbeq.js",
-    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.f4b1oiwlzh.js"
-  },
-  "scopes": {},
-  "integrity": {
-    "./_framework/blazor.webassembly.66stpp682q.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
-    "./_framework/blazor.webassembly.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
-    "./_framework/dotnet.1htbneiblo.js": "sha256-9bgrkSau0Uwewecxusn6RjwkBpenIYOAECQMM2QGnwk=",
-    "./_framework/dotnet.js": "sha256-9bgrkSau0Uwewecxusn6RjwkBpenIYOAECQMM2QGnwk=",
-    "./_framework/dotnet.native.js": "sha256-yEpxmWj6Ylqrt3RUSzx0J3PwU+9TEuV80OHyBFhXcOk=",
-    "./_framework/dotnet.native.wmsltlsbeq.js": "sha256-yEpxmWj6Ylqrt3RUSzx0J3PwU+9TEuV80OHyBFhXcOk=",
-    "./_framework/dotnet.runtime.f4b1oiwlzh.js": "sha256-j86bNQPKznxC4epcftZFbThfaMXvIRmSeHo8PdvTrdA=",
-    "./_framework/dotnet.runtime.js": "sha256-j86bNQPKznxC4epcftZFbThfaMXvIRmSeHo8PdvTrdA="
-  }
-}</script>
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            background: #0d1b2a;
-            color: #e8f4f8;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            -webkit-font-smoothing: antialiased;
-        }
+  <meta charset="utf-8">
+  <script>
+    // GitHub Pages SPA redirect: store the path and redirect to the
+    // Blazor index.html which will pick up client-side routing.
+    var pathSegmentsToKeep = 0;
+    var repo = '/SkiaSharpGames';
+    var fullPath = window.location.pathname;
 
-        #app {
-            width: 100%;
-            min-height: 100vh;
-        }
-    </style>
+    // Detect if this is a staging URL: /SkiaSharpGames/staging/{n}/...
+    var stagingMatch = fullPath.match(new RegExp(repo + '/staging/(\\d+)'));
+    if (stagingMatch) {
+      // Redirect to the staging Blazor app root with the path encoded
+      var prNum = stagingMatch[1];
+      var basePath = repo + '/staging/' + prNum + '/';
+      var routePath = fullPath.slice(basePath.length);
+      sessionStorage.setItem('spa-redirect', routePath || '');
+      window.location.replace(basePath);
+    } else {
+      // Root deployment
+      var routePath = fullPath.slice((repo + '/').length);
+      sessionStorage.setItem('spa-redirect', routePath || '');
+      window.location.replace(repo + '/');
+    }
+  </script>
 </head>
-
-<body>
-    <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
-    </div>
-
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="." class="reload">Reload</a>
-        <span class="dismiss">🗙</span>
-    </div>
-    <script src="_framework/blazor.webassembly.66stpp682q.js"></script>
-    <script>
-        // Returns the bounding rect of a DOM element in CSS pixels.
-        window.getElementRect = (el) => {
-            const r = el.getBoundingClientRect();
-            return { left: r.left, top: r.top, width: r.width, height: r.height };
-        };
-
-        // Focuses the first .game-view element on the page (called after a game page first renders).
-        window.focusGameView = () => {
-            document.querySelector('.game-view')?.focus();
-        };
-    </script>
-</body>
-
+<body></body>
 </html>

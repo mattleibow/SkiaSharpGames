@@ -30,13 +30,13 @@ internal sealed class StartScreen(IDirector director) : Scene
         }
     }
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         foreach (var brick in _bricks)
             brick.Update(deltaTime);
     }
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 

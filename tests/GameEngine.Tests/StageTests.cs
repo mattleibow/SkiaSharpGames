@@ -28,8 +28,8 @@ file sealed class ScreenTracker
 
 file sealed class ScreenA(ScreenTracker t) : Scene
 {
-    public override void Update(float dt) => t.AUpdateCalled = true;
-    public override void Draw(SKCanvas c, int w, int h) { }
+    protected override void OnUpdate(float dt) => t.AUpdateCalled = true;
+    protected override void OnDraw(SKCanvas c) { }
     public override void OnActivating() => t.AActivating = true;
     public override void OnActivated() => t.AActivated = true;
     public override void OnDeactivating() => t.ADeactivating = true;
@@ -40,8 +40,8 @@ file sealed class ScreenA(ScreenTracker t) : Scene
 
 file sealed class ScreenB(ScreenTracker t) : Scene
 {
-    public override void Update(float dt) { }
-    public override void Draw(SKCanvas c, int w, int h) { }
+    protected override void OnUpdate(float dt) { }
+    protected override void OnDraw(SKCanvas c) { }
     public override void OnActivating() => t.BActivating = true;
     public override void OnActivated() => t.BActivated = true;
     public override void OnDeactivating() => t.BDeactivating = true;
@@ -50,8 +50,8 @@ file sealed class ScreenB(ScreenTracker t) : Scene
 
 file sealed class OverlayScreen : Scene
 {
-    public override void Update(float dt) { }
-    public override void Draw(SKCanvas c, int w, int h) { }
+    protected override void OnUpdate(float dt) { }
+    protected override void OnDraw(SKCanvas c) { }
 }
 
 // ── Builder helpers ───────────────────────────────────────────────────────
@@ -373,7 +373,7 @@ file sealed class InputTracker
 
 file sealed class InputCapturingScreen(InputTracker tracker) : Scene
 {
-    public override void Draw(SKCanvas c, int w, int h) { }
+    protected override void OnDraw(SKCanvas c) { }
     public override void OnPointerMove(float x, float y) => tracker.LastPointerMove = (x, y);
     public override void OnPointerDown(float x, float y) => tracker.LastPointerDown = (x, y);
     public override void OnPointerUp(float x, float y) => tracker.LastPointerUp = (x, y);
@@ -383,7 +383,7 @@ file sealed class InputCapturingScreen(InputTracker tracker) : Scene
 
 file sealed class InputDummyScreen : Scene
 {
-    public override void Draw(SKCanvas c, int w, int h) { }
+    protected override void OnDraw(SKCanvas c) { }
 }
 
 file static class InputTestFactory

@@ -13,7 +13,7 @@ internal sealed class StartScreen(IDirector director) : Scene
     private readonly HudLabel _scoreHint = new() { Text = "First to 7 points wins", FontSize = 22f, Color = AccentColor, Align = TextAlign.Center };
     private readonly HudLabel _startPrompt = new() { Text = "Click, tap, or press Space to start", FontSize = 24f, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 

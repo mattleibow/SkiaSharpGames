@@ -47,7 +47,7 @@ internal sealed class PlayScreen : Scene
                 FontSize = 12f
             };
             _themeButtonList[i] = btn;
-            _themeButtons.AddChild(btn);
+            _themeButtons.Children.Add(btn);
         }
 
         // Demo controls — state lives on each actor
@@ -60,14 +60,14 @@ internal sealed class PlayScreen : Scene
         _customButton = new HudButton(260f, 58f) { X = 170f, Y = 445f };
         _joystick = new HudJoystick(86f) { X = 620f, Y = 360f };
 
-        _controls.AddChild(_primaryButton);
-        _controls.AddChild(_overrideButton);
-        _controls.AddChild(_checkbox);
-        _controls.AddChild(_slideSwitch);
-        _controls.AddChild(_toggleButton);
-        _controls.AddChild(_slider);
-        _controls.AddChild(_customButton);
-        _controls.AddChild(_joystick);
+        _controls.Children.Add(_primaryButton);
+        _controls.Children.Add(_overrideButton);
+        _controls.Children.Add(_checkbox);
+        _controls.Children.Add(_slideSwitch);
+        _controls.Children.Add(_toggleButton);
+        _controls.Children.Add(_slider);
+        _controls.Children.Add(_customButton);
+        _controls.Children.Add(_joystick);
 
         ConfigureOverrides();
 
@@ -147,7 +147,7 @@ internal sealed class PlayScreen : Scene
         _joystick.ResetDelta();
     }
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         var theme = Stage?.HudTheme;
         var bgColor = (theme?.Button as DefaultButtonAppearance)?.FillColor ?? new SKColor(0x3A, 0x59, 0x8A);
@@ -157,7 +157,7 @@ internal sealed class PlayScreen : Scene
         using var labelFont = new SKFont(SKTypeface.Default, 18f);
 
         canvas.Clear(new SKColor(0x10, 0x14, 0x1F));
-        canvas.DrawRect(12f, 12f, width - 24f, height - 24f, backgroundPaint);
+        canvas.DrawRect(12f, 12f, Stage!.StageSize.Width - 24f, Stage!.StageSize.Height - 24f, backgroundPaint);
 
         DrawText(canvas, textPaint, headerFont, "UI Gallery", SKColors.White, 24f, 90f);
         DrawText(canvas, textPaint, labelFont, $"Theme: {ThemeNames[_state.ThemeIndex]}", new SKColor(0xD0, 0xDC, 0xEA), 620f, 46f);

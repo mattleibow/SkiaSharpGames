@@ -37,25 +37,9 @@ public abstract class Scene : SceneNode
     /// </summary>
     public HudPointer? Pointer { get; protected set; }
 
-    // ── Virtual update and abstract draw ──────────────────────────────────
-
-    /// <summary>
-    /// Called each game tick to advance the game state. Not called while <see cref="IsPaused"/>.
-    /// Override to implement per-frame logic. The default implementation does nothing.
-    /// </summary>
-    /// <param name="deltaTime">Seconds elapsed since the last update.</param>
-    public new virtual void Update(float deltaTime) { }
-
-    /// <summary>
-    /// Called each frame to render the current state to <paramref name="canvas"/>.
-    /// The canvas is already transformed to game-space: the origin is at the top-left of the
-    /// game area, one unit equals one game-space pixel, and the visible rectangle runs from
-    /// (0, 0) to (<paramref name="width"/>, <paramref name="height"/>).
-    /// </summary>
-    /// <param name="canvas">The SkiaSharp canvas to draw on. Already in game-space coordinates.</param>
-    /// <param name="width">Stage-space width (equals <see cref="Theatre.Stage.StageSize"/>.Width).</param>
-    /// <param name="height">Stage-space height (equals <see cref="Theatre.Stage.StageSize"/>.Height).</param>
-    public abstract void Draw(SKCanvas canvas, int width, int height);
+    // Scene uses SceneNode's Update/Draw pipeline:
+    // - Override OnUpdate(float deltaTime) for per-frame logic
+    // - Override OnDraw(SKCanvas canvas) for rendering
 
     // ── Input ─────────────────────────────────────────────────────────────
 

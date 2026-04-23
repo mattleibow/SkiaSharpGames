@@ -94,7 +94,7 @@ public class HudControlEntityTests
     {
         var group = new Actor();
         var button = new HudButton(100f, 40f) { X = 200f, Y = 100f };
-        group.AddChild(button);
+        group.Children.Add(button);
 
         var probe = new Actor { Collider = new CircleCollider { Radius = 1f } };
 
@@ -351,10 +351,10 @@ public class HudControlEntityTests
         var slider = new HudSlider(200f, 20f) { X = 200f, Y = 200f };
         var joystick = new HudJoystick(60f) { X = 400f, Y = 300f };
 
-        group.AddChild(button);
-        group.AddChild(checkbox);
-        group.AddChild(slider);
-        group.AddChild(joystick);
+        group.Children.Add(button);
+        group.Children.Add(checkbox);
+        group.Children.Add(slider);
+        group.Children.Add(joystick);
 
         var probe = new Actor { Collider = new CircleCollider { Radius = 1f } };
 
@@ -391,11 +391,11 @@ public class HudControlEntityTests
         using var canvas = new SKCanvas(bitmap);
 
         var group = new Actor { HudTheme = Theme };
-        group.AddChild(new HudButton(100f, 40f) { X = 100f, Y = 50f, Label = "OK" });
-        group.AddChild(new HudCheckbox(30f, 30f) { X = 100f, Y = 120f, IsChecked = true });
-        group.AddChild(new HudSwitch(80f, 30f) { X = 100f, Y = 170f, IsOn = true });
-        group.AddChild(new HudSlider(200f, 20f) { X = 200f, Y = 200f, Value = 0.75f });
-        group.AddChild(new HudJoystick(60f) { X = 400f, Y = 300f });
+        group.Children.Add(new HudButton(100f, 40f) { X = 100f, Y = 50f, Label = "OK" });
+        group.Children.Add(new HudCheckbox(30f, 30f) { X = 100f, Y = 120f, IsChecked = true });
+        group.Children.Add(new HudSwitch(80f, 30f) { X = 100f, Y = 170f, IsOn = true });
+        group.Children.Add(new HudSlider(200f, 20f) { X = 200f, Y = 200f, Value = 0.75f });
+        group.Children.Add(new HudJoystick(60f) { X = 400f, Y = 300f });
 
         group.Draw(canvas); // Should render all controls without error
     }

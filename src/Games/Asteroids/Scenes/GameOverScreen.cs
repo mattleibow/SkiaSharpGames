@@ -13,7 +13,7 @@ internal sealed class GameOverScreen(AsteroidsGameState state, IDirector directo
     private readonly HudLabel _levelText = new() { FontSize = 24f, Color = HudDimColor, Align = TextAlign.Center };
     private readonly HudLabel _restartText = new() { Text = "Click, tap, or press Space to play again", FontSize = 24f, Color = HudDimColor, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), _overlayPaint);
 

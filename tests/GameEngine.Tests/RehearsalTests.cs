@@ -18,7 +18,7 @@ file sealed class HarnessState
 
 file sealed class HarnessStartScreen(HarnessState state, IDirector director) : Scene
 {
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(SKColors.Black);
         // Draw a red rectangle in the center as a "Start" button
@@ -47,13 +47,13 @@ file sealed class HarnessPlayScreen(HarnessState state) : Scene
         Rigidbody = new Rigidbody2D { VelocityX = 100f, VelocityY = 50f }
     };
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         state.UpdateCount++;
         _ball.Update(deltaTime);
     }
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(new SKColor(0x1A, 0x1A, 0x2E));
 
@@ -232,7 +232,7 @@ public class RehearsalTests
         var child = new Actor { X = 10f, Y = 20f, Alpha = 0.5f };
         child.Collider = new CircleCollider { Radius = 5f };
         child.Rigidbody = new Rigidbody2D { VelocityX = 50f };
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
         string dump = parent.Dump();
 

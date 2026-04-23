@@ -33,7 +33,7 @@ public class SceneNodeTests
     {
         var parent = new TestNode();
         var child = new TestNode();
-        parent.AddChild(child);
+        parent.Children.Add(child);
         Assert.Same(parent, child.Parent);
         Assert.Single(parent.Children);
     }
@@ -43,8 +43,8 @@ public class SceneNodeTests
     {
         var parent = new TestNode();
         var child = new TestNode();
-        parent.AddChild(child);
-        parent.RemoveChild(child);
+        parent.Children.Add(child);
+        parent.Children.Remove(child);
         Assert.Null(child.Parent);
         Assert.Empty(parent.Children);
     }
@@ -55,8 +55,8 @@ public class SceneNodeTests
         var parent1 = new TestNode();
         var parent2 = new TestNode();
         var child = new TestNode();
-        parent1.AddChild(child);
-        parent2.AddChild(child);
+        parent1.Children.Add(child);
+        parent2.Children.Add(child);
         Assert.Same(parent2, child.Parent);
         Assert.Empty(parent1.Children);
         Assert.Single(parent2.Children);
@@ -69,9 +69,9 @@ public class SceneNodeTests
         var a = new TestNode { Name = "a" };
         var b = new TestNode { Name = "b" };
         var c = new TestNode { Name = "c" };
-        parent.AddChild(a);
-        parent.AddChild(c);
-        parent.InsertChild(1, b);
+        parent.Children.Add(a);
+        parent.Children.Add(c);
+        parent.Children.Insert(1, b);
         Assert.Equal(3, parent.ChildCount);
         Assert.Same(b, parent.Children[1]);
     }
@@ -82,10 +82,10 @@ public class SceneNodeTests
         var parent = new TestNode();
         var a = new TestNode();
         var b = new TestNode();
-        parent.AddChild(a);
-        parent.AddChild(b);
-        Assert.Equal(0, parent.IndexOf(a));
-        Assert.Equal(1, parent.IndexOf(b));
+        parent.Children.Add(a);
+        parent.Children.Add(b);
+        Assert.Equal(0, parent.Children.IndexOf(a));
+        Assert.Equal(1, parent.Children.IndexOf(b));
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public class SceneNodeTests
     {
         var parent = new TestNode();
         var other = new TestNode();
-        Assert.Equal(-1, parent.IndexOf(other));
+        Assert.Equal(-1, parent.Children.IndexOf(other));
     }
 
     [Fact]
@@ -103,10 +103,10 @@ public class SceneNodeTests
         var a = new TestNode { Name = "a" };
         var b = new TestNode { Name = "b" };
         var c = new TestNode { Name = "c" };
-        parent.AddChild(a);
-        parent.AddChild(b);
-        parent.AddChild(c);
-        parent.MoveChildToFront(a);
+        parent.Children.Add(a);
+        parent.Children.Add(b);
+        parent.Children.Add(c);
+        parent.Children.MoveToFront(a);
         Assert.Same(b, parent.Children[0]);
         Assert.Same(c, parent.Children[1]);
         Assert.Same(a, parent.Children[2]);
@@ -119,10 +119,10 @@ public class SceneNodeTests
         var a = new TestNode { Name = "a" };
         var b = new TestNode { Name = "b" };
         var c = new TestNode { Name = "c" };
-        parent.AddChild(a);
-        parent.AddChild(b);
-        parent.AddChild(c);
-        parent.MoveChildToBack(c);
+        parent.Children.Add(a);
+        parent.Children.Add(b);
+        parent.Children.Add(c);
+        parent.Children.MoveToBack(c);
         Assert.Same(c, parent.Children[0]);
         Assert.Same(a, parent.Children[1]);
         Assert.Same(b, parent.Children[2]);
@@ -134,9 +134,9 @@ public class SceneNodeTests
         var parent = new TestNode();
         var a = new TestNode { Name = "a" };
         var b = new TestNode { Name = "b" };
-        parent.AddChild(a);
-        parent.AddChild(b);
-        parent.MoveChildUp(a);
+        parent.Children.Add(a);
+        parent.Children.Add(b);
+        parent.Children.MoveUp(a);
         Assert.Same(b, parent.Children[0]);
         Assert.Same(a, parent.Children[1]);
     }
@@ -147,9 +147,9 @@ public class SceneNodeTests
         var parent = new TestNode();
         var a = new TestNode { Name = "a" };
         var b = new TestNode { Name = "b" };
-        parent.AddChild(a);
-        parent.AddChild(b);
-        parent.MoveChildUp(b);
+        parent.Children.Add(a);
+        parent.Children.Add(b);
+        parent.Children.MoveUp(b);
         Assert.Same(a, parent.Children[0]);
         Assert.Same(b, parent.Children[1]);
     }
@@ -160,9 +160,9 @@ public class SceneNodeTests
         var parent = new TestNode();
         var a = new TestNode { Name = "a" };
         var b = new TestNode { Name = "b" };
-        parent.AddChild(a);
-        parent.AddChild(b);
-        parent.MoveChildDown(b);
+        parent.Children.Add(a);
+        parent.Children.Add(b);
+        parent.Children.MoveDown(b);
         Assert.Same(b, parent.Children[0]);
         Assert.Same(a, parent.Children[1]);
     }
@@ -173,9 +173,9 @@ public class SceneNodeTests
         var parent = new TestNode();
         var a = new TestNode { Name = "a" };
         var b = new TestNode { Name = "b" };
-        parent.AddChild(a);
-        parent.AddChild(b);
-        parent.MoveChildDown(a);
+        parent.Children.Add(a);
+        parent.Children.Add(b);
+        parent.Children.MoveDown(a);
         Assert.Same(a, parent.Children[0]);
         Assert.Same(b, parent.Children[1]);
     }
@@ -186,9 +186,9 @@ public class SceneNodeTests
         var parent = new TestNode();
         var active = new TestNode { Active = true };
         var inactive = new TestNode { Active = false };
-        parent.AddChild(active);
-        parent.AddChild(inactive);
-        int removed = parent.RemoveInactiveChildren();
+        parent.Children.Add(active);
+        parent.Children.Add(inactive);
+        int removed = parent.Children.RemoveInactive();
         Assert.Equal(1, removed);
         Assert.Single(parent.Children);
         Assert.Same(active, parent.Children[0]);
@@ -201,7 +201,7 @@ public class SceneNodeTests
         var parent = new TestNode { Active = false };
         // If Update is called on inactive parent, children shouldn't be updated
         var child = new UpdatingNode(() => updated = true);
-        parent.AddChild(child);
+        parent.Children.Add(child);
         parent.Update(1f / 60f);
         Assert.False(updated);
     }
@@ -212,7 +212,7 @@ public class SceneNodeTests
         bool updated = false;
         var parent = new TestNode();
         var child = new UpdatingNode(() => updated = true);
-        parent.AddChild(child);
+        parent.Children.Add(child);
         parent.Update(1f / 60f);
         Assert.True(updated);
     }
@@ -234,7 +234,7 @@ public class SceneNodeTests
         bool drawn = false;
         var parent = new TestNode();
         var child = new DrawingNode(() => drawn = true);
-        parent.AddChild(child);
+        parent.Children.Add(child);
         using var bmp = new SKBitmap(100, 100);
         using var canvas = new SKCanvas(bmp);
         parent.Draw(canvas);
@@ -262,7 +262,7 @@ public class SceneNodeTests
     {
         var parent = new TestNode { Name = "parent" };
         var child = new TestNode { Name = "child" };
-        parent.AddChild(child);
+        parent.Children.Add(child);
         var dump = parent.Dump();
         Assert.Contains("parent", dump);
         Assert.Contains("child", dump);
@@ -273,9 +273,9 @@ public class SceneNodeTests
     {
         var parent = new TestNode();
         var a = new TestNode();
-        parent.AddChild(a);
+        parent.Children.Add(a);
         var other = new TestNode();
-        parent.MoveChildToFront(other);
+        parent.Children.MoveToFront(other);
         Assert.Single(parent.Children);
     }
 
@@ -284,9 +284,9 @@ public class SceneNodeTests
     {
         var parent = new TestNode();
         var a = new TestNode();
-        parent.AddChild(a);
+        parent.Children.Add(a);
         var other = new TestNode();
-        parent.MoveChildToBack(other);
+        parent.Children.MoveToBack(other);
         Assert.Single(parent.Children);
     }
 

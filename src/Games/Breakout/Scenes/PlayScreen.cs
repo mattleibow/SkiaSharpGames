@@ -45,7 +45,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
 
         // Clear and rebuild power-ups
         foreach (var child in _powerUps.Children.ToArray())
-            _powerUps.RemoveChild(child);
+            _powerUps.Children.Remove(child);
 
         InitBricks();
         _paddle.X = GameWidth / 2f;
@@ -65,7 +65,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
     {
         // Remove all existing brick children
         foreach (var child in _bricks.Children.ToArray())
-            _bricks.RemoveChild(child);
+            _bricks.Children.Remove(child);
 
         for (int r = 0; r < BrickRows; r++)
         {
@@ -76,7 +76,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
                 var brick = new Brick(r, c, cx, cy);
                 brick.Color = BrickColors[r];
                 brick.Shimmer.Start(Random.Shared.NextSingle() * brick.Shimmer.Period);
-                _bricks.AddChild(brick);
+                _bricks.Children.Add(brick);
             }
         }
     }
@@ -119,7 +119,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
 
     // ── Update ────────────────────────────────────────────────────────────
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         // Keyboard-driven paddle movement
         if (_leftHeld ^ _rightHeld)
@@ -216,7 +216,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
         var type = Random.Shared.NextDouble() < 0.5 ? PowerUpType.StrongBall : PowerUpType.BigPaddle;
         var pu = new FallingPowerUp { X = cx, Y = cy, Type = type };
         pu.Color = type == PowerUpType.StrongBall ? StrongBallColor : BigPaddleColor;
-        _powerUps.AddChild(pu);
+        _powerUps.Children.Add(pu);
     }
 
     private void UpdateFallingPowerUps(float deltaTime)
@@ -233,11 +233,11 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
                 pu.X >= _paddle.X - halfPaddleW && pu.X <= _paddle.X + halfPaddleW)
             {
                 ApplyPowerUp(pu.Type);
-                _powerUps.RemoveChild(pu);
+                _powerUps.Children.Remove(pu);
             }
             else if (pu.Y > GameHeight + 30f)
             {
-                _powerUps.RemoveChild(pu);
+                _powerUps.Children.Remove(pu);
             }
         }
     }
@@ -258,7 +258,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
 
     // ── Draw ──────────────────────────────────────────────────────────────
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
         DrawGameContent(canvas);

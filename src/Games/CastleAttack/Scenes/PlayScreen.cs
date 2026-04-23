@@ -352,7 +352,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IDirector director
 
     // ── Update ────────────────────────────────────────────────────────────
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         _levelTime += deltaTime;
         _arrowCooldown.Tick(deltaTime);
@@ -906,7 +906,7 @@ internal sealed class PlayScreen(CastleAttackGameState state, IDirector director
 
     // ── Draw ──────────────────────────────────────────────────────────────
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(ColSky);
         DrawGame(canvas);

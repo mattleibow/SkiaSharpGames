@@ -59,7 +59,7 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
         SpawnRandomTile(out _, out _, out _);
     }
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         if (_slideActive)
         {
@@ -136,7 +136,7 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
         }
     }
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 

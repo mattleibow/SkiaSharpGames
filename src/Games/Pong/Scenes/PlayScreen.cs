@@ -96,7 +96,7 @@ internal sealed class PlayScreen(PongGameState state, IDirector director) : Scen
         }
     }
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         _leftPaddle.Update(deltaTime);
         _rightPaddle.Update(deltaTime);
@@ -189,7 +189,7 @@ internal sealed class PlayScreen(PongGameState state, IDirector director) : Scen
         _serveTimer.Set(ServeDelay);
     }
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 

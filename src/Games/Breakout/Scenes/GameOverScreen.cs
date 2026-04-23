@@ -16,7 +16,7 @@ internal sealed class GameOverScreen(BreakoutGameState state, IDirector director
     private readonly HudLabel _scoreText = new() { FontSize = 32f, Color = SKColors.White, Align = TextAlign.Center };
     private readonly HudLabel _promptText = new() { Text = "Click or Tap to Play Again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.DrawRect(0, 0, GameWidth, GameHeight, _overlayPaint);
 

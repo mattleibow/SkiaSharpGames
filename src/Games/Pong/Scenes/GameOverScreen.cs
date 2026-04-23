@@ -12,7 +12,7 @@ internal sealed class GameOverScreen(PongGameState state, IDirector director) : 
     private readonly HudLabel _scoreText = new() { FontSize = 42f, Align = TextAlign.Center };
     private readonly HudLabel _restartText = new() { Text = "Click, tap, or press Space to play again", FontSize = 24f, Color = DimColor, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         _overlayPaint.Color = SKColors.Black.WithAlpha((byte)(255 * 0.76f));
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), _overlayPaint);

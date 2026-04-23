@@ -16,7 +16,7 @@ internal sealed class GameOverScreen(CastleAttackGameState state, IDirector dire
     private readonly HudLabel _scoreText = new() { FontSize = 32f, Color = ColHud, Align = TextAlign.Center };
     private readonly HudLabel _retryText = new() { Text = "Click or Tap to Try Again", FontSize = 22f, Color = ColAccent, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         OverlayPaint.Color = SKColors.Black.WithAlpha((byte)(255 * 0.75f));
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), OverlayPaint);

@@ -13,7 +13,7 @@ internal sealed class GameOverScreen(TwoZeroFourEightGameState state, IDirector 
     private readonly HudLabel _bestText = new() { FontSize = 28f, Color = LightTextColor, Align = TextAlign.Center };
     private readonly HudLabel _restartText = new() { Text = "Click, tap, Enter, or Space to restart", FontSize = 22f, Color = LightTextColor, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), _overlayPaint);
 

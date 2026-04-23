@@ -137,7 +137,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
 
     // ── Update ────────────────────────────────────────────────────────────
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         if (_endTriggered)
             return;
@@ -170,9 +170,9 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
         CheckCollisions();
         CheckLevelComplete();
 
-        _bullets.RemoveInactiveChildren();
-        _asteroids.RemoveInactiveChildren();
-        _debris.RemoveInactiveChildren();
+        _bullets.Children.RemoveInactive();
+        _asteroids.Children.RemoveInactive();
+        _debris.Children.RemoveInactive();
     }
 
     private void UpdateShipInput(float deltaTime)
@@ -212,7 +212,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
             cos * BulletSpeed + _ship.VelocityX * 0.3f,
             sin * BulletSpeed + _ship.VelocityY * 0.3f);
 
-        _bullets.AddChild(bullet);
+        _bullets.Children.Add(bullet);
     }
 
     private void CheckCollisions()
@@ -288,7 +288,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
                 float vx = MathF.Cos(angle) * speed;
                 float vy = MathF.Sin(angle) * speed;
                 var child = new Asteroid(newSize, ast.X, ast.Y, vx, vy, Random.Shared.Next());
-                _asteroids.AddChild(child);
+                _asteroids.Children.Add(child);
             }
         }
     }
@@ -327,7 +327,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
             float angle = Random.Shared.NextSingle() * MathF.PI * 2f;
             float speed = DebrisSpeed * (0.3f + Random.Shared.NextSingle() * 0.7f);
             var d = new Debris(x, y, MathF.Cos(angle) * speed, MathF.Sin(angle) * speed);
-            _debris.AddChild(d);
+            _debris.Children.Add(d);
         }
     }
 
@@ -351,7 +351,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
             float vx = MathF.Cos(angle) * speed;
             float vy = MathF.Sin(angle) * speed;
             var ast = new Asteroid(AsteroidSize.Large, x, y, vx, vy, Random.Shared.Next());
-            _asteroids.AddChild(ast);
+            _asteroids.Children.Add(ast);
         }
     }
 
@@ -382,7 +382,7 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
 
     // ── Draw ──────────────────────────────────────────────────────────────
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 
@@ -453,6 +453,6 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
     private static void ClearChildren(Actor parent)
     {
         while (parent.ChildCount > 0)
-            parent.RemoveChild(parent.Children[^1]);
+            parent.Children.Remove(parent.Children[^1]);
     }
 }

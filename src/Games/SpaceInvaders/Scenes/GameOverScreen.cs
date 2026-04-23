@@ -12,7 +12,7 @@ internal sealed class GameOverScreen(SpaceInvadersGameState state, IDirector dir
     private readonly HudLabel _scoreText = new() { FontSize = 32f, Color = SKColors.White, Align = TextAlign.Center };
     private readonly HudLabel _restartText = new() { Text = "Click, tap, or press Space to play again", FontSize = 24f, Color = HudDimColor, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), _overlayPaint);
 

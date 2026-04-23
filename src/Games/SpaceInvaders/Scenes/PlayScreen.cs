@@ -128,7 +128,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
         }
     }
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         if (_endTriggered)
             return;
@@ -164,7 +164,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
             X = _player.X,
             Y = _player.Y - PlayerHeight / 2f - BulletHeight / 2f - 2f,
         };
-        _playerBullets.AddChild(bullet);
+        _playerBullets.Children.Add(bullet);
     }
 
     private void UpdateInvaderFormation(float deltaTime)
@@ -242,7 +242,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
             X = shooter.X,
             Y = shooter.Y + InvaderHeight / 2f + BulletHeight / 2f + 2f,
         };
-        _enemyBullets.AddChild(bullet);
+        _enemyBullets.Children.Add(bullet);
     }
 
     private Invader? SelectEnemyShooter()
@@ -359,8 +359,8 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
             }
         }
 
-        _playerBullets.RemoveInactiveChildren();
-        _enemyBullets.RemoveInactiveChildren();
+        _playerBullets.Children.RemoveInactive();
+        _enemyBullets.Children.RemoveInactive();
     }
 
     private void CheckEndConditions()
@@ -417,7 +417,7 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
                     X = startX + col * (InvaderWidth + InvaderSpacingX),
                     Y = InvaderStartY + row * (InvaderHeight + InvaderSpacingY),
                 };
-                _formation.AddChild(invader);
+                _formation.Children.Add(invader);
             }
         }
     }
@@ -444,13 +444,13 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
                         X = topLeftX + col * (ShieldBlockSize + ShieldBlockGap) + ShieldBlockSize / 2f,
                         Y = ShieldY + row * (ShieldBlockSize + ShieldBlockGap) + ShieldBlockSize / 2f
                     };
-                    _shields.AddChild(block);
+                    _shields.Children.Add(block);
                 }
             }
         }
     }
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 
@@ -491,6 +491,6 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
     private static void ClearChildren(Actor parent)
     {
         while (parent.ChildCount > 0)
-            parent.RemoveChild(parent.Children[^1]);
+            parent.Children.Remove(parent.Children[^1]);
     }
 }

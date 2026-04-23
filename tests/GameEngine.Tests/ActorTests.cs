@@ -20,7 +20,7 @@ public class ActorTests
     {
         var parent = new Actor { X = 100f, Y = 200f };
         var child = new Actor { X = 10f, Y = 20f };
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
         Assert.Equal(110f, child.WorldX);
         Assert.Equal(220f, child.WorldY);
@@ -32,8 +32,8 @@ public class ActorTests
         var root = new Actor { X = 10f, Y = 10f };
         var mid = new Actor { X = 20f, Y = 20f };
         var leaf = new Actor { X = 5f, Y = 5f };
-        root.AddChild(mid);
-        mid.AddChild(leaf);
+        root.Children.Add(mid);
+        mid.Children.Add(leaf);
 
         Assert.Equal(35f, leaf.WorldX);
         Assert.Equal(35f, leaf.WorldY);
@@ -44,7 +44,7 @@ public class ActorTests
     {
         var parent = new Actor { X = 0f, Y = 0f };
         var child = new Actor { X = 10f, Y = 10f };
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
         Assert.Equal(10f, child.WorldX);
 
@@ -59,8 +59,8 @@ public class ActorTests
         var parent = new Actor { X = 100f, Y = 200f };
         var child1 = new Actor { X = 10f, Y = 10f };
         var child2 = new Actor { X = 20f, Y = 20f };
-        parent.AddChild(child1);
-        parent.AddChild(child2);
+        parent.Children.Add(child1);
+        parent.Children.Add(child2);
 
         child1.X = 50f;
         Assert.Equal(150f, child1.WorldX);
@@ -86,7 +86,7 @@ public class ActorTests
     {
         var parent = new Actor { X = 0f, Y = 0f, Rotation = MathF.PI / 2f }; // 90°
         var child = new Actor { X = 10f, Y = 0f };
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
         // 90° rotation: (10, 0) → (0, 10)
         Assert.Equal(0f, child.WorldX, 1e-4f);
@@ -98,7 +98,7 @@ public class ActorTests
     {
         var parent = new Actor { Rotation = MathF.PI / 4f };
         var child = new Actor { Rotation = MathF.PI / 4f };
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
         // 45° + 45° = 90°: WorldMatrix should rotate (1,0) to (0,1)
         var mapped = child.WorldMatrix.MapPoint(1f, 0f);
@@ -111,7 +111,7 @@ public class ActorTests
     {
         var parent = new Actor { X = 100f, Y = 100f }; // rotation = 0
         var child = new Actor { X = 50f, Y = 50f };
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
         Assert.Equal(150f, child.WorldX);
         Assert.Equal(150f, child.WorldY);
@@ -125,7 +125,7 @@ public class ActorTests
         var parent = new Actor { X = 100f, Y = 100f };
         var child = new Actor { X = 10f, Y = 10f };
 
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
         Assert.Same(parent, child.Parent);
         Assert.Single(parent.Children);
@@ -139,10 +139,10 @@ public class ActorTests
         var parent2 = new Actor { X = 50f, Y = 50f };
         var child = new Actor { X = 10f, Y = 10f };
 
-        parent1.AddChild(child);
+        parent1.Children.Add(child);
         Assert.Single(parent1.Children);
 
-        parent2.AddChild(child);
+        parent2.Children.Add(child);
         Assert.Empty(parent1.Children);
         Assert.Single(parent2.Children);
         Assert.Same(parent2, child.Parent);
@@ -154,9 +154,9 @@ public class ActorTests
     {
         var parent = new Actor { X = 100f, Y = 100f };
         var child = new Actor { X = 10f, Y = 10f };
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
-        parent.RemoveChild(child);
+        parent.Children.Remove(child);
 
         Assert.Null(child.Parent);
         Assert.Empty(parent.Children);
@@ -169,10 +169,10 @@ public class ActorTests
         var parent = new Actor();
         var active = new Actor { Active = true };
         var inactive = new Actor { Active = false };
-        parent.AddChild(active);
-        parent.AddChild(inactive);
+        parent.Children.Add(active);
+        parent.Children.Add(inactive);
 
-        int removed = parent.RemoveInactiveChildren();
+        int removed = parent.Children.RemoveInactive();
 
         Assert.Equal(1, removed);
         Assert.Single(parent.Children);
@@ -186,8 +186,8 @@ public class ActorTests
         var parent = new Actor();
         Assert.Equal(0, parent.ChildCount);
 
-        parent.AddChild(new Actor());
-        parent.AddChild(new Actor());
+        parent.Children.Add(new Actor());
+        parent.Children.Add(new Actor());
         Assert.Equal(2, parent.ChildCount);
     }
 
@@ -216,7 +216,7 @@ public class ActorTests
         {
             Rigidbody = new Rigidbody2D { VelocityX = 10f }
         };
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
         parent.Update(1f);
 
@@ -280,7 +280,7 @@ public class ActorTests
     {
         var child = new TrackingEntity();
         var parent = new Actor();
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
         using var surface = SKSurface.Create(new SKImageInfo(100, 100));
         parent.Draw(surface.Canvas);
@@ -363,7 +363,7 @@ public class ActorTests
             X = 10f, Y = 10f,
             Collider = new RectCollider { Width = 20f, Height = 20f }
         };
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
         var bb = child.WorldBoundingBox;
         Assert.NotNull(bb);
@@ -404,12 +404,12 @@ public class ActorTests
     public void ChildrenBoundingBox_EnclosesAllActiveChildren()
     {
         var parent = new Actor();
-        parent.AddChild(new Actor
+        parent.Children.Add(new Actor
         {
             X = 0f, Y = 0f,
             Collider = new RectCollider { Width = 10f, Height = 10f }
         });
-        parent.AddChild(new Actor
+        parent.Children.Add(new Actor
         {
             X = 100f, Y = 0f,
             Collider = new RectCollider { Width = 10f, Height = 10f }
@@ -425,12 +425,12 @@ public class ActorTests
     public void ChildrenBoundingBox_SkipsInactiveChildren()
     {
         var parent = new Actor();
-        parent.AddChild(new Actor
+        parent.Children.Add(new Actor
         {
             X = 0f, Y = 0f,
             Collider = new RectCollider { Width = 10f, Height = 10f }
         });
-        parent.AddChild(new Actor
+        parent.Children.Add(new Actor
         {
             X = 1000f, Y = 0f, Active = false,
             Collider = new RectCollider { Width = 10f, Height = 10f }
@@ -452,7 +452,7 @@ public class ActorTests
             X = 50f, Y = 50f,
             Collider = new RectCollider { Width = 20f, Height = 20f }
         };
-        parent.AddChild(brick);
+        parent.Children.Add(brick);
 
         var ball = new Actor
         {
@@ -468,7 +468,7 @@ public class ActorTests
     public void FindChildCollision_ReturnsNullWhenNoOverlap()
     {
         var parent = new Actor();
-        parent.AddChild(new Actor
+        parent.Children.Add(new Actor
         {
             X = 50f, Y = 50f,
             Collider = new RectCollider { Width = 20f, Height = 20f }
@@ -488,7 +488,7 @@ public class ActorTests
     public void FindChildCollision_SkipsInactiveChildren()
     {
         var parent = new Actor();
-        parent.AddChild(new Actor
+        parent.Children.Add(new Actor
         {
             X = 0f, Y = 0f, Active = false,
             Collider = new RectCollider { Width = 100f, Height = 100f }
@@ -507,7 +507,7 @@ public class ActorTests
     public void FindChildCollision_ReturnsNullWhenOtherHasNoCollider()
     {
         var parent = new Actor();
-        parent.AddChild(new Actor
+        parent.Children.Add(new Actor
         {
             X = 0f, Y = 0f,
             Collider = new RectCollider { Width = 100f, Height = 100f }
@@ -532,7 +532,7 @@ public class ActorTests
     {
         var parent = new Actor { X = 100f, Y = 200f };
         var child = new Actor { X = 10f, Y = 20f };
-        parent.AddChild(child);
+        parent.Children.Add(child);
 
         // WorldMatrix should map origin to child's world position
         var worldPos = child.WorldMatrix.MapPoint(0f, 0f);
@@ -597,8 +597,8 @@ public class ActorTests
     public void Actor_ChildrenBoundingBox_IgnoresNonActorChildren()
     {
         var parent = new Actor();
-        parent.AddChild(new SceneNode()); // non-Actor child
-        parent.AddChild(new Actor
+        parent.Children.Add(new SceneNode()); // non-Actor child
+        parent.Children.Add(new Actor
         {
             X = 10f, Y = 10f,
             Collider = new RectCollider { Width = 20f, Height = 20f }
@@ -612,8 +612,8 @@ public class ActorTests
     public void Actor_FindChildCollision_IgnoresNonActorChildren()
     {
         var parent = new Actor();
-        parent.AddChild(new SceneNode()); // non-Actor child
-        parent.AddChild(new Actor
+        parent.Children.Add(new SceneNode()); // non-Actor child
+        parent.Children.Add(new Actor
         {
             X = 0f, Y = 0f,
             Collider = new RectCollider { Width = 100f, Height = 100f }
@@ -643,7 +643,7 @@ public class ActorTests
     {
         var parent = new Actor { Name = "parent" };
         var child = new Actor { Name = "child" };
-        parent.AddChild(child);
+        parent.Children.Add(child);
         var dump = parent.Dump();
         Assert.Contains("parent", dump);
         Assert.Contains("child", dump);
@@ -654,7 +654,7 @@ public class ActorTests
     {
         var parent = new Actor { Name = "parent" };
         var child = new SceneNode { Name = "sceneChild" };
-        parent.AddChild(child);
+        parent.Children.Add(child);
         var dump = parent.Dump();
         Assert.Contains("parent", dump);
         Assert.Contains("sceneChild", dump);
@@ -666,9 +666,9 @@ public class ActorTests
         var parent1 = new Actor { X = 100f };
         var parent2 = new Actor { X = 200f };
         var child = new Actor { X = 10f };
-        parent1.AddChild(child);
+        parent1.Children.Add(child);
         Assert.Equal(110f, child.WorldX, 1e-3f);
-        parent2.AddChild(child);
+        parent2.Children.Add(child);
         Assert.Equal(210f, child.WorldX, 1e-3f);
     }
 
@@ -677,9 +677,9 @@ public class ActorTests
     {
         var parent = new Actor { X = 100f };
         var child = new Actor { X = 10f };
-        parent.AddChild(child);
+        parent.Children.Add(child);
         Assert.Equal(110f, child.WorldX, 1e-3f);
-        parent.RemoveChild(child);
+        parent.Children.Remove(child);
         Assert.Equal(10f, child.WorldX, 1e-3f);
     }
 }

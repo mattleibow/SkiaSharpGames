@@ -13,7 +13,7 @@ internal sealed class GameOverScreen(SnakeGameState state, IDirector director) :
     private readonly HudLabel _highScoreText = new() { FontSize = 24f, Color = DimColor, Align = TextAlign.Center };
     private readonly HudLabel _promptText = new() { Text = "Click, tap, or press Space to try again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.DrawRect(0, 0, GameWidth, GameHeight, _overlayPaint);
 

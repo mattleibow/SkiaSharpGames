@@ -54,6 +54,6 @@ public class HudThemeTests
 
     private sealed class BlankScreen : Scene
     {
-        public override void Draw(SKCanvas canvas, int width, int height) { }
+        protected override void OnDraw(SKCanvas canvas) { }
     }
 }

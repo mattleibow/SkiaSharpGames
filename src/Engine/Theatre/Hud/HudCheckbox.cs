@@ -10,7 +10,7 @@ namespace SkiaSharp.Theatre;
 /// <example><code>
 /// var checkbox = new HudCheckbox(34f, 34f);
 /// checkbox.X = 57f; checkbox.Y = 221f;
-/// controls.AddChild(checkbox);
+/// controls.Children.Add(checkbox);
 ///
 /// // On pointer down:
 /// if (controls.FindChildCollision(pointer, out _) is HudCheckbox cb)

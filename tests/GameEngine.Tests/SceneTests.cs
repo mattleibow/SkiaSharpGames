@@ -9,7 +9,7 @@ public class SceneTests
 {
     private sealed class DefaultScene : Scene
     {
-        public override void Draw(SKCanvas c, int w, int h) { }
+        protected override void OnDraw(SKCanvas c) { }
     }
 
     [Fact]

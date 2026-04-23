@@ -15,7 +15,7 @@ internal sealed class StartScreen(IDirector director) : Scene
     private readonly HudLabel _instruction3 = new() { Text = "Only four depth charges may be active at once", FontSize = 20f, Color = DimColor, Align = TextAlign.Center };
     private readonly HudLabel _startPrompt = new() { Text = "Click, tap, or press Space to begin", FontSize = 24f, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(SkyColor);
 

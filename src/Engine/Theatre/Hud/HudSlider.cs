@@ -11,7 +11,7 @@ namespace SkiaSharp.Theatre;
 /// <example><code>
 /// var slider = new HudSlider(320f, 26f);
 /// slider.X = 200f; slider.Y = 363f;
-/// controls.AddChild(slider);
+/// controls.Children.Add(slider);
 ///
 /// // On pointer down / move when dragging:
 /// slider.UpdateValueFromPointer(worldX);

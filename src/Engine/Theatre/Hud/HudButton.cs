@@ -11,7 +11,7 @@ namespace SkiaSharp.Theatre;
 /// <example><code>
 /// var button = new HudButton(190f, 56f) { Label = "Start" };
 /// button.X = 200f; button.Y = 150f;
-/// controls.AddChild(button);
+/// controls.Children.Add(button);
 ///
 /// // On pointer down — use collision to find the hit control:
 /// if (controls.FindChildCollision(pointer, out _) is HudButton btn)

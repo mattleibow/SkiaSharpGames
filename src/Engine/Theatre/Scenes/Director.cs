@@ -185,7 +185,7 @@ internal sealed class Director : IDirector, IRenderer
     }
 
     /// <inheritdoc/>
-    public void Draw(SKCanvas canvas, int width, int height)
+    public void Draw(SKCanvas canvas)
     {
         EnsureInitialized();
 
@@ -194,15 +194,15 @@ internal sealed class Director : IDirector, IRenderer
             float progress = Math.Clamp(_activeCurtain.Progress, 0f, 1f);
             _activeCurtain.Curtain.Draw(
                 canvas, progress,
-                c => _activeCurtain.Outgoing.Draw(c, width, height),
-                c => _activeCurtain.Incoming.Draw(c, width, height),
-                width, height);
+                c => _activeCurtain.Outgoing.Draw(c),
+                c => _activeCurtain.Incoming.Draw(c),
+                (int)(_stage!.StageSize.Width), (int)(_stage!.StageSize.Height));
         }
         else
         {
-            _current!.Draw(canvas, width, height);
+            _current!.Draw(canvas);
             foreach (var layer in _sceneStack)
-                layer.Draw(canvas, width, height);
+                layer.Draw(canvas);
         }
     }
 

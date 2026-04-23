@@ -7,7 +7,7 @@ namespace SkiaSharp.Theatre;
 /// <example><code>
 /// var sw = new HudSwitch(110f, 42f);
 /// sw.X = 95f; sw.Y = 289f;
-/// controls.AddChild(sw);
+/// controls.Children.Add(sw);
 ///
 /// // On pointer down:
 /// if (controls.FindChildCollision(pointer, out _) is HudSwitch s)

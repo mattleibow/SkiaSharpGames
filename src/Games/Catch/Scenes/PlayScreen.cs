@@ -66,7 +66,7 @@ internal sealed class PlayScreen(CatchGameState state, IDirector director) : Sce
         }
     }
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         if (_leftHeld)
             MoveBarTo(_bar.X - BarSpeed * deltaTime);
@@ -99,7 +99,7 @@ internal sealed class PlayScreen(CatchGameState state, IDirector director) : Sce
         }
     }
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 

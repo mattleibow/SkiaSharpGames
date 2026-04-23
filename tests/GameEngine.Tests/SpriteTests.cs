@@ -114,7 +114,7 @@ public class HudLabelTests
     {
         var parent = new Actor { X = 100f, Y = 200f };
         var label = new HudLabel { Text = "child", X = 10f, Y = 20f };
-        parent.AddChild(label);
+        parent.Children.Add(label);
         Assert.Equal(110f, label.WorldX);
         Assert.Equal(220f, label.WorldY);
     }

@@ -141,21 +141,21 @@ public class StageBuilderTests
 
     private sealed class OverlayScreen : Scene
     {
-        public override void Update(float dt) { }
-        public override void Draw(SKCanvas c, int w, int h) { }
+        protected override void OnUpdate(float dt) { }
+        protected override void OnDraw(SKCanvas c) { }
     }
 
     private sealed class ScreenA(ScreenTracker t) : Scene
     {
-        public override void Update(float dt) { }
-        public override void Draw(SKCanvas c, int w, int h) { }
+        protected override void OnUpdate(float dt) { }
+        protected override void OnDraw(SKCanvas c) { }
         public override void OnActivated() => t.AActivated = true;
     }
 
     private sealed class ScreenB(ScreenTracker t) : Scene
     {
-        public override void Update(float dt) { }
-        public override void Draw(SKCanvas c, int w, int h) { }
+        protected override void OnUpdate(float dt) { }
+        protected override void OnDraw(SKCanvas c) { }
         public override void OnActivated() => t.BActivated = true;
     }
 

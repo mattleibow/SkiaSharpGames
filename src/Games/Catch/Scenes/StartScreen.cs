@@ -13,7 +13,7 @@ internal sealed class StartScreen(IDirector director) : Scene
     private readonly HudLabel _instruction3 = new() { Text = "You have 3 lives", FontSize = 22f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 414f };
     private readonly HudLabel _startPrompt = new() { Text = "Click, tap, or press Space to start", FontSize = 24f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 474f };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 

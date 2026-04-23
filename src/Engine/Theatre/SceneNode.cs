@@ -32,46 +32,6 @@ public class SceneNode
         Children = new SceneNodeCollection(this);
     }
 
-    // ── Convenience wrappers (delegate to Children) ───────────────────
-
-    /// <summary>
-    /// Adds <paramref name="child"/> to this node's children. If the child already
-    /// has a parent it is removed from that parent first.
-    /// </summary>
-    public void AddChild(SceneNode child) => Children.Add(child);
-
-    /// <summary>Removes <paramref name="child"/> from this node's children.</summary>
-    public void RemoveChild(SceneNode child) => Children.Remove(child);
-
-    /// <summary>Removes all children where <see cref="Active"/> is false.</summary>
-    public int RemoveInactiveChildren() => Children.RemoveInactive();
-
-    /// <summary>Inserts <paramref name="child"/> at the given index.</summary>
-    public void InsertChild(int index, SceneNode child) => Children.Insert(index, child);
-
-    /// <summary>Returns the index of <paramref name="child"/>, or -1 if not found.</summary>
-    public int IndexOf(SceneNode child) => Children.IndexOf(child);
-
-    /// <summary>
-    /// Moves <paramref name="child"/> to the end of the children list (drawn last / on top).
-    /// </summary>
-    public void MoveChildToFront(SceneNode child) => Children.MoveToFront(child);
-
-    /// <summary>
-    /// Moves <paramref name="child"/> to the start of the children list (drawn first / behind).
-    /// </summary>
-    public void MoveChildToBack(SceneNode child) => Children.MoveToBack(child);
-
-    /// <summary>
-    /// Moves <paramref name="child"/> one position toward the end (drawn later).
-    /// </summary>
-    public void MoveChildUp(SceneNode child) => Children.MoveUp(child);
-
-    /// <summary>
-    /// Moves <paramref name="child"/> one position toward the start (drawn earlier).
-    /// </summary>
-    public void MoveChildDown(SceneNode child) => Children.MoveDown(child);
-
     // ── Theme ─────────────────────────────────────────────────────────
 
     /// <summary>

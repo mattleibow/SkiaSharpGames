@@ -13,7 +13,7 @@ internal sealed class StartScreen(IDirector director) : Scene
     private readonly HudLabel _goal = new() { Text = "Stop the aliens before they land", FontSize = 24f, Color = SKColors.White, Align = TextAlign.Center };
     private readonly HudLabel _startPrompt = new() { Text = "Click, tap, or press Space to start", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 

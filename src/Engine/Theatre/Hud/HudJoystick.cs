@@ -13,7 +13,7 @@ namespace SkiaSharp.Theatre;
 /// <example><code>
 /// var joystick = new HudJoystick(86f);
 /// joystick.X = 620f; joystick.Y = 360f;
-/// controls.AddChild(joystick);
+/// controls.Children.Add(joystick);
 ///
 /// // On pointer move while dragging:
 /// joystick.UpdateFromPointer(worldX, worldY);

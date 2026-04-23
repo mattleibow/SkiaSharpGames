@@ -91,7 +91,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
         }
     }
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         UpdateShip(deltaTime);
         UpdateCharges(deltaTime);
@@ -132,7 +132,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
             Y = _ship.Y + ChargeSpawnOffsetY
         };
         charge.Rigidbody.SetVelocity(0f, ChargeSpeed);
-        _depthCharges.AddChild(charge);
+        _depthCharges.Children.Add(charge);
     }
 
     private void UpdateCharges(float deltaTime)
@@ -157,7 +157,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
                 charge.Active = false;
         }
 
-        _depthCharges.RemoveInactiveChildren();
+        _depthCharges.Children.RemoveInactive();
     }
 
     private void UpdateSubmarines(float deltaTime)
@@ -188,7 +188,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
                     Y = sub.Y - 12f
                 };
                 mine.Rigidbody.SetVelocity(0f, -MineSpeed);
-                _mines.AddChild(mine);
+                _mines.Children.Add(mine);
             }
         }
     }
@@ -220,7 +220,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
             }
         }
 
-        _mines.RemoveInactiveChildren();
+        _mines.Children.RemoveInactive();
     }
 
     private void StartNextWave()
@@ -241,11 +241,11 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
 
             var sub = new Submarine();
             sub.Reset(x, y, speed, direction, 1f + Random.Shared.NextSingle() * 2.4f);
-            _submarines.AddChild(sub);
+            _submarines.Children.Add(sub);
         }
     }
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(SkyColor);
 
@@ -289,6 +289,6 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
     private static void ClearChildren(Actor parent)
     {
         while (parent.ChildCount > 0)
-            parent.RemoveChild(parent.Children[^1]);
+            parent.Children.Remove(parent.Children[^1]);
     }
 }

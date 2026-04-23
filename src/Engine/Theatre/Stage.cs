@@ -87,7 +87,7 @@ public sealed class Stage
         canvas.Save();
         canvas.Concat(viewport);
 
-        _drawable.Draw(canvas, (int)gw, (int)gh);
+        _drawable.Draw(canvas);
 
         canvas.Restore();
     }

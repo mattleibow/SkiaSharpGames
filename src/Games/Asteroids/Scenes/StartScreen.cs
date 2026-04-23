@@ -39,7 +39,7 @@ internal sealed class StartScreen(IDirector director) : Scene
         }
     }
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         for (int i = 0; i < _bgAsteroids.Count; i++)
         {
@@ -54,7 +54,7 @@ internal sealed class StartScreen(IDirector director) : Scene
         }
     }
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 

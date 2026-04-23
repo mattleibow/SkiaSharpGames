@@ -42,9 +42,9 @@ internal sealed class Lander : Actor
             Visible = false
         };
 
-        AddChild(MainFlame);
-        AddChild(LeftFlame);
-        AddChild(RightFlame);
+        Children.Add(MainFlame);
+        Children.Add(LeftFlame);
+        Children.Add(RightFlame);
     }
 
     public FlameEntity MainFlame { get; }

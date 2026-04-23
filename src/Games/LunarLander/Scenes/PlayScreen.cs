@@ -134,7 +134,7 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
 
     // ── Update ────────────────────────────────────────────────────────────
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         if (_gameOver) return;
 
@@ -228,7 +228,7 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
 
     // ── Draw ──────────────────────────────────────────────────────────────
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
         DrawGameContent(canvas);

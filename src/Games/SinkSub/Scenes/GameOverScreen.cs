@@ -13,7 +13,7 @@ internal sealed class GameOverScreen(SinkSubGameState state, IDirector director)
     private readonly HudLabel _waveText = new() { FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
     private readonly HudLabel _restartText = new() { Text = "Click, tap, or press Space to sail again", FontSize = 22f, Color = DimColor, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         _fillPaint.Color = SKColors.Black.WithAlpha((byte)(255 * 0.78f));
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), _fillPaint);

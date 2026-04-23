@@ -71,7 +71,7 @@ internal sealed class PlayScreen(SnakeGameState state, IDirector director) : Sce
 
     // ── Update ────────────────────────────────────────────────────────────
 
-    public override void Update(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
     {
         _stepTimer += deltaTime;
 
@@ -103,7 +103,7 @@ internal sealed class PlayScreen(SnakeGameState state, IDirector director) : Sce
 
     // ── Draw ──────────────────────────────────────────────────────────────
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 

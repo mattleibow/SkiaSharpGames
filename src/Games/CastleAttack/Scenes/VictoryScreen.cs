@@ -17,7 +17,7 @@ internal sealed class VictoryScreen(CastleAttackGameState state, IDirector direc
     private readonly HudLabel _keepText = new() { Text = "The keep is complete!", FontSize = 22f, Color = ColAccent, Align = TextAlign.Center };
     private readonly HudLabel _playAgainText = new() { Text = "Click or Tap to Play Again", FontSize = 22f, Color = ColDim, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         OverlayPaint.Color = SKColors.Black.WithAlpha((byte)(255 * 0.75f));
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), OverlayPaint);

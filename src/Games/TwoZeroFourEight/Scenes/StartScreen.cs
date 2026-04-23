@@ -11,7 +11,7 @@ internal sealed class StartScreen(IDirector director) : Scene
     private readonly HudLabel _controls = new() { Text = "Arrow keys or swipe", FontSize = 24f, Color = HeaderColor, Align = TextAlign.Center };
     private readonly HudLabel _startPrompt = new() { Text = "Click, tap, Enter, or Space to begin", FontSize = 24f, Color = HeaderColor, Align = TextAlign.Center };
 
-    public override void Draw(SKCanvas canvas, int width, int height)
+    protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
 

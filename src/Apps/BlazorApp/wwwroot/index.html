@@ -7,6 +7,18 @@
     <title>SkiaSharp Games</title>
     <base href="/" />
     <link rel="preload" id="webassembly" />
+    <script>
+        // GitHub Pages SPA redirect: pick up the route stored by 404.html
+        (function () {
+            var redirect = sessionStorage.getItem('spa-redirect');
+            if (redirect) {
+                sessionStorage.removeItem('spa-redirect');
+                var base = document.querySelector('base').getAttribute('href');
+                var newUrl = base + redirect;
+                history.replaceState(null, '', newUrl);
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="SkiaSharpGames.BlazorApp.styles.css" rel="stylesheet" />

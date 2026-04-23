@@ -8,17 +8,17 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
 {
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
 
-    private readonly HudLabel _scoreText = new() { FontSize = 22f };
-    private readonly HudLabel _livesText = new() { FontSize = 22f };
-    private readonly HudLabel _waveText = new() { FontSize = 22f };
-    private readonly HudLabel _chargeText = new() { FontSize = 22f, Color = AccentColor, Align = TextAlign.Right };
-    private readonly HudLabel _instructionsText = new() { FontSize = 16f, Color = DimColor, Align = TextAlign.Center, Text = "Z = left charge    X / Space = right charge" };
-    private readonly HudLabel _waveIncomingText = new() { FontSize = 28f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 22f, X = 20f, Y = 32f };
+    private readonly HudLabel _livesText = new() { Name = "lives", FontSize = 22f, X = 20f, Y = 60f };
+    private readonly HudLabel _waveText = new() { FontSize = 22f, X = 20f, Y = 88f };
+    private readonly HudLabel _chargeText = new() { FontSize = 22f, Color = AccentColor, Align = TextAlign.Right, X = GameWidth - 20f, Y = 32f };
+    private readonly HudLabel _instructionsText = new() { FontSize = 16f, Color = DimColor, Align = TextAlign.Center, Text = "Z = left charge    X / Space = right charge", X = GameWidth / 2f, Y = 32f };
+    private readonly HudLabel _waveIncomingText = new() { FontSize = 28f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 170f, Visible = false };
 
-    private readonly Ship _ship = new();
-    private readonly Actor _submarines = new();
-    private readonly Actor _depthCharges = new();
-    private readonly Actor _mines = new();
+    private readonly Ship _ship = new() { Name = "ship" };
+    private readonly Actor _submarines = new() { Name = "submarines" };
+    private readonly Actor _depthCharges = new() { Name = "charges" };
+    private readonly Actor _mines = new() { Name = "mines" };
 
     private bool _leftHeld;
     private bool _rightHeld;
@@ -29,6 +29,20 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
 
     public override void OnActivating()
     {
+        if (ChildCount == 0)
+        {
+            Children.Add(_ship);
+            Children.Add(_depthCharges);
+            Children.Add(_submarines);
+            Children.Add(_mines);
+            Children.Add(_scoreText);
+            Children.Add(_livesText);
+            Children.Add(_waveText);
+            Children.Add(_chargeText);
+            Children.Add(_instructionsText);
+            Children.Add(_waveIncomingText);
+        }
+
         state.Score = 0;
         state.Lives = 3;
         state.Wave = 0;
@@ -106,6 +120,16 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
 
         if (_wavePending && _nextWaveTimer.Tick(deltaTime))
             StartNextWave();
+
+        // HUD text
+        _scoreText.Text = $"Score: {state.Score}";
+        _livesText.Text = $"Lives: {state.Lives}";
+        _waveText.Text = $"Wave: {state.Wave}";
+        _chargeText.Text = $"Charges: {_depthCharges.ChildCount}/{MaxCharges}";
+
+        _waveIncomingText.Visible = _wavePending;
+        if (_wavePending)
+            _waveIncomingText.Text = $"Wave {state.Wave + 1} incoming...";
     }
 
     private void UpdateShip(float deltaTime)
@@ -137,8 +161,6 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
 
     private void UpdateCharges(float deltaTime)
     {
-        _depthCharges.Update(deltaTime);
-
         var charges = _depthCharges.Children;
         for (int i = charges.Count - 1; i >= 0; i--)
         {
@@ -162,8 +184,6 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
 
     private void UpdateSubmarines(float deltaTime)
     {
-        _submarines.Update(deltaTime);
-
         foreach (var child in _submarines.Children)
         {
             if (child is not Submarine sub || !sub.Active)
@@ -195,8 +215,6 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
 
     private void UpdateMines(float deltaTime)
     {
-        _mines.Update(deltaTime);
-
         var mines = _mines.Children;
         for (int i = mines.Count - 1; i >= 0; i--)
         {
@@ -259,31 +277,6 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
         _fillPaint.Color = SKColors.White.WithAlpha((byte)(255 * 0.18f));
         for (int i = 0; i < 8; i++)
             canvas.DrawRect(SKRect.Create(30f + i * 110f, WaterlineY + 20f + (i % 2) * 10f, 60f, 2f), _fillPaint);
-
-        _ship.Draw(canvas);
-        _depthCharges.Draw(canvas);
-        _submarines.Draw(canvas);
-        _mines.Draw(canvas);
-
-        _scoreText.Text = $"Score: {state.Score}";
-        canvas.Save(); canvas.Translate(20f, 32f); _scoreText.Draw(canvas); canvas.Restore();
-
-        _livesText.Text = $"Lives: {state.Lives}";
-        canvas.Save(); canvas.Translate(20f, 60f); _livesText.Draw(canvas); canvas.Restore();
-
-        _waveText.Text = $"Wave: {state.Wave}";
-        canvas.Save(); canvas.Translate(20f, 88f); _waveText.Draw(canvas); canvas.Restore();
-
-        _chargeText.Text = $"Charges: {_depthCharges.ChildCount}/{MaxCharges}";
-        canvas.Save(); canvas.Translate(GameWidth - 20f, 32f); _chargeText.Draw(canvas); canvas.Restore();
-
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 32f); _instructionsText.Draw(canvas); canvas.Restore();
-
-        if (_wavePending)
-        {
-            _waveIncomingText.Text = $"Wave {state.Wave + 1} incoming...";
-            canvas.Save(); canvas.Translate(GameWidth / 2f, 170f); _waveIncomingText.Draw(canvas); canvas.Restore();
-        }
     }
 
     private static void ClearChildren(Actor parent)

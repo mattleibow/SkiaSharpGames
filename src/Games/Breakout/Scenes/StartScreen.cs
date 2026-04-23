@@ -7,15 +7,25 @@ namespace SkiaSharpGames.Breakout;
 /// <summary>Start/title scene: decorative brick grid + instructions. Click to start the game.</summary>
 internal sealed class StartScreen(IDirector director) : Scene
 {
-    private readonly HudLabel _title = new() { Text = "BREAKOUT", FontSize = 72f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly HudLabel _startPrompt = new() { Text = "Click or Tap to Start", FontSize = 28f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly HudLabel _instructions = new() { Text = "Move mouse / finger / arrow keys to control the paddle", FontSize = 18f, Color = DimColor, Align = TextAlign.Center };
+    private readonly HudLabel _title = new() { Text = "BREAKOUT", FontSize = 72f, Color = SKColors.White, Align = TextAlign.Center, X = GameWidth / 2f, Y = 290f };
+    private readonly HudLabel _startPrompt = new() { Text = "Click or Tap to Start", FontSize = 28f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 360f };
+    private readonly HudLabel _instructions = new() { Text = "Move mouse / finger / arrow keys to control the paddle", FontSize = 18f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 415f };
 
-    private readonly List<Brick> _bricks = [];
+    private readonly Actor _brickContainer = new() { Name = "bricks" };
 
     public override void OnActivating()
     {
-        _bricks.Clear();
+        if (ChildCount == 0)
+        {
+            Children.Add(_brickContainer);
+            Children.Add(_title);
+            Children.Add(_startPrompt);
+            Children.Add(_instructions);
+        }
+
+        foreach (var child in _brickContainer.Children.ToArray())
+            _brickContainer.Children.Remove(child);
+
         for (int r = 0; r < BrickRows; r++)
         {
             for (int c = 0; c < BrickCols; c++)
@@ -24,31 +34,16 @@ internal sealed class StartScreen(IDirector director) : Scene
                 float cy = BricksStartY + r * (BrickHeight + BrickGap) + BrickHeight / 2f;
                 var brick = new Brick(r, c, cx, cy);
                 brick.Color = BrickColors[r];
+                brick.Alpha = 0.3f;
                 brick.Shimmer.Start(Random.Shared.NextSingle() * brick.Shimmer.Period);
-                _bricks.Add(brick);
+                _brickContainer.Children.Add(brick);
             }
         }
-    }
-
-    protected override void OnUpdate(float deltaTime)
-    {
-        foreach (var brick in _bricks)
-            brick.Update(deltaTime);
     }
 
     protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
-
-        foreach (var brick in _bricks)
-        {
-            brick.Alpha = 0.3f;
-            brick.Draw(canvas);
-        }
-
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 290f); _title.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 360f); _startPrompt.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 415f); _instructions.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y)

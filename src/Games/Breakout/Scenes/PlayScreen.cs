@@ -8,8 +8,8 @@ namespace SkiaSharpGames.Breakout;
 internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : Scene
 {
     // ── Entities ──────────────────────────────────────────────────────────
-    private readonly Ball _ball = new();
-    private readonly Paddle _paddle = new();
+    private readonly Ball _ball = new() { Name = "ball" };
+    private readonly Paddle _paddle = new() { Name = "paddle" };
 
     // ── Boundary walls ────────────────────────────────────────────────────
     private static readonly float WallThickness = 100f;
@@ -26,18 +26,30 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
     private bool _leftHeld, _rightHeld;
 
     // ── Actor groups (parenting) ─────────────────────────────────────────
-    private readonly Actor _bricks = new();
-    private readonly Actor _powerUps = new();
+    private readonly Actor _bricks = new() { Name = "bricks" };
+    private readonly Actor _powerUps = new() { Name = "powerups" };
 
     // ── Text sprites ──────────────────────────────────────────────────────
-    private readonly HudLabel _scoreText = new() { FontSize = 20f, Color = SKColors.White };
-    private readonly HudLabel _livesText = new() { FontSize = 20f, Color = SKColors.White, Align = TextAlign.Right };
+    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 20f, Color = SKColors.White, X = 20f, Y = 30f };
+    private readonly HudLabel _livesText = new() { Name = "lives", FontSize = 20f, Color = SKColors.White, Align = TextAlign.Right, X = GameWidth - 20f, Y = 30f };
     private readonly HudLabel _powerUpLabel = new() { FontSize = 11f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly HudLabel _strongBallText = new() { FontSize = 14f, Align = TextAlign.Center };
-    private readonly HudLabel _bigPaddleText = new() { FontSize = 14f, Align = TextAlign.Center };
+    private readonly HudLabel _strongBallText = new() { FontSize = 14f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 52f, Visible = false };
+    private readonly HudLabel _bigPaddleText = new() { FontSize = 14f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 70f, Visible = false };
 
     public override void OnActivating()
     {
+        if (ChildCount == 0)
+        {
+            Children.Add(_bricks);
+            Children.Add(_powerUps);
+            Children.Add(_paddle);
+            Children.Add(_ball);
+            Children.Add(_scoreText);
+            Children.Add(_livesText);
+            Children.Add(_strongBallText);
+            Children.Add(_bigPaddleText);
+        }
+
         state.Score = 0;
         state.Lives = 3;
         _strongBallTimer = default;
@@ -129,11 +141,6 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
             _paddle.X = Math.Clamp(_paddle.X + direction * PaddleSpeed * deltaTime, halfW, GameWidth - halfW);
         }
 
-        // Actor.Update handles rigidbody step + sprite update via OnUpdate
-        _paddle.Update(deltaTime);
-        _ball.Update(deltaTime);
-        _bricks.Update(deltaTime);
-
         // Power-up timers
         _strongBallTimer.Tick(deltaTime);
 
@@ -168,6 +175,32 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
 
         // Falling power-ups
         UpdateFallingPowerUps(deltaTime);
+
+        // Visual state (moved from OnDraw for auto-draw tree)
+        _paddle.Color = _bigPaddleTimer.Active || _paddle.IsWidthAnimating
+            ? BigPaddleColor : PaddleColor;
+        _ball.Color = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
+        _ball.GlowColor = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
+
+        // HUD text
+        _scoreText.Text = $"Score: {state.Score}";
+        _livesText.Text = $"Lives: {state.Lives}";
+
+        // Power-up timer HUD
+        _strongBallText.Visible = _strongBallTimer.Active;
+        if (_strongBallTimer.Active)
+        {
+            _strongBallText.Text = $"STRONG BALL {_strongBallTimer.Remaining:F1}s";
+            _strongBallText.Color = StrongBallColor;
+        }
+
+        _bigPaddleText.Visible = _bigPaddleTimer.Active;
+        if (_bigPaddleTimer.Active)
+        {
+            _bigPaddleText.Text = $"BIG PADDLE {_bigPaddleTimer.Remaining:F1}s";
+            _bigPaddleText.Color = BigPaddleColor;
+            _bigPaddleText.Y = _strongBallTimer.Active ? 70f : 52f;
+        }
 
         if (!_bricks.Children.Any(b => b.Active))
             director.PushScene<VictoryScreen>();
@@ -221,7 +254,6 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
 
     private void UpdateFallingPowerUps(float deltaTime)
     {
-        _powerUps.Update(deltaTime);
         float halfPaddleW = _paddle.Width / 2f;
 
         foreach (var child in _powerUps.Children.ToArray())
@@ -261,53 +293,13 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
     protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
-        DrawGameContent(canvas);
-    }
 
-    internal void DrawGameContent(SKCanvas canvas)
-    {
-        // Actor groups draw all children recursively
-        _bricks.Draw(canvas);
-        _powerUps.Draw(canvas);
-
-        // Draw power-up labels on top of power-up actors
+        // Power-up labels drawn per-powerup (can't be a child)
         foreach (var child in _powerUps.Children)
         {
             if (child is not FallingPowerUp pu || !pu.Active) continue;
             _powerUpLabel.Text = pu.Type == PowerUpType.StrongBall ? "S" : "B";
             canvas.Save(); canvas.Translate(pu.X, pu.Y + 4f); _powerUpLabel.Draw(canvas); canvas.Restore();
-        }
-
-        // Paddle
-        _paddle.Color = _bigPaddleTimer.Active || _paddle.IsWidthAnimating
-            ? BigPaddleColor : PaddleColor;
-        _paddle.Draw(canvas);
-
-        // Ball
-        _ball.Color = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
-        _ball.GlowColor = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
-        _ball.Draw(canvas);
-
-        // HUD
-        _scoreText.Text = $"Score: {state.Score}";
-        canvas.Save(); canvas.Translate(20f, 30f); _scoreText.Draw(canvas); canvas.Restore();
-
-        _livesText.Text = $"Lives: {state.Lives}";
-        canvas.Save(); canvas.Translate(GameWidth - 20f, 30f); _livesText.Draw(canvas); canvas.Restore();
-
-        float hudY = 52f;
-        if (_strongBallTimer.Active)
-        {
-            _strongBallText.Text = $"STRONG BALL {_strongBallTimer.Remaining:F1}s";
-            _strongBallText.Color = StrongBallColor;
-            canvas.Save(); canvas.Translate(GameWidth / 2f, hudY); _strongBallText.Draw(canvas); canvas.Restore();
-            hudY += 18f;
-        }
-        if (_bigPaddleTimer.Active)
-        {
-            _bigPaddleText.Text = $"BIG PADDLE {_bigPaddleTimer.Remaining:F1}s";
-            _bigPaddleText.Color = BigPaddleColor;
-            canvas.Save(); canvas.Translate(GameWidth / 2f, hudY); _bigPaddleText.Draw(canvas); canvas.Restore();
         }
     }
 }

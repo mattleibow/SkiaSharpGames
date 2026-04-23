@@ -4,13 +4,26 @@ using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;
 
-internal sealed class GameOverScreen(PongGameState state, IDirector director) : Scene
+internal sealed class GameOverScreen : Scene
 {
+    private readonly PongGameState state;
+    private readonly IDirector director;
+
     private static readonly SKPaint _overlayPaint = new() { IsAntialias = true };
 
-    private readonly HudLabel _winnerText = new() { FontSize = 58f, Color = AccentColor, Align = TextAlign.Center };
-    private readonly HudLabel _scoreText = new() { FontSize = 42f, Align = TextAlign.Center };
-    private readonly HudLabel _restartText = new() { Text = "Click, tap, or press Space to play again", FontSize = 24f, Color = DimColor, Align = TextAlign.Center };
+    private readonly HudLabel _winnerText = new() { FontSize = 58f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 260f };
+    private readonly HudLabel _scoreText = new() { FontSize = 42f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 325f };
+    private readonly HudLabel _restartText = new() { Text = "Click, tap, or press Space to play again", FontSize = 24f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 395f };
+
+    public GameOverScreen(PongGameState state, IDirector director)
+    {
+        this.state = state;
+        this.director = director;
+
+        Children.Add(_winnerText);
+        Children.Add(_scoreText);
+        Children.Add(_restartText);
+    }
 
     protected override void OnDraw(SKCanvas canvas)
     {
@@ -18,12 +31,7 @@ internal sealed class GameOverScreen(PongGameState state, IDirector director) : 
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), _overlayPaint);
 
         _winnerText.Text = state.WinnerText;
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 260f); _winnerText.Draw(canvas); canvas.Restore();
-
         _scoreText.Text = $"{state.LeftScore} : {state.RightScore}";
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 325f); _scoreText.Draw(canvas); canvas.Restore();
-
-        canvas.Save(); canvas.Translate(GameWidth / 2f, 395f); _restartText.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y) =>

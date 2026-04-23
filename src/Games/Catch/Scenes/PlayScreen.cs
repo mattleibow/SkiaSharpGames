@@ -4,21 +4,36 @@ using static SkiaSharpGames.Catch.CatchConstants;
 
 namespace SkiaSharpGames.Catch;
 
-internal sealed class PlayScreen(CatchGameState state, IDirector director) : Scene
+internal sealed class PlayScreen : Scene
 {
+    private readonly CatchGameState state;
+    private readonly IDirector director;
+
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
 
-    private readonly PlayerBar _bar = new();
-    private readonly FallingCircle _circle = new();
+    private readonly PlayerBar _bar = new() { Name = "bar" };
+    private readonly FallingCircle _circle = new() { Name = "circle" };
 
-    private readonly HudLabel _scoreText = new() { FontSize = 24f, X = 20f, Y = 35f };
-    private readonly HudLabel _livesText = new() { FontSize = 24f, Align = TextAlign.Right, X = GameWidth - 20f, Y = 35f };
+    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 24f, X = 20f, Y = 35f };
+    private readonly HudLabel _livesText = new() { Name = "lives", FontSize = 24f, Align = TextAlign.Right, X = GameWidth - 20f, Y = 35f };
     private readonly HudLabel _instructionsText = new() { Text = "Move with mouse, touch, or arrow keys", FontSize = 16f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 34f };
 
     private float _fallSpeed;
     private bool _leftHeld;
     private bool _rightHeld;
     private bool _gameOverShown;
+
+    public PlayScreen(CatchGameState state, IDirector director)
+    {
+        this.state = state;
+        this.director = director;
+
+        Children.Add(_bar);
+        Children.Add(_circle);
+        Children.Add(_scoreText);
+        Children.Add(_livesText);
+        Children.Add(_instructionsText);
+    }
 
     public override void OnActivated()
     {
@@ -73,8 +88,6 @@ internal sealed class PlayScreen(CatchGameState state, IDirector director) : Sce
         if (_rightHeld)
             MoveBarTo(_bar.X + BarSpeed * deltaTime);
 
-        _circle.Update(deltaTime);
-
         if (_circle.Rigidbody.VelocityY > 0f &&
             _circle.TryGetHit(_bar, out _))
         {
@@ -107,18 +120,10 @@ internal sealed class PlayScreen(CatchGameState state, IDirector director) : Sce
         _fillPaint.Color = SKColors.White.WithAlpha((byte)(255 * 0.09f));
         canvas.DrawRect(SKRect.Create(0f, BarY + BarHeight / 2f + 20f, GameWidth, 3f), _fillPaint);
 
-        _bar.Draw(canvas);
-        _circle.Draw(canvas);
-
-        // HUD
+        // HUD text (set before children auto-draw)
         _scoreText.Text = $"Score: {state.Score}";
-        _scoreText.Draw(canvas);
-
         _livesText.Text = $"Lives: {state.Lives}";
         _livesText.Color = state.Lives == 1 ? DangerColor : SKColors.White;
-        _livesText.Draw(canvas);
-
-        _instructionsText.Draw(canvas);
     }
 
     private void MoveBarTo(float x)

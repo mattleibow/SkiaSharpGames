@@ -4,33 +4,37 @@ using static SkiaSharpGames.Snake.SnakeConstants;
 
 namespace SkiaSharpGames.Snake;
 
-internal sealed class GameOverScreen(SnakeGameState state, IDirector director) : Scene
+internal sealed class GameOverScreen : Scene
 {
+    private readonly SnakeGameState state;
+    private readonly IDirector director;
+
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)) };
 
-    private readonly HudLabel _titleText = new() { Text = "GAME OVER", FontSize = 72f, Color = DangerColor, Align = TextAlign.Center };
-    private readonly HudLabel _scoreText = new() { FontSize = 34f, Align = TextAlign.Center };
-    private readonly HudLabel _highScoreText = new() { FontSize = 24f, Color = DimColor, Align = TextAlign.Center };
-    private readonly HudLabel _promptText = new() { Text = "Click, tap, or press Space to try again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly HudLabel _titleText = new() { Text = "GAME OVER", FontSize = 72f, Color = DangerColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 220f };
+    private readonly HudLabel _scoreText = new() { FontSize = 34f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 300f };
+    private readonly HudLabel _highScoreText = new() { FontSize = 24f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 345f };
+    private readonly HudLabel _promptText = new() { Text = "Click, tap, or press Space to try again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 420f };
+
+    public GameOverScreen(SnakeGameState state, IDirector director)
+    {
+        this.state = state;
+        this.director = director;
+
+        Children.Add(_titleText);
+        Children.Add(_scoreText);
+        Children.Add(_highScoreText);
+        Children.Add(_promptText);
+    }
 
     protected override void OnDraw(SKCanvas canvas)
     {
         canvas.DrawRect(0, 0, GameWidth, GameHeight, _overlayPaint);
 
-        float cx = GameWidth / 2f;
-
-        canvas.Save(); canvas.Translate(cx, 220f); _titleText.Draw(canvas); canvas.Restore();
-
         _scoreText.Text = $"Score: {state.Score}";
-        canvas.Save(); canvas.Translate(cx, 300f); _scoreText.Draw(canvas); canvas.Restore();
-
+        _highScoreText.Visible = state.HighScore > 0;
         if (state.HighScore > 0)
-        {
             _highScoreText.Text = $"Best: {state.HighScore}";
-            canvas.Save(); canvas.Translate(cx, 345f); _highScoreText.Draw(canvas); canvas.Restore();
-        }
-
-        canvas.Save(); canvas.Translate(cx, 420f); _promptText.Draw(canvas); canvas.Restore();
     }
 
     public override void OnPointerDown(float x, float y) =>

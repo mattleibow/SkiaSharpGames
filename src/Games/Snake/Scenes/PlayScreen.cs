@@ -4,20 +4,35 @@ using static SkiaSharpGames.Snake.SnakeConstants;
 
 namespace SkiaSharpGames.Snake;
 
-internal sealed class PlayScreen(SnakeGameState state, IDirector director) : Scene
+internal sealed class PlayScreen : Scene
 {
-    private readonly GridEntity _grid = new();
-    private readonly SnakeEntity _snake = new();
-    private readonly FoodEntity _food = new();
+    private readonly SnakeGameState state;
+    private readonly IDirector director;
 
-    private readonly HudLabel _scoreText = new() { FontSize = 22f };
-    private readonly HudLabel _highScoreText = new() { FontSize = 18f, Color = DimColor, Align = TextAlign.Right };
+    private readonly GridEntity _grid = new() { Name = "grid" };
+    private readonly SnakeEntity _snake = new() { Name = "snake" };
+    private readonly FoodEntity _food = new() { Name = "food" };
+
+    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 22f, X = 10f, Y = -6f };
+    private readonly HudLabel _highScoreText = new() { Name = "high-score", FontSize = 18f, Color = DimColor, Align = TextAlign.Right, X = GameWidth - 10f, Y = -6f };
 
     private Direction _direction;
     private Direction _nextDirection;
     private float _stepTimer;
     private float _stepInterval;
     private bool _gameOverShown;
+
+    public PlayScreen(SnakeGameState state, IDirector director)
+    {
+        this.state = state;
+        this.director = director;
+
+        Children.Add(_grid);
+        Children.Add(_food);
+        Children.Add(_snake);
+        Children.Add(_scoreText);
+        Children.Add(_highScoreText);
+    }
 
     public override void OnActivated()
     {
@@ -107,19 +122,11 @@ internal sealed class PlayScreen(SnakeGameState state, IDirector director) : Sce
     {
         canvas.Clear(BackgroundColor);
 
-        _grid.Draw(canvas);
-        _food.Draw(canvas);
-        _snake.Draw(canvas);
-
-        // HUD
+        // HUD text (set before children auto-draw)
         _scoreText.Text = $"Score: {state.Score}";
-        canvas.Save(); canvas.Translate(10f, -6f); _scoreText.Draw(canvas); canvas.Restore();
-
+        _highScoreText.Visible = state.HighScore > 0;
         if (state.HighScore > 0)
-        {
             _highScoreText.Text = $"Best: {state.HighScore}";
-            canvas.Save(); canvas.Translate(GameWidth - 10f, -6f); _highScoreText.Draw(canvas); canvas.Restore();
-        }
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────

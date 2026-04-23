@@ -4,13 +4,16 @@ using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;
 
-internal sealed class PlayScreen(PongGameState state, IDirector director) : Scene
+internal sealed class PlayScreen : Scene
 {
+    private readonly PongGameState state;
+    private readonly IDirector director;
+
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
 
-    private readonly PongPaddle _leftPaddle = new(LeftPaddleColor);
-    private readonly PongPaddle _rightPaddle = new(RightPaddleColor);
-    private readonly PongBall _ball = new();
+    private readonly PongPaddle _leftPaddle = new(LeftPaddleColor) { Name = "paddle" };
+    private readonly PongPaddle _rightPaddle = new(RightPaddleColor) { Name = "paddle" };
+    private readonly PongBall _ball = new() { Name = "ball" };
     private readonly PongEdge _topEdge = new(GameWidth * 0.5f, -EdgeColliderThickness * 0.5f, GameWidth, EdgeColliderThickness);
     private readonly PongEdge _bottomEdge = new(GameWidth * 0.5f, GameHeight + EdgeColliderThickness * 0.5f, GameWidth, EdgeColliderThickness);
     private readonly PongEdge _leftGoalEdge = new(-EdgeColliderThickness * 0.5f, GameHeight * 0.5f, EdgeColliderThickness, GameHeight);
@@ -20,11 +23,26 @@ internal sealed class PlayScreen(PongGameState state, IDirector director) : Scen
     private CountdownTimer _serveTimer;
 
     // HUD text labels
-    private readonly HudLabel _leftScoreText = new() { FontSize = 64f, Align = TextAlign.Center };
-    private readonly HudLabel _rightScoreText = new() { FontSize = 64f, Align = TextAlign.Center };
-    private readonly HudLabel _leftControlsText = new() { Text = "W / S", FontSize = 18f, Color = LeftPaddleColor };
-    private readonly HudLabel _rightControlsText = new() { Text = "Up / Dn", FontSize = 18f, Color = RightPaddleColor, Align = TextAlign.Right };
-    private readonly HudLabel _serveText = new() { Text = "Serve!", FontSize = 26f, Color = AccentColor, Align = TextAlign.Center };
+    private readonly HudLabel _leftScoreText = new() { Name = "score", FontSize = 64f, Align = TextAlign.Center, X = GameWidth * 0.34f, Y = 82f };
+    private readonly HudLabel _rightScoreText = new() { Name = "score", FontSize = 64f, Align = TextAlign.Center, X = GameWidth * 0.66f, Y = 82f };
+    private readonly HudLabel _leftControlsText = new() { Text = "W / S", FontSize = 18f, Color = LeftPaddleColor, X = 18f, Y = 28f };
+    private readonly HudLabel _rightControlsText = new() { Text = "Up / Dn", FontSize = 18f, Color = RightPaddleColor, Align = TextAlign.Right, X = GameWidth - 18f, Y = 28f };
+    private readonly HudLabel _serveText = new() { Text = "Serve!", FontSize = 26f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 320f };
+
+    public PlayScreen(PongGameState state, IDirector director)
+    {
+        this.state = state;
+        this.director = director;
+
+        Children.Add(_leftPaddle);
+        Children.Add(_rightPaddle);
+        Children.Add(_ball);
+        Children.Add(_leftScoreText);
+        Children.Add(_rightScoreText);
+        Children.Add(_leftControlsText);
+        Children.Add(_rightControlsText);
+        Children.Add(_serveText);
+    }
 
     public override void OnActivated()
     {
@@ -98,9 +116,6 @@ internal sealed class PlayScreen(PongGameState state, IDirector director) : Scen
 
     protected override void OnUpdate(float deltaTime)
     {
-        _leftPaddle.Update(deltaTime);
-        _rightPaddle.Update(deltaTime);
-
         if (_serveTimer.Tick(deltaTime))
         {
             float angle = (float)((Random.Shared.NextDouble() * 0.8 - 0.4) * Math.PI);
@@ -111,8 +126,6 @@ internal sealed class PlayScreen(PongGameState state, IDirector director) : Scen
 
         if (_serveTimer.Active)
             return;
-
-        _ball.Update(deltaTime);
 
         ResolveEdgeCollision(_topEdge, _ball.Rigidbody.VelocityY < 0f);
         ResolveEdgeCollision(_bottomEdge, _ball.Rigidbody.VelocityY > 0f);
@@ -193,29 +206,14 @@ internal sealed class PlayScreen(PongGameState state, IDirector director) : Scen
     {
         canvas.Clear(BackgroundColor);
 
-        _leftPaddle.Draw(canvas);
-        _rightPaddle.Draw(canvas);
-
         // Center-court dashed line
         _fillPaint.Color = SKColors.White.WithAlpha((byte)(255 * 0.5f));
         for (float y = 18f; y < GameHeight; y += 30f)
             canvas.DrawRect(SKRect.Create(GameWidth / 2f - 3f, y, 6f, 16f), _fillPaint);
 
-        _ball.Draw(canvas);
-
-        // Scores
+        // HUD text (set before children auto-draw)
         _leftScoreText.Text = state.LeftScore.ToString();
-        canvas.Save(); canvas.Translate(GameWidth * 0.34f, 82f); _leftScoreText.Draw(canvas); canvas.Restore();
         _rightScoreText.Text = state.RightScore.ToString();
-        canvas.Save(); canvas.Translate(GameWidth * 0.66f, 82f); _rightScoreText.Draw(canvas); canvas.Restore();
-
-        // Control hints
-        canvas.Save(); canvas.Translate(18f, 28f); _leftControlsText.Draw(canvas); canvas.Restore();
-        canvas.Save(); canvas.Translate(GameWidth - 18f, 28f); _rightControlsText.Draw(canvas); canvas.Restore();
-
-        if (_serveTimer.Active)
-        {
-            canvas.Save(); canvas.Translate(GameWidth / 2f, 320f); _serveText.Draw(canvas); canvas.Restore();
-        }
+        _serveText.Visible = _serveTimer.Active;
     }
 }

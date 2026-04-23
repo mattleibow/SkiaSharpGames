@@ -10,8 +10,21 @@ namespace SkiaSharp.Theatre;
 /// Screens that need to trigger transitions or push scenes should inject
 /// <see cref="IDirector"/> in their constructor.
 /// </remarks>
-public abstract class Scene
+public abstract class Scene : SceneNode
 {
+    /// <summary>
+    /// Reference to the <see cref="Theatre.Stage"/> hosting this scene. Set by the
+    /// <see cref="Director"/> when the scene is activated.
+    /// </summary>
+    public Stage? Stage { get; internal set; }
+
+    /// <summary>
+    /// Resolves the effective theme for this scene. Falls back through the parent chain
+    /// and finally to <see cref="Stage.HudTheme"/>.
+    /// </summary>
+    public override HudTheme? ResolvedHudTheme =>
+        HudTheme ?? Parent?.ResolvedHudTheme ?? Stage?.HudTheme;
+
     /// <summary>
     /// True while this scene has a layered scene on top of it and is therefore not being updated.
     /// The scene is still drawn as the base layer while paused.
@@ -31,7 +44,7 @@ public abstract class Scene
     /// Override to implement per-frame logic. The default implementation does nothing.
     /// </summary>
     /// <param name="deltaTime">Seconds elapsed since the last update.</param>
-    public virtual void Update(float deltaTime) { }
+    public new virtual void Update(float deltaTime) { }
 
     /// <summary>
     /// Called each frame to render the current state to <paramref name="canvas"/>.
@@ -40,8 +53,8 @@ public abstract class Scene
     /// (0, 0) to (<paramref name="width"/>, <paramref name="height"/>).
     /// </summary>
     /// <param name="canvas">The SkiaSharp canvas to draw on. Already in game-space coordinates.</param>
-    /// <param name="width">Stage-space width (equals <see cref="GameEngine.Stage.StageSize"/>.Width).</param>
-    /// <param name="height">Stage-space height (equals <see cref="GameEngine.Stage.StageSize"/>.Height).</param>
+    /// <param name="width">Stage-space width (equals <see cref="Theatre.Stage.StageSize"/>.Width).</param>
+    /// <param name="height">Stage-space height (equals <see cref="Theatre.Stage.StageSize"/>.Height).</param>
     public abstract void Draw(SKCanvas canvas, int width, int height);
 
     // ── Input ─────────────────────────────────────────────────────────────

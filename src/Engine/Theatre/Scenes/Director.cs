@@ -13,6 +13,7 @@ internal sealed class Director : IDirector, IRenderer
 {
     private readonly IServiceProvider _services;
     private readonly Type _initialSceneType;
+    private Stage? _stage;
     private Scene? _current;
     private readonly List<Scene> _sceneStack = [];
     private ActiveCurtain? _activeCurtain;
@@ -34,7 +35,11 @@ internal sealed class Director : IDirector, IRenderer
         _initialSceneType = options.Value.OpeningSceneType!;
     }
 
-    internal void Initialize() => EnsureInitialized();
+    internal void Initialize(Stage stage)
+    {
+        _stage = stage;
+        EnsureInitialized();
+    }
 
     private void EnsureInitialized()
     {
@@ -42,6 +47,7 @@ internal sealed class Director : IDirector, IRenderer
             return;
 
         _current = (Scene)_services.GetRequiredService(_initialSceneType);
+        _current.Stage = _stage;
         _current.OnActivating();
         _current.OnActivated();
     }
@@ -78,7 +84,9 @@ internal sealed class Director : IDirector, IRenderer
         {
             _current!.OnDeactivating();
             _current.OnDeactivated();
+            _current.Stage = null;
             _current = incoming;
+            _current.Stage = _stage;
             _current.IsPaused = false;
             _current.OnActivating();
             _current.OnActivated();
@@ -87,6 +95,7 @@ internal sealed class Director : IDirector, IRenderer
         {
             _current!.IsPaused = true;
             _current.OnDeactivating();
+            incoming.Stage = _stage;
             incoming.OnActivating();
             _activeCurtain = new ActiveCurtain(_current, incoming, transition);
         }
@@ -104,6 +113,7 @@ internal sealed class Director : IDirector, IRenderer
         }
 
         var layer = ResolveScene<TScene>();
+        layer.Stage = _stage;
         layer.OnActivating();
         layer.OnActivated();
         _sceneStack.Add(layer);
@@ -157,6 +167,7 @@ internal sealed class Director : IDirector, IRenderer
                 _activeCurtain = null;
                 _current = incoming;
                 _current.IsPaused = false;
+                outgoing.Stage = null;
                 outgoing.OnDeactivated();
                 incoming.OnActivated();
                 // Fall through so the new scene gets its first update on this frame

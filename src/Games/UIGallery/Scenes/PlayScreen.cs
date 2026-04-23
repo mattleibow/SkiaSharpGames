@@ -9,7 +9,6 @@ internal sealed class PlayScreen : Scene
     private static readonly HudTheme[] ThemeOptions = [HudThemes.BoldCute, HudThemes.Retro, HudThemes.Simple, HudThemes.PixelArt, HudThemes.Neon];
 
     private readonly UIGalleryState _state;
-    private readonly HudTheme _theme;
 
     private readonly Actor _themeButtons = new();
     private readonly Actor _controls = new();
@@ -28,10 +27,9 @@ internal sealed class PlayScreen : Scene
     private bool _draggingSlider;
     private bool _draggingJoystick;
 
-    public PlayScreen(UIGalleryState state, HudTheme theme)
+    public PlayScreen(UIGalleryState state)
     {
         _state = state;
-        _theme = theme;
 
         // Theme selector buttons — one per theme, spaced dynamically
         _themeButtonList = new HudButton[ThemeNames.Length];
@@ -41,7 +39,7 @@ internal sealed class PlayScreen : Scene
         float startX = (800f - totalWidth) / 2f + btnWidth / 2f;
         for (int i = 0; i < ThemeNames.Length; i++)
         {
-            var btn = new HudButton(btnWidth, 36f, theme)
+            var btn = new HudButton(btnWidth, 36f)
             {
                 X = startX + i * (btnWidth + gap),
                 Y = 41f,
@@ -53,14 +51,14 @@ internal sealed class PlayScreen : Scene
         }
 
         // Demo controls — state lives on each actor
-        _primaryButton = new HudButton(190f, 56f, theme) { X = 135f, Y = 138f, Label = "Button" };
-        _overrideButton = new HudButton(190f, 56f, theme) { X = 345f, Y = 138f, Label = "Override" };
-        _checkbox = new HudCheckbox(34f, 34f, theme) { X = 57f, Y = 221f, IsChecked = true };
-        _slideSwitch = new HudSwitch(110f, 42f, theme) { X = 95f, Y = 289f };
-        _toggleButton = new HudButton(130f, 42f, theme) { X = 233f, Y = 289f, IsToggle = true, Appearance = DefaultToggleButtonAppearance.Default };
-        _slider = new HudSlider(320f, 26f, theme) { X = 200f, Y = 363f, Value = 0.45f };
-        _customButton = new HudButton(260f, 58f, theme) { X = 170f, Y = 445f };
-        _joystick = new HudJoystick(86f, theme) { X = 620f, Y = 360f };
+        _primaryButton = new HudButton(190f, 56f) { X = 135f, Y = 138f, Label = "Button" };
+        _overrideButton = new HudButton(190f, 56f) { X = 345f, Y = 138f, Label = "Override" };
+        _checkbox = new HudCheckbox(34f, 34f) { X = 57f, Y = 221f, IsChecked = true };
+        _slideSwitch = new HudSwitch(110f, 42f) { X = 95f, Y = 289f };
+        _toggleButton = new HudButton(130f, 42f) { X = 233f, Y = 289f, IsToggle = true, Appearance = DefaultToggleButtonAppearance.Default };
+        _slider = new HudSlider(320f, 26f) { X = 200f, Y = 363f, Value = 0.45f };
+        _customButton = new HudButton(260f, 58f) { X = 170f, Y = 445f };
+        _joystick = new HudJoystick(86f) { X = 620f, Y = 360f };
 
         _controls.AddChild(_primaryButton);
         _controls.AddChild(_overrideButton);
@@ -151,8 +149,9 @@ internal sealed class PlayScreen : Scene
 
     public override void Draw(SKCanvas canvas, int width, int height)
     {
-        var theme = _theme;
-        using var backgroundPaint = new SKPaint { IsAntialias = true, Color = ((DefaultButtonAppearance)theme.Button).FillColor.WithAlpha(35) };
+        var theme = Stage?.HudTheme;
+        var bgColor = (theme?.Button as DefaultButtonAppearance)?.FillColor ?? new SKColor(0x3A, 0x59, 0x8A);
+        using var backgroundPaint = new SKPaint { IsAntialias = true, Color = bgColor.WithAlpha(35) };
         using var textPaint = new SKPaint { IsAntialias = true, Color = SKColors.White };
         using var headerFont = new SKFont(SKTypeface.Default, 26f);
         using var labelFont = new SKFont(SKTypeface.Default, 18f);
@@ -217,7 +216,8 @@ internal sealed class PlayScreen : Scene
     private void ApplyTheme(int index)
     {
         _state.ThemeIndex = Math.Clamp(index, 0, ThemeOptions.Length - 1);
-        _theme.ApplyFrom(ThemeOptions[_state.ThemeIndex]);
+        if (Stage is not null)
+            Stage.HudTheme = ThemeOptions[_state.ThemeIndex];
     }
 
     private static void DrawText(SKCanvas canvas, SKPaint textPaint, SKFont font, string text, SKColor color, float x, float y)

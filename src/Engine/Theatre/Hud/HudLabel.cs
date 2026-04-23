@@ -31,12 +31,6 @@ public enum TextAlign
 /// </summary>
 public sealed class HudLabel : HudActor
 {
-    /// <summary>
-    /// Creates a new label actor with an optional theme.
-    /// When theme is null, uses <see cref="DefaultLabelAppearance.Default"/>.
-    /// </summary>
-    public HudLabel(HudTheme? theme = null) : base(theme) { }
-
     /// <summary>The text to render. Empty or null is silently skipped.</summary>
     public string Text { get; set; } = "";
 
@@ -61,12 +55,15 @@ public sealed class HudLabel : HudActor
     public float MeasureWidth()
     {
         if (string.IsNullOrEmpty(Text)) return 0f;
+        var fonts = ResolvedHudTheme?.Fonts;
+        if (fonts is not null)
+            return fonts.GetFont(FontSize).MeasureText(Text);
         return DefaultLabelAppearance.GetFont(FontSize).MeasureText(Text);
     }
 
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? Theme?.Label ?? DefaultLabelAppearance.Default).Draw(canvas, this);
+        (Appearance ?? ResolvedHudTheme?.Label ?? DefaultLabelAppearance.Default).Draw(canvas, this);
     }
 }

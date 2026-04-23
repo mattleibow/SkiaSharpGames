@@ -31,11 +31,7 @@ public class HudPointer : HudActor
     /// Creates a new pointer actor with a point collider.
     /// Initially invisible — becomes visible on first pointer event.
     /// </summary>
-    /// <param name="theme">
-    /// Optional theme for resolving the pointer appearance.
-    /// When null, falls back to <see cref="DefaultPointerAppearance.Default"/>.
-    /// </param>
-    public HudPointer(HudTheme? theme = null) : base(theme)
+    public HudPointer()
     {
         Collider = new CircleCollider { Radius = 1f };
         Visible = false;
@@ -66,6 +62,6 @@ public class HudPointer : HudActor
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? Theme?.Pointer ?? DefaultPointerAppearance.Default).Draw(canvas, this);
+        (Appearance ?? ResolvedHudTheme?.Pointer ?? DefaultPointerAppearance.Default).Draw(canvas, this);
     }
 }

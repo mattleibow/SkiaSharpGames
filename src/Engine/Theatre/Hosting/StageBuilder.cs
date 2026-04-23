@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SkiaSharp;
 
@@ -153,7 +152,6 @@ public sealed class StageBuilder
         // Build the IConfiguration and make it injectable inside scenes.
         var config = Configuration.Build();
         _serviceCollection.AddSingleton<IConfiguration>(config);
-        _serviceCollection.TryAddSingleton(_ => new HudTheme());
 
         // Bind game options so any service can inject IOptions<StageOptions>.
         _serviceCollection.Configure<StageOptions>(opts =>
@@ -176,12 +174,13 @@ public sealed class StageBuilder
         _serviceCollection.AddSingleton<Stage>(
             sp => new Stage(sp,
                            sp.GetRequiredService<IOptions<StageOptions>>(),
+                           sp.GetRequiredService<IDirector>(),
                            sp.GetRequiredService<IRenderer>()));
 
         var provider = _serviceCollection.BuildServiceProvider();
         var stage = provider.GetRequiredService<Stage>();
         // Activate the initial scene immediately at build time (not lazily on first frame).
-        provider.GetRequiredService<Director>().Initialize();
+        provider.GetRequiredService<Director>().Initialize(stage);
         return stage;
     }
 }

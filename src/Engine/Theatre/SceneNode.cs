@@ -3,12 +3,11 @@ namespace SkiaSharp.Theatre;
 /// <summary>
 /// Base class for all nodes in the scene tree. Both <see cref="Actor"/> (visible game
 /// objects) and <see cref="Scene"/> (game scenes) derive from this class, gaining a
-/// shared parent/child hierarchy, recursive update/draw, and active state.
+/// shared parent/child hierarchy, recursive update/draw, active state, and theme
+/// resolution.
 /// </summary>
 public class SceneNode
 {
-    private List<SceneNode>? _children;
-
     /// <summary>Optional human-readable name for debugging and lookup.</summary>
     public string? Name { get; set; }
 
@@ -20,100 +19,71 @@ public class SceneNode
     // ── Children ──────────────────────────────────────────────────────
 
     /// <summary>Parent node, or null if this is a root node.</summary>
-    public SceneNode? Parent { get; private set; }
+    public SceneNode? Parent { get; internal set; }
 
-    /// <summary>Ordered list of child nodes.</summary>
-    public IReadOnlyList<SceneNode> Children => (IReadOnlyList<SceneNode>?)_children ?? [];
+    /// <summary>Ordered collection of child nodes.</summary>
+    public SceneNodeCollection Children { get; }
 
     /// <summary>Number of children.</summary>
-    public int ChildCount => _children?.Count ?? 0;
+    public int ChildCount => Children.Count;
+
+    public SceneNode()
+    {
+        Children = new SceneNodeCollection(this);
+    }
+
+    // ── Convenience wrappers (delegate to Children) ───────────────────
 
     /// <summary>
     /// Adds <paramref name="child"/> to this node's children. If the child already
     /// has a parent it is removed from that parent first.
     /// </summary>
-    public void AddChild(SceneNode child)
-    {
-        child.Parent?.RemoveChild(child);
-        (_children ??= []).Add(child);
-        child.Parent = this;
-        child.OnAddedToParent();
-    }
+    public void AddChild(SceneNode child) => Children.Add(child);
 
     /// <summary>Removes <paramref name="child"/> from this node's children.</summary>
-    public void RemoveChild(SceneNode child)
-    {
-        if (_children?.Remove(child) == true)
-        {
-            child.Parent = null;
-            child.OnRemovedFromParent();
-        }
-    }
+    public void RemoveChild(SceneNode child) => Children.Remove(child);
 
     /// <summary>Removes all children where <see cref="Active"/> is false.</summary>
-    public int RemoveInactiveChildren()
-    {
-        if (_children is null) return 0;
-        return _children.RemoveAll(c =>
-        {
-            if (c.Active) return false;
-            c.Parent = null;
-            c.OnRemovedFromParent();
-            return true;
-        });
-    }
+    public int RemoveInactiveChildren() => Children.RemoveInactive();
 
     /// <summary>Inserts <paramref name="child"/> at the given index.</summary>
-    public void InsertChild(int index, SceneNode child)
-    {
-        child.Parent?.RemoveChild(child);
-        (_children ??= []).Insert(index, child);
-        child.Parent = this;
-        child.OnAddedToParent();
-    }
+    public void InsertChild(int index, SceneNode child) => Children.Insert(index, child);
 
     /// <summary>Returns the index of <paramref name="child"/>, or -1 if not found.</summary>
-    public int IndexOf(SceneNode child) => _children?.IndexOf(child) ?? -1;
+    public int IndexOf(SceneNode child) => Children.IndexOf(child);
 
     /// <summary>
     /// Moves <paramref name="child"/> to the end of the children list (drawn last / on top).
     /// </summary>
-    public void MoveChildToFront(SceneNode child)
-    {
-        if (_children is null || !_children.Remove(child)) return;
-        _children.Add(child);
-    }
+    public void MoveChildToFront(SceneNode child) => Children.MoveToFront(child);
 
     /// <summary>
     /// Moves <paramref name="child"/> to the start of the children list (drawn first / behind).
     /// </summary>
-    public void MoveChildToBack(SceneNode child)
-    {
-        if (_children is null || !_children.Remove(child)) return;
-        _children.Insert(0, child);
-    }
+    public void MoveChildToBack(SceneNode child) => Children.MoveToBack(child);
 
     /// <summary>
     /// Moves <paramref name="child"/> one position toward the end (drawn later).
     /// </summary>
-    public void MoveChildUp(SceneNode child)
-    {
-        if (_children is null) return;
-        int idx = _children.IndexOf(child);
-        if (idx < 0 || idx >= _children.Count - 1) return;
-        (_children[idx], _children[idx + 1]) = (_children[idx + 1], _children[idx]);
-    }
+    public void MoveChildUp(SceneNode child) => Children.MoveUp(child);
 
     /// <summary>
     /// Moves <paramref name="child"/> one position toward the start (drawn earlier).
     /// </summary>
-    public void MoveChildDown(SceneNode child)
-    {
-        if (_children is null) return;
-        int idx = _children.IndexOf(child);
-        if (idx <= 0) return;
-        (_children[idx], _children[idx - 1]) = (_children[idx - 1], _children[idx]);
-    }
+    public void MoveChildDown(SceneNode child) => Children.MoveDown(child);
+
+    // ── Theme ─────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Optional theme override for this node. When set, this node and its descendants
+    /// will use this theme instead of inheriting from the parent.
+    /// </summary>
+    public HudTheme? HudTheme { get; set; }
+
+    /// <summary>
+    /// The effective theme for this node, resolved by walking up the tree.
+    /// </summary>
+    public virtual HudTheme? ResolvedHudTheme => HudTheme ?? Parent?.ResolvedHudTheme;
 
     // ── Update (recursive) ────────────────────────────────────────────
 
@@ -126,9 +96,8 @@ public class SceneNode
 
         OnUpdate(deltaTime);
 
-        if (_children is not null)
-            for (int i = 0; i < _children.Count; i++)
-                _children[i].Update(deltaTime);
+        for (int i = 0; i < Children.Count; i++)
+            Children[i].Update(deltaTime);
     }
 
     /// <summary>Override for node-specific per-frame logic.</summary>
@@ -145,9 +114,8 @@ public class SceneNode
 
         OnDraw(canvas);
 
-        if (_children is not null)
-            for (int i = 0; i < _children.Count; i++)
-                _children[i].Draw(canvas);
+        for (int i = 0; i < Children.Count; i++)
+            Children[i].Draw(canvas);
     }
 
     /// <summary>Override to render the node.</summary>
@@ -156,10 +124,10 @@ public class SceneNode
     /// <summary>
     /// Called when this node is added to a parent. Override to react to reparenting.
     /// </summary>
-    protected virtual void OnAddedToParent() { }
+    internal virtual void OnAddedToParent() { }
 
     /// <summary>Called when this node is removed from a parent.</summary>
-    protected virtual void OnRemovedFromParent() { }
+    internal virtual void OnRemovedFromParent() { }
 
     // ── Debug / inspection ───────────────────────────────────────────
 
@@ -174,9 +142,8 @@ public class SceneNode
         if (!Active) sb.Append(" INACTIVE");
         sb.AppendLine();
 
-        if (_children is not null)
-            for (int i = 0; i < _children.Count; i++)
-                sb.Append(_children[i].Dump(indent + "  "));
+        for (int i = 0; i < Children.Count; i++)
+            sb.Append(Children[i].Dump(indent + "  "));
 
         return sb.ToString();
     }

@@ -11,11 +11,12 @@ public static class UIGalleryGame
 
         builder.SetStageSize(800f, 600f);
         builder.Services.AddSingleton<UIGalleryState>();
-        builder.SetHudTheme(HudThemes.Simple);
 
         builder.Scenes.Add<PlayScreen>();
         builder.SetOpeningScene<PlayScreen>();
 
-        return builder.Open();
+        var stage = builder.Open();
+        stage.HudTheme = DefaultTheme.Create();
+        return stage;
     }
 }

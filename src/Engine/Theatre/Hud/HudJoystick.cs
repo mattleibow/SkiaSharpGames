@@ -11,7 +11,7 @@ namespace SkiaSharp.Theatre;
 /// <see cref="ResetDelta"/> on pointer-up.
 /// </para>
 /// <example><code>
-/// var joystick = new HudJoystick(86f, theme);
+/// var joystick = new HudJoystick(86f);
 /// joystick.X = 620f; joystick.Y = 360f;
 /// controls.AddChild(joystick);
 ///
@@ -29,11 +29,10 @@ namespace SkiaSharp.Theatre;
 public class HudJoystick : HudActor
 {
     /// <summary>
-    /// Creates a new joystick actor with the given radius and theme.
+    /// Creates a new joystick actor with the given radius.
     /// </summary>
     /// <param name="radius">Base circle radius in game-space units.</param>
-    /// <param name="theme">Provides the active UI theme for rendering.</param>
-    public HudJoystick(float radius, HudTheme theme) : base(theme)
+    public HudJoystick(float radius)
     {
         Radius = radius;
         Collider = new CircleCollider { Radius = radius };
@@ -103,6 +102,6 @@ public class HudJoystick : HudActor
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? Theme!.Joystick).Draw(canvas, this);
+        (Appearance ?? ResolvedHudTheme?.Joystick)?.Draw(canvas, this);
     }
 }

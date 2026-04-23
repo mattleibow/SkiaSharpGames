@@ -34,11 +34,11 @@ public sealed class Stage
     private readonly IDirector _director;
     private readonly IRenderer _drawable;
 
-    internal Stage(IServiceProvider services, IOptions<StageOptions> options, IRenderer drawable)
+    internal Stage(IServiceProvider services, IOptions<StageOptions> options, IDirector director, IRenderer drawable)
     {
         Services = services;
         StageSize = options.Value.Dimensions;
-        _director = services.GetRequiredService<IDirector>();
+        _director = director;
         _drawable = drawable;
     }
 
@@ -56,6 +56,12 @@ public sealed class Stage
     /// <see cref="StageBuilder.Open"/>. All scenes in the game share this value.
     /// </summary>
     public SKSize StageSize { get; }
+
+    /// <summary>
+    /// Game-wide HUD theme. Acts as the final fallback when resolving themes for scenes
+    /// and nodes. Can be changed at runtime to swap the entire game's theme.
+    /// </summary>
+    public HudTheme? HudTheme { get; set; }
 
     /// <summary>Advances the game by <paramref name="deltaTime"/> seconds.</summary>
     public void Update(float deltaTime) => _drawable.Update(deltaTime);

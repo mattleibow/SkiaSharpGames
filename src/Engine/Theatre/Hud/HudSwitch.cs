@@ -5,7 +5,7 @@ namespace SkiaSharp.Theatre;
 /// <summary>
 /// A themed switch actor with built-in collision and readable state.
 /// <example><code>
-/// var sw = new HudSwitch(110f, 42f, theme);
+/// var sw = new HudSwitch(110f, 42f);
 /// sw.X = 95f; sw.Y = 289f;
 /// controls.AddChild(sw);
 ///
@@ -20,12 +20,11 @@ namespace SkiaSharp.Theatre;
 public class HudSwitch : HudControl
 {
     /// <summary>
-    /// Creates a new switch actor with the given dimensions and theme.
+    /// Creates a new switch actor with the given dimensions.
     /// </summary>
     /// <param name="width">Switch width in game-space units.</param>
     /// <param name="height">Switch height in game-space units.</param>
-    /// <param name="theme">Provides the active UI theme for rendering.</param>
-    public HudSwitch(float width, float height, HudTheme theme) : base(width, height, theme) { }
+    public HudSwitch(float width, float height) : base(width, height) { }
 
     /// <summary>Whether the switch is currently on.</summary>
     public bool IsOn { get; set; }
@@ -38,6 +37,6 @@ public class HudSwitch : HudControl
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? Theme.Switch).Draw(canvas, this);
+        (Appearance ?? ResolvedHudTheme?.Switch)?.Draw(canvas, this);
     }
 }

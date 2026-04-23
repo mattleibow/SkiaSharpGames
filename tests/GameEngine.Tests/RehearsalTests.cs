@@ -256,7 +256,7 @@ public class RehearsalTests
     [Fact]
     public void Actor_Dump_ShowsConcreteTypeName()
     {
-        var button = new HudButton(100f, 40f, new HudTheme());
+        var button = new HudButton(100f, 40f);
         string dump = button.Dump();
         Assert.Contains("HudButton", dump);
         Assert.Contains("collider: Rect 100x40", dump);

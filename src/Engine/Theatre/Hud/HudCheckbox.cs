@@ -8,7 +8,7 @@ namespace SkiaSharp.Theatre;
 /// Toggle <see cref="IsChecked"/> on pointer-down to flip the checkbox.
 /// </para>
 /// <example><code>
-/// var checkbox = new HudCheckbox(34f, 34f, theme);
+/// var checkbox = new HudCheckbox(34f, 34f);
 /// checkbox.X = 57f; checkbox.Y = 221f;
 /// controls.AddChild(checkbox);
 ///
@@ -23,12 +23,11 @@ namespace SkiaSharp.Theatre;
 public class HudCheckbox : HudControl
 {
     /// <summary>
-    /// Creates a new checkbox actor with the given dimensions and theme.
+    /// Creates a new checkbox actor with the given dimensions.
     /// </summary>
     /// <param name="width">Checkbox width in game-space units.</param>
     /// <param name="height">Checkbox height in game-space units.</param>
-    /// <param name="theme">Provides the active UI theme for rendering.</param>
-    public HudCheckbox(float width, float height, HudTheme theme) : base(width, height, theme) { }
+    public HudCheckbox(float width, float height) : base(width, height) { }
 
     /// <summary>Whether the checkbox is currently checked.</summary>
     public bool IsChecked { get; set; }
@@ -41,6 +40,6 @@ public class HudCheckbox : HudControl
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? Theme.Checkbox).Draw(canvas, this);
+        (Appearance ?? ResolvedHudTheme?.Checkbox)?.Draw(canvas, this);
     }
 }

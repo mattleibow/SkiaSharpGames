@@ -9,7 +9,7 @@ namespace SkiaSharp.Theatre;
 /// hit-testing. Read <see cref="IsPressed"/> to determine the current state.
 /// </para>
 /// <example><code>
-/// var button = new HudButton(190f, 56f, theme) { Label = "Start" };
+/// var button = new HudButton(190f, 56f) { Label = "Start" };
 /// button.X = 200f; button.Y = 150f;
 /// controls.AddChild(button);
 ///
@@ -24,14 +24,13 @@ namespace SkiaSharp.Theatre;
 public class HudButton : HudControl
 {
     /// <summary>
-    /// Creates a new button actor with the given dimensions and theme.
+    /// Creates a new button actor with the given dimensions.
     /// The actor is positioned at its center; the collider and sprite
     /// are configured automatically.
     /// </summary>
     /// <param name="width">Button width in game-space units.</param>
     /// <param name="height">Button height in game-space units.</param>
-    /// <param name="theme">Provides the active UI theme for rendering.</param>
-    public HudButton(float width, float height, HudTheme theme) : base(width, height, theme) { }
+    public HudButton(float width, float height) : base(width, height) { }
 
     /// <summary>Text displayed on the button.</summary>
     public string Label { get; set; } = "";
@@ -61,6 +60,6 @@ public class HudButton : HudControl
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? Theme.Button).Draw(canvas, this);
+        (Appearance ?? ResolvedHudTheme?.Button)?.Draw(canvas, this);
     }
 }

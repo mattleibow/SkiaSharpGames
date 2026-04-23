@@ -54,5 +54,7 @@ public static class BoldCuteTheme
             KnobBorderColor = new SKColor(0x50, 0x1B, 0x63),
             BorderWidth = 3f,
         },
+        Pointer = DefaultPointerAppearance.Default,
+        Label = DefaultLabelAppearance.Default,
     };
 }

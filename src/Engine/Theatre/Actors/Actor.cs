@@ -104,10 +104,10 @@ public class Actor : SceneNode
     }
 
     /// <inheritdoc/>
-    protected override void OnAddedToParent() => RecalculateWorld();
+    internal override void OnAddedToParent() => RecalculateWorld();
 
     /// <inheritdoc/>
-    protected override void OnRemovedFromParent() => RecalculateWorld();
+    internal override void OnRemovedFromParent() => RecalculateWorld();
 
     // ── Components (nullable, opt-in) ─────────────────────────────────
 

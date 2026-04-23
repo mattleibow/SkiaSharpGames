@@ -5,15 +5,12 @@ namespace SkiaSharp.Theatre;
 /// <summary>Base for interactive UI controls with rectangular bounds.</summary>
 public abstract class HudControl : HudActor
 {
-    protected HudControl(float width, float height, HudTheme theme) : base(theme)
+    protected HudControl(float width, float height)
     {
         Width = width;
         Height = height;
         Collider = new RectCollider { Width = width, Height = height };
     }
-
-    /// <summary>The shared theme instance (non-null for controls).</summary>
-    public new HudTheme Theme => base.Theme!;
 
     /// <summary>Control width in game-space units.</summary>
     public float Width { get; }

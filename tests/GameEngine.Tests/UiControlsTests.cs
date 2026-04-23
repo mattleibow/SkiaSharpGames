@@ -6,6 +6,8 @@ namespace SkiaSharp.Theatre.Tests;
 
 public class HudControlsTests
 {
+    private static readonly HudTheme Theme = DefaultTheme.Create();
+
     [Fact]
     public void DefaultButtonAppearance_DrawDirect_CoversDefaultPaths()
     {
@@ -22,9 +24,8 @@ public class HudControlsTests
     {
         using var bitmap = new SKBitmap(120, 120);
         using var canvas = new SKCanvas(bitmap);
-        var tp = new HudTheme();
 
-        var cb = new HudCheckbox(36f, 36f, tp) { X = 50f, Y = 50f };
+        var cb = new HudCheckbox(36f, 36f) { X = 50f, Y = 50f, HudTheme = Theme };
         cb.Draw(canvas);
 
         cb.IsChecked = true;
@@ -36,15 +37,14 @@ public class HudControlsTests
     {
         using var bitmap = new SKBitmap(220, 120);
         using var canvas = new SKCanvas(bitmap);
-        var tp = new HudTheme();
 
-        var sliding = new HudSwitch(120f, 44f, tp) { IsOn = true };
+        var sliding = new HudSwitch(120f, 44f) { IsOn = true, HudTheme = Theme };
         sliding.Draw(canvas);
 
         sliding.IsOn = false;
         sliding.Draw(canvas);
 
-        var toggle = new HudButton(120f, 44f, tp) { IsToggle = true, IsOn = true, Appearance = DefaultToggleButtonAppearance.Default };
+        var toggle = new HudButton(120f, 44f) { IsToggle = true, IsOn = true, Appearance = DefaultToggleButtonAppearance.Default };
         toggle.Draw(canvas);
     }
 
@@ -53,9 +53,8 @@ public class HudControlsTests
     {
         using var bitmap = new SKBitmap(260, 100);
         using var canvas = new SKCanvas(bitmap);
-        var tp = new HudTheme();
 
-        var slider = new HudSlider(200f, 20f, tp) { Value = -2f };
+        var slider = new HudSlider(200f, 20f) { Value = -2f, HudTheme = Theme };
         slider.Draw(canvas);
 
         slider.Value = 2f;
@@ -67,9 +66,8 @@ public class HudControlsTests
     {
         using var bitmap = new SKBitmap(260, 260);
         using var canvas = new SKCanvas(bitmap);
-        var tp = new HudTheme();
 
-        var js = new HudJoystick(60f, tp) { X = 120f, Y = 120f };
+        var js = new HudJoystick(60f) { X = 120f, Y = 120f, HudTheme = Theme };
         js.Draw(canvas);
 
         js.Delta = new SKPoint(5f, -5f);

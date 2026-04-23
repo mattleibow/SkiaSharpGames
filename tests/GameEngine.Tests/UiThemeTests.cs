@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
 using SkiaSharp.Theatre;
 using Xunit;
@@ -8,29 +7,18 @@ namespace SkiaSharp.Theatre.Tests;
 public class HudThemeTests
 {
     [Fact]
-    public void Build_RegistersDefaultTheme()
+    public void DefaultTheme_HasButtonAppearance()
     {
-        var stage = BuildBareGame();
-        var theme = stage.Services.GetRequiredService<HudTheme>();
-
+        var theme = DefaultTheme.Create();
         Assert.IsType<DefaultButtonAppearance>(theme.Button);
     }
 
     [Fact]
-    public void SetHudTheme_OverridesDefaultTheme()
+    public void Stage_HudTheme_CanBeSet()
     {
-        var retro = new HudTheme();
-        retro.ApplyFrom(HudThemes.Retro);
-
-        var builder = StageBuilder.Create();
-        builder.Scenes.Add<BlankScreen>();
-        builder.SetOpeningScene<BlankScreen>();
-        builder.SetHudTheme(retro);
-
-        var stage = builder.Open();
-        var theme = stage.Services.GetRequiredService<HudTheme>();
-
-        Assert.Same(retro, theme);
+        var stage = BuildBareGame();
+        stage.HudTheme = DefaultTheme.Create();
+        Assert.NotNull(stage.HudTheme);
     }
 
     [Fact]

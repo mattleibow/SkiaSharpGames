@@ -8,7 +8,7 @@ namespace SkiaSharpGames.LunarLander;
 /// Main gameplay scene. The lander actor uses child actors for thruster flames
 /// that rotate automatically with the parent — demonstrating the Actor parenting system.
 /// </summary>
-internal sealed class PlayScreen(LunarLanderGameState state, IDirector director, HudTheme themes) : Scene
+internal sealed class PlayScreen(LunarLanderGameState state, IDirector director) : Scene
 {
     // ── Entities ──────────────────────────────────────────────────────────
     private readonly Lander _lander = new();
@@ -281,7 +281,7 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director,
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        var appearance = (DefaultButtonAppearance)themes.Button with
+        var appearance = ((ResolvedHudTheme?.Button ?? DefaultButtonAppearance.Default) as DefaultButtonAppearance ?? DefaultButtonAppearance.Default) with
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,

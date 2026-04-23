@@ -9,7 +9,7 @@ namespace SkiaSharp.Theatre;
 /// <see cref="UpdateValueFromPointer"/> during pointer-move to track the thumb.
 /// </para>
 /// <example><code>
-/// var slider = new HudSlider(320f, 26f, theme);
+/// var slider = new HudSlider(320f, 26f);
 /// slider.X = 200f; slider.Y = 363f;
 /// controls.AddChild(slider);
 ///
@@ -23,12 +23,11 @@ namespace SkiaSharp.Theatre;
 public class HudSlider : HudControl
 {
     /// <summary>
-    /// Creates a new slider actor with the given dimensions and theme.
+    /// Creates a new slider actor with the given dimensions.
     /// </summary>
     /// <param name="width">Slider track width in game-space units.</param>
     /// <param name="height">Slider hit-area height in game-space units.</param>
-    /// <param name="theme">Provides the active UI theme for rendering.</param>
-    public HudSlider(float width, float height, HudTheme theme) : base(width, height, theme) { }
+    public HudSlider(float width, float height) : base(width, height) { }
 
     /// <summary>Current slider value in the range 0 – 1.</summary>
     public float Value { get; set; } = 0.5f;
@@ -57,6 +56,6 @@ public class HudSlider : HudControl
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? Theme.Slider).Draw(canvas, this);
+        (Appearance ?? ResolvedHudTheme?.Slider)?.Draw(canvas, this);
     }
 }

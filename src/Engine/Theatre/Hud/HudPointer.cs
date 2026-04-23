@@ -1,5 +1,3 @@
-using SkiaSharp;
-
 namespace SkiaSharp.Theatre;
 
 /// <summary>
@@ -11,7 +9,7 @@ namespace SkiaSharp.Theatre;
 /// </para>
 /// <para>
 /// The default appearance is a crosshair. Swap via <see cref="Appearance"/>:
-/// <c>Pointer.Appearance = DefaultDotAppearance.Default;</c>
+/// <c>Pointer.Appearance = myCustomAppearance;</c>
 /// </para>
 /// <example><code>
 /// // In your scene constructor:
@@ -41,8 +39,8 @@ public class HudPointer : HudActor
     public bool IsDown { get; set; }
 
     /// <summary>
-    /// Optional per-pointer appearance override. When null, uses the theme's default or
-    /// <see cref="DefaultPointerAppearance.Default"/>.
+    /// Optional per-pointer appearance override. When null, uses the theme's pointer
+    /// appearance or a built-in crosshair fallback.
     /// </summary>
     public HudAppearance<HudPointer>? Appearance { get; set; }
 
@@ -62,6 +60,30 @@ public class HudPointer : HudActor
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? ResolvedHudTheme?.Pointer ?? DefaultPointerAppearance.Default).Draw(canvas, this);
+        var appearance = Appearance ?? ResolvedHudTheme?.Pointer;
+        if (appearance is not null)
+        {
+            appearance.Draw(canvas, this);
+            return;
+        }
+
+        // Minimal fallback crosshair when no theme/appearance is configured
+        byte alpha = (byte)(255 * Math.Clamp(Alpha, 0f, 1f));
+        if (alpha == 0) return;
+
+        float size = IsDown ? 6f : 8f;
+        float gap = IsDown ? 1.5f : 2.5f;
+
+        using var dark = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2.5f, Color = new SKColor(0, 0, 0, (byte)(180 * alpha / 255)) };
+        canvas.DrawLine(-size, 0, -gap, 0, dark);
+        canvas.DrawLine(gap, 0, size, 0, dark);
+        canvas.DrawLine(0, -size, 0, -gap, dark);
+        canvas.DrawLine(0, gap, 0, size, dark);
+
+        using var light = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, Color = SKColors.White.WithAlpha(alpha) };
+        canvas.DrawLine(-size, 0, -gap, 0, light);
+        canvas.DrawLine(gap, 0, size, 0, light);
+        canvas.DrawLine(0, -size, 0, -gap, light);
+        canvas.DrawLine(0, gap, 0, size, light);
     }
 }

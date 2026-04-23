@@ -1,5 +1,3 @@
-using SkiaSharp;
-
 namespace SkiaSharp.Theatre;
 
 /// <summary>
@@ -8,6 +6,9 @@ namespace SkiaSharp.Theatre;
 /// </summary>
 public class FontProvider
 {
+    /// <summary>Shared default provider (system typeface, antialias edging).</summary>
+    public static FontProvider Default { get; } = new();
+
     private readonly Dictionary<float, SKFont> _cache = [];
 
     /// <summary>The typeface used to create fonts. Defaults to the system default.</summary>

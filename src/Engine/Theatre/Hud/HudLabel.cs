@@ -1,5 +1,3 @@
-using SkiaSharp;
-
 namespace SkiaSharp.Theatre;
 
 /// <summary>Horizontal alignment for text rendering.</summary>
@@ -44,8 +42,8 @@ public sealed class HudLabel : HudActor
     public TextAlign Align { get; set; } = TextAlign.Left;
 
     /// <summary>
-    /// Optional per-label appearance override. When null, uses the theme's default or
-    /// <see cref="DefaultLabelAppearance.Default"/>.
+    /// Optional per-label appearance override. When null, uses the theme's label appearance
+    /// or a built-in fallback.
     /// </summary>
     public HudAppearance<HudLabel>? Appearance { get; set; }
 
@@ -55,15 +53,38 @@ public sealed class HudLabel : HudActor
     public float MeasureWidth()
     {
         if (string.IsNullOrEmpty(Text)) return 0f;
-        var fonts = ResolvedHudTheme?.Fonts;
-        if (fonts is not null)
-            return fonts.GetFont(FontSize).MeasureText(Text);
-        return DefaultLabelAppearance.GetFont(FontSize).MeasureText(Text);
+        var fonts = ResolvedHudTheme?.Fonts ?? FontProvider.Default;
+        return fonts.GetFont(FontSize).MeasureText(Text);
     }
 
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
     {
-        (Appearance ?? ResolvedHudTheme?.Label ?? DefaultLabelAppearance.Default).Draw(canvas, this);
+        var appearance = Appearance ?? ResolvedHudTheme?.Label;
+        if (appearance is not null)
+        {
+            appearance.Draw(canvas, this);
+            return;
+        }
+
+        // Minimal fallback when no theme/appearance is configured
+        if (Alpha <= 0f || string.IsNullOrEmpty(Text))
+            return;
+
+        var font = (ResolvedHudTheme?.Fonts ?? FontProvider.Default).GetFont(FontSize);
+        using var paint = new SKPaint
+        {
+            IsAntialias = true,
+            Color = Color.WithAlpha((byte)(255 * Math.Clamp(Alpha, 0f, 1f)))
+        };
+
+        float drawX = Align switch
+        {
+            TextAlign.Center => -font.MeasureText(Text) / 2f,
+            TextAlign.Right => -font.MeasureText(Text),
+            _ => 0f
+        };
+
+        canvas.DrawText(Text, drawX, 0f, font, paint);
     }
 }

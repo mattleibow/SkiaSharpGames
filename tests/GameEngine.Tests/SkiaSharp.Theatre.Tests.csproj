@@ -36,6 +36,9 @@
   <ItemGroup>
     <ProjectReference Include="../../src/Engine/Theatre/SkiaSharp.Theatre.csproj" />
     <ProjectReference Include="../../src/Engine/Theatre.Rehearsals/SkiaSharp.Theatre.Rehearsals.csproj" />
+    <ProjectReference Include="../../src/Engine/Theatre.Themes.Default/SkiaSharp.Theatre.Themes.Default.csproj" />
+    <ProjectReference Include="../../src/Engine/Theatre.Themes.Neon/SkiaSharp.Theatre.Themes.Neon.csproj" />
+    <ProjectReference Include="../../src/Engine/Theatre.Themes.PixelArt/SkiaSharp.Theatre.Themes.PixelArt.csproj" />
   </ItemGroup>
 
 </Project>

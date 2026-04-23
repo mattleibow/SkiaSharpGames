@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp.Theatre;
+using SkiaSharp.Theatre.Themes.Default;
 
 namespace SkiaSharpGames.UIGallery;
 

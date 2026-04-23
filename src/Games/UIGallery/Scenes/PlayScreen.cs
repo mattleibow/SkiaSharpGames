@@ -1,12 +1,15 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
+using SkiaSharp.Theatre.Themes.Default;
+using SkiaSharp.Theatre.Themes.Neon;
+using SkiaSharp.Theatre.Themes.PixelArt;
 
 namespace SkiaSharpGames.UIGallery;
 
 internal sealed class PlayScreen : Scene
 {
     private static readonly string[] ThemeNames = ["Bold/Cute", "Retro", "Simple", "Pixel Art", "Neon"];
-    private static readonly HudTheme[] ThemeOptions = [HudThemes.BoldCute, HudThemes.Retro, HudThemes.Simple, HudThemes.PixelArt, HudThemes.Neon];
+    private static readonly HudTheme[] ThemeOptions = [BoldCuteTheme.Create(), RetroTheme.Create(), DefaultTheme.Create(), PixelArtTheme.Create(), NeonTheme.Create()];
 
     private readonly UIGalleryState _state;
 

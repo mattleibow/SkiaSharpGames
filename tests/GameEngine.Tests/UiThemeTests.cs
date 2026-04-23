@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
+using SkiaSharp.Theatre.Themes.Default;
 using Xunit;
 
 namespace SkiaSharp.Theatre.Tests;
@@ -33,15 +34,15 @@ public class HudThemeTests
     [Fact]
     public void Theme_Button_IsDefaultButtonAppearance()
     {
-        Assert.IsType<DefaultButtonAppearance>(HudThemes.Simple.Button);
-        Assert.IsType<DefaultButtonAppearance>(HudThemes.BoldCute.Button);
-        Assert.IsType<DefaultButtonAppearance>(HudThemes.Retro.Button);
+        Assert.IsType<DefaultButtonAppearance>(DefaultTheme.Create().Button);
+        Assert.IsType<DefaultButtonAppearance>(BoldCuteTheme.Create().Button);
+        Assert.IsType<DefaultButtonAppearance>(RetroTheme.Create().Button);
     }
 
     [Fact]
     public void Theme_HasPointerAppearance()
     {
-        Assert.IsType<DefaultCrosshairAppearance>(HudThemes.Simple.Pointer);
+        Assert.IsType<DefaultCrosshairAppearance>(DefaultTheme.Create().Pointer);
     }
 
     private static Stage BuildBareGame()

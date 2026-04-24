@@ -124,7 +124,7 @@
 /* /Pages/Home.razor.rz.scp.css */
 .gallery-hero[b-9ve3699x7f] {
     text-align: center;
-    padding: 4rem 1rem 2.5rem;
+    padding: 4rem 1rem 2rem;
 }
 
 .gallery-hero h1[b-9ve3699x7f] {
@@ -140,6 +140,119 @@
     color: #8bacc4;
     margin: 0;
 }
+
+/* ── Toolbar: search + tags + count ── */
+
+.gallery-toolbar[b-9ve3699x7f] {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 0 1.5rem;
+}
+
+.search-box[b-9ve3699x7f] {
+    position: relative;
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.search-icon[b-9ve3699x7f] {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.search-box input[b-9ve3699x7f] {
+    width: 100%;
+    padding: 0.65rem 2.5rem 0.65rem 2.5rem;
+    font-size: 0.95rem;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 10px;
+    background: #0d1b2a;
+    color: #e0e8f0;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.search-box input[b-9ve3699x7f]::placeholder {
+    color: #5a7a94;
+}
+
+.search-box input:focus[b-9ve3699x7f] {
+    border-color: rgba(0, 212, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.08);
+}
+
+.search-clear[b-9ve3699x7f] {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #5a7a94;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: color 0.15s;
+}
+
+.search-clear:hover[b-9ve3699x7f] {
+    color: #ff6b8a;
+}
+
+/* ── Tag filter pills ── */
+
+.tag-filters[b-9ve3699x7f] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.tag-pill[b-9ve3699x7f] {
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 212, 255, 0.15);
+    background: rgba(0, 212, 255, 0.04);
+    color: #6fa0be;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tag-pill:hover[b-9ve3699x7f] {
+    border-color: rgba(0, 212, 255, 0.35);
+    color: #a0d4e8;
+    background: rgba(0, 212, 255, 0.08);
+}
+
+.tag-pill.active[b-9ve3699x7f] {
+    border-color: rgba(0, 212, 255, 0.6);
+    background: rgba(0, 212, 255, 0.15);
+    color: #00d4ff;
+    box-shadow: 0 0 8px rgba(0, 212, 255, 0.12);
+}
+
+/* ── Results count ── */
+
+.results-count[b-9ve3699x7f] {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #5a7a94;
+    letter-spacing: 0.02em;
+}
+
+/* ── Games grid ── */
 
 .games-grid[b-9ve3699x7f] {
     display: grid;
@@ -194,6 +307,27 @@
     margin: 0 0 0.5rem;
 }
 
+/* ── Tags on card ── */
+
+.game-card-tags[b-9ve3699x7f] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.65rem;
+}
+
+.game-tag[b-9ve3699x7f] {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.55rem;
+    border-radius: 6px;
+    background: rgba(0, 212, 255, 0.08);
+    color: #5fa8c4;
+    border: 1px solid rgba(0, 212, 255, 0.12);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
 .game-card-desc[b-9ve3699x7f] {
     font-size: 0.875rem;
     color: #8bacc4;
@@ -218,6 +352,42 @@
 .game-card:hover .game-card-play[b-9ve3699x7f] {
     background: rgba(0, 212, 255, 0.2);
     border-color: rgba(0, 212, 255, 0.6);
+}
+
+/* ── No results state ── */
+
+.no-results[b-9ve3699x7f] {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #5a7a94;
+}
+
+.no-results-emoji[b-9ve3699x7f] {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.no-results p[b-9ve3699x7f] {
+    font-size: 1.1rem;
+    margin: 0 0 1.25rem;
+}
+
+.no-results-reset[b-9ve3699x7f] {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 212, 255, 0.35);
+    background: rgba(0, 212, 255, 0.1);
+    color: #00d4ff;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.no-results-reset:hover[b-9ve3699x7f] {
+    background: rgba(0, 212, 255, 0.2);
 }
 
 /* /Shared/GameView.razor.rz.scp.css */

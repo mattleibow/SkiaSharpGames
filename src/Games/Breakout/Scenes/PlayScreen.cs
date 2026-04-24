@@ -69,12 +69,6 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
         X = GameWidth - 20f,
         Y = 30f,
     };
-    private readonly HudLabel _powerUpLabel = new()
-    {
-        FontSize = 11f,
-        Color = SKColors.White,
-        Align = TextAlign.Center,
-    };
     private readonly HudLabel _strongBallText = new()
     {
         FontSize = 14f,
@@ -96,6 +90,15 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
     {
         if (ChildCount == 0)
         {
+            _leftWall.Name = "leftWall";
+            _topWall.Name = "topWall";
+            _rightWall.Name = "rightWall";
+            _bottomWall.Name = "bottomWall";
+
+            Children.Add(_leftWall);
+            Children.Add(_topWall);
+            Children.Add(_rightWall);
+            Children.Add(_bottomWall);
             Children.Add(_bricks);
             Children.Add(_powerUps);
             Children.Add(_paddle);
@@ -382,17 +385,5 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
     protected override void OnDraw(SKCanvas canvas)
     {
         canvas.Clear(BackgroundColor);
-
-        // Power-up labels drawn per-powerup (can't be a child)
-        foreach (var child in _powerUps.Children)
-        {
-            if (child is not FallingPowerUp pu || !pu.Active)
-                continue;
-            _powerUpLabel.Text = pu.Type == PowerUpType.StrongBall ? "S" : "B";
-            canvas.Save();
-            canvas.Translate(pu.X, pu.Y + 4f);
-            _powerUpLabel.Draw(canvas);
-            canvas.Restore();
-        }
     }
 }

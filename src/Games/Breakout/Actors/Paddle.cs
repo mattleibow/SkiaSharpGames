@@ -29,11 +29,7 @@ internal sealed class Paddle : Actor
     /// <summary>True while a width animation is in progress.</summary>
     public bool IsWidthAnimating => _width.IsAnimating;
 
-    public new RectCollider Collider
-    {
-        get => (RectCollider)base.Collider!;
-        init => base.Collider = value;
-    }
+    private RectCollider RectCollider => (RectCollider)base.Collider!;
 
     /// <summary>Animates the paddle to a new width.</summary>
     public void AnimateWidth(float target, float duration, Func<float, float> easing) =>
@@ -43,13 +39,13 @@ internal sealed class Paddle : Actor
     public void SetWidthImmediate(float value)
     {
         _width.SetImmediate(value);
-        Collider.Width = value;
+        RectCollider.Width = value;
     }
 
     protected override void OnUpdate(float deltaTime)
     {
         _width.Update(deltaTime);
-        Collider.Width = _width.Value;
+        RectCollider.Width = _width.Value;
     }
 
     protected override void OnDraw(SKCanvas canvas)

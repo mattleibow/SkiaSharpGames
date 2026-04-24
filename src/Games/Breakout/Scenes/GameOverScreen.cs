@@ -42,6 +42,7 @@ internal sealed class GameOverScreen(BreakoutGameState state, IDirector director
 
     public override void OnActivating()
     {
+        _scoreText.Text = $"Score: {state.Score}";
         if (ChildCount == 0)
         {
             Children.Add(_titleText);
@@ -53,7 +54,6 @@ internal sealed class GameOverScreen(BreakoutGameState state, IDirector director
     protected override void OnDraw(SKCanvas canvas)
     {
         canvas.DrawRect(0, 0, GameWidth, GameHeight, _overlayPaint);
-        _scoreText.Text = $"Score: {state.Score}";
     }
 
     public override void OnPointerDown(float x, float y) =>

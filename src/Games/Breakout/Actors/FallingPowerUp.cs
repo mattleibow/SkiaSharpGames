@@ -15,7 +15,13 @@ internal sealed class FallingPowerUp : Actor
 {
     private readonly SKPaint _paint = new() { IsAntialias = true };
 
-    public PowerUpType Type;
+    private readonly HudLabel _label = new()
+    {
+        FontSize = 11f,
+        Color = SKColors.White,
+        Align = TextAlign.Center,
+        Y = 4f,
+    };
 
     public float Width { get; set; } = PowerUpW;
     public float Height { get; set; } = PowerUpH;
@@ -26,18 +32,19 @@ internal sealed class FallingPowerUp : Actor
     {
         Rigidbody = new Rigidbody2D { VelocityY = PowerUpSpeed };
         Collider = new RectCollider { Width = PowerUpW, Height = PowerUpH };
+        Children.Add(_label);
     }
 
-    public new RectCollider Collider
+    public PowerUpType Type
     {
-        get => (RectCollider)base.Collider!;
-        init => base.Collider = value;
+        get => _type;
+        set
+        {
+            _type = value;
+            _label.Text = value == PowerUpType.StrongBall ? "S" : "B";
+        }
     }
-    public new Rigidbody2D Rigidbody
-    {
-        get => (Rigidbody2D)base.Rigidbody!;
-        init => base.Rigidbody = value;
-    }
+    private PowerUpType _type;
 
     protected override void OnDraw(SKCanvas canvas)
     {

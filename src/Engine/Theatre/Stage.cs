@@ -69,6 +69,12 @@ public sealed class Stage
     /// </summary>
     public HudTheme? HudTheme { get; set; }
 
+    /// <summary>
+    /// Controls whether the pointer is drawn for scenes that don't override
+    /// <see cref="Scene.ShowPointer"/>. Defaults to <c>true</c>.
+    /// </summary>
+    public bool ShowPointer { get; set; } = true;
+
     /// <summary>Advances the game by <paramref name="deltaTime"/> seconds.</summary>
     public void Update(float deltaTime) => _renderer.Update(deltaTime);
 
@@ -108,12 +114,10 @@ public sealed class Stage
     public void OnPointerMove(float x, float y)
     {
         var scene = _director.ActiveInputScene;
-        if (scene.Pointer is { } p)
-        {
-            p.X = x;
-            p.Y = y;
-            p.Visible = true;
-        }
+        var p = scene.Pointer;
+        p.X = x;
+        p.Y = y;
+        p.Visible = true;
         scene.OnPointerMove(x, y);
     }
 
@@ -121,13 +125,11 @@ public sealed class Stage
     public void OnPointerDown(float x, float y)
     {
         var scene = _director.ActiveInputScene;
-        if (scene.Pointer is { } p)
-        {
-            p.IsDown = true;
-            p.X = x;
-            p.Y = y;
-            p.Visible = true;
-        }
+        var p = scene.Pointer;
+        p.IsDown = true;
+        p.X = x;
+        p.Y = y;
+        p.Visible = true;
         scene.OnPointerDown(x, y);
     }
 
@@ -135,12 +137,10 @@ public sealed class Stage
     public void OnPointerUp(float x, float y)
     {
         var scene = _director.ActiveInputScene;
-        if (scene.Pointer is { } p)
-        {
-            p.X = x;
-            p.Y = y;
-            p.IsDown = false;
-        }
+        var p = scene.Pointer;
+        p.X = x;
+        p.Y = y;
+        p.IsDown = false;
         scene.OnPointerUp(x, y);
     }
 

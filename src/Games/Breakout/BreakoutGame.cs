@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
+using SkiaSharp;
 using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.Breakout;
@@ -22,6 +23,14 @@ public static class BreakoutGame
 
         builder.SetOpeningScene<StartScreen>();
 
-        return builder.Open();
+        var stage = builder.Open();
+        stage.HudTheme = new HudTheme
+        {
+            Pointer = new CrosshairPointerAppearance
+            {
+                AccentColor = BreakoutConstants.AccentColor,
+            },
+        };
+        return stage;
     }
 }

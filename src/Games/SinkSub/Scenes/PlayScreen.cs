@@ -70,6 +70,8 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
 
     public override void OnActivating()
     {
+        ShowPointer = false;
+
         if (ChildCount == 0)
         {
             Children.Add(_ship);

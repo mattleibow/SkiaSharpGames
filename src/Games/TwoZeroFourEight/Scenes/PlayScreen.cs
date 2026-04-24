@@ -77,6 +77,8 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
 
     public override void OnActivating()
     {
+        ShowPointer = false;
+
         if (ChildCount == 0)
         {
             Children.Add(_headerText);

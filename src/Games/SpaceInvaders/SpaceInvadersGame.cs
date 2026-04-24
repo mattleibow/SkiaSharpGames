@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
+using SkiaSharp;
 using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.SpaceInvaders;
@@ -21,6 +22,14 @@ public static class SpaceInvadersGame
 
         builder.SetOpeningScene<StartScreen>();
 
-        return builder.Open();
+        var stage = builder.Open();
+        stage.HudTheme = new HudTheme
+        {
+            Pointer = new CrosshairPointerAppearance
+            {
+                AccentColor = SpaceInvadersConstants.AccentColor,
+            },
+        };
+        return stage;
     }
 }

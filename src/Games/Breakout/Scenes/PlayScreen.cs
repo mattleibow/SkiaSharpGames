@@ -88,6 +88,8 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
 
     public override void OnActivating()
     {
+        ShowPointer = false;
+
         if (ChildCount == 0)
         {
             _leftWall.Name = "leftWall";

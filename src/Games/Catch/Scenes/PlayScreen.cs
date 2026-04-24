@@ -50,6 +50,8 @@ internal sealed class PlayScreen : Scene
         this.state = state;
         this.director = director;
 
+        ShowPointer = false;
+
         Children.Add(_bar);
         Children.Add(_circle);
         Children.Add(_scoreText);

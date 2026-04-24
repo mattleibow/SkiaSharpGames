@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
+using SkiaSharp;
 using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.Asteroids;
@@ -17,6 +18,14 @@ public static class AsteroidsGame
 
         builder.SetOpeningScene<StartScreen>();
 
-        return builder.Open();
+        var stage = builder.Open();
+        stage.HudTheme = new HudTheme
+        {
+            Pointer = new CrosshairPointerAppearance
+            {
+                AccentColor = AsteroidsConstants.AccentColor,
+            },
+        };
+        return stage;
     }
 }

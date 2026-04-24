@@ -56,7 +56,11 @@ public static class BoldCuteTheme
                 KnobBorderColor = new SKColor(0x50, 0x1B, 0x63),
                 BorderWidth = 3f,
             },
-            Pointer = DefaultPointerAppearance.Default,
+            Pointer = new CrosshairPointerAppearance
+            {
+                AccentColor = new SKColor(0xFF, 0x77, 0xB4),
+                ShadowColor = new SKColor(0x6A, 0x1A, 0x42, 180),
+            },
             Label = DefaultLabelAppearance.Default,
         };
 }

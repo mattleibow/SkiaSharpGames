@@ -11,6 +11,19 @@ namespace SkiaSharp.Theatre;
 public abstract class Scene : SceneNode
 {
     /// <summary>
+    /// Creates a new scene with an auto-created <see cref="Pointer"/>.
+    /// The pointer's <see cref="SceneNode.Parent"/> is set to this scene for theme resolution
+    /// but it is not added to <see cref="SceneNode.Children"/> — the engine draws it
+    /// on top of all scene content via the <see cref="Director"/>.
+    /// </summary>
+    protected Scene()
+    {
+        var pointer = new HudPointer();
+        pointer.Parent = this;
+        Pointer = pointer;
+    }
+
+    /// <summary>
     /// Reference to the <see cref="Theatre.Stage"/> hosting this scene. Set by the
     /// <see cref="Director"/> when the scene is activated.
     /// </summary>
@@ -30,10 +43,25 @@ public abstract class Scene : SceneNode
     public bool IsPaused { get; internal set; }
 
     /// <summary>
-    /// Optional visible pointer/cursor. When set, the engine automatically updates its
-    /// position from pointer events. Draw it at the end of <see cref="Draw"/> to keep it on top.
+    /// Visible pointer/cursor. Auto-created for every scene. The engine automatically
+    /// updates its position from pointer events and draws it on top of all scene content.
+    /// Use <see cref="ShowPointer"/> to hide the pointer for scenes that don't need it.
     /// </summary>
-    public HudPointer? Pointer { get; protected set; }
+    public HudPointer Pointer { get; protected set; }
+
+    /// <summary>
+    /// Controls whether the pointer is drawn for this scene.
+    /// <c>null</c> (default) inherits from <see cref="Stage.ShowPointer"/>.
+    /// Set to <c>false</c> on play screens where the cursor is not needed
+    /// (e.g., paddle-follow or keyboard-only games).
+    /// </summary>
+    public bool? ShowPointer { get; set; }
+
+    /// <summary>
+    /// Resolves the effective pointer visibility for this scene:
+    /// <see cref="ShowPointer"/> if set, otherwise <see cref="Stage.ShowPointer"/>, else true.
+    /// </summary>
+    internal bool EffectiveShowPointer => ShowPointer ?? Stage?.ShowPointer ?? true;
 
     // ── Input ─────────────────────────────────────────────────────────────
 

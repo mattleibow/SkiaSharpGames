@@ -54,6 +54,9 @@
   <Folder Name="/src/Games/GhostLight/">
     <Project Path="src/Games/GhostLight/SkiaSharpGames.GhostLight.csproj" />
   </Folder>
+  <Folder Name="/src/Games/Starfall/">
+    <Project Path="src/Games/Starfall/SkiaSharpGames.Starfall.csproj" />
+  </Folder>
   <Folder Name="/src/Games/UIGallery/">
     <Project Path="src/Games/UIGallery/SkiaSharpGames.UIGallery.csproj" />
   </Folder>

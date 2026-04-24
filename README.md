@@ -21,6 +21,7 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 | [2048](src/Games/TwoZeroFourEight/) | `/games/2048` | Slide tiles on a 4×4 grid, merge matching numbers, and reach the 2048 tile. |
 | [Asteroids](src/Games/Asteroids/) | `/games/asteroids` | Pilot your ship through an asteroid field — rotate, thrust, and shoot to survive. |
 | [UI Gallery](src/Games/UIGallery/) | `/games/ui-gallery` | Interactive canvas UI playground with shared themes, overrides, and custom draw hooks. |
+| [Starfall](src/Games/Starfall/) | `/games/starfall` | Top-down space survival shooter — 3 sectors, 5 enemy types, boss fights, power-ups, and upgrade selection. |
 | [Ghost Light](src/Games/GhostLight/) | `/games/ghost-light` | A glowing spirit navigates darkness and fog — cascading alpha, nested transparency, and layered rendering. |
 
 ### Breakout
@@ -67,6 +68,15 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 | ![Desktop - Gameplay](docs/screenshots/asteroids/desktop-gameplay.png) | ![Mobile - Gameplay](docs/screenshots/asteroids/mobile-gameplay.png) |
 
 **Highlights:** vector-style ship and asteroid rendering, screen wrapping, thrust physics with drag, asteroid splitting, debris particles, and progressive difficulty.
+
+### Starfall
+
+| Desktop | Mobile |
+|---------|--------|
+| ![Desktop - Start screen](docs/screenshots/starfall/desktop-loading.png) | ![Mobile - Start screen](docs/screenshots/starfall/mobile-loading.png) |
+| ![Desktop - Gameplay](docs/screenshots/starfall/desktop-gameplay.png) | ![Mobile - Gameplay](docs/screenshots/starfall/mobile-gameplay.png) |
+
+**Highlights:** multi-stage space shooter with 5 enemy types (Drone, Zigzagger, Shooter, Bomber, Charger), 3 unique boss battles with multi-phase attack patterns, power-up drops, combo scoring, between-stage upgrade selection, parallax starfield, particle explosions, screen shake, and a fog/spotlight mechanic in the final sector.
 
 ### UI Gallery
 

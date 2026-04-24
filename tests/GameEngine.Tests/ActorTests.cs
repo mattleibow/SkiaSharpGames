@@ -291,6 +291,102 @@ public class ActorTests
         Assert.True(child.DrawCalled);
     }
 
+    // ── Alpha / Cascading Opacity ────────────────────────────────────
+
+    [Fact]
+    public void Draw_SkipsZeroAlpha()
+    {
+        var actor = new TrackingEntity { Alpha = 0f };
+        using var surface = SKSurface.Create(new SKImageInfo(100, 100));
+        actor.Draw(surface.Canvas);
+        Assert.False(actor.DrawCalled);
+    }
+
+    [Fact]
+    public void Draw_WorksWithPartialAlpha()
+    {
+        var actor = new TrackingEntity { Alpha = 0.5f };
+        using var surface = SKSurface.Create(new SKImageInfo(100, 100));
+        actor.Draw(surface.Canvas);
+        Assert.True(actor.DrawCalled);
+    }
+
+    [Fact]
+    public void Draw_ChildDrawsWhenParentHasPartialAlpha()
+    {
+        var parent = new Actor { Alpha = 0.5f };
+        var child = new TrackingEntity();
+        parent.Children.Add(child);
+
+        using var surface = SKSurface.Create(new SKImageInfo(100, 100));
+        parent.Draw(surface.Canvas);
+        Assert.True(child.DrawCalled);
+    }
+
+    [Fact]
+    public void Draw_ChildSkippedWhenParentAlphaZero()
+    {
+        var parent = new Actor { Alpha = 0f };
+        var child = new TrackingEntity();
+        parent.Children.Add(child);
+
+        using var surface = SKSurface.Create(new SKImageInfo(100, 100));
+        parent.Draw(surface.Canvas);
+        Assert.False(child.DrawCalled);
+    }
+
+    [Fact]
+    public void Draw_CascadingAlpha_ParentReducesChildOpacity()
+    {
+        // Parent at 50% alpha, child draws a white pixel.
+        // The result should be dimmer than a full-opacity draw.
+        var child = new ColoredActor(SKColors.White) { X = 50f, Y = 50f };
+        var parent = new Actor { Alpha = 0.5f };
+        parent.Children.Add(child);
+
+        // Draw with parent alpha
+        using var bmpAlpha = new SKBitmap(100, 100);
+        using var canvasAlpha = new SKCanvas(bmpAlpha);
+        canvasAlpha.Clear(SKColors.Black);
+        parent.Draw(canvasAlpha);
+        var pixelAlpha = bmpAlpha.GetPixel(50, 50);
+
+        // Draw without parent alpha (full opacity)
+        parent.Alpha = 1f;
+        using var bmpFull = new SKBitmap(100, 100);
+        using var canvasFull = new SKCanvas(bmpFull);
+        canvasFull.Clear(SKColors.Black);
+        parent.Draw(canvasFull);
+        var pixelFull = bmpFull.GetPixel(50, 50);
+
+        // The alpha version should be darker (lower RGB values)
+        Assert.True(
+            pixelAlpha.Red < pixelFull.Red,
+            $"Expected dimmer pixel with parent alpha: got {pixelAlpha} vs {pixelFull}"
+        );
+    }
+
+    [Fact]
+    public void Draw_CascadingAlpha_NestedHalving()
+    {
+        // Grandparent 50% → Parent 50% → Child draws white.
+        // Effective opacity should be 25%.
+        var child = new ColoredActor(SKColors.White) { X = 50f, Y = 50f };
+        var parent = new Actor { Alpha = 0.5f };
+        var grandparent = new Actor { Alpha = 0.5f };
+        parent.Children.Add(child);
+        grandparent.Children.Add(parent);
+
+        using var bmp = new SKBitmap(100, 100);
+        using var canvas = new SKCanvas(bmp);
+        canvas.Clear(SKColors.Black);
+        grandparent.Draw(canvas);
+        var pixel = bmp.GetPixel(50, 50);
+
+        // 25% white on black ≈ RGB(64, 64, 64) — allow tolerance
+        Assert.InRange(pixel.Red, 30, 100);
+    }
+
     // ── Collision Helpers ─────────────────────────────────────────────
 
     [Fact]
@@ -643,6 +739,16 @@ public class ActorTests
         public bool DrawCalled;
 
         protected override void OnDraw(SKCanvas canvas) => DrawCalled = true;
+    }
+
+    private sealed class ColoredActor(SKColor color) : Actor
+    {
+        private readonly SKPaint _paint = new() { Color = color };
+
+        protected override void OnDraw(SKCanvas canvas)
+        {
+            canvas.DrawRect(-5, -5, 10, 10, _paint);
+        }
     }
 
     // ── CaptureToImage ─────────────────────────────────────────────

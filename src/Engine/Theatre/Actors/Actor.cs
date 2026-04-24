@@ -126,6 +126,9 @@ public class Actor : SceneNode
     /// <summary>Opacity from 0 (invisible) to 1 (fully opaque).</summary>
     public float Alpha { get; set; } = 1f;
 
+    // Cached paint for SaveLayer alpha compositing — avoids per-frame allocation.
+    private readonly SKPaint _layerPaint = new();
+
     /// <summary>
     /// Collision shape. Used by <see cref="WorldBoundingBox"/> and collision helpers.
     /// </summary>
@@ -169,12 +172,9 @@ public class Actor : SceneNode
         if (Alpha < 1f)
         {
             // SaveLayer composites everything drawn within at the given alpha.
-            // This gives correct cascading: parent 50 % + child 50 % = 25 %.
-            using var layerPaint = new SKPaint
-            {
-                Color = SKColors.White.WithAlpha((byte)(255 * Alpha)),
-            };
-            canvas.SaveLayer(layerPaint);
+            // This gives correct cascading: parent 50% + child 50% = 25%.
+            _layerPaint.Color = SKColors.White.WithAlpha((byte)(255 * Alpha));
+            canvas.SaveLayer(_layerPaint);
         }
         else
         {

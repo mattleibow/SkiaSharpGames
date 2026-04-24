@@ -1,4 +1,5 @@
 using SkiaSharp.Theatre;
+
 using Xunit;
 
 namespace SkiaSharp.Theatre.Tests;

@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
+
 using static SkiaSharpGames.Snake.SnakeConstants;
 
 namespace SkiaSharpGames.Snake;

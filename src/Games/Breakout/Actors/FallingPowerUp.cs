@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
+
 using static SkiaSharpGames.Breakout.BreakoutConstants;
 
 namespace SkiaSharpGames.Breakout;

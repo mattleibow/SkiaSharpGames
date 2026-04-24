@@ -1,4 +1,5 @@
 using SkiaSharp;
+
 using static SkiaSharpGames.LunarLander.LunarLanderConstants;
 
 namespace SkiaSharpGames.LunarLander;

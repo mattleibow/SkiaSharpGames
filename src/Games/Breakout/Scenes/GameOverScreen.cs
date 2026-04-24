@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
+
 using static SkiaSharpGames.Breakout.BreakoutConstants;
 
 namespace SkiaSharpGames.Breakout;
@@ -12,32 +13,9 @@ internal sealed class GameOverScreen(BreakoutGameState state, IDirector director
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha(186) };
 
-    private readonly HudLabel _titleText = new()
-    {
-        Text = "GAME OVER",
-        FontSize = 64f,
-        Color = new SKColor(0xFF, 0x2D, 0x55),
-        Align = TextAlign.Center,
-        X = GameWidth / 2f,
-        Y = 270f,
-    };
-    private readonly HudLabel _scoreText = new()
-    {
-        FontSize = 32f,
-        Color = SKColors.White,
-        Align = TextAlign.Center,
-        X = GameWidth / 2f,
-        Y = 335f,
-    };
-    private readonly HudLabel _promptText = new()
-    {
-        Text = "Click or Tap to Play Again",
-        FontSize = 24f,
-        Color = AccentColor,
-        Align = TextAlign.Center,
-        X = GameWidth / 2f,
-        Y = 395f,
-    };
+    private readonly HudLabel _titleText = new() { Text = "GAME OVER", FontSize = 64f, Color = new SKColor(0xFF, 0x2D, 0x55), Align = TextAlign.Center, X = GameWidth / 2f, Y = 270f };
+    private readonly HudLabel _scoreText = new() { FontSize = 32f, Color = SKColors.White, Align = TextAlign.Center, X = GameWidth / 2f, Y = 335f };
+    private readonly HudLabel _promptText = new() { Text = "Click or Tap to Play Again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 395f };
 
     public override void OnActivating()
     {
@@ -55,8 +33,8 @@ internal sealed class GameOverScreen(BreakoutGameState state, IDirector director
         _scoreText.Text = $"Score: {state.Score}";
     }
 
-    public override void OnPointerDown(float x, float y) =>
-        director.TransitionTo<StartScreen>(new DissolveCurtain());
+    public override void OnPointerDown(float x, float y)
+        => director.TransitionTo<StartScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {

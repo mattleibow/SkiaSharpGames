@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
+
 using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;

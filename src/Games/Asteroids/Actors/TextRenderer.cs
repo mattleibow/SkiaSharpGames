@@ -1,4 +1,5 @@
 using SkiaSharp;
+
 using static SkiaSharpGames.Asteroids.AsteroidsConstants;
 
 namespace SkiaSharpGames.Asteroids;

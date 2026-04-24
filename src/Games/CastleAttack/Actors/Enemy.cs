@@ -1,5 +1,6 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
+
 using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
 namespace SkiaSharpGames.CastleAttack;

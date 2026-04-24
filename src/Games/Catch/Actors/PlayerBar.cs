@@ -14,7 +14,11 @@ internal sealed class PlayerBar : Actor
         Collider = new RectCollider { Width = BarWidth, Height = BarHeight };
     }
 
-    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
+    public new RectCollider Collider
+    {
+        get => (RectCollider)base.Collider!;
+        init => base.Collider = value;
+    }
 
     public float Width { get; set; } = BarWidth;
     public float Height { get; set; } = BarHeight;
@@ -40,8 +44,12 @@ internal sealed class PlayerBar : Actor
             float shineRadius = Math.Max(CornerRadius - 1f, 0f);
             _shinePaint.Color = SKColors.White.WithAlpha((byte)(55 * Alpha));
             canvas.DrawRoundRect(
-                new SKRoundRect(SKRect.Create(left + 2f, top + 2f, Width - 4f, shineHeight), shineRadius),
-                _shinePaint);
+                new SKRoundRect(
+                    SKRect.Create(left + 2f, top + 2f, Width - 4f, shineHeight),
+                    shineRadius
+                ),
+                _shinePaint
+            );
         }
     }
 }

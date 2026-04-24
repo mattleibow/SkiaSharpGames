@@ -14,20 +14,77 @@ internal sealed class PlayScreen : Scene
     private readonly PongPaddle _leftPaddle = new(LeftPaddleColor) { Name = "paddle" };
     private readonly PongPaddle _rightPaddle = new(RightPaddleColor) { Name = "paddle" };
     private readonly PongBall _ball = new() { Name = "ball" };
-    private readonly PongEdge _topEdge = new(GameWidth * 0.5f, -EdgeColliderThickness * 0.5f, GameWidth, EdgeColliderThickness);
-    private readonly PongEdge _bottomEdge = new(GameWidth * 0.5f, GameHeight + EdgeColliderThickness * 0.5f, GameWidth, EdgeColliderThickness);
-    private readonly PongEdge _leftGoalEdge = new(-EdgeColliderThickness * 0.5f, GameHeight * 0.5f, EdgeColliderThickness, GameHeight);
-    private readonly PongEdge _rightGoalEdge = new(GameWidth + EdgeColliderThickness * 0.5f, GameHeight * 0.5f, EdgeColliderThickness, GameHeight);
+    private readonly PongEdge _topEdge = new(
+        GameWidth * 0.5f,
+        -EdgeColliderThickness * 0.5f,
+        GameWidth,
+        EdgeColliderThickness
+    );
+    private readonly PongEdge _bottomEdge = new(
+        GameWidth * 0.5f,
+        GameHeight + EdgeColliderThickness * 0.5f,
+        GameWidth,
+        EdgeColliderThickness
+    );
+    private readonly PongEdge _leftGoalEdge = new(
+        -EdgeColliderThickness * 0.5f,
+        GameHeight * 0.5f,
+        EdgeColliderThickness,
+        GameHeight
+    );
+    private readonly PongEdge _rightGoalEdge = new(
+        GameWidth + EdgeColliderThickness * 0.5f,
+        GameHeight * 0.5f,
+        EdgeColliderThickness,
+        GameHeight
+    );
     private int _serveDirection = 1;
 
     private CountdownTimer _serveTimer;
 
     // HUD text labels
-    private readonly HudLabel _leftScoreText = new() { Name = "score", FontSize = 64f, Align = TextAlign.Center, X = GameWidth * 0.34f, Y = 82f };
-    private readonly HudLabel _rightScoreText = new() { Name = "score", FontSize = 64f, Align = TextAlign.Center, X = GameWidth * 0.66f, Y = 82f };
-    private readonly HudLabel _leftControlsText = new() { Text = "W / S", FontSize = 18f, Color = LeftPaddleColor, X = 18f, Y = 28f };
-    private readonly HudLabel _rightControlsText = new() { Text = "Up / Dn", FontSize = 18f, Color = RightPaddleColor, Align = TextAlign.Right, X = GameWidth - 18f, Y = 28f };
-    private readonly HudLabel _serveText = new() { Text = "Serve!", FontSize = 26f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 320f };
+    private readonly HudLabel _leftScoreText = new()
+    {
+        Name = "score",
+        FontSize = 64f,
+        Align = TextAlign.Center,
+        X = GameWidth * 0.34f,
+        Y = 82f,
+    };
+    private readonly HudLabel _rightScoreText = new()
+    {
+        Name = "score",
+        FontSize = 64f,
+        Align = TextAlign.Center,
+        X = GameWidth * 0.66f,
+        Y = 82f,
+    };
+    private readonly HudLabel _leftControlsText = new()
+    {
+        Text = "W / S",
+        FontSize = 18f,
+        Color = LeftPaddleColor,
+        X = 18f,
+        Y = 28f,
+    };
+    private readonly HudLabel _rightControlsText = new()
+    {
+        Text = "Up / Dn",
+        FontSize = 18f,
+        Color = RightPaddleColor,
+        Align = TextAlign.Right,
+        X = GameWidth - 18f,
+        Y = 28f,
+    };
+    private readonly HudLabel _serveText = new()
+    {
+        Text = "Serve!",
+        FontSize = 26f,
+        Color = AccentColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 320f,
+    };
 
     public PlayScreen(PongGameState state, IDirector director)
     {
@@ -121,7 +178,8 @@ internal sealed class PlayScreen : Scene
             float angle = (float)((Random.Shared.NextDouble() * 0.8 - 0.4) * Math.PI);
             _ball.Rigidbody.SetVelocity(
                 _serveDirection * BallSpeed * MathF.Cos(angle),
-                BallSpeed * MathF.Sin(angle));
+                BallSpeed * MathF.Sin(angle)
+            );
         }
 
         if (_serveTimer.Active)
@@ -158,7 +216,9 @@ internal sealed class PlayScreen : Scene
     private void ResolvePaddleCollision(bool isLeft)
     {
         var paddle = isLeft ? _leftPaddle : _rightPaddle;
-        bool movingTowardPaddle = isLeft ? _ball.Rigidbody.VelocityX < 0f : _ball.Rigidbody.VelocityX > 0f;
+        bool movingTowardPaddle = isLeft
+            ? _ball.Rigidbody.VelocityX < 0f
+            : _ball.Rigidbody.VelocityX > 0f;
         if (!movingTowardPaddle || !_ball.TryGetHit(paddle, out var hit))
             return;
 
@@ -183,9 +243,8 @@ internal sealed class PlayScreen : Scene
     {
         if (state.LeftScore >= WinningScore || state.RightScore >= WinningScore)
         {
-            state.WinnerText = state.LeftScore > state.RightScore
-                ? "Left Player Wins!"
-                : "Right Player Wins!";
+            state.WinnerText =
+                state.LeftScore > state.RightScore ? "Left Player Wins!" : "Right Player Wins!";
             director.PushScene<GameOverScreen>();
             return;
         }

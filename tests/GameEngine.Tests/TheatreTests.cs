@@ -81,9 +81,7 @@ public class StageBuilderTests
         var tracker = new ScreenTracker();
         var builder = StageBuilder.Create();
         builder.Services.AddSingleton(tracker);
-        builder.Scenes
-               .Add<ScreenA>()
-               .Add<ScreenB>();
+        builder.Scenes.Add<ScreenA>().Add<ScreenB>();
         builder.SetOpeningScene<ScreenA>();
         builder.Open();
         Assert.True(tracker.AActivated);
@@ -109,9 +107,7 @@ public class StageBuilderTests
         var tracker = new ScreenTracker();
         var builder = StageBuilder.Create();
         builder.Services.AddSingleton(tracker);
-        builder.Scenes
-               .Add<ScreenA>()
-               .Add<ScreenB>();
+        builder.Scenes.Add<ScreenA>().Add<ScreenB>();
         builder.SetOpeningScene<ScreenB>(); // explicitly choose a non-first scene
         builder.Open();
         Assert.False(tracker.AActivated);
@@ -142,20 +138,25 @@ public class StageBuilderTests
     private sealed class OverlayScreen : Scene
     {
         protected override void OnUpdate(float dt) { }
+
         protected override void OnDraw(SKCanvas c) { }
     }
 
     private sealed class ScreenA(ScreenTracker t) : Scene
     {
         protected override void OnUpdate(float dt) { }
+
         protected override void OnDraw(SKCanvas c) { }
+
         public override void OnActivated() => t.AActivated = true;
     }
 
     private sealed class ScreenB(ScreenTracker t) : Scene
     {
         protected override void OnUpdate(float dt) { }
+
         protected override void OnDraw(SKCanvas c) { }
+
         public override void OnActivated() => t.BActivated = true;
     }
 

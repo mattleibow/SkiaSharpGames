@@ -28,7 +28,11 @@ internal sealed class Paddle : Actor
     /// <summary>True while a width animation is in progress.</summary>
     public bool IsWidthAnimating => _width.IsAnimating;
 
-    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
+    public new RectCollider Collider
+    {
+        get => (RectCollider)base.Collider!;
+        init => base.Collider = value;
+    }
 
     /// <summary>Animates the paddle to a new width.</summary>
     public void AnimateWidth(float target, float duration, Func<float, float> easing) =>
@@ -54,7 +58,11 @@ internal sealed class Paddle : Actor
 
         _paint.Color = Color.WithAlpha((byte)(255 * Alpha));
         canvas.DrawRoundRect(
-            new SKRoundRect(SKRect.Create(0 - Width / 2f, 0 - Height / 2f, Width, Height), CornerRadius),
-            _paint);
+            new SKRoundRect(
+                SKRect.Create(0 - Width / 2f, 0 - Height / 2f, Width, Height),
+                CornerRadius
+            ),
+            _paint
+        );
     }
 }

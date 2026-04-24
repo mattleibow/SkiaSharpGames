@@ -8,10 +8,6 @@ internal sealed class PongEdge : Actor
     {
         X = x;
         Y = y;
-        Collider = new RectCollider
-        {
-            Width = width,
-            Height = height,
-        };
+        Collider = new RectCollider { Width = width, Height = height };
     }
 }

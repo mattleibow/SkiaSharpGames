@@ -14,7 +14,8 @@ namespace SkiaSharp.Theatre;
 /// </remarks>
 public class Actor : SceneNode
 {
-    private float _x, _y;
+    private float _x,
+        _y;
     private float _rotation;
     private SKMatrix44 _worldMatrix = SKMatrix44.Identity;
 
@@ -26,21 +27,33 @@ public class Actor : SceneNode
     public float X
     {
         get => _x;
-        set { _x = value; RecalculateWorld(); }
+        set
+        {
+            _x = value;
+            RecalculateWorld();
+        }
     }
 
     /// <summary>Vertical position in local space (relative to parent, or world if root).</summary>
     public float Y
     {
         get => _y;
-        set { _y = value; RecalculateWorld(); }
+        set
+        {
+            _y = value;
+            RecalculateWorld();
+        }
     }
 
     /// <summary>Local rotation in radians. Positive = clockwise.</summary>
     public float Rotation
     {
         get => _rotation;
-        set { _rotation = value; RecalculateWorld(); }
+        set
+        {
+            _rotation = value;
+            RecalculateWorld();
+        }
     }
 
     /// <summary>When <see langword="false"/> the actor is not drawn (but still updated).</summary>
@@ -95,7 +108,8 @@ public class Actor : SceneNode
         var node = Parent;
         while (node is not null)
         {
-            if (node is Actor actor) return actor;
+            if (node is Actor actor)
+                return actor;
             node = node.Parent;
         }
         return null;
@@ -128,7 +142,8 @@ public class Actor : SceneNode
     /// </summary>
     public override void Update(float deltaTime)
     {
-        if (!Active) return;
+        if (!Active)
+            return;
 
         Rigidbody?.Step(this, deltaTime);
         OnUpdate(deltaTime);
@@ -146,7 +161,8 @@ public class Actor : SceneNode
     /// </summary>
     public override void Draw(SKCanvas canvas)
     {
-        if (!Active || !Visible) return;
+        if (!Active || !Visible)
+            return;
 
         canvas.Save();
         canvas.Concat(LocalMatrix);
@@ -182,7 +198,8 @@ public class Actor : SceneNode
     {
         get
         {
-            if (Collider is null) return null;
+            if (Collider is null)
+                return null;
             var local = Collider.BoundingBox(0f, 0f);
 
             var m = _worldMatrix;
@@ -201,8 +218,7 @@ public class Actor : SceneNode
     }
 
     /// <summary>Tests overlap with another actor in world space.</summary>
-    public bool Overlaps(Actor other) =>
-        CollisionResolver.Overlaps(this, other);
+    public bool Overlaps(Actor other) => CollisionResolver.Overlaps(this, other);
 
     /// <summary>Tests overlap and returns collision details for bounce resolution.</summary>
     public bool TryGetHit(Actor other, out CollisionHit hit) =>
@@ -213,7 +229,8 @@ public class Actor : SceneNode
     /// </summary>
     public bool BounceOff(Actor other)
     {
-        if (Rigidbody is null || !TryGetHit(other, out var hit)) return false;
+        if (Rigidbody is null || !TryGetHit(other, out var hit))
+            return false;
         Rigidbody.Bounce(hit);
         return true;
     }
@@ -228,13 +245,16 @@ public class Actor : SceneNode
         get
         {
             var children = Children;
-            if (children.Count == 0) return null;
+            if (children.Count == 0)
+                return null;
             SKRect? result = null;
             for (int i = 0; i < children.Count; i++)
             {
-                if (children[i] is not Actor c || !c.Active) continue;
+                if (children[i] is not Actor c || !c.Active)
+                    continue;
                 var bb = c.WorldBoundingBox;
-                if (bb is null) continue;
+                if (bb is null)
+                    continue;
                 result = result is null ? bb.Value : SKRect.Union(result.Value, bb.Value);
             }
             return result;
@@ -256,8 +276,7 @@ public class Actor : SceneNode
 
         var groupBB = ChildrenBoundingBox;
         var otherBB = other.WorldBoundingBox;
-        if (groupBB is null || otherBB is null
-            || !groupBB.Value.IntersectsWith(otherBB.Value))
+        if (groupBB is null || otherBB is null || !groupBB.Value.IntersectsWith(otherBB.Value))
         {
             hit = default;
             return null;
@@ -265,7 +284,8 @@ public class Actor : SceneNode
 
         for (int i = 0; i < children.Count; i++)
         {
-            if (children[i] is not Actor c || !c.Active || c.Collider is null) continue;
+            if (children[i] is not Actor c || !c.Active || c.Collider is null)
+                continue;
             if (CollisionResolver.TryGetHit(other, c, out hit))
                 return c;
         }
@@ -286,22 +306,49 @@ public class Actor : SceneNode
         var inv = System.Globalization.CultureInfo.InvariantCulture;
         var sb = new System.Text.StringBuilder();
         sb.Append(indent).Append(GetType().Name);
-        if (!string.IsNullOrEmpty(Name)) sb.Append(" '").Append(Name).Append('\'');
-        sb.Append(" @ (").Append(X.ToString("F1", inv)).Append(", ").Append(Y.ToString("F1", inv)).Append(')')
-          .Append(" world=(").Append(WorldX.ToString("F1", inv)).Append(", ").Append(WorldY.ToString("F1", inv)).Append(')')
-          .Append(" a=").Append(Alpha.ToString("F2", inv));
-        if (!Active) sb.Append(" INACTIVE");
-        if (!Visible) sb.Append(" HIDDEN");
-        if (Rotation != 0f) sb.Append(" rot=").Append(Rotation.ToString("F2", inv));
+        if (!string.IsNullOrEmpty(Name))
+            sb.Append(" '").Append(Name).Append('\'');
+        sb.Append(" @ (")
+            .Append(X.ToString("F1", inv))
+            .Append(", ")
+            .Append(Y.ToString("F1", inv))
+            .Append(')')
+            .Append(" world=(")
+            .Append(WorldX.ToString("F1", inv))
+            .Append(", ")
+            .Append(WorldY.ToString("F1", inv))
+            .Append(')')
+            .Append(" a=")
+            .Append(Alpha.ToString("F2", inv));
+        if (!Active)
+            sb.Append(" INACTIVE");
+        if (!Visible)
+            sb.Append(" HIDDEN");
+        if (Rotation != 0f)
+            sb.Append(" rot=").Append(Rotation.ToString("F2", inv));
         sb.AppendLine();
 
         if (Collider is RectCollider rc)
-            sb.Append(indent).Append("  collider: Rect ").Append(rc.Width.ToString("F0", inv)).Append('x').Append(rc.Height.ToString("F0", inv)).AppendLine();
+            sb.Append(indent)
+                .Append("  collider: Rect ")
+                .Append(rc.Width.ToString("F0", inv))
+                .Append('x')
+                .Append(rc.Height.ToString("F0", inv))
+                .AppendLine();
         else if (Collider is CircleCollider cc)
-            sb.Append(indent).Append("  collider: Circle r=").Append(cc.Radius.ToString("F0", inv)).AppendLine();
+            sb.Append(indent)
+                .Append("  collider: Circle r=")
+                .Append(cc.Radius.ToString("F0", inv))
+                .AppendLine();
 
         if (Rigidbody is { } rb && (rb.VelocityX != 0f || rb.VelocityY != 0f))
-            sb.Append(indent).Append("  velocity: (").Append(rb.VelocityX.ToString("F1", inv)).Append(", ").Append(rb.VelocityY.ToString("F1", inv)).Append(')').AppendLine();
+            sb.Append(indent)
+                .Append("  velocity: (")
+                .Append(rb.VelocityX.ToString("F1", inv))
+                .Append(", ")
+                .Append(rb.VelocityY.ToString("F1", inv))
+                .Append(')')
+                .AppendLine();
 
         var children = Children;
         for (int i = 0; i < children.Count; i++)

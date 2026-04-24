@@ -19,25 +19,46 @@ internal sealed class OilPuddle : Actor
         Collider = new RectCollider { Width = OilPuddleWidth, Height = OilPuddleHeight };
     }
 
-    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
+    public new RectCollider Collider
+    {
+        get => (RectCollider)base.Collider!;
+        init => base.Collider = value;
+    }
 
     protected override void OnUpdate(float deltaTime)
     {
         Life -= deltaTime;
-        if (Life <= 0f) Active = false;
+        if (Life <= 0f)
+            Active = false;
     }
 
     protected override void OnDraw(SKCanvas canvas)
     {
         byte alpha = (byte)(255 * Math.Clamp(Life / OilPuddleDuration, 0f, 1f));
-        using var corePaint = new SKPaint { Color = CoreColor.WithAlpha(alpha), IsAntialias = true };
-        using var glowPaint = new SKPaint { Color = GlowColor.WithAlpha((byte)(alpha / 3)), IsAntialias = true };
+        using var corePaint = new SKPaint
+        {
+            Color = CoreColor.WithAlpha(alpha),
+            IsAntialias = true,
+        };
+        using var glowPaint = new SKPaint
+        {
+            Color = GlowColor.WithAlpha((byte)(alpha / 3)),
+            IsAntialias = true,
+        };
 
         float hw = OilPuddleWidth / 2f;
         float hh = OilPuddleHeight / 2f;
 
         // Glow underneath
-        canvas.DrawRoundRect(-hw - 4f, -hh - 2f, OilPuddleWidth + 8f, OilPuddleHeight + 4f, 4f, 2f, glowPaint);
+        canvas.DrawRoundRect(
+            -hw - 4f,
+            -hh - 2f,
+            OilPuddleWidth + 8f,
+            OilPuddleHeight + 4f,
+            4f,
+            2f,
+            glowPaint
+        );
         // Core puddle
         canvas.DrawRoundRect(-hw, -hh, OilPuddleWidth, OilPuddleHeight, 3f, 2f, corePaint);
     }

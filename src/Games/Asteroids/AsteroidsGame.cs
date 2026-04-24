@@ -12,10 +12,7 @@ public static class AsteroidsGame
         builder.SetStageSize(AsteroidsConstants.GameWidth, AsteroidsConstants.GameHeight);
         builder.Services.AddSingleton<AsteroidsGameState>();
 
-        builder.Scenes
-               .Add<StartScreen>()
-               .Add<PlayScreen>()
-               .Add<GameOverScreen>();
+        builder.Scenes.Add<StartScreen>().Add<PlayScreen>().Add<GameOverScreen>();
 
         builder.SetOpeningScene<StartScreen>();
 

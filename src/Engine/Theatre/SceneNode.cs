@@ -52,7 +52,8 @@ public class SceneNode
     /// </summary>
     public virtual void Update(float deltaTime)
     {
-        if (!Active) return;
+        if (!Active)
+            return;
 
         OnUpdate(deltaTime);
 
@@ -70,7 +71,8 @@ public class SceneNode
     /// </summary>
     public virtual void Draw(SKCanvas canvas)
     {
-        if (!Active) return;
+        if (!Active)
+            return;
 
         OnDraw(canvas);
 
@@ -98,8 +100,10 @@ public class SceneNode
     {
         var sb = new System.Text.StringBuilder();
         sb.Append(indent).Append(GetType().Name);
-        if (!string.IsNullOrEmpty(Name)) sb.Append(" '").Append(Name).Append('\'');
-        if (!Active) sb.Append(" INACTIVE");
+        if (!string.IsNullOrEmpty(Name))
+            sb.Append(" '").Append(Name).Append('\'');
+        if (!Active)
+            sb.Append(" INACTIVE");
         sb.AppendLine();
 
         for (int i = 0; i < Children.Count; i++)

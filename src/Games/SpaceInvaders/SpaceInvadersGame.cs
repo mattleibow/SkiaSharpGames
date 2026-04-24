@@ -12,11 +12,11 @@ public static class SpaceInvadersGame
         builder.SetStageSize(SpaceInvadersConstants.GameWidth, SpaceInvadersConstants.GameHeight);
         builder.Services.AddSingleton<SpaceInvadersGameState>();
 
-        builder.Scenes
-               .Add<StartScreen>()
-               .Add<PlayScreen>()
-               .Add<GameOverScreen>()
-               .Add<VictoryScreen>();
+        builder
+            .Scenes.Add<StartScreen>()
+            .Add<PlayScreen>()
+            .Add<GameOverScreen>()
+            .Add<VictoryScreen>();
 
         builder.SetOpeningScene<StartScreen>();
 

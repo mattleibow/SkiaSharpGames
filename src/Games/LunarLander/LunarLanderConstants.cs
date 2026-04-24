@@ -10,13 +10,13 @@ internal static class LunarLanderConstants
     public const int GameHeight = 600;
 
     // ── Physics ───────────────────────────────────────────────────────────
-    public const float Gravity = 30f;           // px/s²
-    public const float ThrustForce = 70f;       // px/s² when thrusting
-    public const float RotationSpeed = 3f;      // rad/s
+    public const float Gravity = 30f; // px/s²
+    public const float ThrustForce = 70f; // px/s² when thrusting
+    public const float RotationSpeed = 3f; // rad/s
 
     // ── Landing ───────────────────────────────────────────────────────────
-    public const float MaxLandingSpeed = 40f;   // safe landing threshold
-    public const float MaxLandingAngle = 0.3f;  // ~17°
+    public const float MaxLandingSpeed = 40f; // safe landing threshold
+    public const float MaxLandingAngle = 0.3f; // ~17°
 
     // ── Lander ────────────────────────────────────────────────────────────
     public const float LanderWidth = 30f;
@@ -24,7 +24,7 @@ internal static class LunarLanderConstants
 
     // ── Fuel ──────────────────────────────────────────────────────────────
     public const float FuelMax = 100f;
-    public const float FuelBurnRate = 15f;      // units/s when thrusting
+    public const float FuelBurnRate = 15f; // units/s when thrusting
 
     // ── Landing pad ───────────────────────────────────────────────────────
     public const float LandingPadWidth = 80f;

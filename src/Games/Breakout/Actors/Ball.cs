@@ -24,9 +24,6 @@ internal sealed class Ball : Actor
         Rigidbody = new Rigidbody2D();
     }
 
-    public new CircleCollider Collider { get => (CircleCollider)base.Collider!; init => base.Collider = value; }
-    public new Rigidbody2D Rigidbody { get => (Rigidbody2D)base.Rigidbody!; init => base.Rigidbody = value; }
-
     protected override void OnDraw(SKCanvas canvas)
     {
         if (Alpha <= 0f)
@@ -49,9 +46,8 @@ internal sealed class Ball : Actor
             return;
 
         _glowPaint.MaskFilter?.Dispose();
-        _glowPaint.MaskFilter = GlowRadius > 0f
-            ? SKMaskFilter.CreateBlur(SKBlurStyle.Normal, GlowRadius)
-            : null;
+        _glowPaint.MaskFilter =
+            GlowRadius > 0f ? SKMaskFilter.CreateBlur(SKBlurStyle.Normal, GlowRadius) : null;
         _cachedGlowRadius = GlowRadius;
     }
 }

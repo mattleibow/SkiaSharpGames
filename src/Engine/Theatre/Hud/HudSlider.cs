@@ -25,7 +25,8 @@ public class HudSlider : HudControl
     /// </summary>
     /// <param name="width">Slider track width in game-space units.</param>
     /// <param name="height">Slider hit-area height in game-space units.</param>
-    public HudSlider(float width, float height) : base(width, height) { }
+    public HudSlider(float width, float height)
+        : base(width, height) { }
 
     /// <summary>Current slider value in the range 0 – 1.</summary>
     public float Value { get; set; } = 0.5f;

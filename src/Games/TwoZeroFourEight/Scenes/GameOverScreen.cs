@@ -6,12 +6,46 @@ namespace SkiaSharpGames.TwoZeroFourEight;
 
 internal sealed class GameOverScreen(TwoZeroFourEightGameState state, IDirector director) : Scene
 {
-    private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.65f)), IsAntialias = true };
+    private static readonly SKPaint _overlayPaint = new()
+    {
+        Color = SKColors.Black.WithAlpha((byte)(255 * 0.65f)),
+        IsAntialias = true,
+    };
 
-    private readonly HudLabel _titleText = new() { Text = "GAME OVER", FontSize = 72f, Color = LightTextColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 250f };
-    private readonly HudLabel _scoreText = new() { FontSize = 30f, Color = LightTextColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 320f };
-    private readonly HudLabel _bestText = new() { FontSize = 28f, Color = LightTextColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 360f };
-    private readonly HudLabel _restartText = new() { Text = "Click, tap, Enter, or Space to restart", FontSize = 22f, Color = LightTextColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 425f };
+    private readonly HudLabel _titleText = new()
+    {
+        Text = "GAME OVER",
+        FontSize = 72f,
+        Color = LightTextColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 250f,
+    };
+    private readonly HudLabel _scoreText = new()
+    {
+        FontSize = 30f,
+        Color = LightTextColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 320f,
+    };
+    private readonly HudLabel _bestText = new()
+    {
+        FontSize = 28f,
+        Color = LightTextColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 360f,
+    };
+    private readonly HudLabel _restartText = new()
+    {
+        Text = "Click, tap, Enter, or Space to restart",
+        FontSize = 22f,
+        Color = LightTextColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 425f,
+    };
 
     public override void OnActivating()
     {

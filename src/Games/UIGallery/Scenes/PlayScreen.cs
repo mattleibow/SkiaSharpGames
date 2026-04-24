@@ -8,8 +8,22 @@ namespace SkiaSharpGames.UIGallery;
 
 internal sealed class PlayScreen : Scene
 {
-    private static readonly string[] ThemeNames = ["Bold/Cute", "Retro", "Simple", "Pixel Art", "Neon"];
-    private static readonly HudTheme[] ThemeOptions = [BoldCuteTheme.Create(), RetroTheme.Create(), DefaultTheme.Create(), PixelArtTheme.Create(), NeonTheme.Create()];
+    private static readonly string[] ThemeNames =
+    [
+        "Bold/Cute",
+        "Retro",
+        "Simple",
+        "Pixel Art",
+        "Neon",
+    ];
+    private static readonly HudTheme[] ThemeOptions =
+    [
+        BoldCuteTheme.Create(),
+        RetroTheme.Create(),
+        DefaultTheme.Create(),
+        PixelArtTheme.Create(),
+        NeonTheme.Create(),
+    ];
 
     private readonly UIGalleryState _state;
 
@@ -47,19 +61,45 @@ internal sealed class PlayScreen : Scene
                 X = startX + i * (btnWidth + gap),
                 Y = 41f,
                 Label = ThemeNames[i],
-                FontSize = 12f
+                FontSize = 12f,
             };
             _themeButtonList[i] = btn;
             _themeButtons.Children.Add(btn);
         }
 
         // Demo controls — state lives on each actor
-        _primaryButton = new HudButton(190f, 56f) { X = 135f, Y = 138f, Label = "Button" };
-        _overrideButton = new HudButton(190f, 56f) { X = 345f, Y = 138f, Label = "Override" };
-        _checkbox = new HudCheckbox(34f, 34f) { X = 57f, Y = 221f, IsChecked = true };
+        _primaryButton = new HudButton(190f, 56f)
+        {
+            X = 135f,
+            Y = 138f,
+            Label = "Button",
+        };
+        _overrideButton = new HudButton(190f, 56f)
+        {
+            X = 345f,
+            Y = 138f,
+            Label = "Override",
+        };
+        _checkbox = new HudCheckbox(34f, 34f)
+        {
+            X = 57f,
+            Y = 221f,
+            IsChecked = true,
+        };
         _slideSwitch = new HudSwitch(110f, 42f) { X = 95f, Y = 289f };
-        _toggleButton = new HudButton(130f, 42f) { X = 233f, Y = 289f, IsToggle = true, Appearance = DefaultToggleButtonAppearance.Default };
-        _slider = new HudSlider(320f, 26f) { X = 200f, Y = 363f, Value = 0.45f };
+        _toggleButton = new HudButton(130f, 42f)
+        {
+            X = 233f,
+            Y = 289f,
+            IsToggle = true,
+            Appearance = DefaultToggleButtonAppearance.Default,
+        };
+        _slider = new HudSlider(320f, 26f)
+        {
+            X = 200f,
+            Y = 363f,
+            Value = 0.45f,
+        };
         _customButton = new HudButton(260f, 58f) { X = 170f, Y = 445f };
         _joystick = new HudJoystick(86f) { X = 620f, Y = 360f };
 
@@ -98,7 +138,11 @@ internal sealed class PlayScreen : Scene
         if (Pointer!.FindHit(_themeButtons) is HudButton themeButton)
         {
             int idx = Array.IndexOf(_themeButtonList, themeButton);
-            if (idx >= 0) { ApplyTheme(idx); return; }
+            if (idx >= 0)
+            {
+                ApplyTheme(idx);
+                return;
+            }
         }
 
         _primaryButton.IsPressed = false;
@@ -157,28 +201,71 @@ internal sealed class PlayScreen : Scene
     protected override void OnDraw(SKCanvas canvas)
     {
         var theme = Stage?.HudTheme;
-        var bgColor = (theme?.Button as DefaultButtonAppearance)?.FillColor ?? new SKColor(0x3A, 0x59, 0x8A);
-        using var backgroundPaint = new SKPaint { IsAntialias = true, Color = bgColor.WithAlpha(35) };
+        var bgColor =
+            (theme?.Button as DefaultButtonAppearance)?.FillColor ?? new SKColor(0x3A, 0x59, 0x8A);
+        using var backgroundPaint = new SKPaint
+        {
+            IsAntialias = true,
+            Color = bgColor.WithAlpha(35),
+        };
         using var textPaint = new SKPaint { IsAntialias = true, Color = SKColors.White };
         using var headerFont = new SKFont(SKTypeface.Default, 26f);
         using var labelFont = new SKFont(SKTypeface.Default, 18f);
 
         canvas.Clear(new SKColor(0x10, 0x14, 0x1F));
-        canvas.DrawRect(12f, 12f, Stage!.StageSize.Width - 24f, Stage!.StageSize.Height - 24f, backgroundPaint);
+        canvas.DrawRect(
+            12f,
+            12f,
+            Stage!.StageSize.Width - 24f,
+            Stage!.StageSize.Height - 24f,
+            backgroundPaint
+        );
 
         DrawText(canvas, textPaint, headerFont, "UI Gallery", SKColors.White, 24f, 90f);
-        DrawText(canvas, textPaint, labelFont, $"Theme: {ThemeNames[_state.ThemeIndex]}", new SKColor(0xD0, 0xDC, 0xEA), 620f, 46f);
+        DrawText(
+            canvas,
+            textPaint,
+            labelFont,
+            $"Theme: {ThemeNames[_state.ThemeIndex]}",
+            new SKColor(0xD0, 0xDC, 0xEA),
+            620f,
+            46f
+        );
 
         // Update theme button styles to show selection
         UpdateThemeButtonStyles();
 
         DrawText(canvas, textPaint, labelFont, "Checkbox", SKColors.White, 86f, 229f);
-        DrawText(canvas, textPaint, labelFont, "Switch (slide + toggle)", SKColors.White, 40f, 332f);
-        DrawText(canvas, textPaint, labelFont, $"Slider: {(int)(_slider.Value * 100f)}", SKColors.White, 40f, 402f);
+        DrawText(
+            canvas,
+            textPaint,
+            labelFont,
+            "Switch (slide + toggle)",
+            SKColors.White,
+            40f,
+            332f
+        );
+        DrawText(
+            canvas,
+            textPaint,
+            labelFont,
+            $"Slider: {(int)(_slider.Value * 100f)}",
+            SKColors.White,
+            40f,
+            402f
+        );
         DrawText(canvas, textPaint, labelFont, "Custom draw hook", SKColors.White, 40f, 494f);
 
         var norm = _joystick.NormalizedDelta;
-        DrawText(canvas, textPaint, labelFont, $"Joystick X:{norm.X:F2} Y:{norm.Y:F2}", new SKColor(0xD0, 0xDC, 0xEA), 500f, 500f);
+        DrawText(
+            canvas,
+            textPaint,
+            labelFont,
+            $"Joystick X:{norm.X:F2} Y:{norm.Y:F2}",
+            new SKColor(0xD0, 0xDC, 0xEA),
+            500f,
+            500f
+        );
     }
 
     private void ConfigureOverrides()
@@ -205,11 +292,19 @@ internal sealed class PlayScreen : Scene
             UpdateThemeButtonStyle(_themeButtonList[i], ThemeOptions[i], idx == i);
     }
 
-    private static void UpdateThemeButtonStyle(HudButton button, HudTheme themeTemplate, bool selected)
+    private static void UpdateThemeButtonStyle(
+        HudButton button,
+        HudTheme themeTemplate,
+        bool selected
+    )
     {
         var baseAppearance = themeTemplate.Button;
         if (selected && baseAppearance is DefaultButtonAppearance typed)
-            button.Appearance = typed with { BorderColor = SKColors.White, BorderWidth = typed.BorderWidth + 1f };
+            button.Appearance = typed with
+            {
+                BorderColor = SKColors.White,
+                BorderWidth = typed.BorderWidth + 1f,
+            };
         else
             button.Appearance = baseAppearance;
         button.IsPressed = selected;
@@ -222,7 +317,15 @@ internal sealed class PlayScreen : Scene
             Stage.HudTheme = ThemeOptions[_state.ThemeIndex];
     }
 
-    private static void DrawText(SKCanvas canvas, SKPaint textPaint, SKFont font, string text, SKColor color, float x, float y)
+    private static void DrawText(
+        SKCanvas canvas,
+        SKPaint textPaint,
+        SKFont font,
+        string text,
+        SKColor color,
+        float x,
+        float y
+    )
     {
         textPaint.Color = color;
         canvas.DrawText(text, x, y, SKTextAlign.Left, font, textPaint);
@@ -234,13 +337,30 @@ internal sealed class PlayScreen : Scene
         public override void Draw(SKCanvas canvas, HudButton button)
         {
             var rect = button.LocalRect;
-            using var fill = new SKPaint { IsAntialias = true, Color = new SKColor(0x4A, 0x2E, 0xFF) };
-            using var ring = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, Color = SKColors.White, StrokeWidth = 3f };
+            using var fill = new SKPaint
+            {
+                IsAntialias = true,
+                Color = new SKColor(0x4A, 0x2E, 0xFF),
+            };
+            using var ring = new SKPaint
+            {
+                IsAntialias = true,
+                Style = SKPaintStyle.Stroke,
+                Color = SKColors.White,
+                StrokeWidth = 3f,
+            };
             canvas.DrawRoundRect(rect, 10f, 10f, fill);
             canvas.DrawRoundRect(rect, 10f, 10f, ring);
             using var labelPaint = new SKPaint { IsAntialias = true, Color = SKColors.White };
             using var labelFont = new SKFont(SKTypeface.Default, 16f);
-            canvas.DrawText("Custom canvas draw", rect.MidX, rect.MidY + 6f, SKTextAlign.Center, labelFont, labelPaint);
+            canvas.DrawText(
+                "Custom canvas draw",
+                rect.MidX,
+                rect.MidY + 6f,
+                SKTextAlign.Center,
+                labelFont,
+                labelPaint
+            );
         }
     }
 }

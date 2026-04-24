@@ -10,8 +10,16 @@ namespace SkiaSharp.Theatre.Themes.PixelArt;
 /// </summary>
 public record PixelArtButtonAppearance : HudAppearance<HudButton>
 {
-    private static readonly SKPaint FillPaint = new() { IsAntialias = false, Style = SKPaintStyle.Fill };
-    private static readonly SKPaint StrokePaint = new() { IsAntialias = false, Style = SKPaintStyle.Stroke };
+    private static readonly SKPaint FillPaint = new()
+    {
+        IsAntialias = false,
+        Style = SKPaintStyle.Fill,
+    };
+    private static readonly SKPaint StrokePaint = new()
+    {
+        IsAntialias = false,
+        Style = SKPaintStyle.Stroke,
+    };
     private static readonly SKPaint TextPaint = new() { IsAntialias = false };
 
     public SKColor FillColor { get; init; } = new(0x4A, 0x6B, 0x3A);
@@ -29,8 +37,15 @@ public record PixelArtButtonAppearance : HudAppearance<HudButton>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudButton button)
     {
-        DrawDirect(canvas, button.LocalRect, button.Label,
-            button.IsPressed, button.IsEnabled, button.FontSize, button.Alpha);
+        DrawDirect(
+            canvas,
+            button.LocalRect,
+            button.Label,
+            button.IsPressed,
+            button.IsEnabled,
+            button.FontSize,
+            button.Alpha
+        );
     }
 
     /// <summary>
@@ -43,10 +58,12 @@ public record PixelArtButtonAppearance : HudAppearance<HudButton>
         bool pressed = false,
         bool enabled = true,
         float fontSize = 18f,
-        float alpha = 1f)
+        float alpha = 1f
+    )
     {
         byte a = enabled ? (byte)(255 * Math.Clamp(alpha, 0f, 1f)) : DisabledAlpha;
-        if (a == 0) return;
+        if (a == 0)
+            return;
 
         var font = FontProvider.Default.GetFont(fontSize);
 

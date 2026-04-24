@@ -16,9 +16,8 @@ public record InspectorNodeSnapshot(
     string? ColliderInfo,
     string? VelocityInfo,
     Dictionary<string, string> ExtraProperties,
-    List<InspectorNodeSnapshot> Children);
+    List<InspectorNodeSnapshot> Children
+);
 
 /// <summary>Full tree snapshot returned by <see cref="IStageInspector.GetSnapshot"/>.</summary>
-public record InspectorSnapshot(
-    InspectorNodeSnapshot Root,
-    int TotalNodes);
+public record InspectorSnapshot(InspectorNodeSnapshot Root, int TotalNodes);

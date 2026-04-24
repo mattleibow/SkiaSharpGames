@@ -12,10 +12,7 @@ public static class LunarLanderGame
         builder.SetStageSize(LunarLanderConstants.GameWidth, LunarLanderConstants.GameHeight);
         builder.Services.AddSingleton<LunarLanderGameState>();
 
-        builder.Scenes
-               .Add<StartScreen>()
-               .Add<PlayScreen>()
-               .Add<GameOverScreen>();
+        builder.Scenes.Add<StartScreen>().Add<PlayScreen>().Add<GameOverScreen>();
 
         builder.SetOpeningScene<StartScreen>();
 

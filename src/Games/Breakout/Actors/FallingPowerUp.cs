@@ -4,6 +4,12 @@ using static SkiaSharpGames.Breakout.BreakoutConstants;
 
 namespace SkiaSharpGames.Breakout;
 
+internal enum PowerUpType
+{
+    StrongBall,
+    BigPaddle,
+}
+
 internal sealed class FallingPowerUp : Actor
 {
     private readonly SKPaint _paint = new() { IsAntialias = true };
@@ -21,8 +27,16 @@ internal sealed class FallingPowerUp : Actor
         Collider = new RectCollider { Width = PowerUpW, Height = PowerUpH };
     }
 
-    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
-    public new Rigidbody2D Rigidbody { get => (Rigidbody2D)base.Rigidbody!; init => base.Rigidbody = value; }
+    public new RectCollider Collider
+    {
+        get => (RectCollider)base.Collider!;
+        init => base.Collider = value;
+    }
+    public new Rigidbody2D Rigidbody
+    {
+        get => (Rigidbody2D)base.Rigidbody!;
+        init => base.Rigidbody = value;
+    }
 
     protected override void OnDraw(SKCanvas canvas)
     {
@@ -31,7 +45,11 @@ internal sealed class FallingPowerUp : Actor
 
         _paint.Color = Color.WithAlpha((byte)(255 * Alpha));
         canvas.DrawRoundRect(
-            new SKRoundRect(SKRect.Create(0 - Width / 2f, 0 - Height / 2f, Width, Height), CornerRadius),
-            _paint);
+            new SKRoundRect(
+                SKRect.Create(0 - Width / 2f, 0 - Height / 2f, Width, Height),
+                CornerRadius
+            ),
+            _paint
+        );
     }
 }

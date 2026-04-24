@@ -9,8 +9,16 @@ namespace SkiaSharp.Theatre.Themes.PixelArt;
 /// </summary>
 public record PixelArtJoystickAppearance : HudAppearance<HudJoystick>
 {
-    private static readonly SKPaint FillPaint = new() { IsAntialias = false, Style = SKPaintStyle.Fill };
-    private static readonly SKPaint StrokePaint = new() { IsAntialias = false, Style = SKPaintStyle.Stroke };
+    private static readonly SKPaint FillPaint = new()
+    {
+        IsAntialias = false,
+        Style = SKPaintStyle.Fill,
+    };
+    private static readonly SKPaint StrokePaint = new()
+    {
+        IsAntialias = false,
+        Style = SKPaintStyle.Stroke,
+    };
 
     public SKColor BaseColor { get; init; } = new(0x1A, 0x1A, 0x0E, 170);
     public SKColor BaseBorderColor { get; init; } = new(0xC8, 0xA8, 0x52, 200);
@@ -24,7 +32,8 @@ public record PixelArtJoystickAppearance : HudAppearance<HudJoystick>
     public override void Draw(SKCanvas canvas, HudJoystick joystick)
     {
         byte alpha = (byte)(255 * Math.Clamp(joystick.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         float baseRadius = joystick.Radius;
         var knobDelta = joystick.Delta;
@@ -41,8 +50,11 @@ public record PixelArtJoystickAppearance : HudAppearance<HudJoystick>
         // Square knob
         float knobSize = baseRadius * 0.42f;
         var knobRect = new SKRect(
-            knobDelta.X - knobSize, knobDelta.Y - knobSize,
-            knobDelta.X + knobSize, knobDelta.Y + knobSize);
+            knobDelta.X - knobSize,
+            knobDelta.Y - knobSize,
+            knobDelta.X + knobSize,
+            knobDelta.Y + knobSize
+        );
         FillPaint.Color = KnobColor.WithAlpha((byte)(KnobColor.Alpha * alpha / 255));
         canvas.DrawRect(knobRect, FillPaint);
 

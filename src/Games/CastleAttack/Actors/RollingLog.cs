@@ -10,8 +10,17 @@ internal sealed class RollingLog : Actor
     public float RollAngle;
 
     private static readonly SKPaint WoodPaint = new() { Color = ColLog, IsAntialias = true };
-    private static readonly SKPaint GrainPaint = new() { Color = new SKColor(0x6B, 0x44, 0x1E), StrokeWidth = 1f, IsAntialias = true };
-    private static readonly SKPaint EndPaint = new() { Color = new SKColor(0xA0, 0x72, 0x3A), IsAntialias = true };
+    private static readonly SKPaint GrainPaint = new()
+    {
+        Color = new SKColor(0x6B, 0x44, 0x1E),
+        StrokeWidth = 1f,
+        IsAntialias = true,
+    };
+    private static readonly SKPaint EndPaint = new()
+    {
+        Color = new SKColor(0xA0, 0x72, 0x3A),
+        IsAntialias = true,
+    };
 
     public RollingLog(float x)
     {
@@ -21,8 +30,16 @@ internal sealed class RollingLog : Actor
         Rigidbody = new Rigidbody2D { VelocityX = LogSpeed };
     }
 
-    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
-    public new Rigidbody2D Rigidbody { get => (Rigidbody2D)base.Rigidbody!; init => base.Rigidbody = value; }
+    public new RectCollider Collider
+    {
+        get => (RectCollider)base.Collider!;
+        init => base.Collider = value;
+    }
+    public new Rigidbody2D Rigidbody
+    {
+        get => (Rigidbody2D)base.Rigidbody!;
+        init => base.Rigidbody = value;
+    }
 
     protected override void OnUpdate(float deltaTime)
     {

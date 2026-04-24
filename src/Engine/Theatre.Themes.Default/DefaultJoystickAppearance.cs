@@ -9,8 +9,16 @@ namespace SkiaSharp.Theatre.Themes.Default;
 /// </summary>
 public record DefaultJoystickAppearance : HudAppearance<HudJoystick>
 {
-    private static readonly SKPaint FillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private static readonly SKPaint StrokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+    private static readonly SKPaint FillPaint = new()
+    {
+        IsAntialias = true,
+        Style = SKPaintStyle.Fill,
+    };
+    private static readonly SKPaint StrokePaint = new()
+    {
+        IsAntialias = true,
+        Style = SKPaintStyle.Stroke,
+    };
 
     public SKColor BaseColor { get; init; } = new(0x2A, 0x34, 0x44, 170);
     public SKColor BaseBorderColor { get; init; } = new(0xA0, 0xB6, 0xCC, 200);
@@ -24,7 +32,8 @@ public record DefaultJoystickAppearance : HudAppearance<HudJoystick>
     public override void Draw(SKCanvas canvas, HudJoystick joystick)
     {
         byte alpha = (byte)(255 * Math.Clamp(joystick.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         float baseRadius = joystick.Radius;
         var knobDelta = joystick.Delta;

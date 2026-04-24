@@ -16,23 +16,25 @@ internal sealed class PongPaddle : Actor
     public PongPaddle(SKColor color)
     {
         Color = color;
-        Collider = new RectCollider
-        {
-            Width = PaddleWidth,
-            Height = PaddleHeight,
-        };
+        Collider = new RectCollider { Width = PaddleWidth, Height = PaddleHeight };
     }
 
     public bool UpHeld { get; set; }
     public bool DownHeld { get; set; }
 
-    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
+    public new RectCollider Collider
+    {
+        get => (RectCollider)base.Collider!;
+        init => base.Collider = value;
+    }
 
     protected override void OnUpdate(float deltaTime)
     {
         float move = 0f;
-        if (UpHeld) move -= PaddleSpeed * deltaTime;
-        if (DownHeld) move += PaddleSpeed * deltaTime;
+        if (UpHeld)
+            move -= PaddleSpeed * deltaTime;
+        if (DownHeld)
+            move += PaddleSpeed * deltaTime;
         if (move != 0f)
             Y = ClampPaddleY(Y + move);
     }

@@ -28,9 +28,15 @@ internal sealed class ShieldBlock : Actor
         {
             3 => new SKColor(0x48, 0xD0, 0x67),
             2 => new SKColor(0x6B, 0xBA, 0x6A),
-            _ => new SKColor(0x88, 0x9A, 0x72)
+            _ => new SKColor(0x88, 0x9A, 0x72),
         };
 
-        canvas.DrawRect(-ShieldBlockSize / 2f, -ShieldBlockSize / 2f, ShieldBlockSize, ShieldBlockSize, _paint);
+        canvas.DrawRect(
+            -ShieldBlockSize / 2f,
+            -ShieldBlockSize / 2f,
+            ShieldBlockSize,
+            ShieldBlockSize,
+            _paint
+        );
     }
 }

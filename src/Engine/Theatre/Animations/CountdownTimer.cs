@@ -43,7 +43,8 @@ public struct CountdownTimer
     /// </summary>
     public bool Tick(float deltaTime)
     {
-        if (_remaining <= 0f) return false;
+        if (_remaining <= 0f)
+            return false;
         _remaining -= deltaTime;
         if (_remaining <= 0f)
         {

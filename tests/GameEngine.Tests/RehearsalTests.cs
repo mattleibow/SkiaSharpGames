@@ -42,9 +42,10 @@ file sealed class HarnessPlayScreen(HarnessState state) : Scene
 {
     private readonly Actor _ball = new()
     {
-        X = 400f, Y = 300f,
+        X = 400f,
+        Y = 300f,
         Collider = new CircleCollider { Radius = 10f },
-        Rigidbody = new Rigidbody2D { VelocityX = 100f, VelocityY = 50f }
+        Rigidbody = new Rigidbody2D { VelocityX = 100f, VelocityY = 50f },
     };
 
     protected override void OnUpdate(float deltaTime)
@@ -62,8 +63,14 @@ file sealed class HarnessPlayScreen(HarnessState state) : Scene
         canvas.DrawCircle(_ball.X, _ball.Y, 10f, paint);
 
         // Draw score label
-        var label = new HudLabel { Text = $"Frame: {state.UpdateCount}", FontSize = 20f, Color = SKColors.White };
-        label.X = 10f; label.Y = 25f;
+        var label = new HudLabel
+        {
+            Text = $"Frame: {state.UpdateCount}",
+            FontSize = 20f,
+            Color = SKColors.White,
+        };
+        label.X = 10f;
+        label.Y = 25f;
         label.Draw(canvas);
     }
 
@@ -84,9 +91,7 @@ public class RehearsalTests
         return Rehearsal.Create(builder =>
         {
             builder.Services.AddSingleton<HarnessState>();
-            builder.Scenes
-                .Add<HarnessStartScreen>()
-                .Add<HarnessPlayScreen>();
+            builder.Scenes.Add<HarnessStartScreen>().Add<HarnessPlayScreen>();
             builder.SetOpeningScene<HarnessStartScreen>();
         });
     }
@@ -229,7 +234,12 @@ public class RehearsalTests
     public void Actor_Dump_ShowsHierarchy()
     {
         var parent = new Actor { X = 100f, Y = 200f };
-        var child = new Actor { X = 10f, Y = 20f, Alpha = 0.5f };
+        var child = new Actor
+        {
+            X = 10f,
+            Y = 20f,
+            Alpha = 0.5f,
+        };
         child.Collider = new CircleCollider { Radius = 5f };
         child.Rigidbody = new Rigidbody2D { VelocityX = 50f };
         parent.Children.Add(child);

@@ -108,9 +108,13 @@ internal sealed class Ship : Actor
 
     private void WrapPosition()
     {
-        if (X < -ShipRadius) X = GameWidth + ShipRadius;
-        else if (X > GameWidth + ShipRadius) X = -ShipRadius;
-        if (Y < -ShipRadius) Y = GameHeight + ShipRadius;
-        else if (Y > GameHeight + ShipRadius) Y = -ShipRadius;
+        if (X < -ShipRadius)
+            X = GameWidth + ShipRadius;
+        else if (X > GameWidth + ShipRadius)
+            X = -ShipRadius;
+        if (Y < -ShipRadius)
+            Y = GameHeight + ShipRadius;
+        else if (Y > GameHeight + ShipRadius)
+            Y = -ShipRadius;
     }
 }

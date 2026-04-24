@@ -29,12 +29,14 @@ internal sealed class Wall
     public void TakeDamage(float dmg)
     {
         var block = Blocks.LastOrDefault(b => b.Active);
-        if (block != null) block.HP = Math.Max(0f, block.HP - dmg);
+        if (block != null)
+            block.HP = Math.Max(0f, block.HP - dmg);
     }
 
     public void Demolish()
     {
-        foreach (var b in Blocks) b.HP = 0f;
+        foreach (var b in Blocks)
+            b.HP = 0f;
         HasArcher = false;
     }
 }

@@ -25,7 +25,8 @@ public class HudCheckbox : HudControl
     /// </summary>
     /// <param name="width">Checkbox width in game-space units.</param>
     /// <param name="height">Checkbox height in game-space units.</param>
-    public HudCheckbox(float width, float height) : base(width, height) { }
+    public HudCheckbox(float width, float height)
+        : base(width, height) { }
 
     /// <summary>Whether the checkbox is currently checked.</summary>
     public bool IsChecked { get; set; }

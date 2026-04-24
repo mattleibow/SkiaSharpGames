@@ -12,10 +12,7 @@ public static class SnakeGame
         builder.SetStageSize(SnakeConstants.GameWidth, SnakeConstants.GameHeight);
         builder.Services.AddSingleton<SnakeGameState>();
 
-        builder.Scenes
-               .Add<StartScreen>()
-               .Add<PlayScreen>()
-               .Add<GameOverScreen>();
+        builder.Scenes.Add<StartScreen>().Add<PlayScreen>().Add<GameOverScreen>();
 
         builder.SetOpeningScene<StartScreen>();
 

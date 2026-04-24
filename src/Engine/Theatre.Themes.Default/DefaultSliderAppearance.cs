@@ -8,8 +8,16 @@ namespace SkiaSharp.Theatre.Themes.Default;
 /// </summary>
 public record DefaultSliderAppearance : HudAppearance<HudSlider>
 {
-    private static readonly SKPaint FillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private static readonly SKPaint StrokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+    private static readonly SKPaint FillPaint = new()
+    {
+        IsAntialias = true,
+        Style = SKPaintStyle.Fill,
+    };
+    private static readonly SKPaint StrokePaint = new()
+    {
+        IsAntialias = true,
+        Style = SKPaintStyle.Stroke,
+    };
 
     public SKColor TrackColor { get; init; } = new(0x35, 0x3F, 0x4E);
     public SKColor FillColor { get; init; } = new(0x5A, 0xB5, 0xFF);
@@ -25,7 +33,8 @@ public record DefaultSliderAppearance : HudAppearance<HudSlider>
     public override void Draw(SKCanvas canvas, HudSlider slider)
     {
         byte alpha = (byte)(255 * Math.Clamp(slider.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         var rect = slider.LocalRect;
         float value = Math.Clamp(slider.Value, 0f, 1f);

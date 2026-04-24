@@ -13,11 +13,45 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
     private static readonly SKPaint _boardPaint = new() { Color = BoardColor, IsAntialias = true };
     private static readonly SKPaint _tilePaint = new() { IsAntialias = true };
 
-    private readonly HudLabel _headerText = new() { Text = "2048", FontSize = 68f, Color = HeaderColor, X = 90f, Y = 94f };
-    private readonly HudLabel _scoreText = new() { FontSize = 24f, Color = HeaderColor, X = GameWidth - 280f, Y = 72f };
-    private readonly HudLabel _bestText = new() { FontSize = 24f, Color = HeaderColor, X = GameWidth - 280f, Y = 102f };
-    private readonly HudLabel _controlsText = new() { Text = "Arrow keys / WASD / swipe to move", FontSize = 20f, Color = HeaderColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 64f };
-    private readonly HudLabel _footerText = new() { FontSize = 22f, Color = HeaderColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 565f };
+    private readonly HudLabel _headerText = new()
+    {
+        Text = "2048",
+        FontSize = 68f,
+        Color = HeaderColor,
+        X = 90f,
+        Y = 94f,
+    };
+    private readonly HudLabel _scoreText = new()
+    {
+        FontSize = 24f,
+        Color = HeaderColor,
+        X = GameWidth - 280f,
+        Y = 72f,
+    };
+    private readonly HudLabel _bestText = new()
+    {
+        FontSize = 24f,
+        Color = HeaderColor,
+        X = GameWidth - 280f,
+        Y = 102f,
+    };
+    private readonly HudLabel _controlsText = new()
+    {
+        Text = "Arrow keys / WASD / swipe to move",
+        FontSize = 20f,
+        Color = HeaderColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 64f,
+    };
+    private readonly HudLabel _footerText = new()
+    {
+        FontSize = 22f,
+        Color = HeaderColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 565f,
+    };
     private readonly HudLabel _tileText = new();
 
     private readonly int[,] _board = new int[GridSize, GridSize];
@@ -171,7 +205,12 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
                 if (_slideActive && _slideSourceCells.Contains(CellKey(row, col)))
                     value = 0;
 
-                if (IsSpawnAnimating && _spawnTile is { } spawn && spawn.Row == row && spawn.Col == col)
+                if (
+                    IsSpawnAnimating
+                    && _spawnTile is { } spawn
+                    && spawn.Row == row
+                    && spawn.Col == col
+                )
                     value = 0;
 
                 DrawTile(canvas, row, col, value);
@@ -182,7 +221,13 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
             DrawSlideTiles(canvas);
 
         if (IsSpawnAnimating && _spawnTile is { } spawnTile)
-            DrawTile(canvas, spawnTile.Row, spawnTile.Col, spawnTile.Value, Easing.BackOut(spawnTile.Progress));
+            DrawTile(
+                canvas,
+                spawnTile.Row,
+                spawnTile.Col,
+                spawnTile.Value,
+                Easing.BackOut(spawnTile.Progress)
+            );
     }
 
     private void DrawSlideTiles(SKCanvas canvas)
@@ -231,7 +276,7 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
             < 100 => 44f,
             < 1000 => 40f,
             < 10000 => 34f,
-            _ => 28f
+            _ => 28f,
         };
 
         textSize *= clampedScale;
@@ -240,7 +285,10 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
         _tileText.FontSize = textSize;
         _tileText.Color = value <= 4 ? DarkTextColor : LightTextColor;
         _tileText.Align = TextAlign.Center;
-        canvas.Save(); canvas.Translate(left + size / 2f, top + size / 2f + textSize / 3f); _tileText.Draw(canvas); canvas.Restore();
+        canvas.Save();
+        canvas.Translate(left + size / 2f, top + size / 2f + textSize / 3f);
+        _tileText.Draw(canvas);
+        canvas.Restore();
     }
 
     private void TryMove(MoveDirection direction)
@@ -302,7 +350,12 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
         }
     }
 
-    private bool ApplyMove(MoveDirection direction, out int[,] nextBoard, out List<SlideAnimation> moves, out int gained)
+    private bool ApplyMove(
+        MoveDirection direction,
+        out int[,] nextBoard,
+        out List<SlideAnimation> moves,
+        out int gained
+    )
     {
         nextBoard = new int[GridSize, GridSize];
         moves = [];
@@ -335,8 +388,22 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
                     result[destIndex] = merged;
                     gained += merged;
 
-                    AddMoveAnimation(moves, direction, i, current.SourceIndex, destIndex, current.Value);
-                    AddMoveAnimation(moves, direction, i, sourceValues[s + 1].SourceIndex, destIndex, sourceValues[s + 1].Value);
+                    AddMoveAnimation(
+                        moves,
+                        direction,
+                        i,
+                        current.SourceIndex,
+                        destIndex,
+                        current.Value
+                    );
+                    AddMoveAnimation(
+                        moves,
+                        direction,
+                        i,
+                        sourceValues[s + 1].SourceIndex,
+                        destIndex,
+                        sourceValues[s + 1].Value
+                    );
 
                     destIndex++;
                     s++;
@@ -344,7 +411,14 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
                 else
                 {
                     result[destIndex] = current.Value;
-                    AddMoveAnimation(moves, direction, i, current.SourceIndex, destIndex, current.Value);
+                    AddMoveAnimation(
+                        moves,
+                        direction,
+                        i,
+                        current.SourceIndex,
+                        destIndex,
+                        current.Value
+                    );
                     destIndex++;
                 }
             }
@@ -359,7 +433,14 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
         return changed;
     }
 
-    private static void AddMoveAnimation(List<SlideAnimation> moves, MoveDirection direction, int fixedIndex, int fromIndex, int toIndex, int value)
+    private static void AddMoveAnimation(
+        List<SlideAnimation> moves,
+        MoveDirection direction,
+        int fixedIndex,
+        int fromIndex,
+        int toIndex,
+        int value
+    )
     {
         var from = ResolveCell(direction, fixedIndex, fromIndex);
         var to = ResolveCell(direction, fixedIndex, toIndex);
@@ -372,22 +453,38 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
 
     // Converts a line coordinate (fixed index + move index in move direction order)
     // back into a concrete board cell.
-    private static (int Row, int Col) ResolveCell(MoveDirection direction, int fixedIndex, int moveIndex) => direction switch
-    {
-        MoveDirection.Left => (fixedIndex, moveIndex),
-        MoveDirection.Right => (fixedIndex, GridSize - 1 - moveIndex),
-        MoveDirection.Up => (moveIndex, fixedIndex),
-        MoveDirection.Down => (GridSize - 1 - moveIndex, fixedIndex),
-        _ => (0, 0)
-    };
+    private static (int Row, int Col) ResolveCell(
+        MoveDirection direction,
+        int fixedIndex,
+        int moveIndex
+    ) =>
+        direction switch
+        {
+            MoveDirection.Left => (fixedIndex, moveIndex),
+            MoveDirection.Right => (fixedIndex, GridSize - 1 - moveIndex),
+            MoveDirection.Up => (moveIndex, fixedIndex),
+            MoveDirection.Down => (GridSize - 1 - moveIndex, fixedIndex),
+            _ => (0, 0),
+        };
 
-    private static int GetLineCell(int[,] board, MoveDirection direction, int fixedIndex, int moveIndex)
+    private static int GetLineCell(
+        int[,] board,
+        MoveDirection direction,
+        int fixedIndex,
+        int moveIndex
+    )
     {
         var cell = ResolveCell(direction, fixedIndex, moveIndex);
         return board[cell.Row, cell.Col];
     }
 
-    private static void SetLineCell(int[,] board, MoveDirection direction, int fixedIndex, int moveIndex, int value)
+    private static void SetLineCell(
+        int[,] board,
+        MoveDirection direction,
+        int fixedIndex,
+        int moveIndex,
+        int value
+    )
     {
         var cell = ResolveCell(direction, fixedIndex, moveIndex);
         board[cell.Row, cell.Col] = value;
@@ -467,31 +564,38 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
         return false;
     }
 
-    private static SKColor GetTileColor(int value) => value switch
-    {
-        2 => new SKColor(0xEE, 0xE4, 0xDA),
-        4 => new SKColor(0xED, 0xE0, 0xC8),
-        8 => new SKColor(0xF2, 0xB1, 0x79),
-        16 => new SKColor(0xF5, 0x95, 0x63),
-        32 => new SKColor(0xF6, 0x7C, 0x5F),
-        64 => new SKColor(0xF6, 0x5E, 0x3B),
-        128 => new SKColor(0xED, 0xCF, 0x72),
-        256 => new SKColor(0xED, 0xCC, 0x61),
-        512 => new SKColor(0xED, 0xC8, 0x50),
-        1024 => new SKColor(0xED, 0xC5, 0x3F),
-        2048 => new SKColor(0xED, 0xC2, 0x2E),
-        _ => new SKColor(0x3C, 0x3A, 0x32)
-    };
+    private static SKColor GetTileColor(int value) =>
+        value switch
+        {
+            2 => new SKColor(0xEE, 0xE4, 0xDA),
+            4 => new SKColor(0xED, 0xE0, 0xC8),
+            8 => new SKColor(0xF2, 0xB1, 0x79),
+            16 => new SKColor(0xF5, 0x95, 0x63),
+            32 => new SKColor(0xF6, 0x7C, 0x5F),
+            64 => new SKColor(0xF6, 0x5E, 0x3B),
+            128 => new SKColor(0xED, 0xCF, 0x72),
+            256 => new SKColor(0xED, 0xCC, 0x61),
+            512 => new SKColor(0xED, 0xC8, 0x50),
+            1024 => new SKColor(0xED, 0xC5, 0x3F),
+            2048 => new SKColor(0xED, 0xC2, 0x2E),
+            _ => new SKColor(0x3C, 0x3A, 0x32),
+        };
 
     private enum MoveDirection
     {
         Left,
         Right,
         Up,
-        Down
+        Down,
     }
 
-    private readonly record struct SlideAnimation(int FromRow, int FromCol, int ToRow, int ToCol, int Value);
+    private readonly record struct SlideAnimation(
+        int FromRow,
+        int FromCol,
+        int ToRow,
+        int ToCol,
+        int Value
+    );
 
     private record struct SpawnAnimation(int Row, int Col, int Value, float Progress);
 }

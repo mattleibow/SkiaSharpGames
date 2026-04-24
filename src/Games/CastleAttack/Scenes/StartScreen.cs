@@ -12,22 +12,78 @@ internal sealed class StartScreen(IDirector director) : Scene
     private static readonly SKPaint SkyPaint = new();
     private static readonly SKPaint GroundPaint = new() { Color = ColGround };
     private static readonly SKPaint GroundEdgePaint = new() { Color = ColGroundEdge };
-    private static readonly SKPaint HillPaint = new() { Color = new SKColor(0x2A, 0x20, 0x12), IsAntialias = true };
+    private static readonly SKPaint HillPaint = new()
+    {
+        Color = new SKColor(0x2A, 0x20, 0x12),
+        IsAntialias = true,
+    };
     private static readonly SKPath HillPath;
 
     // ── Text sprites ──────────────────────────────────────────────────────
-    private readonly HudLabel _title = new() { Text = "CASTLE ATTACK", FontSize = 68f, Color = ColGold, Align = TextAlign.Center, X = GameWidth / 2f, Y = 190f };
-    private readonly HudLabel _subtitle = new() { Text = "Defend the castle until the keep is complete!", FontSize = 22f, Color = ColHud, Align = TextAlign.Center, X = GameWidth / 2f, Y = 258f };
-    private readonly HudLabel _tapLine = new() { Text = "Tap the battlefield to aim & fire", FontSize = 17f, Color = ColAccent, Align = TextAlign.Center, X = GameWidth / 2f, Y = 308f };
-    private readonly HudLabel _btnLine = new() { Text = "Use the on-screen buttons at the bottom for all actions", FontSize = 16f, Color = ColDim, Align = TextAlign.Center, X = GameWidth / 2f, Y = 334f };
-    private readonly HudLabel _kbLine = new() { Text = "Keyboard: LEFT RIGHT aim  |  SPACE fire  |  UP DN convert  |  Z X C weapons", FontSize = 14f, Color = ColDim, Align = TextAlign.Center, X = GameWidth / 2f, Y = 360f };
-    private readonly HudLabel _startLine = new() { Text = "Tap or Click to Start", FontSize = 24f, Color = ColAccent, Align = TextAlign.Center, X = GameWidth / 2f, Y = 420f };
+    private readonly HudLabel _title = new()
+    {
+        Text = "CASTLE ATTACK",
+        FontSize = 68f,
+        Color = ColGold,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 190f,
+    };
+    private readonly HudLabel _subtitle = new()
+    {
+        Text = "Defend the castle until the keep is complete!",
+        FontSize = 22f,
+        Color = ColHud,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 258f,
+    };
+    private readonly HudLabel _tapLine = new()
+    {
+        Text = "Tap the battlefield to aim & fire",
+        FontSize = 17f,
+        Color = ColAccent,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 308f,
+    };
+    private readonly HudLabel _btnLine = new()
+    {
+        Text = "Use the on-screen buttons at the bottom for all actions",
+        FontSize = 16f,
+        Color = ColDim,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 334f,
+    };
+    private readonly HudLabel _kbLine = new()
+    {
+        Text = "Keyboard: LEFT RIGHT aim  |  SPACE fire  |  UP DN convert  |  Z X C weapons",
+        FontSize = 14f,
+        Color = ColDim,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 360f,
+    };
+    private readonly HudLabel _startLine = new()
+    {
+        Text = "Tap or Click to Start",
+        FontSize = 24f,
+        Color = ColAccent,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 420f,
+    };
 
     static StartScreen()
     {
         var skyShader = SKShader.CreateLinearGradient(
-            new SKPoint(0, 0), new SKPoint(0, GroundY),
-            [ColSky, ColHorizon], [0f, 1f], SKShaderTileMode.Clamp);
+            new SKPoint(0, 0),
+            new SKPoint(0, GroundY),
+            [ColSky, ColHorizon],
+            [0f, 1f],
+            SKShaderTileMode.Clamp
+        );
         SkyPaint.Shader = skyShader;
 
         HillPath = new SKPath();
@@ -62,8 +118,8 @@ internal sealed class StartScreen(IDirector director) : Scene
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), OverlayPaint);
     }
 
-    public override void OnPointerDown(float x, float y)
-        => director.TransitionTo<PlayScreen>(new DissolveCurtain());
+    public override void OnPointerDown(float x, float y) =>
+        director.TransitionTo<PlayScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {

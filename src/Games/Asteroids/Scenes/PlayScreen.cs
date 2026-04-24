@@ -7,12 +7,45 @@ namespace SkiaSharpGames.Asteroids;
 
 internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) : Scene
 {
-    private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha(80), IsAntialias = true };
-    private static readonly SKPaint _livesShipPaint = new() { Color = ShipColor, IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
+    private static readonly SKPaint _starPaint = new()
+    {
+        Color = SKColors.White.WithAlpha(80),
+        IsAntialias = true,
+    };
+    private static readonly SKPaint _livesShipPaint = new()
+    {
+        Color = ShipColor,
+        IsAntialias = true,
+        Style = SKPaintStyle.Stroke,
+        StrokeWidth = 1.5f,
+    };
 
-    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 24f, Color = SKColors.White, X = 20f, Y = 34f };
-    private readonly HudLabel _levelText = new() { Name = "level", FontSize = 18f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 34f };
-    private readonly HudLabel _controlsText = new() { Text = "ARROWS rotate/thrust  SPACE fire", FontSize = 16f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = GameHeight - 10f };
+    private readonly HudLabel _scoreText = new()
+    {
+        Name = "score",
+        FontSize = 24f,
+        Color = SKColors.White,
+        X = 20f,
+        Y = 34f,
+    };
+    private readonly HudLabel _levelText = new()
+    {
+        Name = "level",
+        FontSize = 18f,
+        Color = HudDimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 34f,
+    };
+    private readonly HudLabel _controlsText = new()
+    {
+        Text = "ARROWS rotate/thrust  SPACE fire",
+        FontSize = 16f,
+        Color = HudDimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = GameHeight - 10f,
+    };
 
     private readonly Ship _ship = new() { Name = "ship" };
     private readonly Actor _bullets = new() { Name = "bullets" };
@@ -22,7 +55,10 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
 
     // ── Touch control pad ────────────────────────────────────────────────
     private bool _touchActive;
-    private bool _touchLeft, _touchRight, _touchThrust, _touchFire;
+    private bool _touchLeft,
+        _touchRight,
+        _touchThrust,
+        _touchFire;
 
     private const float PadY = GameHeight - 80f;
     private const float PadBtnW = 70f;
@@ -31,11 +67,28 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
     private static readonly float PadTotalW = PadBtnW * 4 + PadGap * 3;
     private static readonly float PadLeft = (GameWidth - PadTotalW) / 2f;
     private static readonly SKRect LeftBtnRect = SKRect.Create(PadLeft, PadY, PadBtnW, PadBtnH);
-    private static readonly SKRect ThrustBtnRect = SKRect.Create(PadLeft + PadBtnW + PadGap, PadY, PadBtnW, PadBtnH);
-    private static readonly SKRect FireBtnRect = SKRect.Create(PadLeft + 2 * (PadBtnW + PadGap), PadY, PadBtnW, PadBtnH);
-    private static readonly SKRect RightBtnRect = SKRect.Create(PadLeft + 3 * (PadBtnW + PadGap), PadY, PadBtnW, PadBtnH);
+    private static readonly SKRect ThrustBtnRect = SKRect.Create(
+        PadLeft + PadBtnW + PadGap,
+        PadY,
+        PadBtnW,
+        PadBtnH
+    );
+    private static readonly SKRect FireBtnRect = SKRect.Create(
+        PadLeft + 2 * (PadBtnW + PadGap),
+        PadY,
+        PadBtnW,
+        PadBtnH
+    );
+    private static readonly SKRect RightBtnRect = SKRect.Create(
+        PadLeft + 3 * (PadBtnW + PadGap),
+        PadY,
+        PadBtnW,
+        PadBtnH
+    );
 
-    private bool _leftHeld, _rightHeld, _thrustHeld;
+    private bool _leftHeld,
+        _rightHeld,
+        _thrustHeld;
     private bool _endTriggered;
     private float _fireCooldown;
     private float _respawnTimer;
@@ -47,7 +100,9 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
         {
             var random = new Random(815);
             for (int i = 0; i < 80; i++)
-                _stars.Add(new SKPoint(random.NextSingle() * GameWidth, random.NextSingle() * GameHeight));
+                _stars.Add(
+                    new SKPoint(random.NextSingle() * GameWidth, random.NextSingle() * GameHeight)
+                );
         }
 
         if (ChildCount == 0)
@@ -89,7 +144,12 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
     // ── Input ─────────────────────────────────────────────────────────────
 
     public override void OnPointerDown(float x, float y) => HandleTouch(x, y, true);
-    public override void OnPointerMove(float x, float y) { if (_touchActive) HandleTouch(x, y, true); }
+
+    public override void OnPointerMove(float x, float y)
+    {
+        if (_touchActive)
+            HandleTouch(x, y, true);
+    }
 
     public override void OnPointerUp(float x, float y)
     {
@@ -217,7 +277,8 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
             _ship.X + cos * ShipRadius,
             _ship.Y + sin * ShipRadius,
             cos * BulletSpeed + _ship.VelocityX * 0.3f,
-            sin * BulletSpeed + _ship.VelocityY * 0.3f);
+            sin * BulletSpeed + _ship.VelocityY * 0.3f
+        );
 
         _bullets.Children.Add(bullet);
     }
@@ -231,12 +292,14 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
         for (int i = bulletList.Count - 1; i >= 0; i--)
         {
             var bullet = (Bullet)bulletList[i];
-            if (!bullet.Active) continue;
+            if (!bullet.Active)
+                continue;
 
             for (int j = asteroidList.Count - 1; j >= 0; j--)
             {
                 var ast = (Asteroid)asteroidList[j];
-                if (!ast.Active) continue;
+                if (!ast.Active)
+                    continue;
 
                 if (bullet.Overlaps(ast))
                 {
@@ -253,7 +316,8 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
             for (int j = asteroidList.Count - 1; j >= 0; j--)
             {
                 var ast = (Asteroid)asteroidList[j];
-                if (!ast.Active) continue;
+                if (!ast.Active)
+                    continue;
 
                 if (_ship.Overlaps(ast))
                 {
@@ -289,8 +353,12 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
                 float angle = Random.Shared.NextSingle() * MathF.PI * 2f;
                 float speed = newSize switch
                 {
-                    AsteroidSize.Medium => AsteroidMediumMinSpeed + Random.Shared.NextSingle() * (AsteroidMediumMaxSpeed - AsteroidMediumMinSpeed),
-                    _ => AsteroidSmallMinSpeed + Random.Shared.NextSingle() * (AsteroidSmallMaxSpeed - AsteroidSmallMinSpeed),
+                    AsteroidSize.Medium => AsteroidMediumMinSpeed
+                        + Random.Shared.NextSingle()
+                            * (AsteroidMediumMaxSpeed - AsteroidMediumMinSpeed),
+                    _ => AsteroidSmallMinSpeed
+                        + Random.Shared.NextSingle()
+                            * (AsteroidSmallMaxSpeed - AsteroidSmallMinSpeed),
                 };
                 float vx = MathF.Cos(angle) * speed;
                 float vy = MathF.Sin(angle) * speed;
@@ -347,17 +415,23 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
         for (int i = 0; i < count; i++)
         {
             // Spawn away from ship center
-            float x, y;
+            float x,
+                y;
             do
             {
                 x = Random.Shared.NextSingle() * GameWidth;
                 y = Random.Shared.NextSingle() * GameHeight;
-            }
-            while (MathF.Sqrt((x - GameWidth / 2f) * (x - GameWidth / 2f) +
-                              (y - GameHeight / 2f) * (y - GameHeight / 2f)) < 150f);
+            } while (
+                MathF.Sqrt(
+                    (x - GameWidth / 2f) * (x - GameWidth / 2f)
+                        + (y - GameHeight / 2f) * (y - GameHeight / 2f)
+                ) < 150f
+            );
 
             float angle = Random.Shared.NextSingle() * MathF.PI * 2f;
-            float speed = AsteroidLargeMinSpeed + Random.Shared.NextSingle() * (AsteroidLargeMaxSpeed - AsteroidLargeMinSpeed);
+            float speed =
+                AsteroidLargeMinSpeed
+                + Random.Shared.NextSingle() * (AsteroidLargeMaxSpeed - AsteroidLargeMinSpeed);
             float vx = MathF.Cos(angle) * speed;
             float vy = MathF.Sin(angle) * speed;
             var ast = new Asteroid(AsteroidSize.Large, x, y, vx, vy, Random.Shared.Next());
@@ -367,13 +441,18 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
 
     private void CheckLevelComplete()
     {
-        if (_endTriggered) return;
+        if (_endTriggered)
+            return;
 
         var asteroidList = _asteroids.Children;
         bool anyActive = false;
         for (int i = 0; i < asteroidList.Count; i++)
         {
-            if (asteroidList[i].Active) { anyActive = true; break; }
+            if (asteroidList[i].Active)
+            {
+                anyActive = true;
+                break;
+            }
         }
 
         if (!anyActive && _shipAlive)
@@ -385,7 +464,8 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
 
     private void TriggerGameOver()
     {
-        if (_endTriggered) return;
+        if (_endTriggered)
+            return;
         _endTriggered = true;
         director.TransitionTo<GameOverScreen>(new DissolveCurtain());
     }
@@ -432,7 +512,10 @@ internal sealed class PlayScreen(AsteroidsGameState state, IDirector director) :
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        var appearance = ((ResolvedHudTheme?.Button ?? DefaultButtonAppearance.Default) as DefaultButtonAppearance ?? DefaultButtonAppearance.Default) with
+        var appearance = (
+            (ResolvedHudTheme?.Button ?? DefaultButtonAppearance.Default) as DefaultButtonAppearance
+            ?? DefaultButtonAppearance.Default
+        ) with
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,

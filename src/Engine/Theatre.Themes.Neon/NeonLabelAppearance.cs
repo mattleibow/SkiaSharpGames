@@ -8,8 +8,10 @@ namespace SkiaSharp.Theatre.Themes.Neon;
 /// </summary>
 public record NeonLabelAppearance : HudAppearance<HudLabel>
 {
-    private static readonly SKMaskFilter GlowFilter =
-        SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 2f);
+    private static readonly SKMaskFilter GlowFilter = SKMaskFilter.CreateBlur(
+        SKBlurStyle.Normal,
+        2f
+    );
 
     public byte GlowAlpha { get; init; } = 80;
 
@@ -28,7 +30,7 @@ public record NeonLabelAppearance : HudAppearance<HudLabel>
         {
             TextAlign.Center => -font.MeasureText(label.Text) / 2f,
             TextAlign.Right => -font.MeasureText(label.Text),
-            _ => 0f
+            _ => 0f,
         };
 
         // Glow pass behind text
@@ -36,7 +38,7 @@ public record NeonLabelAppearance : HudAppearance<HudLabel>
         {
             IsAntialias = true,
             Color = label.Color.WithAlpha((byte)(GlowAlpha * a / 255)),
-            MaskFilter = GlowFilter
+            MaskFilter = GlowFilter,
         };
         canvas.DrawText(label.Text, drawX, 0f, font, glowPaint);
 

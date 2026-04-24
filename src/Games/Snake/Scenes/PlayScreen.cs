@@ -13,8 +13,22 @@ internal sealed class PlayScreen : Scene
     private readonly SnakeEntity _snake = new() { Name = "snake" };
     private readonly FoodEntity _food = new() { Name = "food" };
 
-    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 22f, X = 10f, Y = -6f };
-    private readonly HudLabel _highScoreText = new() { Name = "high-score", FontSize = 18f, Color = DimColor, Align = TextAlign.Right, X = GameWidth - 10f, Y = -6f };
+    private readonly HudLabel _scoreText = new()
+    {
+        Name = "score",
+        FontSize = 22f,
+        X = 10f,
+        Y = -6f,
+    };
+    private readonly HudLabel _highScoreText = new()
+    {
+        Name = "high-score",
+        FontSize = 18f,
+        Color = DimColor,
+        Align = TextAlign.Right,
+        X = GameWidth - 10f,
+        Y = -6f,
+    };
 
     private Direction _direction;
     private Direction _nextDirection;
@@ -133,7 +147,8 @@ internal sealed class PlayScreen : Scene
 
     private void Die()
     {
-        if (_gameOverShown) return;
+        if (_gameOverShown)
+            return;
         _gameOverShown = true;
 
         if (state.Score > state.HighScore)
@@ -147,18 +162,15 @@ internal sealed class PlayScreen : Scene
         GridPoint candidate;
         do
         {
-            candidate = new GridPoint(
-                Random.Shared.Next(GridCols),
-                Random.Shared.Next(GridRows));
-        }
-        while (_snake.Occupies(candidate));
+            candidate = new GridPoint(Random.Shared.Next(GridCols), Random.Shared.Next(GridRows));
+        } while (_snake.Occupies(candidate));
 
         _food.PlaceAt(candidate);
     }
 
     private static bool IsOpposite(Direction a, Direction b) =>
-        (a == Direction.Up && b == Direction.Down) ||
-        (a == Direction.Down && b == Direction.Up) ||
-        (a == Direction.Left && b == Direction.Right) ||
-        (a == Direction.Right && b == Direction.Left);
+        (a == Direction.Up && b == Direction.Down)
+        || (a == Direction.Down && b == Direction.Up)
+        || (a == Direction.Left && b == Direction.Right)
+        || (a == Direction.Right && b == Direction.Left);
 }

@@ -24,7 +24,7 @@ internal sealed class Invader : Actor
         {
             0 => new SKColor(0xFF, 0x6B, 0x6B),
             1 or 2 => new SKColor(0xFF, 0xD1, 0x66),
-            _ => new SKColor(0x6F, 0xD4, 0xFF)
+            _ => new SKColor(0x6F, 0xD4, 0xFF),
         };
 
     public int ScoreValue =>
@@ -32,7 +32,7 @@ internal sealed class Invader : Actor
         {
             0 => 30,
             1 or 2 => 20,
-            _ => 10
+            _ => 10,
         };
 
     protected override void OnDraw(SKCanvas canvas)

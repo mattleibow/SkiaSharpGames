@@ -112,15 +112,16 @@ internal static class CastleAttackConstants
     public const float LogDamageLarge = 3f;
     public static readonly SKColor ColLog = new(0x8B, 0x5E, 0x2E);
 
-    public static SKColor EnemyCol(EnemyType t) => t switch
-    {
-        EnemyType.Spearman => new(0xE7, 0x4C, 0x3C),
-        EnemyType.Swordsman => new(0x8E, 0x44, 0xAD),
-        EnemyType.Berserker => new(0xE6, 0x7E, 0x22),
-        EnemyType.Crossbowman => new(0x27, 0xAE, 0x60),
-        EnemyType.Catapult => new(0x95, 0x7C, 0x55),
-        EnemyType.Ram => new(0x6D, 0x5A, 0x3C),
-        EnemyType.Cow => new(0xF5, 0xF5, 0xDC),
-        _ => SKColors.Gray
-    };
+    public static SKColor EnemyCol(EnemyType t) =>
+        t switch
+        {
+            EnemyType.Spearman => new(0xE7, 0x4C, 0x3C),
+            EnemyType.Swordsman => new(0x8E, 0x44, 0xAD),
+            EnemyType.Berserker => new(0xE6, 0x7E, 0x22),
+            EnemyType.Crossbowman => new(0x27, 0xAE, 0x60),
+            EnemyType.Catapult => new(0x95, 0x7C, 0x55),
+            EnemyType.Ram => new(0x6D, 0x5A, 0x3C),
+            EnemyType.Cow => new(0xF5, 0xF5, 0xDC),
+            _ => SKColors.Gray,
+        };
 }

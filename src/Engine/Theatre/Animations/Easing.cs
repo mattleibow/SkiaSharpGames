@@ -16,14 +16,16 @@ public static class Easing
     public static readonly Func<float, float> EaseOut = t => 1f - (1f - t) * (1f - t);
 
     /// <summary>Accelerates then decelerates (smooth-step).</summary>
-    public static readonly Func<float, float> EaseInOut =
-        t => t < 0.5f ? 2f * t * t : 1f - MathF.Pow(-2f * t + 2f, 2f) / 2f;
+    public static readonly Func<float, float> EaseInOut = t =>
+        t < 0.5f ? 2f * t * t : 1f - MathF.Pow(-2f * t + 2f, 2f) / 2f;
 
     /// <summary>Bounces at the end like a dropped ball.</summary>
     public static readonly Func<float, float> BounceOut = t =>
     {
-        const float n = 7.5625f, d = 2.75f;
-        if (t < 1f / d) return n * t * t;
+        const float n = 7.5625f,
+            d = 2.75f;
+        if (t < 1f / d)
+            return n * t * t;
         if (t < 2f / d)
         {
             t -= 1.5f / d;
@@ -41,14 +43,16 @@ public static class Easing
     /// <summary>Overshoots slightly then settles back (back-ease-out).</summary>
     public static readonly Func<float, float> BackOut = t =>
     {
-        const float c1 = 1.70158f, c3 = c1 + 1f;
+        const float c1 = 1.70158f,
+            c3 = c1 + 1f;
         return 1f + c3 * MathF.Pow(t - 1f, 3f) + c1 * MathF.Pow(t - 1f, 2f);
     };
 
     /// <summary>Elastic snap at the end — oscillates past the target before settling.</summary>
     public static readonly Func<float, float> ElasticOut = t =>
     {
-        if (t is 0f or 1f) return t;
+        if (t is 0f or 1f)
+            return t;
         const float c4 = 2f * MathF.PI / 3f;
         return MathF.Pow(2f, -10f * t) * MathF.Sin((t * 10f - 0.75f) * c4) + 1f;
     };

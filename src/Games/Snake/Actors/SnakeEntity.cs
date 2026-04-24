@@ -25,11 +25,20 @@ internal sealed class SnakeEntity : Actor
         bool isHead = true;
         foreach (var seg in _body)
         {
-            _paint.Color = (isHead ? SnakeHeadColor : SnakeBodyColor).WithAlpha((byte)(255 * Alpha));
+            _paint.Color = (isHead ? SnakeHeadColor : SnakeBodyColor).WithAlpha(
+                (byte)(255 * Alpha)
+            );
             float cx = seg.Col * CellSize + CellSize / 2f;
             float cy = seg.Row * CellSize + CellSize / 2f;
-            canvas.DrawRoundRect(cx - CellSize / 2f + 1f, cy - CellSize / 2f + 1f,
-                                 CellSize - 2f, CellSize - 2f, 4f, 4f, _paint);
+            canvas.DrawRoundRect(
+                cx - CellSize / 2f + 1f,
+                cy - CellSize / 2f + 1f,
+                CellSize - 2f,
+                CellSize - 2f,
+                4f,
+                4f,
+                _paint
+            );
             isHead = false;
         }
     }
@@ -82,7 +91,11 @@ internal sealed class SnakeEntity : Actor
         bool first = true;
         foreach (var seg in _body)
         {
-            if (first) { first = false; continue; }
+            if (first)
+            {
+                first = false;
+                continue;
+            }
             if (seg == Head)
                 return true;
         }

@@ -23,7 +23,8 @@ public class SlideCurtainTests
     [Fact]
     public void Draw_CallsBothScreenCallbacks()
     {
-        bool outCalled = false, inCalled = false;
+        bool outCalled = false,
+            inCalled = false;
         var t = new SlideCurtain();
         t.Draw(MakeCanvas(), 0.5f, _ => outCalled = true, _ => inCalled = true, 800, 600);
         Assert.True(outCalled);

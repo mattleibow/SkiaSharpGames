@@ -39,13 +39,13 @@ public class GameSmokeTests
         Assert.True(
             menuFrame.HasNonBackgroundPixel(
                 new SKRectI(0, 0, menuFrame.Width, menuFrame.Height),
-                SKColors.Transparent),
-            "Menu scene should render visible content");
+                SKColors.Transparent
+            ),
+            "Menu scene should render visible content"
+        );
 
         // Transition to play scene via click (all games support this)
-        harness.Click(
-            stage.StageSize.Width / 2f,
-            stage.StageSize.Height / 2f);
+        harness.Click(stage.StageSize.Width / 2f, stage.StageSize.Height / 2f);
 
         // Let transition complete
         harness.RunFor(1f, DeltaTime);
@@ -58,54 +58,45 @@ public class GameSmokeTests
         Assert.True(
             playFrame.HasNonBackgroundPixel(
                 new SKRectI(0, 0, playFrame.Width, playFrame.Height),
-                SKColors.Transparent),
-            "Play scene should render visible content");
+                SKColors.Transparent
+            ),
+            "Play scene should render visible content"
+        );
 
         // Menu and play should look different
         float diff = menuFrame.DiffRatio(playFrame);
-        Assert.True(diff > 0.001f,
-            $"Menu and play frames should differ (diff={diff:P2})");
+        Assert.True(diff > 0.001f, $"Menu and play frames should differ (diff={diff:P2})");
     }
 
     [Fact]
-    public void Asteroids_MenuThenPlay()
-        => RunMenuThenPlay(AsteroidsGame.Create());
+    public void Asteroids_MenuThenPlay() => RunMenuThenPlay(AsteroidsGame.Create());
 
     [Fact]
-    public void Breakout_MenuThenPlay()
-        => RunMenuThenPlay(BreakoutGame.Create());
+    public void Breakout_MenuThenPlay() => RunMenuThenPlay(BreakoutGame.Create());
 
     [Fact]
-    public void CastleAttack_MenuThenPlay()
-        => RunMenuThenPlay(CastleAttackGame.Create());
+    public void CastleAttack_MenuThenPlay() => RunMenuThenPlay(CastleAttackGame.Create());
 
     [Fact]
-    public void Catch_MenuThenPlay()
-        => RunMenuThenPlay(CatchGame.Create());
+    public void Catch_MenuThenPlay() => RunMenuThenPlay(CatchGame.Create());
 
     [Fact]
-    public void LunarLander_MenuThenPlay()
-        => RunMenuThenPlay(LunarLanderGame.Create());
+    public void LunarLander_MenuThenPlay() => RunMenuThenPlay(LunarLanderGame.Create());
 
     [Fact]
-    public void Pong_MenuThenPlay()
-        => RunMenuThenPlay(PongGame.Create());
+    public void Pong_MenuThenPlay() => RunMenuThenPlay(PongGame.Create());
 
     [Fact]
-    public void SinkSub_MenuThenPlay()
-        => RunMenuThenPlay(SinkSubGame.Create());
+    public void SinkSub_MenuThenPlay() => RunMenuThenPlay(SinkSubGame.Create());
 
     [Fact]
-    public void Snake_MenuThenPlay()
-        => RunMenuThenPlay(SnakeGame.Create());
+    public void Snake_MenuThenPlay() => RunMenuThenPlay(SnakeGame.Create());
 
     [Fact]
-    public void SpaceInvaders_MenuThenPlay()
-        => RunMenuThenPlay(SpaceInvadersGame.Create());
+    public void SpaceInvaders_MenuThenPlay() => RunMenuThenPlay(SpaceInvadersGame.Create());
 
     [Fact]
-    public void TwoZeroFourEight_MenuThenPlay()
-        => RunMenuThenPlay(TwoZeroFourEightGame.Create());
+    public void TwoZeroFourEight_MenuThenPlay() => RunMenuThenPlay(TwoZeroFourEightGame.Create());
 
     [Fact]
     public void UIGallery_PlayScreen()
@@ -120,7 +111,9 @@ public class GameSmokeTests
         Assert.True(
             frame.HasNonBackgroundPixel(
                 new SKRectI(0, 0, frame.Width, frame.Height),
-                SKColors.Transparent),
-            "UIGallery should render visible content");
+                SKColors.Transparent
+            ),
+            "UIGallery should render visible content"
+        );
     }
 }

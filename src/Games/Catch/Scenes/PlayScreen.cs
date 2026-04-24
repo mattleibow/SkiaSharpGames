@@ -14,9 +14,30 @@ internal sealed class PlayScreen : Scene
     private readonly PlayerBar _bar = new() { Name = "bar" };
     private readonly FallingCircle _circle = new() { Name = "circle" };
 
-    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 24f, X = 20f, Y = 35f };
-    private readonly HudLabel _livesText = new() { Name = "lives", FontSize = 24f, Align = TextAlign.Right, X = GameWidth - 20f, Y = 35f };
-    private readonly HudLabel _instructionsText = new() { Text = "Move with mouse, touch, or arrow keys", FontSize = 16f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 34f };
+    private readonly HudLabel _scoreText = new()
+    {
+        Name = "score",
+        FontSize = 24f,
+        X = 20f,
+        Y = 35f,
+    };
+    private readonly HudLabel _livesText = new()
+    {
+        Name = "lives",
+        FontSize = 24f,
+        Align = TextAlign.Right,
+        X = GameWidth - 20f,
+        Y = 35f,
+    };
+    private readonly HudLabel _instructionsText = new()
+    {
+        Text = "Move with mouse, touch, or arrow keys",
+        FontSize = 16f,
+        Color = DimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 34f,
+    };
 
     private float _fallSpeed;
     private bool _leftHeld;
@@ -88,8 +109,7 @@ internal sealed class PlayScreen : Scene
         if (_rightHeld)
             MoveBarTo(_bar.X + BarSpeed * deltaTime);
 
-        if (_circle.Rigidbody.VelocityY > 0f &&
-            _circle.TryGetHit(_bar, out _))
+        if (_circle.Rigidbody.VelocityY > 0f && _circle.TryGetHit(_bar, out _))
         {
             state.Score++;
             _fallSpeed += FallSpeedIncrement;

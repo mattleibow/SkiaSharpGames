@@ -6,16 +6,79 @@ namespace SkiaSharpGames.Asteroids;
 
 internal sealed class StartScreen(IDirector director) : Scene
 {
-    private readonly HudLabel _title = new() { Text = "ASTEROIDS", FontSize = 72f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 195f };
-    private readonly HudLabel _subtitle = new() { Text = "Classic arcade space shooter", FontSize = 26f, Color = SKColors.White, Align = TextAlign.Center, X = GameWidth / 2f, Y = 240f };
-    private readonly HudLabel _moveHint = new() { Text = "Rotate: Arrow keys or A/D", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 310f };
-    private readonly HudLabel _thrustHint = new() { Text = "Thrust: Up arrow or W", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 342f };
-    private readonly HudLabel _fireHint = new() { Text = "Fire: Space or Enter", FontSize = 22f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 374f };
-    private readonly HudLabel _goal = new() { Text = "Destroy all asteroids to survive", FontSize = 24f, Color = SKColors.White, Align = TextAlign.Center, X = GameWidth / 2f, Y = 430f };
-    private readonly HudLabel _startPrompt = new() { Text = "Click, tap, or press Space to start", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 490f };
+    private readonly HudLabel _title = new()
+    {
+        Text = "ASTEROIDS",
+        FontSize = 72f,
+        Color = AccentColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 195f,
+    };
+    private readonly HudLabel _subtitle = new()
+    {
+        Text = "Classic arcade space shooter",
+        FontSize = 26f,
+        Color = SKColors.White,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 240f,
+    };
+    private readonly HudLabel _moveHint = new()
+    {
+        Text = "Rotate: Arrow keys or A/D",
+        FontSize = 22f,
+        Color = HudDimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 310f,
+    };
+    private readonly HudLabel _thrustHint = new()
+    {
+        Text = "Thrust: Up arrow or W",
+        FontSize = 22f,
+        Color = HudDimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 342f,
+    };
+    private readonly HudLabel _fireHint = new()
+    {
+        Text = "Fire: Space or Enter",
+        FontSize = 22f,
+        Color = HudDimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 374f,
+    };
+    private readonly HudLabel _goal = new()
+    {
+        Text = "Destroy all asteroids to survive",
+        FontSize = 24f,
+        Color = SKColors.White,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 430f,
+    };
+    private readonly HudLabel _startPrompt = new()
+    {
+        Text = "Click, tap, or press Space to start",
+        FontSize = 24f,
+        Color = AccentColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 490f,
+    };
 
     // Decorative asteroids drifting in the background
-    private readonly List<(float x, float y, float vx, float vy, float r, SKPath path)> _bgAsteroids = [];
+    private readonly List<(
+        float x,
+        float y,
+        float vx,
+        float vy,
+        float r,
+        SKPath path
+    )> _bgAsteroids = [];
     private bool _initialized;
 
     public override void OnActivating()
@@ -57,10 +120,14 @@ internal sealed class StartScreen(IDirector director) : Scene
             var a = _bgAsteroids[i];
             float x = a.x + a.vx * deltaTime;
             float y = a.y + a.vy * deltaTime;
-            if (x < -a.r) x = GameWidth + a.r;
-            else if (x > GameWidth + a.r) x = -a.r;
-            if (y < -a.r) y = GameHeight + a.r;
-            else if (y > GameHeight + a.r) y = -a.r;
+            if (x < -a.r)
+                x = GameWidth + a.r;
+            else if (x > GameWidth + a.r)
+                x = -a.r;
+            if (y < -a.r)
+                y = GameHeight + a.r;
+            else if (y > GameHeight + a.r)
+                y = -a.r;
             _bgAsteroids[i] = (x, y, a.vx, a.vy, a.r, a.path);
         }
     }
@@ -70,7 +137,13 @@ internal sealed class StartScreen(IDirector director) : Scene
         canvas.Clear(BackgroundColor);
 
         // Draw background asteroids
-        using var paint = new SKPaint { Color = AsteroidColor.WithAlpha(60), IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1f };
+        using var paint = new SKPaint
+        {
+            Color = AsteroidColor.WithAlpha(60),
+            IsAntialias = true,
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = 1f,
+        };
         foreach (var a in _bgAsteroids)
         {
             canvas.Save();
@@ -101,7 +174,10 @@ internal sealed class StartScreen(IDirector director) : Scene
             float r = radius * variation;
             float px = MathF.Cos(angle) * r;
             float py = MathF.Sin(angle) * r;
-            if (i == 0) path.MoveTo(px, py); else path.LineTo(px, py);
+            if (i == 0)
+                path.MoveTo(px, py);
+            else
+                path.LineTo(px, py);
         }
         path.Close();
         return path;

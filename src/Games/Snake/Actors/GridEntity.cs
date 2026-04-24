@@ -7,7 +7,12 @@ namespace SkiaSharpGames.Snake;
 /// <summary>Draws the background grid lines.</summary>
 internal sealed class GridEntity : Actor
 {
-    private static readonly SKPaint _linePaint = new() { Color = GridLineColor, StrokeWidth = 1f, IsAntialias = true };
+    private static readonly SKPaint _linePaint = new()
+    {
+        Color = GridLineColor,
+        StrokeWidth = 1f,
+        IsAntialias = true,
+    };
 
     protected override void OnDraw(SKCanvas canvas)
     {

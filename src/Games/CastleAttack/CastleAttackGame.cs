@@ -12,11 +12,11 @@ public static class CastleAttackGame
         builder.SetStageSize(CastleAttackConstants.GameWidth, CastleAttackConstants.GameHeight);
         builder.Services.AddSingleton<CastleAttackGameState>();
 
-        builder.Scenes
-               .Add<StartScreen>()
-               .Add<PlayScreen>()
-               .Add<GameOverScreen>()
-               .Add<VictoryScreen>();
+        builder
+            .Scenes.Add<StartScreen>()
+            .Add<PlayScreen>()
+            .Add<GameOverScreen>()
+            .Add<VictoryScreen>();
 
         builder.SetOpeningScene<StartScreen>();
 

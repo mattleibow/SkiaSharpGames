@@ -33,6 +33,5 @@ public class DissolveCurtainTests
     }
 
     [Fact]
-    public void DefaultDuration_Is04()
-        => Assert.Equal(0.4f, new DissolveCurtain().Duration);
+    public void DefaultDuration_Is04() => Assert.Equal(0.4f, new DissolveCurtain().Duration);
 }

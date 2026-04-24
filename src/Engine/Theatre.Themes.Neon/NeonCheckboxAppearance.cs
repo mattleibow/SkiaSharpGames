@@ -8,8 +8,10 @@ namespace SkiaSharp.Theatre.Themes.Neon;
 /// </summary>
 public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
 {
-    private static readonly SKMaskFilter GlowFilter =
-        SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 3f);
+    private static readonly SKMaskFilter GlowFilter = SKMaskFilter.CreateBlur(
+        SKBlurStyle.Normal,
+        3f
+    );
 
     public SKColor FillColor { get; init; } = new(0x08, 0x08, 0x12);
     public SKColor BorderColor { get; init; } = new(0x00, 0xFF, 0xFF);
@@ -24,7 +26,8 @@ public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
     public override void Draw(SKCanvas canvas, HudCheckbox checkbox)
     {
         byte alpha = (byte)(255 * Math.Clamp(checkbox.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         var rect = checkbox.LocalRect;
         float cr = CornerRadius;
@@ -33,7 +36,7 @@ public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = FillColor.WithAlpha(alpha)
+            Color = FillColor.WithAlpha(alpha),
         };
         canvas.DrawRoundRect(rect, cr, cr, fillPaint);
 
@@ -44,7 +47,7 @@ public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
             Style = SKPaintStyle.Stroke,
             StrokeWidth = BorderWidth + 2f,
             Color = BorderColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
-            MaskFilter = GlowFilter
+            MaskFilter = GlowFilter,
         };
         canvas.DrawRoundRect(rect, cr, cr, glowPaint);
 
@@ -65,7 +68,7 @@ public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
             StrokeCap = SKStrokeCap.Round,
             StrokeWidth = MathF.Max(2f, rect.Width * 0.12f) + 2f,
             Color = CheckColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
-            MaskFilter = GlowFilter
+            MaskFilter = GlowFilter,
         };
 
         float x1 = rect.Left + rect.Width * 0.2f;

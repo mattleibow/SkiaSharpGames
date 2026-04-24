@@ -9,7 +9,11 @@ namespace SkiaSharpGames.Asteroids;
 internal static class TextRenderer
 {
     private static readonly SKPaint _textPaint = new() { IsAntialias = true };
-    private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)), IsAntialias = true };
+    private static readonly SKPaint _overlayPaint = new()
+    {
+        Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)),
+        IsAntialias = true,
+    };
     private static readonly Dictionary<float, SKFont> _fontCache = [];
 
     public static void DrawOverlay(SKCanvas canvas)
@@ -17,7 +21,13 @@ internal static class TextRenderer
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), _overlayPaint);
     }
 
-    public static void DrawCenteredText(SKCanvas canvas, string text, float size, SKColor color, float y)
+    public static void DrawCenteredText(
+        SKCanvas canvas,
+        string text,
+        float size,
+        SKColor color,
+        float y
+    )
     {
         var font = GetFont(size);
         _textPaint.Color = color;
@@ -25,7 +35,14 @@ internal static class TextRenderer
         canvas.DrawText(text, (GameWidth - width) / 2f, y, font, _textPaint);
     }
 
-    public static void DrawText(SKCanvas canvas, string text, float size, SKColor color, float x, float y)
+    public static void DrawText(
+        SKCanvas canvas,
+        string text,
+        float size,
+        SKColor color,
+        float x,
+        float y
+    )
     {
         var font = GetFont(size);
         _textPaint.Color = color;

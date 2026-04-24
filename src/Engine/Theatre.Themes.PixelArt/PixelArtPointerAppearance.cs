@@ -12,12 +12,12 @@ public record PixelArtPointerAppearance : HudAppearance<HudPointer>
     private static readonly SKPaint ShadowPaint = new()
     {
         IsAntialias = false,
-        Style = SKPaintStyle.Stroke
+        Style = SKPaintStyle.Stroke,
     };
     private static readonly SKPaint MainPaint = new()
     {
         IsAntialias = false,
-        Style = SKPaintStyle.Stroke
+        Style = SKPaintStyle.Stroke,
     };
 
     public SKColor Color { get; init; } = new(0xF5, 0xE6, 0xB8);
@@ -31,7 +31,8 @@ public record PixelArtPointerAppearance : HudAppearance<HudPointer>
     public override void Draw(SKCanvas canvas, HudPointer pointer)
     {
         byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         float s = pointer.IsDown ? Size * 0.75f : Size;
 

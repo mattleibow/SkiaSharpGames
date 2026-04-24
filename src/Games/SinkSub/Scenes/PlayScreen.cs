@@ -8,12 +8,52 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
 {
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
 
-    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 22f, X = 20f, Y = 32f };
-    private readonly HudLabel _livesText = new() { Name = "lives", FontSize = 22f, X = 20f, Y = 60f };
-    private readonly HudLabel _waveText = new() { FontSize = 22f, X = 20f, Y = 88f };
-    private readonly HudLabel _chargeText = new() { FontSize = 22f, Color = AccentColor, Align = TextAlign.Right, X = GameWidth - 20f, Y = 32f };
-    private readonly HudLabel _instructionsText = new() { FontSize = 16f, Color = DimColor, Align = TextAlign.Center, Text = "Z = left charge    X / Space = right charge", X = GameWidth / 2f, Y = 32f };
-    private readonly HudLabel _waveIncomingText = new() { FontSize = 28f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 170f, Visible = false };
+    private readonly HudLabel _scoreText = new()
+    {
+        Name = "score",
+        FontSize = 22f,
+        X = 20f,
+        Y = 32f,
+    };
+    private readonly HudLabel _livesText = new()
+    {
+        Name = "lives",
+        FontSize = 22f,
+        X = 20f,
+        Y = 60f,
+    };
+    private readonly HudLabel _waveText = new()
+    {
+        FontSize = 22f,
+        X = 20f,
+        Y = 88f,
+    };
+    private readonly HudLabel _chargeText = new()
+    {
+        FontSize = 22f,
+        Color = AccentColor,
+        Align = TextAlign.Right,
+        X = GameWidth - 20f,
+        Y = 32f,
+    };
+    private readonly HudLabel _instructionsText = new()
+    {
+        FontSize = 16f,
+        Color = DimColor,
+        Align = TextAlign.Center,
+        Text = "Z = left charge    X / Space = right charge",
+        X = GameWidth / 2f,
+        Y = 32f,
+    };
+    private readonly HudLabel _waveIncomingText = new()
+    {
+        FontSize = 28f,
+        Color = AccentColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 170f,
+        Visible = false,
+    };
 
     private readonly Ship _ship = new() { Name = "ship" };
     private readonly Actor _submarines = new() { Name = "submarines" };
@@ -135,8 +175,10 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
     private void UpdateShip(float deltaTime)
     {
         float dx = 0f;
-        if (_leftHeld) dx -= ShipSpeed * deltaTime;
-        if (_rightHeld) dx += ShipSpeed * deltaTime;
+        if (_leftHeld)
+            dx -= ShipSpeed * deltaTime;
+        if (_rightHeld)
+            dx += ShipSpeed * deltaTime;
 
         if (dx != 0f)
             MoveShipTo(_ship.X + dx);
@@ -153,7 +195,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
         var charge = new DepthCharge
         {
             X = _ship.X + (leftSide ? -ChargeSpawnOffsetX : ChargeSpawnOffsetX),
-            Y = _ship.Y + ChargeSpawnOffsetY
+            Y = _ship.Y + ChargeSpawnOffsetY,
         };
         charge.Rigidbody.SetVelocity(0f, ChargeSpeed);
         _depthCharges.Children.Add(charge);
@@ -165,7 +207,8 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
         for (int i = charges.Count - 1; i >= 0; i--)
         {
             var charge = (DepthCharge)charges[i];
-            if (!charge.Active) continue;
+            if (!charge.Active)
+                continue;
 
             if (_submarines.FindChildCollision(charge, out _) is Submarine sub)
             {
@@ -202,11 +245,7 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
 
             if (sub.TickMineTimer(deltaTime) && _mines.ChildCount < 12)
             {
-                var mine = new Mine
-                {
-                    X = sub.X,
-                    Y = sub.Y - 12f
-                };
+                var mine = new Mine { X = sub.X, Y = sub.Y - 12f };
                 mine.Rigidbody.SetVelocity(0f, -MineSpeed);
                 _mines.Children.Add(mine);
             }
@@ -219,7 +258,8 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
         for (int i = mines.Count - 1; i >= 0; i--)
         {
             var mine = (Mine)mines[i];
-            if (!mine.Active) continue;
+            if (!mine.Active)
+                continue;
 
             if (mine.Overlaps(_ship))
             {
@@ -268,15 +308,24 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
         canvas.Clear(SkyColor);
 
         _fillPaint.Color = WaterColor;
-        canvas.DrawRect(SKRect.Create(0f, WaterlineY, GameWidth, GameHeight - WaterlineY), _fillPaint);
+        canvas.DrawRect(
+            SKRect.Create(0f, WaterlineY, GameWidth, GameHeight - WaterlineY),
+            _fillPaint
+        );
         _fillPaint.Color = DeepWaterColor.WithAlpha((byte)(255 * 0.55f));
-        canvas.DrawRect(SKRect.Create(0f, WaterlineY + 180f, GameWidth, GameHeight - WaterlineY - 180f), _fillPaint);
+        canvas.DrawRect(
+            SKRect.Create(0f, WaterlineY + 180f, GameWidth, GameHeight - WaterlineY - 180f),
+            _fillPaint
+        );
         _fillPaint.Color = SKColors.White.WithAlpha((byte)(255 * 0.6f));
         canvas.DrawRect(SKRect.Create(0f, WaterlineY - 4f, GameWidth, 4f), _fillPaint);
 
         _fillPaint.Color = SKColors.White.WithAlpha((byte)(255 * 0.18f));
         for (int i = 0; i < 8; i++)
-            canvas.DrawRect(SKRect.Create(30f + i * 110f, WaterlineY + 20f + (i % 2) * 10f, 60f, 2f), _fillPaint);
+            canvas.DrawRect(
+                SKRect.Create(30f + i * 110f, WaterlineY + 20f + (i % 2) * 10f, 60f, 2f),
+                _fillPaint
+            );
     }
 
     private static void ClearChildren(Actor parent)

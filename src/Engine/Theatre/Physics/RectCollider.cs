@@ -12,12 +12,14 @@ public sealed class RectCollider : Collider2D
     public float Height { get; set; }
 
     /// <summary>World-space rectangle given an actor centre position.</summary>
-    public SKRect WorldRect(float centerX, float centerY) => SKRect.Create(
-        centerX + OffsetX - Width / 2f,
-        centerY + OffsetY - Height / 2f,
-        Width, Height);
+    public SKRect WorldRect(float centerX, float centerY) =>
+        SKRect.Create(
+            centerX + OffsetX - Width / 2f,
+            centerY + OffsetY - Height / 2f,
+            Width,
+            Height
+        );
 
     /// <inheritdoc/>
-    public override SKRect BoundingBox(float centerX, float centerY) =>
-        WorldRect(centerX, centerY);
+    public override SKRect BoundingBox(float centerX, float centerY) => WorldRect(centerX, centerY);
 }

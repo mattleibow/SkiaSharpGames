@@ -27,7 +27,7 @@ public record PixelArtLabelAppearance : HudAppearance<HudLabel>
         {
             TextAlign.Center => -font.MeasureText(label.Text) / 2f,
             TextAlign.Right => -font.MeasureText(label.Text),
-            _ => 0f
+            _ => 0f,
         };
 
         canvas.DrawText(label.Text, drawX, 0f, font, TextPaint);

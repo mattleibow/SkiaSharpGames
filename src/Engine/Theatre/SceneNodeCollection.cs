@@ -30,7 +30,8 @@ public class SceneNodeCollection : IList<SceneNode>
         set
         {
             var old = _items[index];
-            if (ReferenceEquals(old, value)) return;
+            if (ReferenceEquals(old, value))
+                return;
             old.Parent = null;
             old.OnRemovedFromParent();
 
@@ -54,7 +55,8 @@ public class SceneNodeCollection : IList<SceneNode>
     /// <inheritdoc />
     public bool Remove(SceneNode child)
     {
-        if (!_items.Remove(child)) return false;
+        if (!_items.Remove(child))
+            return false;
         child.Parent = null;
         child.OnRemovedFromParent();
         Removed?.Invoke(this, new SceneNodeCollectionEventArgs { Nodes = [child] });

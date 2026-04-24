@@ -9,12 +9,44 @@ internal sealed class GameOverScreen : Scene
     private readonly SnakeGameState state;
     private readonly IDirector director;
 
-    private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)) };
+    private static readonly SKPaint _overlayPaint = new()
+    {
+        Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)),
+    };
 
-    private readonly HudLabel _titleText = new() { Text = "GAME OVER", FontSize = 72f, Color = DangerColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 220f };
-    private readonly HudLabel _scoreText = new() { FontSize = 34f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 300f };
-    private readonly HudLabel _highScoreText = new() { FontSize = 24f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 345f };
-    private readonly HudLabel _promptText = new() { Text = "Click, tap, or press Space to try again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 420f };
+    private readonly HudLabel _titleText = new()
+    {
+        Text = "GAME OVER",
+        FontSize = 72f,
+        Color = DangerColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 220f,
+    };
+    private readonly HudLabel _scoreText = new()
+    {
+        FontSize = 34f,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 300f,
+    };
+    private readonly HudLabel _highScoreText = new()
+    {
+        FontSize = 24f,
+        Color = DimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 345f,
+    };
+    private readonly HudLabel _promptText = new()
+    {
+        Text = "Click, tap, or press Space to try again",
+        FontSize = 24f,
+        Color = AccentColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 420f,
+    };
 
     public GameOverScreen(SnakeGameState state, IDirector director)
     {

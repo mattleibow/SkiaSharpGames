@@ -28,7 +28,8 @@ public class HudButton : HudControl
     /// </summary>
     /// <param name="width">Button width in game-space units.</param>
     /// <param name="height">Button height in game-space units.</param>
-    public HudButton(float width, float height) : base(width, height) { }
+    public HudButton(float width, float height)
+        : base(width, height) { }
 
     /// <summary>Text displayed on the button.</summary>
     public string Label { get; set; } = "";

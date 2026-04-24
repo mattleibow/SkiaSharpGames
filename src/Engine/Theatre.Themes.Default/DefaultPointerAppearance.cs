@@ -14,7 +14,7 @@ public record DefaultCrosshairAppearance : HudAppearance<HudPointer>
         IsAntialias = true,
         Style = SKPaintStyle.Stroke,
         StrokeWidth = 2.5f,
-        Color = new SKColor(0, 0, 0, 180)
+        Color = new SKColor(0, 0, 0, 180),
     };
 
     private static readonly SKPaint StrokeLight = new()
@@ -22,7 +22,7 @@ public record DefaultCrosshairAppearance : HudAppearance<HudPointer>
         IsAntialias = true,
         Style = SKPaintStyle.Stroke,
         StrokeWidth = 1.5f,
-        Color = SKColors.White
+        Color = SKColors.White,
     };
 
     public static DefaultCrosshairAppearance Default { get; } = new();
@@ -31,7 +31,8 @@ public record DefaultCrosshairAppearance : HudAppearance<HudPointer>
     public override void Draw(SKCanvas canvas, HudPointer pointer)
     {
         byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         float size = pointer.IsDown ? 6f : 8f;
         float gap = pointer.IsDown ? 1.5f : 2.5f;
@@ -59,14 +60,14 @@ public record DefaultDotAppearance : HudAppearance<HudPointer>
     {
         IsAntialias = true,
         Style = SKPaintStyle.Fill,
-        Color = SKColors.White
+        Color = SKColors.White,
     };
 
     private static readonly SKPaint FillDark = new()
     {
         IsAntialias = true,
         Style = SKPaintStyle.Fill,
-        Color = new SKColor(0, 0, 0, 180)
+        Color = new SKColor(0, 0, 0, 180),
     };
 
     public static DefaultDotAppearance Default { get; } = new();
@@ -75,7 +76,8 @@ public record DefaultDotAppearance : HudAppearance<HudPointer>
     public override void Draw(SKCanvas canvas, HudPointer pointer)
     {
         byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         float r = pointer.IsDown ? 2f : 3f;
         FillDark.Color = new SKColor(0, 0, 0, (byte)(180 * alpha / 255));
@@ -95,7 +97,7 @@ public record DefaultRingAppearance : HudAppearance<HudPointer>
         IsAntialias = true,
         Style = SKPaintStyle.Stroke,
         StrokeWidth = 2.5f,
-        Color = new SKColor(0, 0, 0, 180)
+        Color = new SKColor(0, 0, 0, 180),
     };
 
     private static readonly SKPaint StrokeLight = new()
@@ -103,7 +105,7 @@ public record DefaultRingAppearance : HudAppearance<HudPointer>
         IsAntialias = true,
         Style = SKPaintStyle.Stroke,
         StrokeWidth = 1.5f,
-        Color = SKColors.White
+        Color = SKColors.White,
     };
 
     public static DefaultRingAppearance Default { get; } = new();
@@ -112,7 +114,8 @@ public record DefaultRingAppearance : HudAppearance<HudPointer>
     public override void Draw(SKCanvas canvas, HudPointer pointer)
     {
         byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         float r = pointer.IsDown ? 4f : 6f;
         StrokeDark.Color = new SKColor(0, 0, 0, (byte)(180 * alpha / 255));

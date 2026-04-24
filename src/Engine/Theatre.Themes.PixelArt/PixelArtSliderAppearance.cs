@@ -9,8 +9,16 @@ namespace SkiaSharp.Theatre.Themes.PixelArt;
 /// </summary>
 public record PixelArtSliderAppearance : HudAppearance<HudSlider>
 {
-    private static readonly SKPaint FillPaint = new() { IsAntialias = false, Style = SKPaintStyle.Fill };
-    private static readonly SKPaint StrokePaint = new() { IsAntialias = false, Style = SKPaintStyle.Stroke };
+    private static readonly SKPaint FillPaint = new()
+    {
+        IsAntialias = false,
+        Style = SKPaintStyle.Fill,
+    };
+    private static readonly SKPaint StrokePaint = new()
+    {
+        IsAntialias = false,
+        Style = SKPaintStyle.Stroke,
+    };
 
     public SKColor TrackColor { get; init; } = new(0x2A, 0x2A, 0x1E);
     public SKColor FillColor { get; init; } = new(0x6B, 0x8E, 0x3A);
@@ -26,7 +34,8 @@ public record PixelArtSliderAppearance : HudAppearance<HudSlider>
     public override void Draw(SKCanvas canvas, HudSlider slider)
     {
         byte alpha = (byte)(255 * Math.Clamp(slider.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         var rect = slider.LocalRect;
         float value = Math.Clamp(slider.Value, 0f, 1f);

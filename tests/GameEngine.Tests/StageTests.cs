@@ -29,28 +29,45 @@ file sealed class ScreenTracker
 file sealed class ScreenA(ScreenTracker t) : Scene
 {
     protected override void OnUpdate(float dt) => t.AUpdateCalled = true;
+
     protected override void OnDraw(SKCanvas c) { }
+
     public override void OnActivating() => t.AActivating = true;
+
     public override void OnActivated() => t.AActivated = true;
+
     public override void OnDeactivating() => t.ADeactivating = true;
+
     public override void OnDeactivated() => t.ADeactivated = true;
-    public override void OnPaused() { t.APaused = true; t.AIsPausedWhenPaused = IsPaused; }
+
+    public override void OnPaused()
+    {
+        t.APaused = true;
+        t.AIsPausedWhenPaused = IsPaused;
+    }
+
     public override void OnResumed() => t.AResumed = true;
 }
 
 file sealed class ScreenB(ScreenTracker t) : Scene
 {
     protected override void OnUpdate(float dt) { }
+
     protected override void OnDraw(SKCanvas c) { }
+
     public override void OnActivating() => t.BActivating = true;
+
     public override void OnActivated() => t.BActivated = true;
+
     public override void OnDeactivating() => t.BDeactivating = true;
+
     public override void OnDeactivated() => t.BDeactivated = true;
 }
 
 file sealed class OverlayScreen : Scene
 {
     protected override void OnUpdate(float dt) { }
+
     protected override void OnDraw(SKCanvas c) { }
 }
 
@@ -65,10 +82,7 @@ file static class TestGameFactory
 
         var builder = StageBuilder.Create();
         builder.Services.AddSingleton(tracker);
-        builder.Scenes
-               .Add<ScreenA>()
-               .Add<ScreenB>()
-               .Add<OverlayScreen>();
+        builder.Scenes.Add<ScreenA>().Add<ScreenB>().Add<OverlayScreen>();
         builder.SetOpeningScene<ScreenA>();
 
         return (builder.Open(), tracker);
@@ -154,7 +168,9 @@ public class StageTests
     public void TransitionTo_WithTransition_OldScreenNotDeactivatedYet()
     {
         var (stage, tracker) = TestGameFactory.Create();
-        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
+        stage
+            .Services.GetRequiredService<IDirector>()
+            .TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
         Assert.False(tracker.ADeactivated);
     }
 
@@ -162,7 +178,9 @@ public class StageTests
     public void TransitionTo_WithTransition_CompletesAfterDuration()
     {
         var (stage, tracker) = TestGameFactory.Create();
-        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
+        stage
+            .Services.GetRequiredService<IDirector>()
+            .TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
         stage.Update(0.5f);
         Assert.True(tracker.ADeactivated);
     }
@@ -171,7 +189,9 @@ public class StageTests
     public void TransitionTo_WithTransition_DrawDoesNotThrow()
     {
         var (stage, _) = TestGameFactory.Create();
-        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
+        stage
+            .Services.GetRequiredService<IDirector>()
+            .TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
         using var bmp = new SKBitmap(800, 600);
         using var canvas = new SKCanvas(bmp);
         stage.Update(0.25f);
@@ -270,7 +290,9 @@ public class StageTests
     public void TransitionTo_WithTransition_OnActivatingCalledImmediately()
     {
         var (stage, tracker) = TestGameFactory.Create();
-        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
+        stage
+            .Services.GetRequiredService<IDirector>()
+            .TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
         // OnActivating is called at transition START — before any Update
         Assert.True(tracker.BActivating);
         Assert.False(tracker.BActivated);
@@ -280,7 +302,9 @@ public class StageTests
     public void TransitionTo_WithTransition_OnDeactivatingCalledImmediately()
     {
         var (stage, tracker) = TestGameFactory.Create();
-        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
+        stage
+            .Services.GetRequiredService<IDirector>()
+            .TransitionTo<ScreenB>(new DissolveCurtain { Duration = 1f });
         // OnDeactivating is called at transition START — OnDeactivated is not called yet
         Assert.True(tracker.ADeactivating);
         Assert.False(tracker.ADeactivated);
@@ -290,17 +314,21 @@ public class StageTests
     public void TransitionTo_WithTransition_OnActivatedCalledAfterCompletion()
     {
         var (stage, tracker) = TestGameFactory.Create();
-        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
-        Assert.False(tracker.BActivated);  // not yet
-        stage.Update(0.5f);                  // completes the transition
-        Assert.True(tracker.BActivated);   // now called
+        stage
+            .Services.GetRequiredService<IDirector>()
+            .TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
+        Assert.False(tracker.BActivated); // not yet
+        stage.Update(0.5f); // completes the transition
+        Assert.True(tracker.BActivated); // now called
     }
 
     [Fact]
     public void TransitionTo_WithTransition_OnDeactivatedCalledAfterCompletion()
     {
         var (stage, tracker) = TestGameFactory.Create();
-        stage.Services.GetRequiredService<IDirector>().TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
+        stage
+            .Services.GetRequiredService<IDirector>()
+            .TransitionTo<ScreenB>(new DissolveCurtain { Duration = 0.5f });
         Assert.False(tracker.ADeactivated);
         stage.Update(0.5f);
         Assert.True(tracker.ADeactivated);
@@ -374,10 +402,15 @@ file sealed class InputTracker
 file sealed class InputCapturingScreen(InputTracker tracker) : Scene
 {
     protected override void OnDraw(SKCanvas c) { }
+
     public override void OnPointerMove(float x, float y) => tracker.LastPointerMove = (x, y);
+
     public override void OnPointerDown(float x, float y) => tracker.LastPointerDown = (x, y);
+
     public override void OnPointerUp(float x, float y) => tracker.LastPointerUp = (x, y);
+
     public override void OnKeyDown(string key) => tracker.LastKeyDown = key;
+
     public override void OnKeyUp(string key) => tracker.LastKeyUp = key;
 }
 
@@ -393,9 +426,7 @@ file static class InputTestFactory
         var tracker = new InputTracker();
         var builder = StageBuilder.Create();
         builder.Services.AddSingleton(tracker);
-        builder.Scenes
-               .Add<InputCapturingScreen>()
-               .Add<InputDummyScreen>();
+        builder.Scenes.Add<InputCapturingScreen>().Add<InputDummyScreen>();
         builder.SetOpeningScene<InputCapturingScreen>();
         return (builder.Open(), tracker);
     }

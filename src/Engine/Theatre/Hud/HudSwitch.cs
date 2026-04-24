@@ -22,7 +22,8 @@ public class HudSwitch : HudControl
     /// </summary>
     /// <param name="width">Switch width in game-space units.</param>
     /// <param name="height">Switch height in game-space units.</param>
-    public HudSwitch(float width, float height) : base(width, height) { }
+    public HudSwitch(float width, float height)
+        : base(width, height) { }
 
     /// <summary>Whether the switch is currently on.</summary>
     public bool IsOn { get; set; }

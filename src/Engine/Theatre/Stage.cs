@@ -33,7 +33,12 @@ public sealed class Stage
     private readonly IDirector _director;
     private readonly IRenderer _renderer;
 
-    internal Stage(IServiceProvider services, IOptions<StageOptions> options, IDirector director, IRenderer renderer)
+    internal Stage(
+        IServiceProvider services,
+        IOptions<StageOptions> options,
+        IDirector director,
+        IRenderer renderer
+    )
     {
         Services = services;
         StageSize = options.Value.Dimensions;
@@ -63,8 +68,7 @@ public sealed class Stage
     public HudTheme? HudTheme { get; set; }
 
     /// <summary>Advances the game by <paramref name="deltaTime"/> seconds.</summary>
-    public void Update(float deltaTime) =>
-        _renderer.Update(deltaTime);
+    public void Update(float deltaTime) => _renderer.Update(deltaTime);
 
     /// <summary>Draws the current frame to <paramref name="canvas"/>.</summary>
     /// <remarks>
@@ -81,7 +85,8 @@ public sealed class Stage
         float offsetX = (width - gw * scale) / 2f;
         float offsetY = (height - gh * scale) / 2f;
 
-        var viewport = SKMatrix44.CreateTranslation(offsetX, offsetY, 0f)
+        var viewport = SKMatrix44
+            .CreateTranslation(offsetX, offsetY, 0f)
             .PostConcat(SKMatrix44.CreateScale(scale, scale, 1f));
 
         canvas.Save();
@@ -138,11 +143,8 @@ public sealed class Stage
     }
 
     /// <summary>Called when a key is pressed while the game canvas has focus.</summary>
-    public void OnKeyDown(string key) =>
-        _director.ActiveInputScene.OnKeyDown(key);
+    public void OnKeyDown(string key) => _director.ActiveInputScene.OnKeyDown(key);
 
     /// <summary>Called when a key is released while the game canvas has focus.</summary>
-    public void OnKeyUp(string key) =>
-        _director.ActiveInputScene.OnKeyUp(key);
+    public void OnKeyUp(string key) => _director.ActiveInputScene.OnKeyUp(key);
 }
-

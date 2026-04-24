@@ -18,8 +18,12 @@ public interface ICurtain
     /// <param name="drawIncoming">Callback that draws the incoming scene onto the supplied canvas.</param>
     /// <param name="width">Stage-space width in game units.</param>
     /// <param name="height">Stage-space height in game units.</param>
-    void Draw(SKCanvas canvas, float progress,
-              Action<SKCanvas> drawOutgoing,
-              Action<SKCanvas> drawIncoming,
-              int width, int height);
+    void Draw(
+        SKCanvas canvas,
+        float progress,
+        Action<SKCanvas> drawOutgoing,
+        Action<SKCanvas> drawIncoming,
+        int width,
+        int height
+    );
 }

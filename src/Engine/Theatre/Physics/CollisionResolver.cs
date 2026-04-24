@@ -13,9 +13,9 @@ public static class CollisionResolver
     /// </summary>
     public static bool Overlaps(Actor a, Actor b)
     {
-        if (a.Collider is null || b.Collider is null) return false;
-        return TryGetHit(a.WorldX, a.WorldY, a.Collider,
-                         b.WorldX, b.WorldY, b.Collider, out _);
+        if (a.Collider is null || b.Collider is null)
+            return false;
+        return TryGetHit(a.WorldX, a.WorldY, a.Collider, b.WorldX, b.WorldY, b.Collider, out _);
     }
 
     /// <summary>
@@ -30,8 +30,7 @@ public static class CollisionResolver
             hit = default;
             return false;
         }
-        return TryGetHit(a.WorldX, a.WorldY, a.Collider,
-                         b.WorldX, b.WorldY, b.Collider, out hit);
+        return TryGetHit(a.WorldX, a.WorldY, a.Collider, b.WorldX, b.WorldY, b.Collider, out hit);
     }
 
     // ── Position-based API ────────────────────────────────────────────
@@ -39,9 +38,15 @@ public static class CollisionResolver
     /// <summary>
     /// Tries to compute collision information for two colliders at explicit positions.
     /// </summary>
-    public static bool TryGetHit(float ax, float ay, Collider2D colliderA,
-                                 float bx, float by, Collider2D colliderB,
-                                 out CollisionHit hit)
+    public static bool TryGetHit(
+        float ax,
+        float ay,
+        Collider2D colliderA,
+        float bx,
+        float by,
+        Collider2D colliderB,
+        out CollisionHit hit
+    )
     {
         switch (colliderA)
         {
@@ -54,7 +59,11 @@ public static class CollisionResolver
             case RectCollider rectA when colliderB is CircleCollider circleB:
                 if (TryGetCircleRectHit(bx, by, circleB, ax, ay, rectA, out var reverseHit))
                 {
-                    hit = new CollisionHit(-reverseHit.NormalX, -reverseHit.NormalY, reverseHit.Penetration);
+                    hit = new CollisionHit(
+                        -reverseHit.NormalX,
+                        -reverseHit.NormalY,
+                        reverseHit.Penetration
+                    );
                     return true;
                 }
                 hit = default;
@@ -64,13 +73,21 @@ public static class CollisionResolver
                 return TryGetRectRectHit(ax, ay, rectA, bx, by, rectB, out hit);
 
             default:
-                throw new NotSupportedException($"Unsupported collider pair: {colliderA.GetType().Name} and {colliderB.GetType().Name}.");
+                throw new NotSupportedException(
+                    $"Unsupported collider pair: {colliderA.GetType().Name} and {colliderB.GetType().Name}."
+                );
         }
     }
 
-    private static bool TryGetCircleCircleHit(float ax, float ay, CircleCollider circleA,
-                                               float bx, float by, CircleCollider circleB,
-                                               out CollisionHit hit)
+    private static bool TryGetCircleCircleHit(
+        float ax,
+        float ay,
+        CircleCollider circleA,
+        float bx,
+        float by,
+        CircleCollider circleB,
+        out CollisionHit hit
+    )
     {
         var (cax, cay) = circleA.WorldCenter(ax, ay);
         var (cbx, cby) = circleB.WorldCenter(bx, by);
@@ -97,9 +114,15 @@ public static class CollisionResolver
         return true;
     }
 
-    private static bool TryGetRectRectHit(float ax, float ay, RectCollider rectA,
-                                           float bx, float by, RectCollider rectB,
-                                           out CollisionHit hit)
+    private static bool TryGetRectRectHit(
+        float ax,
+        float ay,
+        RectCollider rectA,
+        float bx,
+        float by,
+        RectCollider rectB,
+        out CollisionHit hit
+    )
     {
         var aBounds = rectA.WorldRect(ax, ay);
         var bBounds = rectB.WorldRect(bx, by);
@@ -110,8 +133,10 @@ public static class CollisionResolver
             return false;
         }
 
-        float overlapX = MathF.Min(aBounds.Right, bBounds.Right) - MathF.Max(aBounds.Left, bBounds.Left);
-        float overlapY = MathF.Min(aBounds.Bottom, bBounds.Bottom) - MathF.Max(aBounds.Top, bBounds.Top);
+        float overlapX =
+            MathF.Min(aBounds.Right, bBounds.Right) - MathF.Max(aBounds.Left, bBounds.Left);
+        float overlapY =
+            MathF.Min(aBounds.Bottom, bBounds.Bottom) - MathF.Max(aBounds.Top, bBounds.Top);
         var (cax, cay) = rectA.WorldCenter(ax, ay);
         var (cbx, cby) = rectB.WorldCenter(bx, by);
 
@@ -125,9 +150,15 @@ public static class CollisionResolver
         return true;
     }
 
-    private static bool TryGetCircleRectHit(float circleX, float circleY, CircleCollider circle,
-                                             float rectX, float rectY, RectCollider rect,
-                                             out CollisionHit hit)
+    private static bool TryGetCircleRectHit(
+        float circleX,
+        float circleY,
+        CircleCollider circle,
+        float rectX,
+        float rectY,
+        RectCollider rect,
+        out CollisionHit hit
+    )
     {
         var (cx, cy) = circle.WorldCenter(circleX, circleY);
         var bounds = rect.WorldRect(rectX, rectY);

@@ -12,10 +12,7 @@ public static class SinkSubGame
         builder.SetStageSize(SinkSubConstants.GameWidth, SinkSubConstants.GameHeight);
         builder.Services.AddSingleton<SinkSubGameState>();
 
-        builder.Scenes
-               .Add<StartScreen>()
-               .Add<PlayScreen>()
-               .Add<GameOverScreen>();
+        builder.Scenes.Add<StartScreen>().Add<PlayScreen>().Add<GameOverScreen>();
 
         builder.SetOpeningScene<StartScreen>();
 

@@ -11,9 +11,30 @@ internal sealed class GameOverScreen : Scene
 
     private static readonly SKPaint _overlayPaint = new() { IsAntialias = true };
 
-    private readonly HudLabel _winnerText = new() { FontSize = 58f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 260f };
-    private readonly HudLabel _scoreText = new() { FontSize = 42f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 325f };
-    private readonly HudLabel _restartText = new() { Text = "Click, tap, or press Space to play again", FontSize = 24f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 395f };
+    private readonly HudLabel _winnerText = new()
+    {
+        FontSize = 58f,
+        Color = AccentColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 260f,
+    };
+    private readonly HudLabel _scoreText = new()
+    {
+        FontSize = 42f,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 325f,
+    };
+    private readonly HudLabel _restartText = new()
+    {
+        Text = "Click, tap, or press Space to play again",
+        FontSize = 24f,
+        Color = DimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 395f,
+    };
 
     public GameOverScreen(PongGameState state, IDirector director)
     {

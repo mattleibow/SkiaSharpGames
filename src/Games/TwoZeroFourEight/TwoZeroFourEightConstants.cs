@@ -12,7 +12,8 @@ internal static class TwoZeroFourEightConstants
     public const float TileGap = 14f;
     public const float BoardPadding = 16f;
 
-    public static float BoardPixelSize => GridSize * TileSize + (GridSize - 1) * TileGap + BoardPadding * 2f;
+    public static float BoardPixelSize =>
+        GridSize * TileSize + (GridSize - 1) * TileGap + BoardPadding * 2f;
     public static float BoardX => (GameWidth - BoardPixelSize) / 2f;
     public static float BoardY => 96f;
 

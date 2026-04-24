@@ -10,8 +10,8 @@ internal static class SnakeConstants
     public const int GridRows = 25;
 
     // ── Stage dimensions ───────────────────────────────────────────────────
-    public const int GameWidth = CellSize * GridCols;   // 600
-    public const int GameHeight = CellSize * GridRows;  // 600
+    public const int GameWidth = CellSize * GridCols; // 600
+    public const int GameHeight = CellSize * GridRows; // 600
 
     // ── Timing ────────────────────────────────────────────────────────────
     public const float InitialStepInterval = 0.15f;

@@ -9,8 +9,18 @@ internal sealed class Arrow : Actor
     public bool IsEnemy;
     public int EnemyTargetWall;
 
-    private static readonly SKPaint FriendlyPaint = new() { Color = ColArrow, StrokeWidth = 2f, IsAntialias = true };
-    private static readonly SKPaint EnemyPaint = new() { Color = ColFire, StrokeWidth = 2.5f, IsAntialias = true };
+    private static readonly SKPaint FriendlyPaint = new()
+    {
+        Color = ColArrow,
+        StrokeWidth = 2f,
+        IsAntialias = true,
+    };
+    private static readonly SKPaint EnemyPaint = new()
+    {
+        Color = ColFire,
+        StrokeWidth = 2.5f,
+        IsAntialias = true,
+    };
 
     public Arrow()
     {
@@ -18,8 +28,16 @@ internal sealed class Arrow : Actor
         Rigidbody = new Rigidbody2D();
     }
 
-    public new CircleCollider Collider { get => (CircleCollider)base.Collider!; init => base.Collider = value; }
-    public new Rigidbody2D Rigidbody { get => (Rigidbody2D)base.Rigidbody!; init => base.Rigidbody = value; }
+    public new CircleCollider Collider
+    {
+        get => (CircleCollider)base.Collider!;
+        init => base.Collider = value;
+    }
+    public new Rigidbody2D Rigidbody
+    {
+        get => (Rigidbody2D)base.Rigidbody!;
+        init => base.Rigidbody = value;
+    }
 
     protected override void OnDraw(SKCanvas canvas)
     {

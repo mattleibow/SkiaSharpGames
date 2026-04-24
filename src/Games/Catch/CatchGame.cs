@@ -12,10 +12,7 @@ public static class CatchGame
         builder.SetStageSize(CatchConstants.GameWidth, CatchConstants.GameHeight);
         builder.Services.AddSingleton<CatchGameState>();
 
-        builder.Scenes
-               .Add<StartScreen>()
-               .Add<PlayScreen>()
-               .Add<GameOverScreen>();
+        builder.Scenes.Add<StartScreen>().Add<PlayScreen>().Add<GameOverScreen>();
 
         builder.SetOpeningScene<StartScreen>();
 

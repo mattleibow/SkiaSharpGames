@@ -12,10 +12,41 @@ internal sealed class VictoryScreen(CastleAttackGameState state, IDirector direc
 {
     private static readonly SKPaint OverlayPaint = new();
 
-    private readonly HudLabel _victoryText = new() { Text = "VICTORY!", FontSize = 72f, Color = ColGold, Align = TextAlign.Center, X = GameWidth / 2f, Y = 250f };
-    private readonly HudLabel _scoreText = new() { FontSize = 32f, Color = ColHud, Align = TextAlign.Center, X = GameWidth / 2f, Y = 315f };
-    private readonly HudLabel _keepText = new() { Text = "The keep is complete!", FontSize = 22f, Color = ColAccent, Align = TextAlign.Center, X = GameWidth / 2f, Y = 360f };
-    private readonly HudLabel _playAgainText = new() { Text = "Click or Tap to Play Again", FontSize = 22f, Color = ColDim, Align = TextAlign.Center, X = GameWidth / 2f, Y = 395f };
+    private readonly HudLabel _victoryText = new()
+    {
+        Text = "VICTORY!",
+        FontSize = 72f,
+        Color = ColGold,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 250f,
+    };
+    private readonly HudLabel _scoreText = new()
+    {
+        FontSize = 32f,
+        Color = ColHud,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 315f,
+    };
+    private readonly HudLabel _keepText = new()
+    {
+        Text = "The keep is complete!",
+        FontSize = 22f,
+        Color = ColAccent,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 360f,
+    };
+    private readonly HudLabel _playAgainText = new()
+    {
+        Text = "Click or Tap to Play Again",
+        FontSize = 22f,
+        Color = ColDim,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 395f,
+    };
 
     public override void OnActivating()
     {
@@ -35,8 +66,8 @@ internal sealed class VictoryScreen(CastleAttackGameState state, IDirector direc
         canvas.DrawRect(SKRect.Create(0, 0, GameWidth, GameHeight), OverlayPaint);
     }
 
-    public override void OnPointerDown(float x, float y)
-        => director.TransitionTo<StartScreen>(new DissolveCurtain());
+    public override void OnPointerDown(float x, float y) =>
+        director.TransitionTo<StartScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {

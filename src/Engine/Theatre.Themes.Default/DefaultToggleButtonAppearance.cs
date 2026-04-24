@@ -28,20 +28,26 @@ public record DefaultToggleButtonAppearance : HudAppearance<HudButton>
         var btnAppearance = button.IsOn
             ? (_cachedOnAppearance ??= MakeAppearance(OnColor))
             : (_cachedOffAppearance ??= MakeAppearance(OffColor));
-        btnAppearance.DrawDirect(canvas, rect, button.IsOn ? "ON" : "OFF",
-            pressed: false, enabled: true,
+        btnAppearance.DrawDirect(
+            canvas,
+            rect,
+            button.IsOn ? "ON" : "OFF",
+            pressed: false,
+            enabled: true,
             fontSize: MathF.Min(18f, rect.Height * 0.5f),
-            alpha: button.Alpha);
+            alpha: button.Alpha
+        );
     }
 
-    private DefaultButtonAppearance MakeAppearance(SKColor fill) => new()
-    {
-        FillColor = fill,
-        PressedFillColor = fill,
-        TextColor = TextColor,
-        BorderColor = BorderColor,
-        CornerRadius = CornerRadius,
-        BorderWidth = BorderWidth,
-        BevelSize = 0f,
-    };
+    private DefaultButtonAppearance MakeAppearance(SKColor fill) =>
+        new()
+        {
+            FillColor = fill,
+            PressedFillColor = fill,
+            TextColor = TextColor,
+            BorderColor = BorderColor,
+            CornerRadius = CornerRadius,
+            BorderWidth = BorderWidth,
+            BevelSize = 0f,
+        };
 }

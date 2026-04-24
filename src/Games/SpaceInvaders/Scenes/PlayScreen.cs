@@ -7,11 +7,38 @@ namespace SkiaSharpGames.SpaceInvaders;
 
 internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector director) : Scene
 {
-    private static readonly SKPaint _starPaint = new() { Color = SKColors.White.WithAlpha((byte)(255 * 0.5f)), IsAntialias = true };
+    private static readonly SKPaint _starPaint = new()
+    {
+        Color = SKColors.White.WithAlpha((byte)(255 * 0.5f)),
+        IsAntialias = true,
+    };
 
-    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 24f, Color = SKColors.White, X = 20f, Y = 34f };
-    private readonly HudLabel _livesText = new() { Name = "lives", FontSize = 24f, Color = AccentColor, Align = TextAlign.Right, X = GameWidth - 20f, Y = 34f };
-    private readonly HudLabel _controlsText = new() { Text = "LEFT RIGHT move    SPACE / ENTER fire", FontSize = 18f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = GameHeight - 12f };
+    private readonly HudLabel _scoreText = new()
+    {
+        Name = "score",
+        FontSize = 24f,
+        Color = SKColors.White,
+        X = 20f,
+        Y = 34f,
+    };
+    private readonly HudLabel _livesText = new()
+    {
+        Name = "lives",
+        FontSize = 24f,
+        Color = AccentColor,
+        Align = TextAlign.Right,
+        X = GameWidth - 20f,
+        Y = 34f,
+    };
+    private readonly HudLabel _controlsText = new()
+    {
+        Text = "LEFT RIGHT move    SPACE / ENTER fire",
+        FontSize = 18f,
+        Color = HudDimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = GameHeight - 12f,
+    };
 
     private readonly Actor _formation = new() { Name = "formation" };
     private readonly Actor _shields = new() { Name = "shields" };
@@ -22,7 +49,9 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
 
     // ── Touch control pad ────────────────────────────────────────────────
     private bool _touchActive;
-    private bool _touchLeft, _touchRight, _touchFire;
+    private bool _touchLeft,
+        _touchRight,
+        _touchFire;
 
     private const float PadY = GameHeight - 80f;
     private const float PadBtnW = 90f;
@@ -31,8 +60,18 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
     private static readonly float PadTotalW = PadBtnW * 3 + PadGap * 2;
     private static readonly float PadLeft = (GameWidth - PadTotalW) / 2f;
     private static readonly SKRect LeftBtnRect = SKRect.Create(PadLeft, PadY, PadBtnW, PadBtnH);
-    private static readonly SKRect FireBtnRect = SKRect.Create(PadLeft + PadBtnW + PadGap, PadY, PadBtnW, PadBtnH);
-    private static readonly SKRect RightBtnRect = SKRect.Create(PadLeft + 2 * (PadBtnW + PadGap), PadY, PadBtnW, PadBtnH);
+    private static readonly SKRect FireBtnRect = SKRect.Create(
+        PadLeft + PadBtnW + PadGap,
+        PadY,
+        PadBtnW,
+        PadBtnH
+    );
+    private static readonly SKRect RightBtnRect = SKRect.Create(
+        PadLeft + 2 * (PadBtnW + PadGap),
+        PadY,
+        PadBtnW,
+        PadBtnH
+    );
 
     private bool _leftHeld;
     private bool _rightHeld;
@@ -49,7 +88,9 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
         {
             var random = new Random(406);
             for (int i = 0; i < 96; i++)
-                _stars.Add(new SKPoint(random.NextSingle() * GameWidth, random.NextSingle() * GameHeight));
+                _stars.Add(
+                    new SKPoint(random.NextSingle() * GameWidth, random.NextSingle() * GameHeight)
+                );
         }
 
         if (ChildCount == 0)
@@ -90,7 +131,12 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
     }
 
     public override void OnPointerDown(float x, float y) => HandleTouch(x, y, true);
-    public override void OnPointerMove(float x, float y) { if (_touchActive) HandleTouch(x, y, true); }
+
+    public override void OnPointerMove(float x, float y)
+    {
+        if (_touchActive)
+            HandleTouch(x, y, true);
+    }
 
     public override void OnPointerUp(float x, float y)
     {
@@ -189,20 +235,27 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
         var invaders = _formation.Children;
         int alive = 0;
         for (int i = 0; i < invaders.Count; i++)
-            if (invaders[i].Active) alive++;
+            if (invaders[i].Active)
+                alive++;
 
         if (alive <= 0)
             return;
 
         float progress = 1f - alive / (float)(InvaderRows * InvaderCols);
-        _invaderMoveTimer = InvaderMoveStartInterval + (InvaderMoveMinInterval - InvaderMoveStartInterval) * progress;
+        _invaderMoveTimer =
+            InvaderMoveStartInterval
+            + (InvaderMoveMinInterval - InvaderMoveStartInterval) * progress;
 
-        float minX = float.MaxValue, maxX = float.MinValue;
+        float minX = float.MaxValue,
+            maxX = float.MinValue;
         for (int i = 0; i < invaders.Count; i++)
         {
-            if (!invaders[i].Active) continue;
-            if (((Actor)invaders[i]).X < minX) minX = ((Actor)invaders[i]).X;
-            if (((Actor)invaders[i]).X > maxX) maxX = ((Actor)invaders[i]).X;
+            if (!invaders[i].Active)
+                continue;
+            if (((Actor)invaders[i]).X < minX)
+                minX = ((Actor)invaders[i]).X;
+            if (((Actor)invaders[i]).X > maxX)
+                maxX = ((Actor)invaders[i]).X;
         }
 
         float nextLeft = minX - InvaderWidth / 2f + InvaderStepX * _invaderDirection;
@@ -212,7 +265,8 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
 
         for (int i = 0; i < invaders.Count; i++)
         {
-            if (!invaders[i].Active) continue;
+            if (!invaders[i].Active)
+                continue;
 
             if (hitSide)
                 ((Actor)invaders[i]).Y += InvaderStepDown;
@@ -240,10 +294,12 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
         var invaders = _formation.Children;
         int alive = 0;
         for (int i = 0; i < invaders.Count; i++)
-            if (invaders[i].Active) alive++;
+            if (invaders[i].Active)
+                alive++;
 
         float threat = alive / (float)(InvaderRows * InvaderCols);
-        float fireWindow = EnemyFireMinInterval + (EnemyFireMaxInterval - EnemyFireMinInterval) * threat;
+        float fireWindow =
+            EnemyFireMinInterval + (EnemyFireMaxInterval - EnemyFireMinInterval) * threat;
         _enemyFireTimer = Random.Shared.NextSingle() * fireWindow + EnemyFireMinInterval;
 
         var shooter = SelectEnemyShooter();
@@ -292,7 +348,8 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
         for (int i = playerBulletList.Count - 1; i >= 0; i--)
         {
             var bullet = (Bullet)playerBulletList[i];
-            if (!bullet.Active) continue;
+            if (!bullet.Active)
+                continue;
 
             // vs invaders
             var hitInvader = _formation.FindChildCollision(bullet, out _);
@@ -318,7 +375,8 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
             for (int j = enemyBulletList.Count - 1; j >= 0; j--)
             {
                 var enemyBullet = enemyBulletList[j];
-                if (!enemyBullet.Active) continue;
+                if (!enemyBullet.Active)
+                    continue;
                 if (bullet.Overlaps((Actor)enemyBullet))
                 {
                     enemyBullet.Active = false;
@@ -327,7 +385,8 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
                 }
             }
 
-            if (!bullet.Active) continue;
+            if (!bullet.Active)
+                continue;
 
             if (bullet.Y < -20f)
                 bullet.Active = false;
@@ -338,7 +397,8 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
         for (int i = enemyBullets.Count - 1; i >= 0; i--)
         {
             var bullet = (Bullet)enemyBullets[i];
-            if (!bullet.Active) continue;
+            if (!bullet.Active)
+                continue;
 
             // vs shields
             var hitShield = _shields.FindChildCollision(bullet, out _);
@@ -381,7 +441,8 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
         bool anyAlive = false;
         for (int i = 0; i < invaders.Count; i++)
         {
-            if (!invaders[i].Active) continue;
+            if (!invaders[i].Active)
+                continue;
             anyAlive = true;
             if (((Actor)invaders[i]).Y + InvaderHeight / 2f >= PlayerY - 24f)
             {
@@ -450,8 +511,14 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
 
                     var block = new ShieldBlock
                     {
-                        X = topLeftX + col * (ShieldBlockSize + ShieldBlockGap) + ShieldBlockSize / 2f,
-                        Y = ShieldY + row * (ShieldBlockSize + ShieldBlockGap) + ShieldBlockSize / 2f
+                        X =
+                            topLeftX
+                            + col * (ShieldBlockSize + ShieldBlockGap)
+                            + ShieldBlockSize / 2f,
+                        Y =
+                            ShieldY
+                            + row * (ShieldBlockSize + ShieldBlockGap)
+                            + ShieldBlockSize / 2f,
                     };
                     _shields.Children.Add(block);
                 }
@@ -474,7 +541,10 @@ internal sealed class PlayScreen(SpaceInvadersGameState state, IDirector directo
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        var appearance = ((ResolvedHudTheme?.Button ?? DefaultButtonAppearance.Default) as DefaultButtonAppearance ?? DefaultButtonAppearance.Default) with
+        var appearance = (
+            (ResolvedHudTheme?.Button ?? DefaultButtonAppearance.Default) as DefaultButtonAppearance
+            ?? DefaultButtonAppearance.Default
+        ) with
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,

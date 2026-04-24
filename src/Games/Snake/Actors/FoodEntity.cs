@@ -19,7 +19,11 @@ internal sealed class FoodEntity : Actor
 
     public GridPoint Cell { get; private set; }
 
-    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
+    public new RectCollider Collider
+    {
+        get => (RectCollider)base.Collider!;
+        init => base.Collider = value;
+    }
 
     protected override void OnDraw(SKCanvas canvas)
     {
@@ -28,7 +32,15 @@ internal sealed class FoodEntity : Actor
 
         float size = CellSize - Inset * 2f;
         _paint.Color = FoodColor.WithAlpha((byte)(255 * Alpha));
-        canvas.DrawRoundRect(-size / 2f, -size / 2f, size, size, CornerRadius, CornerRadius, _paint);
+        canvas.DrawRoundRect(
+            -size / 2f,
+            -size / 2f,
+            size,
+            size,
+            CornerRadius,
+            CornerRadius,
+            _paint
+        );
     }
 
     /// <summary>Place the food on <paramref name="cell"/>.</summary>

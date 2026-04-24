@@ -17,10 +17,7 @@ internal sealed class Director : IDirector, IRenderer
     private readonly List<Scene> _sceneStack = [];
     private ActiveCurtain? _activeCurtain;
 
-    private sealed class ActiveCurtain(
-        Scene outgoing,
-        Scene incoming,
-        ICurtain curtain)
+    private sealed class ActiveCurtain(Scene outgoing, Scene incoming, ICurtain curtain)
     {
         public Scene Outgoing { get; } = outgoing;
         public Scene Incoming { get; } = incoming;
@@ -142,9 +139,9 @@ internal sealed class Director : IDirector, IRenderer
         get
         {
             EnsureInitialized();
-            return _activeCurtain is not null ? _activeCurtain.Incoming :
-                   _sceneStack.Count > 0 ? _sceneStack[^1] :
-                                         _current!;
+            return _activeCurtain is not null ? _activeCurtain.Incoming
+                : _sceneStack.Count > 0 ? _sceneStack[^1]
+                : _current!;
         }
     }
 
@@ -157,8 +154,7 @@ internal sealed class Director : IDirector, IRenderer
 
         if (_activeCurtain is not null)
         {
-            _activeCurtain.Progress +=
-                deltaTime / _activeCurtain.Curtain.Duration;
+            _activeCurtain.Progress += deltaTime / _activeCurtain.Curtain.Duration;
 
             if (_activeCurtain.Progress >= 1f)
             {
@@ -193,10 +189,13 @@ internal sealed class Director : IDirector, IRenderer
         {
             float progress = Math.Clamp(_activeCurtain.Progress, 0f, 1f);
             _activeCurtain.Curtain.Draw(
-                canvas, progress,
+                canvas,
+                progress,
                 c => _activeCurtain.Outgoing.Draw(c),
                 c => _activeCurtain.Incoming.Draw(c),
-                (int)(_stage!.StageSize.Width), (int)(_stage!.StageSize.Height));
+                (int)(_stage!.StageSize.Width),
+                (int)(_stage!.StageSize.Height)
+            );
         }
         else
         {

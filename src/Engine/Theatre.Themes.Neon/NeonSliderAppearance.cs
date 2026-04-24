@@ -8,11 +8,15 @@ namespace SkiaSharp.Theatre.Themes.Neon;
 /// </summary>
 public record NeonSliderAppearance : HudAppearance<HudSlider>
 {
-    private static readonly SKMaskFilter GlowFilter =
-        SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 3f);
+    private static readonly SKMaskFilter GlowFilter = SKMaskFilter.CreateBlur(
+        SKBlurStyle.Normal,
+        3f
+    );
 
-    private static readonly SKMaskFilter KnobGlowFilter =
-        SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 5f);
+    private static readonly SKMaskFilter KnobGlowFilter = SKMaskFilter.CreateBlur(
+        SKBlurStyle.Normal,
+        5f
+    );
 
     public SKColor TrackColor { get; init; } = new(0x0A, 0x0A, 0x14);
     public SKColor FillColor { get; init; } = new(0xFF, 0x00, 0xFF);
@@ -28,7 +32,8 @@ public record NeonSliderAppearance : HudAppearance<HudSlider>
     public override void Draw(SKCanvas canvas, HudSlider slider)
     {
         byte alpha = (byte)(255 * Math.Clamp(slider.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         var rect = slider.LocalRect;
         float value = Math.Clamp(slider.Value, 0f, 1f);
@@ -44,7 +49,7 @@ public record NeonSliderAppearance : HudAppearance<HudSlider>
             Style = SKPaintStyle.Stroke,
             StrokeCap = SKStrokeCap.Round,
             StrokeWidth = TrackHeight,
-            Color = TrackColor.WithAlpha(alpha)
+            Color = TrackColor.WithAlpha(alpha),
         };
         canvas.DrawLine(left, cy, right, cy, trackPaint);
 
@@ -56,7 +61,7 @@ public record NeonSliderAppearance : HudAppearance<HudSlider>
             StrokeCap = SKStrokeCap.Round,
             StrokeWidth = TrackHeight + 2f,
             Color = TrackBorderColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
-            MaskFilter = GlowFilter
+            MaskFilter = GlowFilter,
         };
         canvas.DrawLine(left, cy, right, cy, glowPaint);
 
@@ -81,7 +86,7 @@ public record NeonSliderAppearance : HudAppearance<HudSlider>
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
             Color = KnobColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
-            MaskFilter = KnobGlowFilter
+            MaskFilter = KnobGlowFilter,
         };
         canvas.DrawCircle(knobX, cy, KnobRadius + 3f, knobPaint);
 

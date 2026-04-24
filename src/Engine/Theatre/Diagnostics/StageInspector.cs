@@ -11,25 +11,25 @@ public class StageInspector : IStageInspector
         IsAntialias = true,
         Style = SKPaintStyle.Stroke,
         StrokeWidth = 2f,
-        Color = SKColors.Yellow
+        Color = SKColors.Yellow,
     };
 
     private static readonly SKPaint FillPaint = new()
     {
         IsAntialias = true,
         Style = SKPaintStyle.Fill,
-        Color = SKColors.Yellow.WithAlpha(40)
+        Color = SKColors.Yellow.WithAlpha(40),
     };
 
     private static readonly SKPaint LabelPaint = new()
     {
         IsAntialias = true,
-        Color = SKColors.Yellow
+        Color = SKColors.Yellow,
     };
 
     private static readonly SKFont LabelFont = new(SKTypeface.Default, 11f)
     {
-        Edging = SKFontEdging.Antialias
+        Edging = SKFontEdging.Antialias,
     };
 
     /// <inheritdoc/>
@@ -69,13 +69,18 @@ public class StageInspector : IStageInspector
         for (int i = 0; i < node.Children.Count; i++)
             children.Add(BuildNode(node.Children[i], ref count));
 
-        string displayName = node.Name
-            ?? (node is HudLabel label ? label.Text : null)
-            ?? node.GetType().Name;
+        string displayName =
+            node.Name ?? (node is HudLabel label ? label.Text : null) ?? node.GetType().Name;
 
-        float? x = null, y = null, worldX = null, worldY = null, alpha = null, rotation = null;
+        float? x = null,
+            y = null,
+            worldX = null,
+            worldY = null,
+            alpha = null,
+            rotation = null;
         bool? visible = null;
-        string? colliderInfo = null, velocityInfo = null;
+        string? colliderInfo = null,
+            velocityInfo = null;
 
         if (node is Actor actor)
         {
@@ -91,7 +96,7 @@ public class StageInspector : IStageInspector
             {
                 RectCollider rc => $"Rect {rc.Width:F0}×{rc.Height:F0}",
                 CircleCollider cc => $"Circle r={cc.Radius:F0}",
-                _ => null
+                _ => null,
             };
 
             if (actor.Rigidbody is { } rb && (rb.VelocityX != 0f || rb.VelocityY != 0f))
@@ -105,7 +110,8 @@ public class StageInspector : IStageInspector
                 extra["Label"] = btn.Label;
                 extra["IsPressed"] = btn.IsPressed.ToString();
                 extra["IsEnabled"] = btn.IsEnabled.ToString();
-                if (btn.IsToggle) extra["IsOn"] = btn.IsOn.ToString();
+                if (btn.IsToggle)
+                    extra["IsOn"] = btn.IsOn.ToString();
                 break;
             case HudLabel lbl:
                 extra["Text"] = lbl.Text;
@@ -128,13 +134,16 @@ public class StageInspector : IStageInspector
             TypeName: node.GetType().Name,
             Active: node.Active,
             Visible: visible,
-            X: x, Y: y,
-            WorldX: worldX, WorldY: worldY,
+            X: x,
+            Y: y,
+            WorldX: worldX,
+            WorldY: worldY,
             Alpha: alpha,
             Rotation: rotation,
             ColliderInfo: colliderInfo,
             VelocityInfo: velocityInfo,
             ExtraProperties: extra,
-            Children: children);
+            Children: children
+        );
     }
 }

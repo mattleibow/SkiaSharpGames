@@ -102,7 +102,7 @@ public class LoopedAnimationTests
         var la = new LoopedAnimation(period: 1f, duration: 2f);
         la.Start(); // fires immediately
         la.Update(0.01f); // become active
-        la.Update(1f);    // advance 1s through a 2s duration → Progress ≈ 0.5
+        la.Update(1f); // advance 1s through a 2s duration → Progress ≈ 0.5
         Assert.True(la.IsActive);
         Assert.True(la.Progress > 0.4f && la.Progress < 0.6f);
     }
@@ -111,9 +111,9 @@ public class LoopedAnimationTests
     public void Update_ActiveCompletes_ProgressReaches1_ThenWaits()
     {
         var la = new LoopedAnimation(period: 1f, duration: 1f);
-        la.Start();       // fires immediately
+        la.Start(); // fires immediately
         la.Update(0.01f); // become active
-        la.Update(1f);    // complete run
+        la.Update(1f); // complete run
         Assert.False(la.IsActive);
         Assert.Equal(1f, la.Progress);
     }
@@ -122,9 +122,9 @@ public class LoopedAnimationTests
     public void Update_AfterCompletion_WaitsForNextPeriod()
     {
         var la = new LoopedAnimation(period: 2f, duration: 0.5f);
-        la.Start();       // fires immediately
+        la.Start(); // fires immediately
         la.Update(0.01f); // become active
-        la.Update(0.5f);  // complete run → waiting again
+        la.Update(0.5f); // complete run → waiting again
 
         Assert.False(la.IsActive);
 
@@ -153,7 +153,7 @@ public class LoopedAnimationTests
 
         // Run 1
         la.Update(0.01f); // trigger → active
-        la.Update(0.1f);  // run completes
+        la.Update(0.1f); // run completes
         Assert.False(la.IsActive);
         Assert.True(la.Enabled, "still enabled after 1st run");
 
@@ -172,7 +172,7 @@ public class LoopedAnimationTests
         la.Start();
 
         la.Update(0.01f); // trigger → active
-        la.Update(0.1f);  // run completes → _completedRuns(1) >= RepeatCount(0) → Stop()
+        la.Update(0.1f); // run completes → _completedRuns(1) >= RepeatCount(0) → Stop()
         Assert.False(la.Enabled);
     }
 }

@@ -6,12 +6,48 @@ namespace SkiaSharpGames.Asteroids;
 
 internal sealed class GameOverScreen(AsteroidsGameState state, IDirector director) : Scene
 {
-    private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)), IsAntialias = true };
+    private static readonly SKPaint _overlayPaint = new()
+    {
+        Color = SKColors.Black.WithAlpha((byte)(255 * 0.8f)),
+        IsAntialias = true,
+    };
 
-    private readonly HudLabel _titleText = new() { Text = "GAME OVER", FontSize = 76f, Color = new SKColor(0xFF, 0x6B, 0x6B), Align = TextAlign.Center, X = GameWidth / 2f, Y = 235f };
-    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 32f, Color = SKColors.White, Align = TextAlign.Center, X = GameWidth / 2f, Y = 310f };
-    private readonly HudLabel _levelText = new() { Name = "level", FontSize = 24f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 355f };
-    private readonly HudLabel _restartText = new() { Text = "Click, tap, or press Space to play again", FontSize = 24f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 430f };
+    private readonly HudLabel _titleText = new()
+    {
+        Text = "GAME OVER",
+        FontSize = 76f,
+        Color = new SKColor(0xFF, 0x6B, 0x6B),
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 235f,
+    };
+    private readonly HudLabel _scoreText = new()
+    {
+        Name = "score",
+        FontSize = 32f,
+        Color = SKColors.White,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 310f,
+    };
+    private readonly HudLabel _levelText = new()
+    {
+        Name = "level",
+        FontSize = 24f,
+        Color = HudDimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 355f,
+    };
+    private readonly HudLabel _restartText = new()
+    {
+        Text = "Click, tap, or press Space to play again",
+        FontSize = 24f,
+        Color = HudDimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 430f,
+    };
 
     public override void OnActivating()
     {

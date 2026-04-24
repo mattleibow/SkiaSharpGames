@@ -8,7 +8,7 @@ internal enum AsteroidSize
 {
     Large,
     Medium,
-    Small
+    Small,
 }
 
 internal sealed class Asteroid : Actor
@@ -45,12 +45,13 @@ internal sealed class Asteroid : Actor
         RotationSpeed = (Random.Shared.NextSingle() - 0.5f) * 3f;
     }
 
-    public int ScoreValue => Size switch
-    {
-        AsteroidSize.Large => AsteroidLargeScore,
-        AsteroidSize.Medium => AsteroidMediumScore,
-        _ => AsteroidSmallScore,
-    };
+    public int ScoreValue =>
+        Size switch
+        {
+            AsteroidSize.Large => AsteroidLargeScore,
+            AsteroidSize.Medium => AsteroidMediumScore,
+            _ => AsteroidSmallScore,
+        };
 
     protected override void OnUpdate(float deltaTime)
     {
@@ -64,10 +65,14 @@ internal sealed class Asteroid : Actor
             _ => AsteroidSmallRadius,
         };
 
-        if (X < -radius) X = GameWidth + radius;
-        else if (X > GameWidth + radius) X = -radius;
-        if (Y < -radius) Y = GameHeight + radius;
-        else if (Y > GameHeight + radius) Y = -radius;
+        if (X < -radius)
+            X = GameWidth + radius;
+        else if (X > GameWidth + radius)
+            X = -radius;
+        if (Y < -radius)
+            Y = GameHeight + radius;
+        else if (Y > GameHeight + radius)
+            Y = -radius;
     }
 
     protected override void OnDraw(SKCanvas canvas)

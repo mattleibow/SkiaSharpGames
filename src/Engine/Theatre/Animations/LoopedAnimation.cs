@@ -88,7 +88,8 @@ public sealed class LoopedAnimation(float period, float duration)
     /// <summary>Advances the animation by <paramref name="deltaTime"/> seconds.</summary>
     public void Update(float deltaTime)
     {
-        if (!Enabled) return;
+        if (!Enabled)
+            return;
 
         _sinceLastRun += deltaTime;
 

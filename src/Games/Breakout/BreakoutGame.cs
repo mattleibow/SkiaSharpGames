@@ -9,14 +9,15 @@ public static class BreakoutGame
     {
         var builder = StageBuilder.Create();
 
-        builder.SetStageSize(BreakoutConstants.GameWidth, BreakoutConstants.GameHeight);
         builder.Services.AddSingleton<BreakoutGameState>();
 
-        builder.Scenes
-               .Add<StartScreen>()
-               .Add<PlayScreen>()
-               .Add<GameOverScreen>()
-               .Add<VictoryScreen>();
+        builder
+            .Scenes.Add<StartScreen>()
+            .Add<PlayScreen>()
+            .Add<GameOverScreen>()
+            .Add<VictoryScreen>();
+
+        builder.SetStageSize(BreakoutConstants.GameWidth, BreakoutConstants.GameHeight);
 
         builder.SetOpeningScene<StartScreen>();
 

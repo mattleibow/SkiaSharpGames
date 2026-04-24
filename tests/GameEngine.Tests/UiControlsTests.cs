@@ -16,8 +16,20 @@ public class HudControlsTests
         using var canvas = new SKCanvas(bitmap);
         var rect = SKRect.Create(20f, 20f, 140f, 60f);
 
-        DefaultButtonAppearance.Default.DrawDirect(canvas, rect, "PLAY", pressed: false, enabled: true);
-        (DefaultButtonAppearance.Default with { BevelSize = 0f }).DrawDirect(canvas, rect, "PLAY", pressed: true, enabled: false);
+        DefaultButtonAppearance.Default.DrawDirect(
+            canvas,
+            rect,
+            "PLAY",
+            pressed: false,
+            enabled: true
+        );
+        (DefaultButtonAppearance.Default with { BevelSize = 0f }).DrawDirect(
+            canvas,
+            rect,
+            "PLAY",
+            pressed: true,
+            enabled: false
+        );
     }
 
     [Fact]
@@ -26,7 +38,12 @@ public class HudControlsTests
         using var bitmap = new SKBitmap(120, 120);
         using var canvas = new SKCanvas(bitmap);
 
-        var cb = new HudCheckbox(36f, 36f) { X = 50f, Y = 50f, HudTheme = Theme };
+        var cb = new HudCheckbox(36f, 36f)
+        {
+            X = 50f,
+            Y = 50f,
+            HudTheme = Theme,
+        };
         cb.Draw(canvas);
 
         cb.IsChecked = true;
@@ -45,7 +62,12 @@ public class HudControlsTests
         sliding.IsOn = false;
         sliding.Draw(canvas);
 
-        var toggle = new HudButton(120f, 44f) { IsToggle = true, IsOn = true, Appearance = DefaultToggleButtonAppearance.Default };
+        var toggle = new HudButton(120f, 44f)
+        {
+            IsToggle = true,
+            IsOn = true,
+            Appearance = DefaultToggleButtonAppearance.Default,
+        };
         toggle.Draw(canvas);
     }
 
@@ -68,7 +90,12 @@ public class HudControlsTests
         using var bitmap = new SKBitmap(260, 260);
         using var canvas = new SKCanvas(bitmap);
 
-        var js = new HudJoystick(60f) { X = 120f, Y = 120f, HudTheme = Theme };
+        var js = new HudJoystick(60f)
+        {
+            X = 120f,
+            Y = 120f,
+            HudTheme = Theme,
+        };
         js.Draw(canvas);
 
         js.Delta = new SKPoint(5f, -5f);

@@ -51,7 +51,8 @@ public sealed class AnimatedFloat(float initialValue = 0f)
         _elapsed = 0f;
         _easing = easing ?? Easing.Linear;
         IsAnimating = _duration > 0f;
-        if (!IsAnimating) Value = _to;
+        if (!IsAnimating)
+            Value = _to;
     }
 
     /// <summary>Sets the value instantly without animating.</summary>
@@ -64,10 +65,12 @@ public sealed class AnimatedFloat(float initialValue = 0f)
     /// <summary>Advances the animation by <paramref name="deltaTime"/> seconds.</summary>
     public void Update(float deltaTime)
     {
-        if (!IsAnimating) return;
+        if (!IsAnimating)
+            return;
         _elapsed = MathF.Min(_elapsed + deltaTime, _duration);
         float t = _elapsed / _duration;
         Value = _from + (_to - _from) * _easing(t);
-        if (_elapsed >= _duration) IsAnimating = false;
+        if (_elapsed >= _duration)
+            IsAnimating = false;
     }
 }

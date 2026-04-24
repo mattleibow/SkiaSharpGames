@@ -17,7 +17,9 @@ public class FadeCurtainTests
     public void Draw_DoesNotThrow_AtVariousProgress(float progress)
     {
         var t = new FadeCurtain();
-        var ex = Record.Exception(() => t.Draw(MakeCanvas(), progress, _ => { }, _ => { }, 800, 600));
+        var ex = Record.Exception(() =>
+            t.Draw(MakeCanvas(), progress, _ => { }, _ => { }, 800, 600)
+        );
         Assert.Null(ex);
     }
 

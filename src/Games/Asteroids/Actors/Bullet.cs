@@ -33,10 +33,14 @@ internal sealed class Bullet : Actor
         }
 
         // Screen wrap
-        if (X < 0) X += GameWidth;
-        else if (X > GameWidth) X -= GameWidth;
-        if (Y < 0) Y += GameHeight;
-        else if (Y > GameHeight) Y -= GameHeight;
+        if (X < 0)
+            X += GameWidth;
+        else if (X > GameWidth)
+            X -= GameWidth;
+        if (Y < 0)
+            Y += GameHeight;
+        else if (Y > GameHeight)
+            Y -= GameHeight;
     }
 
     protected override void OnDraw(SKCanvas canvas)

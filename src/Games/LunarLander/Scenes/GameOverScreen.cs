@@ -12,9 +12,30 @@ internal sealed class GameOverScreen(LunarLanderGameState state, IDirector direc
 {
     private static readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha(186) };
 
-    private readonly HudLabel _titleText = new() { FontSize = 56f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 260f };
-    private readonly HudLabel _detailText = new() { FontSize = 24f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 310f };
-    private readonly HudLabel _promptText = new() { Text = "Click or Tap to Play Again", FontSize = 24f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 380f };
+    private readonly HudLabel _titleText = new()
+    {
+        FontSize = 56f,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 260f,
+    };
+    private readonly HudLabel _detailText = new()
+    {
+        FontSize = 24f,
+        Color = DimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 310f,
+    };
+    private readonly HudLabel _promptText = new()
+    {
+        Text = "Click or Tap to Play Again",
+        FontSize = 24f,
+        Color = AccentColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 380f,
+    };
 
     public override void OnActivating()
     {
@@ -44,8 +65,8 @@ internal sealed class GameOverScreen(LunarLanderGameState state, IDirector direc
         }
     }
 
-    public override void OnPointerDown(float x, float y)
-        => director.TransitionTo<StartScreen>(new DissolveCurtain());
+    public override void OnPointerDown(float x, float y) =>
+        director.TransitionTo<StartScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {

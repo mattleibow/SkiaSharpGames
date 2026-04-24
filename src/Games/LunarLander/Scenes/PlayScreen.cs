@@ -26,26 +26,63 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
     private static readonly float PadBtnW = 80f;
     private static readonly float PadBtnH = 60f;
     private static readonly float PadGap = 12f;
+
     // Three buttons: [← rotate] [▲ thrust] [rotate →]
     private static readonly float PadTotalW = PadBtnW * 3 + PadGap * 2;
     private static readonly float PadLeft = (GameWidth - PadTotalW) / 2f;
     private static readonly SKRect LeftBtnRect = SKRect.Create(PadLeft, PadY, PadBtnW, PadBtnH);
-    private static readonly SKRect ThrustBtnRect = SKRect.Create(PadLeft + PadBtnW + PadGap, PadY, PadBtnW, PadBtnH);
-    private static readonly SKRect RightBtnRect = SKRect.Create(PadLeft + 2 * (PadBtnW + PadGap), PadY, PadBtnW, PadBtnH);
+    private static readonly SKRect ThrustBtnRect = SKRect.Create(
+        PadLeft + PadBtnW + PadGap,
+        PadY,
+        PadBtnW,
+        PadBtnH
+    );
+    private static readonly SKRect RightBtnRect = SKRect.Create(
+        PadLeft + 2 * (PadBtnW + PadGap),
+        PadY,
+        PadBtnW,
+        PadBtnH
+    );
 
-    private bool _touchLeft, _touchThrust, _touchRight;
+    private bool _touchLeft,
+        _touchThrust,
+        _touchRight;
 
     // ── Stars ─────────────────────────────────────────────────────────────
     private readonly SKPoint[] _stars = new SKPoint[StarCount];
     private readonly float[] _starBrightness = new float[StarCount];
 
     // ── HUD text ──────────────────────────────────────────────────────────
-    private readonly HudLabel _fuelText = new() { FontSize = 18f, Color = HudColor, X = 20f, Y = 46f };
-    private readonly HudLabel _speedText = new() { FontSize = 18f, Color = HudColor, Align = TextAlign.Right, X = GameWidth - 20f, Y = 30f };
-    private readonly HudLabel _altText = new() { FontSize = 18f, Color = HudColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 30f };
+    private readonly HudLabel _fuelText = new()
+    {
+        FontSize = 18f,
+        Color = HudColor,
+        X = 20f,
+        Y = 46f,
+    };
+    private readonly HudLabel _speedText = new()
+    {
+        FontSize = 18f,
+        Color = HudColor,
+        Align = TextAlign.Right,
+        X = GameWidth - 20f,
+        Y = 30f,
+    };
+    private readonly HudLabel _altText = new()
+    {
+        FontSize = 18f,
+        Color = HudColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 30f,
+    };
 
     // ── Paints ────────────────────────────────────────────────────────────
-    private readonly SKPaint _fuelBarBg = new() { Color = new SKColor(0x33, 0x33, 0x44), Style = SKPaintStyle.Fill };
+    private readonly SKPaint _fuelBarBg = new()
+    {
+        Color = new SKColor(0x33, 0x33, 0x44),
+        Style = SKPaintStyle.Fill,
+    };
     private readonly SKPaint _fuelBarFg = new() { Style = SKPaintStyle.Fill };
 
     private bool _gameOver;
@@ -123,7 +160,12 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
     }
 
     public override void OnPointerDown(float x, float y) => HandleTouch(x, y, true);
-    public override void OnPointerMove(float x, float y) { if (_touchActive) HandleTouch(x, y, true); }
+
+    public override void OnPointerMove(float x, float y)
+    {
+        if (_touchActive)
+            HandleTouch(x, y, true);
+    }
 
     public override void OnPointerUp(float x, float y)
     {
@@ -145,7 +187,8 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
 
     protected override void OnUpdate(float deltaTime)
     {
-        if (_gameOver) return;
+        if (_gameOver)
+            return;
 
         // Combine keyboard + touch inputs
         bool wantLeft = _rotateLeftInput || _touchLeft;
@@ -189,7 +232,10 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
         float speed = _lander.Rigidbody.Speed;
         _speedText.Color = speed > MaxLandingSpeed ? DangerColor : HudColor;
         _speedText.Text = $"SPD {speed:F0}";
-        float altitude = MathF.Max(0f, _terrain.GetHeightAt(_lander.X) - _lander.Y - LanderHeight / 2f);
+        float altitude = MathF.Max(
+            0f,
+            _terrain.GetHeightAt(_lander.X) - _lander.Y - LanderHeight / 2f
+        );
         _altText.Text = $"ALT {altitude:F0}";
 
         // Landing / crash detection
@@ -235,8 +281,10 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
 
     private static float NormalizeAngle(float angle)
     {
-        while (angle > MathF.PI) angle -= MathF.Tau;
-        while (angle < -MathF.PI) angle += MathF.Tau;
+        while (angle > MathF.PI)
+            angle -= MathF.Tau;
+        while (angle < -MathF.PI)
+            angle += MathF.Tau;
         return angle;
     }
 
@@ -270,7 +318,10 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
     private void DrawHud(SKCanvas canvas)
     {
         // Fuel bar (labels auto-draw as children)
-        float barX = 20f, barY = 16f, barW = 120f, barH = 14f;
+        float barX = 20f,
+            barY = 16f,
+            barW = 120f,
+            barH = 14f;
         canvas.DrawRect(barX, barY, barW, barH, _fuelBarBg);
         float fuelFrac = state.Fuel / FuelMax;
         _fuelBarFg.Color = fuelFrac > 0.3f ? PadColor : DangerColor;
@@ -279,7 +330,10 @@ internal sealed class PlayScreen(LunarLanderGameState state, IDirector director)
 
     private void DrawControlPad(SKCanvas canvas)
     {
-        var appearance = ((ResolvedHudTheme?.Button ?? DefaultButtonAppearance.Default) as DefaultButtonAppearance ?? DefaultButtonAppearance.Default) with
+        var appearance = (
+            (ResolvedHudTheme?.Button ?? DefaultButtonAppearance.Default) as DefaultButtonAppearance
+            ?? DefaultButtonAppearance.Default
+        ) with
         {
             CornerRadius = 8f,
             BorderWidth = 1.5f,

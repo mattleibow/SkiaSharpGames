@@ -91,7 +91,8 @@ public class HudJoystick : HudActor
     {
         Delta = ClampJoystick(
             new SKPoint(worldX - WorldX, worldY - WorldY),
-            Radius * MaxRadiusFraction);
+            Radius * MaxRadiusFraction
+        );
     }
 
     /// <summary>Resets the knob to the center position.</summary>

@@ -13,28 +13,83 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
 
     // ── Boundary walls ────────────────────────────────────────────────────
     private static readonly float WallThickness = 100f;
-    private readonly Wall _leftWall   = new(-WallThickness / 2f, GameHeight / 2f, WallThickness, GameHeight + WallThickness * 2);
-    private readonly Wall _topWall    = new(GameWidth / 2f, -WallThickness / 2f, GameWidth + WallThickness * 2, WallThickness);
-    private readonly Wall _rightWall  = new(GameWidth + WallThickness / 2f, GameHeight / 2f, WallThickness, GameHeight + WallThickness * 2);
-    private readonly Wall _bottomWall = new(GameWidth / 2f, GameHeight + WallThickness / 2f, GameWidth + WallThickness * 2, WallThickness);
+    private readonly Wall _leftWall = new(
+        -WallThickness / 2f,
+        GameHeight / 2f,
+        WallThickness,
+        GameHeight + WallThickness * 2
+    );
+    private readonly Wall _topWall = new(
+        GameWidth / 2f,
+        -WallThickness / 2f,
+        GameWidth + WallThickness * 2,
+        WallThickness
+    );
+    private readonly Wall _rightWall = new(
+        GameWidth + WallThickness / 2f,
+        GameHeight / 2f,
+        WallThickness,
+        GameHeight + WallThickness * 2
+    );
+    private readonly Wall _bottomWall = new(
+        GameWidth / 2f,
+        GameHeight + WallThickness / 2f,
+        GameWidth + WallThickness * 2,
+        WallThickness
+    );
 
     // ── Power-up timers ───────────────────────────────────────────────────
     private CountdownTimer _strongBallTimer;
     private CountdownTimer _bigPaddleTimer;
 
     // ── Keyboard tracking ──────────────────────────────────────────────────
-    private bool _leftHeld, _rightHeld;
+    private bool _leftHeld,
+        _rightHeld;
 
     // ── Actor groups (parenting) ─────────────────────────────────────────
     private readonly Actor _bricks = new() { Name = "bricks" };
     private readonly Actor _powerUps = new() { Name = "powerups" };
 
     // ── Text sprites ──────────────────────────────────────────────────────
-    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 20f, Color = SKColors.White, X = 20f, Y = 30f };
-    private readonly HudLabel _livesText = new() { Name = "lives", FontSize = 20f, Color = SKColors.White, Align = TextAlign.Right, X = GameWidth - 20f, Y = 30f };
-    private readonly HudLabel _powerUpLabel = new() { FontSize = 11f, Color = SKColors.White, Align = TextAlign.Center };
-    private readonly HudLabel _strongBallText = new() { FontSize = 14f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 52f, Visible = false };
-    private readonly HudLabel _bigPaddleText = new() { FontSize = 14f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 70f, Visible = false };
+    private readonly HudLabel _scoreText = new()
+    {
+        Name = "score",
+        FontSize = 20f,
+        Color = SKColors.White,
+        X = 20f,
+        Y = 30f,
+    };
+    private readonly HudLabel _livesText = new()
+    {
+        Name = "lives",
+        FontSize = 20f,
+        Color = SKColors.White,
+        Align = TextAlign.Right,
+        X = GameWidth - 20f,
+        Y = 30f,
+    };
+    private readonly HudLabel _powerUpLabel = new()
+    {
+        FontSize = 11f,
+        Color = SKColors.White,
+        Align = TextAlign.Center,
+    };
+    private readonly HudLabel _strongBallText = new()
+    {
+        FontSize = 14f,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 52f,
+        Visible = false,
+    };
+    private readonly HudLabel _bigPaddleText = new()
+    {
+        FontSize = 14f,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 70f,
+        Visible = false,
+    };
 
     public override void OnActivating()
     {
@@ -100,7 +155,8 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
         double angle = (35.0 + Random.Shared.NextDouble() * 110.0) * Math.PI / 180.0;
         _ball.Rigidbody.SetVelocity(
             (float)(BallSpeed * Math.Cos(angle)),
-            -(float)(BallSpeed * Math.Sin(angle)));
+            -(float)(BallSpeed * Math.Sin(angle))
+        );
     }
 
     // ── Input ─────────────────────────────────────────────────────────────
@@ -115,8 +171,12 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
     {
         switch (key)
         {
-            case "ArrowLeft": _leftHeld = true; break;
-            case "ArrowRight": _rightHeld = true; break;
+            case "ArrowLeft":
+                _leftHeld = true;
+                break;
+            case "ArrowRight":
+                _rightHeld = true;
+                break;
         }
     }
 
@@ -124,8 +184,12 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
     {
         switch (key)
         {
-            case "ArrowLeft": _leftHeld = false; break;
-            case "ArrowRight": _rightHeld = false; break;
+            case "ArrowLeft":
+                _leftHeld = false;
+                break;
+            case "ArrowRight":
+                _rightHeld = false;
+                break;
         }
     }
 
@@ -138,7 +202,11 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
         {
             float direction = _leftHeld ? -1f : 1f;
             float halfW = _paddle.Width / 2f;
-            _paddle.X = Math.Clamp(_paddle.X + direction * PaddleSpeed * deltaTime, halfW, GameWidth - halfW);
+            _paddle.X = Math.Clamp(
+                _paddle.X + direction * PaddleSpeed * deltaTime,
+                halfW,
+                GameWidth - halfW
+            );
         }
 
         // Power-up timers
@@ -177,8 +245,8 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
         UpdateFallingPowerUps(deltaTime);
 
         // Visual state (moved from OnDraw for auto-draw tree)
-        _paddle.Color = _bigPaddleTimer.Active || _paddle.IsWidthAnimating
-            ? BigPaddleColor : PaddleColor;
+        _paddle.Color =
+            _bigPaddleTimer.Active || _paddle.IsWidthAnimating ? BigPaddleColor : PaddleColor;
         _ball.Color = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
         _ball.GlowColor = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
 
@@ -213,11 +281,16 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
             _ball.X += hit.NormalX * hit.Penetration;
             _ball.Y += hit.NormalY * hit.Penetration;
 
-            float hitPos = Math.Clamp((_ball.WorldX - _paddle.WorldX) / (_paddle.Width / 2f), -1f, 1f);
+            float hitPos = Math.Clamp(
+                (_ball.WorldX - _paddle.WorldX) / (_paddle.Width / 2f),
+                -1f,
+                1f
+            );
             float angle = hitPos * (65f * MathF.PI / 180f);
             _ball.Rigidbody.SetVelocity(
                 BallSpeed * MathF.Sin(angle),
-                -BallSpeed * MathF.Cos(angle));
+                -BallSpeed * MathF.Cos(angle)
+            );
         }
     }
 
@@ -245,9 +318,16 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
 
     private void TrySpawnPowerUp(float cx, float cy)
     {
-        if (Random.Shared.NextDouble() >= PowerUpChance) return;
-        var type = Random.Shared.NextDouble() < 0.5 ? PowerUpType.StrongBall : PowerUpType.BigPaddle;
-        var pu = new FallingPowerUp { X = cx, Y = cy, Type = type };
+        if (Random.Shared.NextDouble() >= PowerUpChance)
+            return;
+        var type =
+            Random.Shared.NextDouble() < 0.5 ? PowerUpType.StrongBall : PowerUpType.BigPaddle;
+        var pu = new FallingPowerUp
+        {
+            X = cx,
+            Y = cy,
+            Type = type,
+        };
         pu.Color = type == PowerUpType.StrongBall ? StrongBallColor : BigPaddleColor;
         _powerUps.Children.Add(pu);
     }
@@ -258,11 +338,15 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
 
         foreach (var child in _powerUps.Children.ToArray())
         {
-            if (child is not FallingPowerUp pu || !pu.Active) continue;
+            if (child is not FallingPowerUp pu || !pu.Active)
+                continue;
 
-            if (pu.Y + PowerUpH / 2f >= PaddleY &&
-                pu.Y - PowerUpH / 2f <= PaddleY + PaddleHeight &&
-                pu.X >= _paddle.X - halfPaddleW && pu.X <= _paddle.X + halfPaddleW)
+            if (
+                pu.Y + PowerUpH / 2f >= PaddleY
+                && pu.Y - PowerUpH / 2f <= PaddleY + PaddleHeight
+                && pu.X >= _paddle.X - halfPaddleW
+                && pu.X <= _paddle.X + halfPaddleW
+            )
             {
                 ApplyPowerUp(pu.Type);
                 _powerUps.Children.Remove(pu);
@@ -283,7 +367,11 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
                 break;
             case PowerUpType.BigPaddle:
                 _bigPaddleTimer.Set(BigPaddleDuration);
-                _paddle.AnimateWidth(DefaultPaddleWidth * BigPaddleMultiplier, 0.3f, Easing.BackOut);
+                _paddle.AnimateWidth(
+                    DefaultPaddleWidth * BigPaddleMultiplier,
+                    0.3f,
+                    Easing.BackOut
+                );
                 break;
         }
     }
@@ -297,9 +385,13 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
         // Power-up labels drawn per-powerup (can't be a child)
         foreach (var child in _powerUps.Children)
         {
-            if (child is not FallingPowerUp pu || !pu.Active) continue;
+            if (child is not FallingPowerUp pu || !pu.Active)
+                continue;
             _powerUpLabel.Text = pu.Type == PowerUpType.StrongBall ? "S" : "B";
-            canvas.Save(); canvas.Translate(pu.X, pu.Y + 4f); _powerUpLabel.Draw(canvas); canvas.Restore();
+            canvas.Save();
+            canvas.Translate(pu.X, pu.Y + 4f);
+            _powerUpLabel.Draw(canvas);
+            canvas.Restore();
         }
     }
 }

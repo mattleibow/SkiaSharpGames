@@ -7,11 +7,51 @@ namespace SkiaSharpGames.LunarLander;
 /// <summary>Title scene: game title, instructions, click to start.</summary>
 internal sealed class StartScreen(IDirector director) : Scene
 {
-    private readonly HudLabel _title = new() { Text = "LUNAR LANDER", FontSize = 64f, Color = SKColors.White, Align = TextAlign.Center, X = GameWidth / 2f, Y = 300f };
-    private readonly HudLabel _subtitle = new() { Text = "Actor Rotation & Child Entities Demo", FontSize = 18f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 335f };
-    private readonly HudLabel _startPrompt = new() { Text = "Click or Tap to Start", FontSize = 28f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 400f };
-    private readonly HudLabel _instructions1 = new() { Text = "LEFT RIGHT rotate    UP / SPACE thrust", FontSize = 18f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 450f };
-    private readonly HudLabel _instructions2 = new() { Text = "Land gently on the green pad", FontSize = 18f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 478f };
+    private readonly HudLabel _title = new()
+    {
+        Text = "LUNAR LANDER",
+        FontSize = 64f,
+        Color = SKColors.White,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 300f,
+    };
+    private readonly HudLabel _subtitle = new()
+    {
+        Text = "Actor Rotation & Child Entities Demo",
+        FontSize = 18f,
+        Color = AccentColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 335f,
+    };
+    private readonly HudLabel _startPrompt = new()
+    {
+        Text = "Click or Tap to Start",
+        FontSize = 28f,
+        Color = AccentColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 400f,
+    };
+    private readonly HudLabel _instructions1 = new()
+    {
+        Text = "LEFT RIGHT rotate    UP / SPACE thrust",
+        FontSize = 18f,
+        Color = DimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 450f,
+    };
+    private readonly HudLabel _instructions2 = new()
+    {
+        Text = "Land gently on the green pad",
+        FontSize = 18f,
+        Color = DimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 478f,
+    };
 
     private readonly SKPoint[] _stars = new SKPoint[StarCount];
     private readonly float[] _starBrightness = new float[StarCount];
@@ -21,9 +61,7 @@ internal sealed class StartScreen(IDirector director) : Scene
     {
         for (int i = 0; i < StarCount; i++)
         {
-            _stars[i] = new SKPoint(
-                _rng.Next(0, GameWidth),
-                _rng.Next(0, GameHeight));
+            _stars[i] = new SKPoint(_rng.Next(0, GameWidth), _rng.Next(0, GameHeight));
             _starBrightness[i] = 0.3f + (float)_rng.NextDouble() * 0.7f;
         }
 
@@ -56,7 +94,12 @@ internal sealed class StartScreen(IDirector director) : Scene
 
     private static void DrawLanderIcon(SKCanvas canvas, float cx, float cy)
     {
-        using var paint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill, Color = LanderColor };
+        using var paint = new SKPaint
+        {
+            IsAntialias = true,
+            Style = SKPaintStyle.Fill,
+            Color = LanderColor,
+        };
         using var path = new SKPath();
         float s = 2.5f; // scale
         path.MoveTo(cx, cy - 12f * s);
@@ -66,8 +109,8 @@ internal sealed class StartScreen(IDirector director) : Scene
         canvas.DrawPath(path, paint);
     }
 
-    public override void OnPointerDown(float x, float y)
-        => director.TransitionTo<PlayScreen>(new DissolveCurtain());
+    public override void OnPointerDown(float x, float y) =>
+        director.TransitionTo<PlayScreen>(new DissolveCurtain());
 
     public override void OnKeyDown(string key)
     {

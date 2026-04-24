@@ -8,11 +8,15 @@ namespace SkiaSharp.Theatre.Themes.Neon;
 /// </summary>
 public record NeonJoystickAppearance : HudAppearance<HudJoystick>
 {
-    private static readonly SKMaskFilter GlowFilter =
-        SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 4f);
+    private static readonly SKMaskFilter GlowFilter = SKMaskFilter.CreateBlur(
+        SKBlurStyle.Normal,
+        4f
+    );
 
-    private static readonly SKMaskFilter KnobGlowFilter =
-        SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 5f);
+    private static readonly SKMaskFilter KnobGlowFilter = SKMaskFilter.CreateBlur(
+        SKBlurStyle.Normal,
+        5f
+    );
 
     public SKColor BaseColor { get; init; } = new(0x0A, 0x0A, 0x14, 200);
     public SKColor RingColor { get; init; } = new(0x00, 0xFF, 0xFF);
@@ -26,7 +30,8 @@ public record NeonJoystickAppearance : HudAppearance<HudJoystick>
     public override void Draw(SKCanvas canvas, HudJoystick joystick)
     {
         byte alpha = (byte)(255 * Math.Clamp(joystick.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         float baseRadius = joystick.Radius;
         var knobDelta = joystick.Delta;
@@ -36,7 +41,7 @@ public record NeonJoystickAppearance : HudAppearance<HudJoystick>
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = BaseColor.WithAlpha((byte)(BaseColor.Alpha * alpha / 255))
+            Color = BaseColor.WithAlpha((byte)(BaseColor.Alpha * alpha / 255)),
         };
         canvas.DrawCircle(0f, 0f, baseRadius, fillPaint);
 
@@ -47,7 +52,7 @@ public record NeonJoystickAppearance : HudAppearance<HudJoystick>
             Style = SKPaintStyle.Stroke,
             StrokeWidth = BorderWidth + 2f,
             Color = RingColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
-            MaskFilter = GlowFilter
+            MaskFilter = GlowFilter,
         };
         canvas.DrawCircle(0f, 0f, baseRadius, glowPaint);
 
@@ -66,7 +71,7 @@ public record NeonJoystickAppearance : HudAppearance<HudJoystick>
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
             Color = KnobColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
-            MaskFilter = KnobGlowFilter
+            MaskFilter = KnobGlowFilter,
         };
         canvas.DrawCircle(knobDelta.X, knobDelta.Y, knobRadius + 3f, knobPaint);
 

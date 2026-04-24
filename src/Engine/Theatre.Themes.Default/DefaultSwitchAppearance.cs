@@ -8,8 +8,16 @@ namespace SkiaSharp.Theatre.Themes.Default;
 /// </summary>
 public record DefaultSwitchAppearance : HudAppearance<HudSwitch>
 {
-    private static readonly SKPaint FillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private static readonly SKPaint StrokePaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+    private static readonly SKPaint FillPaint = new()
+    {
+        IsAntialias = true,
+        Style = SKPaintStyle.Fill,
+    };
+    private static readonly SKPaint StrokePaint = new()
+    {
+        IsAntialias = true,
+        Style = SKPaintStyle.Stroke,
+    };
 
     public SKColor TrackOffColor { get; init; } = new(0x44, 0x4F, 0x5E);
     public SKColor TrackOnColor { get; init; } = new(0x46, 0xA4, 0xF6);
@@ -24,7 +32,8 @@ public record DefaultSwitchAppearance : HudAppearance<HudSwitch>
     public override void Draw(SKCanvas canvas, HudSwitch sw)
     {
         byte alpha = (byte)(255 * Math.Clamp(sw.Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         var rect = sw.LocalRect;
 

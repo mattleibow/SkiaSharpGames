@@ -9,8 +9,18 @@ namespace SkiaSharpGames.LunarLander;
 /// </summary>
 internal sealed class Terrain
 {
-    private readonly SKPaint _terrainPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill, Color = TerrainColor };
-    private readonly SKPaint _padPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill, Color = PadColor };
+    private readonly SKPaint _terrainPaint = new()
+    {
+        IsAntialias = true,
+        Style = SKPaintStyle.Fill,
+        Color = TerrainColor,
+    };
+    private readonly SKPaint _padPaint = new()
+    {
+        IsAntialias = true,
+        Style = SKPaintStyle.Fill,
+        Color = PadColor,
+    };
 
     public List<SKPoint> Points { get; } = [];
 
@@ -58,7 +68,8 @@ internal sealed class Terrain
     /// <summary>Returns the terrain height (Y) at a given X position via linear interpolation.</summary>
     public float GetHeightAt(float x)
     {
-        if (Points.Count < 2) return GameHeight;
+        if (Points.Count < 2)
+            return GameHeight;
 
         float segWidth = (float)GameWidth / TerrainSegments;
         int idx = Math.Clamp((int)(x / segWidth), 0, Points.Count - 2);
@@ -75,7 +86,8 @@ internal sealed class Terrain
 
     public void Draw(SKCanvas canvas)
     {
-        if (Points.Count < 2) return;
+        if (Points.Count < 2)
+            return;
 
         // Draw filled terrain
         using var terrainPath = new SKPath();
@@ -88,6 +100,12 @@ internal sealed class Terrain
 
         // Draw landing pad on top
         float padLeft = PadCenterX - LandingPadWidth / 2f;
-        canvas.DrawRect(padLeft, PadY - LandingPadHeight, LandingPadWidth, LandingPadHeight, _padPaint);
+        canvas.DrawRect(
+            padLeft,
+            PadY - LandingPadHeight,
+            LandingPadWidth,
+            LandingPadHeight,
+            _padPaint
+        );
     }
 }

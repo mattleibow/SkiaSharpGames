@@ -15,10 +15,14 @@ public sealed class FadeCurtain : ICurtain
     public float Duration { get; init; } = 0.7f;
 
     /// <inheritdoc />
-    public void Draw(SKCanvas canvas, float progress,
-                     Action<SKCanvas> drawOutgoing,
-                     Action<SKCanvas> drawIncoming,
-                     int width, int height)
+    public void Draw(
+        SKCanvas canvas,
+        float progress,
+        Action<SKCanvas> drawOutgoing,
+        Action<SKCanvas> drawIncoming,
+        int width,
+        int height
+    )
     {
         float overlayAlpha;
 

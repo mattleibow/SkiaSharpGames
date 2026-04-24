@@ -53,7 +53,7 @@ public class AnimatedFloatTests
     {
         var a = new AnimatedFloat(0f);
         a.AnimateTo(100f, 1f); // no easing arg → Linear
-        a.Update(0.5f);         // halfway through
+        a.Update(0.5f); // halfway through
         Assert.Equal(50f, a.Value, precision: 3);
     }
 
@@ -134,12 +134,15 @@ public class AnimatedFloatTests
     {
         var a = new AnimatedFloat(0f);
         a.AnimateTo(100f, 1f);
-        a.Update(0.5f);              // at 50f mid-way
+        a.Update(0.5f); // at 50f mid-way
         float mid = a.Value;
-        a.AnimateTo(200f, 1f);       // re-target from 50 → 200
+        a.AnimateTo(200f, 1f); // re-target from 50 → 200
         Assert.True(a.IsAnimating);
-        a.Update(1f);                // complete new animation
+        a.Update(1f); // complete new animation
         Assert.Equal(200f, a.Value, precision: 2);
-        Assert.True(mid > 0f && mid < 100f, "mid-animation value should be between start and target");
+        Assert.True(
+            mid > 0f && mid < 100f,
+            "mid-animation value should be between start and target"
+        );
     }
 }

@@ -9,7 +9,8 @@ internal sealed class Brick : Actor
     private readonly SKPaint _paint = new() { IsAntialias = true };
     private readonly SKPaint _shimmerPaint = new() { IsAntialias = true };
 
-    public readonly int Row, Col;
+    public readonly int Row,
+        Col;
 
     public float Width { get; set; } = BrickWidth;
     public float Height { get; set; } = BrickHeight;
@@ -26,7 +27,11 @@ internal sealed class Brick : Actor
         Collider = new RectCollider { Width = BrickWidth, Height = BrickHeight };
     }
 
-    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
+    public new RectCollider Collider
+    {
+        get => (RectCollider)base.Collider!;
+        init => base.Collider = value;
+    }
 
     protected override void OnUpdate(float deltaTime)
     {
@@ -50,7 +55,13 @@ internal sealed class Brick : Actor
             float shineHeight = (Height - 4f) / 2f;
             float shineRadius = Math.Max(CornerRadius - 1f, 0f);
             _paint.Color = SKColors.White.WithAlpha((byte)(55 * Alpha));
-            canvas.DrawRoundRect(new SKRoundRect(SKRect.Create(left + 2f, top + 2f, Width - 4f, shineHeight), shineRadius), _paint);
+            canvas.DrawRoundRect(
+                new SKRoundRect(
+                    SKRect.Create(left + 2f, top + 2f, Width - 4f, shineHeight),
+                    shineRadius
+                ),
+                _paint
+            );
         }
 
         if (Shimmer.IsActive && Width > 0f && Height > 0f)
@@ -67,10 +78,11 @@ internal sealed class Brick : Actor
                 [
                     SKColors.Transparent,
                     SKColors.White.WithAlpha((byte)(90 * Alpha)),
-                    SKColors.Transparent
+                    SKColors.Transparent,
                 ],
                 [0f, 0.5f, 1f],
-                SKShaderTileMode.Clamp);
+                SKShaderTileMode.Clamp
+            );
 
             _shimmerPaint.Shader = shader;
             canvas.DrawRect(SKRect.Create(sweepX, top, stripeWidth, Height), _shimmerPaint);
@@ -79,4 +91,3 @@ internal sealed class Brick : Actor
         }
     }
 }
-

@@ -12,14 +12,15 @@ public static class PixelArtTheme
     /// <summary>
     /// Creates a new <see cref="HudTheme"/> with pixel-art appearances for all controls.
     /// </summary>
-    public static HudTheme Create() => new()
-    {
-        Button = PixelArtButtonAppearance.Default,
-        Checkbox = PixelArtCheckboxAppearance.Default,
-        Switch = PixelArtSwitchAppearance.Default,
-        Slider = PixelArtSliderAppearance.Default,
-        Joystick = PixelArtJoystickAppearance.Default,
-        Pointer = PixelArtPointerAppearance.Default,
-        Label = PixelArtLabelAppearance.Default,
-    };
+    public static HudTheme Create() =>
+        new()
+        {
+            Button = PixelArtButtonAppearance.Default,
+            Checkbox = PixelArtCheckboxAppearance.Default,
+            Switch = PixelArtSwitchAppearance.Default,
+            Slider = PixelArtSliderAppearance.Default,
+            Joystick = PixelArtJoystickAppearance.Default,
+            Pointer = PixelArtPointerAppearance.Default,
+            Label = PixelArtLabelAppearance.Default,
+        };
 }

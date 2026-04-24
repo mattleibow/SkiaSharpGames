@@ -97,7 +97,10 @@ public sealed class StageBuilder
     public StageBuilder SetStageSize(SKSize dimensions)
     {
         if (dimensions.Width <= 0 || dimensions.Height <= 0)
-            throw new ArgumentOutOfRangeException(nameof(dimensions), "Stage dimensions must be positive.");
+            throw new ArgumentOutOfRangeException(
+                nameof(dimensions),
+                "Stage dimensions must be positive."
+            );
         _gameDimensions = dimensions;
         return this;
     }
@@ -110,8 +113,8 @@ public sealed class StageBuilder
     /// <param name="width">Stage-space width in pixels.</param>
     /// <param name="height">Stage-space height in pixels.</param>
     /// <returns>This builder, for method chaining.</returns>
-    public StageBuilder SetStageSize(float width, float height)
-        => SetStageSize(new SKSize(width, height));
+    public StageBuilder SetStageSize(float width, float height) =>
+        SetStageSize(new SKSize(width, height));
 
     // ── Initial scene ────────────────────────────────────────────────────
 
@@ -147,7 +150,8 @@ public sealed class StageBuilder
     {
         if (_initialSceneType is null)
             throw new InvalidOperationException(
-                "No initial scene set. Call SetOpeningScene<T>() before calling Open().");
+                "No initial scene set. Call SetOpeningScene<T>() before calling Open()."
+            );
 
         // Build the IConfiguration and make it injectable inside scenes.
         var config = Configuration.Build();
@@ -166,19 +170,20 @@ public sealed class StageBuilder
         // Director is the single job that loads and moves between scenes.
         // Register the concrete type and both interfaces so consumers can depend on the
         // narrowest interface they need.
-        _serviceCollection.AddSingleton(
-            sp => new Director(sp, sp.GetRequiredService<IOptions<StageOptions>>()));
-        _serviceCollection.AddSingleton<IDirector>(
-            sp => sp.GetRequiredService<Director>());
-        _serviceCollection.AddSingleton<IRenderer>(
-            sp => sp.GetRequiredService<Director>());
+        _serviceCollection.AddSingleton(sp => new Director(
+            sp,
+            sp.GetRequiredService<IOptions<StageOptions>>()
+        ));
+        _serviceCollection.AddSingleton<IDirector>(sp => sp.GetRequiredService<Director>());
+        _serviceCollection.AddSingleton<IRenderer>(sp => sp.GetRequiredService<Director>());
 
         // Stage is the public host API; constructed via factory to preserve the internal constructor.
-        _serviceCollection.AddSingleton(
-            sp => new Stage(sp,
-                           sp.GetRequiredService<IOptions<StageOptions>>(),
-                           sp.GetRequiredService<IDirector>(),
-                           sp.GetRequiredService<IRenderer>()));
+        _serviceCollection.AddSingleton(sp => new Stage(
+            sp,
+            sp.GetRequiredService<IOptions<StageOptions>>(),
+            sp.GetRequiredService<IDirector>(),
+            sp.GetRequiredService<IRenderer>()
+        ));
 
         var provider = _serviceCollection.BuildServiceProvider();
         var stage = provider.GetRequiredService<Stage>();

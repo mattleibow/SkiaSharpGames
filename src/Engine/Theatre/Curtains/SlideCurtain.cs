@@ -1,7 +1,13 @@
 namespace SkiaSharp.Theatre;
 
 /// <summary>Direction from which the incoming scene slides into view.</summary>
-public enum SlideDirection { Up, Down, Left, Right }
+public enum SlideDirection
+{
+    Up,
+    Down,
+    Left,
+    Right,
+}
 
 /// <summary>
 /// A slide transition: the incoming scene slides in from one edge, revealing it on top of the outgoing scene.
@@ -17,10 +23,14 @@ public sealed class SlideCurtain : ICurtain
     public float Duration { get; init; } = 0.4f;
 
     /// <inheritdoc />
-    public void Draw(SKCanvas canvas, float progress,
-                     Action<SKCanvas> drawOutgoing,
-                     Action<SKCanvas> drawIncoming,
-                     int width, int height)
+    public void Draw(
+        SKCanvas canvas,
+        float progress,
+        Action<SKCanvas> drawOutgoing,
+        Action<SKCanvas> drawIncoming,
+        int width,
+        int height
+    )
     {
         // Outgoing scene is fully visible underneath
         drawOutgoing(canvas);
@@ -28,7 +38,8 @@ public sealed class SlideCurtain : ICurtain
         // Incoming scene slides in from the specified edge
         float ease = Easing.EaseInOut(progress);
 
-        float tx = 0f, ty = 0f;
+        float tx = 0f,
+            ty = 0f;
         switch (Direction)
         {
             case SlideDirection.Left:

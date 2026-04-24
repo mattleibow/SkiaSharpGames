@@ -8,10 +8,39 @@ internal sealed class GameOverScreen(SinkSubGameState state, IDirector director)
 {
     private static readonly SKPaint _fillPaint = new() { IsAntialias = true };
 
-    private readonly HudLabel _titleText = new() { Text = "SHIP SUNK", FontSize = 62f, Color = new SKColor(0xFF, 0x73, 0x5A), Align = TextAlign.Center, X = GameWidth / 2f, Y = 250f };
-    private readonly HudLabel _scoreText = new() { FontSize = 30f, Align = TextAlign.Center, X = GameWidth / 2f, Y = 320f };
-    private readonly HudLabel _waveText = new() { FontSize = 24f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 360f };
-    private readonly HudLabel _restartText = new() { Text = "Click, tap, or press Space to sail again", FontSize = 22f, Color = DimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 420f };
+    private readonly HudLabel _titleText = new()
+    {
+        Text = "SHIP SUNK",
+        FontSize = 62f,
+        Color = new SKColor(0xFF, 0x73, 0x5A),
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 250f,
+    };
+    private readonly HudLabel _scoreText = new()
+    {
+        FontSize = 30f,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 320f,
+    };
+    private readonly HudLabel _waveText = new()
+    {
+        FontSize = 24f,
+        Color = AccentColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 360f,
+    };
+    private readonly HudLabel _restartText = new()
+    {
+        Text = "Click, tap, or press Space to sail again",
+        FontSize = 22f,
+        Color = DimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 420f,
+    };
 
     public override void OnActivating()
     {

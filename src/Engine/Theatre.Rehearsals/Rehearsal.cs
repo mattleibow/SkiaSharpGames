@@ -56,7 +56,11 @@ public sealed class Rehearsal : IDisposable
     /// <summary>
     /// Creates a harness by configuring a <see cref="StageBuilder"/>.
     /// </summary>
-    public static Rehearsal Create(Action<StageBuilder> configure, int width = 800, int height = 600)
+    public static Rehearsal Create(
+        Action<StageBuilder> configure,
+        int width = 800,
+        int height = 600
+    )
     {
         var builder = StageBuilder.Create();
         configure(builder);
@@ -67,8 +71,8 @@ public sealed class Rehearsal : IDisposable
     /// <summary>
     /// Creates a harness from an already-built <see cref="Stage"/>.
     /// </summary>
-    public static Rehearsal FromStage(Stage stage, int width = 800, int height = 600)
-        => new(stage, width, height);
+    public static Rehearsal FromStage(Stage stage, int width = 800, int height = 600) =>
+        new(stage, width, height);
 
     // ── Frame simulation ─────────────────────────────────────────────
 

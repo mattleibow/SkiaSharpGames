@@ -84,7 +84,12 @@ public class ActorTests
     [Fact]
     public void ParentRotation_AffectsChildWorldPosition()
     {
-        var parent = new Actor { X = 0f, Y = 0f, Rotation = MathF.PI / 2f }; // 90°
+        var parent = new Actor
+        {
+            X = 0f,
+            Y = 0f,
+            Rotation = MathF.PI / 2f,
+        }; // 90°
         var child = new Actor { X = 10f, Y = 0f };
         parent.Children.Add(child);
 
@@ -198,8 +203,9 @@ public class ActorTests
     {
         var actor = new Actor
         {
-            X = 0f, Y = 0f,
-            Rigidbody = new Rigidbody2D { VelocityX = 100f, VelocityY = 50f }
+            X = 0f,
+            Y = 0f,
+            Rigidbody = new Rigidbody2D { VelocityX = 100f, VelocityY = 50f },
         };
 
         actor.Update(0.5f);
@@ -212,10 +218,7 @@ public class ActorTests
     public void Update_RecursesIntoActiveChildren()
     {
         var parent = new Actor();
-        var child = new Actor
-        {
-            Rigidbody = new Rigidbody2D { VelocityX = 10f }
-        };
+        var child = new Actor { Rigidbody = new Rigidbody2D { VelocityX = 10f } };
         parent.Children.Add(child);
 
         parent.Update(1f);
@@ -229,7 +232,7 @@ public class ActorTests
         var actor = new Actor
         {
             Active = false,
-            Rigidbody = new Rigidbody2D { VelocityX = 100f }
+            Rigidbody = new Rigidbody2D { VelocityX = 100f },
         };
 
         actor.Update(1f);
@@ -292,8 +295,18 @@ public class ActorTests
     [Fact]
     public void Overlaps_ReturnsTrueForOverlappingEntities()
     {
-        var a = new Actor { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
-        var b = new Actor { X = 5f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
+        var a = new Actor
+        {
+            X = 0f,
+            Y = 0f,
+            Collider = new CircleCollider { Radius = 10f },
+        };
+        var b = new Actor
+        {
+            X = 5f,
+            Y = 0f,
+            Collider = new CircleCollider { Radius = 10f },
+        };
 
         Assert.True(a.Overlaps(b));
     }
@@ -301,8 +314,18 @@ public class ActorTests
     [Fact]
     public void Overlaps_ReturnsFalseForDistantEntities()
     {
-        var a = new Actor { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 5f } };
-        var b = new Actor { X = 100f, Y = 0f, Collider = new CircleCollider { Radius = 5f } };
+        var a = new Actor
+        {
+            X = 0f,
+            Y = 0f,
+            Collider = new CircleCollider { Radius = 5f },
+        };
+        var b = new Actor
+        {
+            X = 100f,
+            Y = 0f,
+            Collider = new CircleCollider { Radius = 5f },
+        };
 
         Assert.False(a.Overlaps(b));
     }
@@ -311,7 +334,12 @@ public class ActorTests
     public void Overlaps_ReturnsFalseWithoutCollider()
     {
         var a = new Actor { X = 0f, Y = 0f };
-        var b = new Actor { X = 0f, Y = 0f, Collider = new CircleCollider { Radius = 10f } };
+        var b = new Actor
+        {
+            X = 0f,
+            Y = 0f,
+            Collider = new CircleCollider { Radius = 10f },
+        };
 
         Assert.False(a.Overlaps(b));
     }
@@ -321,14 +349,16 @@ public class ActorTests
     {
         var ball = new Actor
         {
-            X = 5f, Y = 0f,
+            X = 5f,
+            Y = 0f,
             Collider = new CircleCollider { Radius = 10f },
-            Rigidbody = new Rigidbody2D { VelocityX = -100f }
+            Rigidbody = new Rigidbody2D { VelocityX = -100f },
         };
         var wall = new Actor
         {
-            X = 0f, Y = 0f,
-            Collider = new RectCollider { Width = 2f, Height = 100f }
+            X = 0f,
+            Y = 0f,
+            Collider = new RectCollider { Width = 2f, Height = 100f },
         };
 
         bool bounced = ball.BounceOff(wall);
@@ -360,8 +390,9 @@ public class ActorTests
         var parent = new Actor { X = 100f, Y = 100f };
         var child = new Actor
         {
-            X = 10f, Y = 10f,
-            Collider = new RectCollider { Width = 20f, Height = 20f }
+            X = 10f,
+            Y = 10f,
+            Collider = new RectCollider { Width = 20f, Height = 20f },
         };
         parent.Children.Add(child);
 
@@ -379,9 +410,10 @@ public class ActorTests
     {
         var actor = new Actor
         {
-            X = 0f, Y = 0f,
+            X = 0f,
+            Y = 0f,
             Rotation = MathF.PI / 4f, // 45°
-            Collider = new RectCollider { Width = 10f, Height = 10f }
+            Collider = new RectCollider { Width = 10f, Height = 10f },
         };
 
         var bb = actor.WorldBoundingBox;
@@ -404,16 +436,22 @@ public class ActorTests
     public void ChildrenBoundingBox_EnclosesAllActiveChildren()
     {
         var parent = new Actor();
-        parent.Children.Add(new Actor
-        {
-            X = 0f, Y = 0f,
-            Collider = new RectCollider { Width = 10f, Height = 10f }
-        });
-        parent.Children.Add(new Actor
-        {
-            X = 100f, Y = 0f,
-            Collider = new RectCollider { Width = 10f, Height = 10f }
-        });
+        parent.Children.Add(
+            new Actor
+            {
+                X = 0f,
+                Y = 0f,
+                Collider = new RectCollider { Width = 10f, Height = 10f },
+            }
+        );
+        parent.Children.Add(
+            new Actor
+            {
+                X = 100f,
+                Y = 0f,
+                Collider = new RectCollider { Width = 10f, Height = 10f },
+            }
+        );
 
         var bb = parent.ChildrenBoundingBox;
         Assert.NotNull(bb);
@@ -425,16 +463,23 @@ public class ActorTests
     public void ChildrenBoundingBox_SkipsInactiveChildren()
     {
         var parent = new Actor();
-        parent.Children.Add(new Actor
-        {
-            X = 0f, Y = 0f,
-            Collider = new RectCollider { Width = 10f, Height = 10f }
-        });
-        parent.Children.Add(new Actor
-        {
-            X = 1000f, Y = 0f, Active = false,
-            Collider = new RectCollider { Width = 10f, Height = 10f }
-        });
+        parent.Children.Add(
+            new Actor
+            {
+                X = 0f,
+                Y = 0f,
+                Collider = new RectCollider { Width = 10f, Height = 10f },
+            }
+        );
+        parent.Children.Add(
+            new Actor
+            {
+                X = 1000f,
+                Y = 0f,
+                Active = false,
+                Collider = new RectCollider { Width = 10f, Height = 10f },
+            }
+        );
 
         var bb = parent.ChildrenBoundingBox;
         Assert.NotNull(bb);
@@ -449,15 +494,17 @@ public class ActorTests
         var parent = new Actor();
         var brick = new Actor
         {
-            X = 50f, Y = 50f,
-            Collider = new RectCollider { Width = 20f, Height = 20f }
+            X = 50f,
+            Y = 50f,
+            Collider = new RectCollider { Width = 20f, Height = 20f },
         };
         parent.Children.Add(brick);
 
         var ball = new Actor
         {
-            X = 55f, Y = 55f,
-            Collider = new CircleCollider { Radius = 5f }
+            X = 55f,
+            Y = 55f,
+            Collider = new CircleCollider { Radius = 5f },
         };
 
         var hit = parent.FindChildCollision(ball, out _);
@@ -468,16 +515,20 @@ public class ActorTests
     public void FindChildCollision_ReturnsNullWhenNoOverlap()
     {
         var parent = new Actor();
-        parent.Children.Add(new Actor
-        {
-            X = 50f, Y = 50f,
-            Collider = new RectCollider { Width = 20f, Height = 20f }
-        });
+        parent.Children.Add(
+            new Actor
+            {
+                X = 50f,
+                Y = 50f,
+                Collider = new RectCollider { Width = 20f, Height = 20f },
+            }
+        );
 
         var ball = new Actor
         {
-            X = 500f, Y = 500f,
-            Collider = new CircleCollider { Radius = 5f }
+            X = 500f,
+            Y = 500f,
+            Collider = new CircleCollider { Radius = 5f },
         };
 
         var hit = parent.FindChildCollision(ball, out _);
@@ -488,16 +539,21 @@ public class ActorTests
     public void FindChildCollision_SkipsInactiveChildren()
     {
         var parent = new Actor();
-        parent.Children.Add(new Actor
-        {
-            X = 0f, Y = 0f, Active = false,
-            Collider = new RectCollider { Width = 100f, Height = 100f }
-        });
+        parent.Children.Add(
+            new Actor
+            {
+                X = 0f,
+                Y = 0f,
+                Active = false,
+                Collider = new RectCollider { Width = 100f, Height = 100f },
+            }
+        );
 
         var ball = new Actor
         {
-            X = 0f, Y = 0f,
-            Collider = new CircleCollider { Radius = 5f }
+            X = 0f,
+            Y = 0f,
+            Collider = new CircleCollider { Radius = 5f },
         };
 
         Assert.Null(parent.FindChildCollision(ball, out _));
@@ -507,11 +563,14 @@ public class ActorTests
     public void FindChildCollision_ReturnsNullWhenOtherHasNoCollider()
     {
         var parent = new Actor();
-        parent.Children.Add(new Actor
-        {
-            X = 0f, Y = 0f,
-            Collider = new RectCollider { Width = 100f, Height = 100f }
-        });
+        parent.Children.Add(
+            new Actor
+            {
+                X = 0f,
+                Y = 0f,
+                Collider = new RectCollider { Width = 100f, Height = 100f },
+            }
+        );
 
         var noCollider = new Actor { X = 0f, Y = 0f };
 
@@ -552,7 +611,12 @@ public class ActorTests
     [Fact]
     public void LocalMatrix_WithRotation_RotatesPoints()
     {
-        var actor = new Actor { X = 0f, Y = 0f, Rotation = MathF.PI / 2f };
+        var actor = new Actor
+        {
+            X = 0f,
+            Y = 0f,
+            Rotation = MathF.PI / 2f,
+        };
         // Rotating (10, 0) by 90° should give (0, 10)
         var mapped = actor.LocalMatrix.MapPoint(10f, 0f);
         Assert.Equal(0f, mapped.X, 1e-3f);
@@ -576,6 +640,7 @@ public class ActorTests
     private sealed class TrackingEntity : Actor
     {
         public bool DrawCalled;
+
         protected override void OnDraw(SKCanvas canvas) => DrawCalled = true;
     }
 
@@ -598,11 +663,14 @@ public class ActorTests
     {
         var parent = new Actor();
         parent.Children.Add(new SceneNode()); // non-Actor child
-        parent.Children.Add(new Actor
-        {
-            X = 10f, Y = 10f,
-            Collider = new RectCollider { Width = 20f, Height = 20f }
-        });
+        parent.Children.Add(
+            new Actor
+            {
+                X = 10f,
+                Y = 10f,
+                Collider = new RectCollider { Width = 20f, Height = 20f },
+            }
+        );
 
         var bb = parent.ChildrenBoundingBox;
         Assert.NotNull(bb);
@@ -613,16 +681,20 @@ public class ActorTests
     {
         var parent = new Actor();
         parent.Children.Add(new SceneNode()); // non-Actor child
-        parent.Children.Add(new Actor
-        {
-            X = 0f, Y = 0f,
-            Collider = new RectCollider { Width = 100f, Height = 100f }
-        });
+        parent.Children.Add(
+            new Actor
+            {
+                X = 0f,
+                Y = 0f,
+                Collider = new RectCollider { Width = 100f, Height = 100f },
+            }
+        );
 
         var ball = new Actor
         {
-            X = 0f, Y = 0f,
-            Collider = new CircleCollider { Radius = 5f }
+            X = 0f,
+            Y = 0f,
+            Collider = new CircleCollider { Radius = 5f },
         };
 
         var hit = parent.FindChildCollision(ball, out _);
@@ -632,7 +704,12 @@ public class ActorTests
     [Fact]
     public void Actor_Dump_IncludesName()
     {
-        var actor = new Actor { Name = "testActor", X = 5f, Y = 10f };
+        var actor = new Actor
+        {
+            Name = "testActor",
+            X = 5f,
+            Y = 10f,
+        };
         var dump = actor.Dump();
         Assert.Contains("testActor", dump);
         Assert.Contains("5.0", dump);

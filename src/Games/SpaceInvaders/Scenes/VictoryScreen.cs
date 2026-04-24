@@ -6,11 +6,39 @@ namespace SkiaSharpGames.SpaceInvaders;
 
 internal sealed class VictoryScreen(SpaceInvadersGameState state, IDirector director) : Scene
 {
-    private static readonly SKPaint _overlayPaint = new() { Color = new SKColor(0x00, 0x1A, 0x10).WithAlpha((byte)(255 * 0.8f)), IsAntialias = true };
+    private static readonly SKPaint _overlayPaint = new()
+    {
+        Color = new SKColor(0x00, 0x1A, 0x10).WithAlpha((byte)(255 * 0.8f)),
+        IsAntialias = true,
+    };
 
-    private readonly HudLabel _titleText = new() { Text = "WAVE CLEARED", FontSize = 72f, Color = AccentColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 250f };
-    private readonly HudLabel _scoreText = new() { Name = "score", FontSize = 32f, Color = SKColors.White, Align = TextAlign.Center, X = GameWidth / 2f, Y = 320f };
-    private readonly HudLabel _restartText = new() { Text = "Click, tap, or press Space to defend again", FontSize = 24f, Color = HudDimColor, Align = TextAlign.Center, X = GameWidth / 2f, Y = 410f };
+    private readonly HudLabel _titleText = new()
+    {
+        Text = "WAVE CLEARED",
+        FontSize = 72f,
+        Color = AccentColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 250f,
+    };
+    private readonly HudLabel _scoreText = new()
+    {
+        Name = "score",
+        FontSize = 32f,
+        Color = SKColors.White,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 320f,
+    };
+    private readonly HudLabel _restartText = new()
+    {
+        Text = "Click, tap, or press Space to defend again",
+        FontSize = 24f,
+        Color = HudDimColor,
+        Align = TextAlign.Center,
+        X = GameWidth / 2f,
+        Y = 410f,
+    };
 
     public override void OnActivating()
     {

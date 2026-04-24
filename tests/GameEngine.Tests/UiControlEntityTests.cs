@@ -72,7 +72,14 @@ public class HudControlEntityTests
         using var bitmap = new SKBitmap(200, 100);
         using var canvas = new SKCanvas(bitmap);
 
-        var button = WithTheme(new HudButton(100f, 40f) { Label = "Test", X = 100f, Y = 50f });
+        var button = WithTheme(
+            new HudButton(100f, 40f)
+            {
+                Label = "Test",
+                X = 100f,
+                Y = 50f,
+            }
+        );
         button.Draw(canvas); // Should not throw
     }
 
@@ -85,7 +92,7 @@ public class HudControlEntityTests
         bool called = false;
         var button = new HudButton(100f, 40f)
         {
-            Appearance = new DelegateButtonAppearance(() => called = true)
+            Appearance = new DelegateButtonAppearance(() => called = true),
         };
         button.Draw(canvas);
         Assert.True(called);
@@ -100,11 +107,13 @@ public class HudControlEntityTests
 
         var probe = new Actor { Collider = new CircleCollider { Radius = 1f } };
 
-        probe.X = 200f; probe.Y = 100f;
+        probe.X = 200f;
+        probe.Y = 100f;
         var hit = group.FindChildCollision(probe, out _);
         Assert.Same(button, hit);
 
-        probe.X = 0f; probe.Y = 0f;
+        probe.X = 0f;
+        probe.Y = 0f;
         hit = group.FindChildCollision(probe, out _);
         Assert.Null(hit);
     }
@@ -151,7 +160,14 @@ public class HudControlEntityTests
         using var bitmap = new SKBitmap(100, 100);
         using var canvas = new SKCanvas(bitmap);
 
-        var cb = WithTheme(new HudCheckbox(30f, 30f) { IsChecked = true, X = 50f, Y = 50f });
+        var cb = WithTheme(
+            new HudCheckbox(30f, 30f)
+            {
+                IsChecked = true,
+                X = 50f,
+                Y = 50f,
+            }
+        );
         cb.Draw(canvas);
     }
 
@@ -197,7 +213,14 @@ public class HudControlEntityTests
         var sliding = WithTheme(new HudSwitch(100f, 40f) { IsOn = true });
         sliding.Draw(canvas);
 
-        var toggle = WithTheme(new HudButton(100f, 40f) { IsToggle = true, IsOn = false, Appearance = DefaultToggleButtonAppearance.Default });
+        var toggle = WithTheme(
+            new HudButton(100f, 40f)
+            {
+                IsToggle = true,
+                IsOn = false,
+                Appearance = DefaultToggleButtonAppearance.Default,
+            }
+        );
         toggle.Draw(canvas);
     }
 
@@ -361,27 +384,32 @@ public class HudControlEntityTests
         var probe = new Actor { Collider = new CircleCollider { Radius = 1f } };
 
         // Hit button
-        probe.X = 100f; probe.Y = 50f;
+        probe.X = 100f;
+        probe.Y = 50f;
         var hit = group.FindChildCollision(probe, out _);
         Assert.IsType<HudButton>(hit);
 
         // Hit checkbox
-        probe.X = 100f; probe.Y = 120f;
+        probe.X = 100f;
+        probe.Y = 120f;
         hit = group.FindChildCollision(probe, out _);
         Assert.IsType<HudCheckbox>(hit);
 
         // Hit slider
-        probe.X = 200f; probe.Y = 200f;
+        probe.X = 200f;
+        probe.Y = 200f;
         hit = group.FindChildCollision(probe, out _);
         Assert.IsType<HudSlider>(hit);
 
         // Hit joystick
-        probe.X = 400f; probe.Y = 300f;
+        probe.X = 400f;
+        probe.Y = 300f;
         hit = group.FindChildCollision(probe, out _);
         Assert.IsType<HudJoystick>(hit);
 
         // Miss all
-        probe.X = 600f; probe.Y = 600f;
+        probe.X = 600f;
+        probe.Y = 600f;
         hit = group.FindChildCollision(probe, out _);
         Assert.Null(hit);
     }
@@ -393,10 +421,38 @@ public class HudControlEntityTests
         using var canvas = new SKCanvas(bitmap);
 
         var group = new Actor { HudTheme = Theme };
-        group.Children.Add(new HudButton(100f, 40f) { X = 100f, Y = 50f, Label = "OK" });
-        group.Children.Add(new HudCheckbox(30f, 30f) { X = 100f, Y = 120f, IsChecked = true });
-        group.Children.Add(new HudSwitch(80f, 30f) { X = 100f, Y = 170f, IsOn = true });
-        group.Children.Add(new HudSlider(200f, 20f) { X = 200f, Y = 200f, Value = 0.75f });
+        group.Children.Add(
+            new HudButton(100f, 40f)
+            {
+                X = 100f,
+                Y = 50f,
+                Label = "OK",
+            }
+        );
+        group.Children.Add(
+            new HudCheckbox(30f, 30f)
+            {
+                X = 100f,
+                Y = 120f,
+                IsChecked = true,
+            }
+        );
+        group.Children.Add(
+            new HudSwitch(80f, 30f)
+            {
+                X = 100f,
+                Y = 170f,
+                IsOn = true,
+            }
+        );
+        group.Children.Add(
+            new HudSlider(200f, 20f)
+            {
+                X = 200f,
+                Y = 200f,
+                Value = 0.75f,
+            }
+        );
         group.Children.Add(new HudJoystick(60f) { X = 400f, Y = 300f });
 
         group.Draw(canvas); // Should render all controls without error

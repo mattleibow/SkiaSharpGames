@@ -12,10 +12,7 @@ public static class PongGame
         builder.SetStageSize(PongConstants.GameWidth, PongConstants.GameHeight);
         builder.Services.AddSingleton<PongGameState>();
 
-        builder.Scenes
-               .Add<StartScreen>()
-               .Add<PlayScreen>()
-               .Add<GameOverScreen>();
+        builder.Scenes.Add<StartScreen>().Add<PlayScreen>().Add<GameOverScreen>();
 
         builder.SetOpeningScene<StartScreen>();
 

@@ -14,8 +14,16 @@ internal sealed class Submarine : Actor
         Rigidbody = new Rigidbody2D();
     }
 
-    public new RectCollider Collider { get => (RectCollider)base.Collider!; init => base.Collider = value; }
-    public new Rigidbody2D Rigidbody { get => (Rigidbody2D)base.Rigidbody!; init => base.Rigidbody = value; }
+    public new RectCollider Collider
+    {
+        get => (RectCollider)base.Collider!;
+        init => base.Collider = value;
+    }
+    public new Rigidbody2D Rigidbody
+    {
+        get => (Rigidbody2D)base.Rigidbody!;
+        init => base.Rigidbody = value;
+    }
 
     public float CruiseSpeed { get; private set; }
 
@@ -57,7 +65,12 @@ internal sealed class Submarine : Actor
         byte a = (byte)(255 * Alpha);
 
         _paint.Color = new SKColor(0x3F, 0x6B, 0x7A).WithAlpha(a);
-        canvas.DrawRoundRect(SKRect.Create(0f - SubWidth / 2f, 0f - SubHeight / 2f, SubWidth, SubHeight), 12f, 12f, _paint);
+        canvas.DrawRoundRect(
+            SKRect.Create(0f - SubWidth / 2f, 0f - SubHeight / 2f, SubWidth, SubHeight),
+            12f,
+            12f,
+            _paint
+        );
 
         _paint.Color = new SKColor(0x2D, 0x4F, 0x5A).WithAlpha(a);
         canvas.DrawRect(SKRect.Create(0f - 10f, 0f - 18f, 20f, 8f), _paint);

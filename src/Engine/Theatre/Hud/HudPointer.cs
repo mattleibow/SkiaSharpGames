@@ -47,15 +47,14 @@ public class HudPointer : HudActor
     /// <summary>
     /// Finds the first child of <paramref name="container"/> that the pointer overlaps.
     /// </summary>
-    public Actor? FindHit(Actor container)
-        => container.FindChildCollision(this, out _);
+    public Actor? FindHit(Actor container) => container.FindChildCollision(this, out _);
 
     /// <summary>
     /// Finds the first child of <paramref name="container"/> that the pointer overlaps,
     /// returning collision details.
     /// </summary>
-    public Actor? FindHit(Actor container, out CollisionHit hit)
-        => container.FindChildCollision(this, out hit);
+    public Actor? FindHit(Actor container, out CollisionHit hit) =>
+        container.FindChildCollision(this, out hit);
 
     /// <inheritdoc />
     protected override void OnDraw(SKCanvas canvas)
@@ -69,18 +68,31 @@ public class HudPointer : HudActor
 
         // Minimal fallback crosshair when no theme/appearance is configured
         byte alpha = (byte)(255 * Math.Clamp(Alpha, 0f, 1f));
-        if (alpha == 0) return;
+        if (alpha == 0)
+            return;
 
         float size = IsDown ? 6f : 8f;
         float gap = IsDown ? 1.5f : 2.5f;
 
-        using var dark = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2.5f, Color = new SKColor(0, 0, 0, (byte)(180 * alpha / 255)) };
+        using var dark = new SKPaint
+        {
+            IsAntialias = true,
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = 2.5f,
+            Color = new SKColor(0, 0, 0, (byte)(180 * alpha / 255)),
+        };
         canvas.DrawLine(-size, 0, -gap, 0, dark);
         canvas.DrawLine(gap, 0, size, 0, dark);
         canvas.DrawLine(0, -size, 0, -gap, dark);
         canvas.DrawLine(0, gap, 0, size, dark);
 
-        using var light = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, Color = SKColors.White.WithAlpha(alpha) };
+        using var light = new SKPaint
+        {
+            IsAntialias = true,
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = 1.5f,
+            Color = SKColors.White.WithAlpha(alpha),
+        };
         canvas.DrawLine(-size, 0, -gap, 0, light);
         canvas.DrawLine(gap, 0, size, 0, light);
         canvas.DrawLine(0, -size, 0, -gap, light);

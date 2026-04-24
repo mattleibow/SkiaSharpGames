@@ -10,7 +10,7 @@ public enum TextAlign
     Center,
 
     /// <summary>Text ends at the given X position.</summary>
-    Right
+    Right,
 }
 
 /// <summary>
@@ -52,7 +52,8 @@ public sealed class HudLabel : HudActor
     /// </summary>
     public float MeasureWidth()
     {
-        if (string.IsNullOrEmpty(Text)) return 0f;
+        if (string.IsNullOrEmpty(Text))
+            return 0f;
         var fonts = ResolvedHudTheme?.Fonts ?? FontProvider.Default;
         return fonts.GetFont(FontSize).MeasureText(Text);
     }
@@ -75,14 +76,14 @@ public sealed class HudLabel : HudActor
         using var paint = new SKPaint
         {
             IsAntialias = true,
-            Color = Color.WithAlpha((byte)(255 * Math.Clamp(Alpha, 0f, 1f)))
+            Color = Color.WithAlpha((byte)(255 * Math.Clamp(Alpha, 0f, 1f))),
         };
 
         float drawX = Align switch
         {
             TextAlign.Center => -font.MeasureText(Text) / 2f,
             TextAlign.Right => -font.MeasureText(Text),
-            _ => 0f
+            _ => 0f,
         };
 
         canvas.DrawText(Text, drawX, 0f, font, paint);

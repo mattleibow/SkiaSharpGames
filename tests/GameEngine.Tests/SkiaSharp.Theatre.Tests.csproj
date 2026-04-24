@@ -11,7 +11,7 @@
     <Threshold>80,75</Threshold>
     <ThresholdType>line,branch</ThresholdType>
     <Include>[SkiaSharp.Theatre]*</Include>
-    <Exclude>[SkiaSharp.Theatre]SkiaSharp.Theatre.StageInspector,[SkiaSharp.Theatre]SkiaSharp.Theatre.InspectorSnapshot,[SkiaSharp.Theatre]SkiaSharp.Theatre.InspectorNodeSnapshot</Exclude>
+    <Exclude>[SkiaSharp.Theatre]SkiaSharp.Theatre.Diagnostics.StageInspector,[SkiaSharp.Theatre]SkiaSharp.Theatre.Diagnostics.InspectorSnapshot,[SkiaSharp.Theatre]SkiaSharp.Theatre.Diagnostics.InspectorNodeSnapshot,[SkiaSharp.Theatre]SkiaSharp.Theatre.Diagnostics.SceneNodeExtensions</Exclude>
     <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
   </PropertyGroup>
 

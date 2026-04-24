@@ -1,3 +1,17 @@
+.prop-preview {
+    padding: 8px;
+    text-align: center;
+    background: #0a0e17;
+    border-bottom: 1px solid #1e2a3a;
+}
+
+.prop-preview img {
+    max-width: 100%;
+    border: 1px solid #2a3a4a;
+    border-radius: 4px;
+    image-rendering: pixelated;
+}
+
 .prop-grid {
     width: 100%;
     border-collapse: collapse;

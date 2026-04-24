@@ -1,4 +1,6 @@
-namespace SkiaSharp.Theatre;
+using SkiaSharp.Theatre;
+
+namespace SkiaSharp.Theatre.Diagnostics;
 
 /// <summary>
 /// Diagnostic service that provides a live view of the scene tree and an optional

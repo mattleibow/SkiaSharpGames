@@ -1,4 +1,5 @@
 using SkiaSharp;
+using SkiaSharp.Theatre.Diagnostics;
 
 using Xunit;
 

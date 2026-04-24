@@ -1,4 +1,6 @@
-namespace SkiaSharp.Theatre;
+using SkiaSharp.Theatre;
+
+namespace SkiaSharp.Theatre.Diagnostics;
 
 /// <summary>
 /// Default implementation of <see cref="IStageInspector"/>. Walks the scene tree to
@@ -58,16 +60,47 @@ public class StageInspector : IStageInspector
     public InspectorSnapshot GetSnapshot(Scene activeScene)
     {
         int count = 0;
-        var root = BuildNode(activeScene, ref count);
+        var root = BuildNode(activeScene, SelectedNode, ref count);
         return new InspectorSnapshot(root, count);
+    }
+
+    private static string? BuildPreview(SceneNode node, SceneNode? selectedNode)
+    {
+        if (node != selectedNode || node is not Actor selectedActor)
+            return null;
+
+        try
+        {
+            using var image = selectedActor.CaptureToImage(120, 90);
+            if (image is not null)
+            {
+                using var data = image.Encode(SKEncodedImageFormat.Png, 80);
+                return Convert.ToBase64String(data.ToArray());
+            }
+        }
+        catch
+        {
+            // ignore capture failures
+        }
+
+        return null;
     }
 
     private static InspectorNodeSnapshot BuildNode(SceneNode node, ref int count)
     {
+        return BuildNode(node, null, ref count);
+    }
+
+    private static InspectorNodeSnapshot BuildNode(
+        SceneNode node,
+        SceneNode? selectedNode,
+        ref int count
+    )
+    {
         count++;
         var children = new List<InspectorNodeSnapshot>(node.Children.Count);
         for (int i = 0; i < node.Children.Count; i++)
-            children.Add(BuildNode(node.Children[i], ref count));
+            children.Add(BuildNode(node.Children[i], selectedNode, ref count));
 
         string displayName =
             node.Name ?? (node is HudLabel label ? label.Text : null) ?? node.GetType().Name;
@@ -144,6 +177,9 @@ public class StageInspector : IStageInspector
             VelocityInfo: velocityInfo,
             ExtraProperties: extra,
             Children: children
-        );
+        )
+        {
+            PreviewImageBase64 = BuildPreview(node, selectedNode),
+        };
     }
 }

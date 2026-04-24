@@ -192,18 +192,6 @@ public class Actor : SceneNode
         canvas.Restore();
     }
 
-    // ── CaptureToImage ────────────────────────────────────────────────
-
-    /// <summary>
-    /// Renders this actor (and its children) into an offscreen image of the given size.
-    /// </summary>
-    public SKImage CaptureToImage(int width, int height)
-    {
-        using var surface = SKSurface.Create(new SKImageInfo(width, height));
-        Draw(surface.Canvas);
-        return surface.Snapshot();
-    }
-
     // ── Collision (world-space) ───────────────────────────────────────
 
     /// <summary>

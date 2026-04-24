@@ -25,7 +25,7 @@ internal sealed class Brick : Actor
         Col = col;
         X = cx;
         Y = cy;
-        Collider = new RectCollider { Width = BrickWidth, Height = BrickHeight };
+        Collider = new RectCollider(BrickWidth, BrickHeight);
     }
 
     public new RectCollider Collider

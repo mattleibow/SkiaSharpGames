@@ -1,5 +1,12 @@
 @namespace SkiaSharpGames.BlazorApp.Shared
 
+@if (Node.PreviewImageBase64 is not null)
+{
+    <div class="prop-preview">
+        <img src="data:image/png;base64,@Node.PreviewImageBase64" alt="Node preview" />
+    </div>
+}
+
 <table class="prop-grid">
     <tr>
         <td class="prop-key">Type</td>

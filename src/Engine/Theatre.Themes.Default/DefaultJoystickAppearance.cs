@@ -31,25 +31,21 @@ public record DefaultJoystickAppearance : HudAppearance<HudJoystick>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudJoystick joystick)
     {
-        byte alpha = (byte)(255 * Math.Clamp(joystick.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         float baseRadius = joystick.Radius;
         var knobDelta = joystick.Delta;
 
-        FillPaint.Color = BaseColor.WithAlpha((byte)(BaseColor.Alpha * alpha / 255));
+        FillPaint.Color = BaseColor;
         canvas.DrawCircle(0f, 0f, baseRadius, FillPaint);
 
-        StrokePaint.Color = BaseBorderColor.WithAlpha((byte)(BaseBorderColor.Alpha * alpha / 255));
+        StrokePaint.Color = BaseBorderColor;
         StrokePaint.StrokeWidth = BorderWidth;
         canvas.DrawCircle(0f, 0f, baseRadius, StrokePaint);
 
         float knobRadius = baseRadius * 0.42f;
-        FillPaint.Color = KnobColor.WithAlpha((byte)(KnobColor.Alpha * alpha / 255));
+        FillPaint.Color = KnobColor;
         canvas.DrawCircle(knobDelta.X, knobDelta.Y, knobRadius, FillPaint);
 
-        StrokePaint.Color = KnobBorderColor.WithAlpha(alpha);
+        StrokePaint.Color = KnobBorderColor;
         canvas.DrawCircle(knobDelta.X, knobDelta.Y, knobRadius, StrokePaint);
     }
 }

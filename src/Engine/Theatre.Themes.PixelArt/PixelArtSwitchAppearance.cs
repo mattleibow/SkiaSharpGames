@@ -31,19 +31,15 @@ public record PixelArtSwitchAppearance : HudAppearance<HudSwitch>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudSwitch sw)
     {
-        byte alpha = (byte)(255 * Math.Clamp(sw.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         var rect = sw.LocalRect;
 
         // Track
-        FillPaint.Color = (sw.IsOn ? TrackOnColor : TrackOffColor).WithAlpha(alpha);
+        FillPaint.Color = sw.IsOn ? TrackOnColor : TrackOffColor;
         canvas.DrawRect(rect, FillPaint);
 
         // Track border
         StrokePaint.StrokeWidth = BorderWidth;
-        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        StrokePaint.Color = BorderColor;
         canvas.DrawRect(rect, StrokePaint);
 
         // Square knob
@@ -53,11 +49,11 @@ public record PixelArtSwitchAppearance : HudAppearance<HudSwitch>
         float knobY = rect.Top + margin;
 
         var knobRect = SKRect.Create(knobX, knobY, knobSize, knobSize);
-        FillPaint.Color = KnobColor.WithAlpha(alpha);
+        FillPaint.Color = KnobColor;
         canvas.DrawRect(knobRect, FillPaint);
 
         StrokePaint.StrokeWidth = MathF.Max(1f, BorderWidth * 0.75f);
-        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        StrokePaint.Color = BorderColor;
         canvas.DrawRect(knobRect, StrokePaint);
     }
 }

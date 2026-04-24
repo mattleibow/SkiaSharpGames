@@ -158,13 +158,29 @@ public class Actor : SceneNode
     /// <summary>
     /// Renders the actor tree. Translates (and optionally rotates) the canvas,
     /// calls <see cref="OnDraw"/>, then recurses into visible children.
+    /// When <see cref="Alpha"/> is less than 1, a compositing layer is used so
+    /// that the opacity cascades correctly to all children.
     /// </summary>
     public override void Draw(SKCanvas canvas)
     {
-        if (!Active || !Visible)
+        if (!Active || !Visible || Alpha <= 0f)
             return;
 
-        canvas.Save();
+        if (Alpha < 1f)
+        {
+            // SaveLayer composites everything drawn within at the given alpha.
+            // This gives correct cascading: parent 50 % + child 50 % = 25 %.
+            using var layerPaint = new SKPaint
+            {
+                Color = SKColors.White.WithAlpha((byte)(255 * Alpha)),
+            };
+            canvas.SaveLayer(layerPaint);
+        }
+        else
+        {
+            canvas.Save();
+        }
+
         canvas.Concat(LocalMatrix);
 
         OnDraw(canvas);

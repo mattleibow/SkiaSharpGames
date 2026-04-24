@@ -34,8 +34,7 @@ public record DefaultToggleButtonAppearance : HudAppearance<HudButton>
             button.IsOn ? "ON" : "OFF",
             pressed: false,
             enabled: true,
-            fontSize: MathF.Min(18f, rect.Height * 0.5f),
-            alpha: button.Alpha
+            fontSize: MathF.Min(18f, rect.Height * 0.5f)
         );
     }
 

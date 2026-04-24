@@ -42,10 +42,7 @@ internal sealed class PongPaddle : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
-        _paint.Color = Color.WithAlpha((byte)(255 * Alpha));
+        _paint.Color = Color;
         var rect = SKRect.Create(-Width / 2f, -Height / 2f, Width, Height);
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _paint);
     }

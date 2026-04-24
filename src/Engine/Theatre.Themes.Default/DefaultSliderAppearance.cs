@@ -32,10 +32,6 @@ public record DefaultSliderAppearance : HudAppearance<HudSlider>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudSlider slider)
     {
-        byte alpha = (byte)(255 * Math.Clamp(slider.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         var rect = slider.LocalRect;
         float value = Math.Clamp(slider.Value, 0f, 1f);
 
@@ -46,18 +42,18 @@ public record DefaultSliderAppearance : HudAppearance<HudSlider>
 
         StrokePaint.StrokeCap = SKStrokeCap.Round;
         StrokePaint.StrokeWidth = TrackHeight;
-        StrokePaint.Color = TrackColor.WithAlpha(alpha);
+        StrokePaint.Color = TrackColor;
         canvas.DrawLine(left, cy, right, cy, StrokePaint);
 
-        StrokePaint.Color = FillColor.WithAlpha(alpha);
+        StrokePaint.Color = FillColor;
         canvas.DrawLine(left, cy, knobX, cy, StrokePaint);
 
-        FillPaint.Color = KnobColor.WithAlpha(alpha);
+        FillPaint.Color = KnobColor;
         canvas.DrawCircle(knobX, cy, KnobRadius, FillPaint);
 
         StrokePaint.StrokeCap = SKStrokeCap.Butt;
         StrokePaint.StrokeWidth = BorderWidth;
-        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        StrokePaint.Color = BorderColor;
         canvas.DrawCircle(knobX, cy, KnobRadius, StrokePaint);
     }
 }

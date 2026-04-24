@@ -29,10 +29,6 @@ public record NeonJoystickAppearance : HudAppearance<HudJoystick>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudJoystick joystick)
     {
-        byte alpha = (byte)(255 * Math.Clamp(joystick.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         float baseRadius = joystick.Radius;
         var knobDelta = joystick.Delta;
 
@@ -41,7 +37,7 @@ public record NeonJoystickAppearance : HudAppearance<HudJoystick>
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = BaseColor.WithAlpha((byte)(BaseColor.Alpha * alpha / 255)),
+            Color = BaseColor,
         };
         canvas.DrawCircle(0f, 0f, baseRadius, fillPaint);
 
@@ -51,7 +47,7 @@ public record NeonJoystickAppearance : HudAppearance<HudJoystick>
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             StrokeWidth = BorderWidth + 2f,
-            Color = RingColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
+            Color = RingColor.WithAlpha(GlowAlpha),
             MaskFilter = GlowFilter,
         };
         canvas.DrawCircle(0f, 0f, baseRadius, glowPaint);
@@ -59,7 +55,7 @@ public record NeonJoystickAppearance : HudAppearance<HudJoystick>
         // Solid ring
         glowPaint.MaskFilter = null;
         glowPaint.StrokeWidth = BorderWidth;
-        glowPaint.Color = RingColor.WithAlpha(alpha);
+        glowPaint.Color = RingColor;
         canvas.DrawCircle(0f, 0f, baseRadius, glowPaint);
 
         // Knob
@@ -70,14 +66,14 @@ public record NeonJoystickAppearance : HudAppearance<HudJoystick>
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = KnobColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
+            Color = KnobColor.WithAlpha(GlowAlpha),
             MaskFilter = KnobGlowFilter,
         };
         canvas.DrawCircle(knobDelta.X, knobDelta.Y, knobRadius + 3f, knobPaint);
 
         // Solid knob
         knobPaint.MaskFilter = null;
-        knobPaint.Color = KnobColor.WithAlpha(alpha);
+        knobPaint.Color = KnobColor;
         canvas.DrawCircle(knobDelta.X, knobDelta.Y, knobRadius, knobPaint);
     }
 }

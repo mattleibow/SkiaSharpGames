@@ -20,15 +20,10 @@ internal sealed class SnakeEntity : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
         bool isHead = true;
         foreach (var seg in _body)
         {
-            _paint.Color = (isHead ? SnakeHeadColor : SnakeBodyColor).WithAlpha(
-                (byte)(255 * Alpha)
-            );
+            _paint.Color = isHead ? SnakeHeadColor : SnakeBodyColor;
             float cx = seg.Col * CellSize + CellSize / 2f;
             float cy = seg.Row * CellSize + CellSize / 2f;
             canvas.DrawRoundRect(

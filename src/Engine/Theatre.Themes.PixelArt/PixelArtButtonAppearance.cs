@@ -61,7 +61,7 @@ public record PixelArtButtonAppearance : HudAppearance<HudButton>
         float alpha = 1f
     )
     {
-        byte a = enabled ? (byte)(255 * Math.Clamp(alpha, 0f, 1f)) : DisabledAlpha;
+        byte a = enabled ? (byte)255 : DisabledAlpha;
         if (a == 0)
             return;
 

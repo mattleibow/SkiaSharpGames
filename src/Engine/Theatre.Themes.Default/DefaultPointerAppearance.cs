@@ -30,20 +30,16 @@ public record DefaultCrosshairAppearance : HudAppearance<HudPointer>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudPointer pointer)
     {
-        byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         float size = pointer.IsDown ? 6f : 8f;
         float gap = pointer.IsDown ? 1.5f : 2.5f;
 
-        StrokeDark.Color = new SKColor(0, 0, 0, (byte)(180 * alpha / 255));
+        StrokeDark.Color = new SKColor(0, 0, 0, 180);
         canvas.DrawLine(-size, 0, -gap, 0, StrokeDark);
         canvas.DrawLine(gap, 0, size, 0, StrokeDark);
         canvas.DrawLine(0, -size, 0, -gap, StrokeDark);
         canvas.DrawLine(0, gap, 0, size, StrokeDark);
 
-        StrokeLight.Color = SKColors.White.WithAlpha(alpha);
+        StrokeLight.Color = SKColors.White;
         canvas.DrawLine(-size, 0, -gap, 0, StrokeLight);
         canvas.DrawLine(gap, 0, size, 0, StrokeLight);
         canvas.DrawLine(0, -size, 0, -gap, StrokeLight);
@@ -75,14 +71,10 @@ public record DefaultDotAppearance : HudAppearance<HudPointer>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudPointer pointer)
     {
-        byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         float r = pointer.IsDown ? 2f : 3f;
-        FillDark.Color = new SKColor(0, 0, 0, (byte)(180 * alpha / 255));
+        FillDark.Color = new SKColor(0, 0, 0, 180);
         canvas.DrawCircle(0, 0, r + 1f, FillDark);
-        FillLight.Color = SKColors.White.WithAlpha(alpha);
+        FillLight.Color = SKColors.White;
         canvas.DrawCircle(0, 0, r, FillLight);
     }
 }
@@ -113,14 +105,10 @@ public record DefaultRingAppearance : HudAppearance<HudPointer>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudPointer pointer)
     {
-        byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         float r = pointer.IsDown ? 4f : 6f;
-        StrokeDark.Color = new SKColor(0, 0, 0, (byte)(180 * alpha / 255));
+        StrokeDark.Color = new SKColor(0, 0, 0, 180);
         canvas.DrawCircle(0, 0, r, StrokeDark);
-        StrokeLight.Color = SKColors.White.WithAlpha(alpha);
+        StrokeLight.Color = SKColors.White;
         canvas.DrawCircle(0, 0, r, StrokeLight);
     }
 }

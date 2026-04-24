@@ -63,15 +63,11 @@ internal sealed class Lander : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
-        byte alpha = (byte)(255 * Alpha);
         float halfW = LanderWidth / 2f;
         float halfH = LanderHeight / 2f;
 
         // Body — a trapezoid/triangle shape pointing up
-        _bodyPaint.Color = Color.WithAlpha(alpha);
+        _bodyPaint.Color = Color;
         using var bodyPath = new SKPath();
         bodyPath.MoveTo(0, -halfH); // top (nose)
         bodyPath.LineTo(halfW, halfH); // bottom-right
@@ -80,11 +76,11 @@ internal sealed class Lander : Actor
         canvas.DrawPath(bodyPath, _bodyPaint);
 
         // Window — small circle near the top
-        _windowPaint.Color = AccentColor.WithAlpha(alpha);
+        _windowPaint.Color = AccentColor;
         canvas.DrawCircle(0, -halfH + 8f, 4f, _windowPaint);
 
         // Landing legs
-        _legPaint.Color = Color.WithAlpha(alpha);
+        _legPaint.Color = Color;
         float legExtend = 6f;
         canvas.DrawLine(-halfW, halfH, -halfW - 4f, halfH + legExtend, _legPaint);
         canvas.DrawLine(halfW, halfH, halfW + 4f, halfH + legExtend, _legPaint);

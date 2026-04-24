@@ -10,8 +10,8 @@ internal sealed class Brick : Actor
     private readonly SKPaint _paint = new() { IsAntialias = true };
     private readonly SKPaint _shimmerPaint = new() { IsAntialias = true };
 
-    public readonly int Row,
-        Col;
+    public readonly int Row;
+    public readonly int Col;
 
     public float Width { get; set; } = BrickWidth;
     public float Height { get; set; } = BrickHeight;
@@ -41,21 +41,18 @@ internal sealed class Brick : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
         float left = 0 - Width / 2f;
         float top = 0 - Height / 2f;
         var rect = SKRect.Create(left, top, Width, Height);
 
-        _paint.Color = Color.WithAlpha((byte)(255 * Alpha));
+        _paint.Color = Color;
         canvas.DrawRoundRect(new SKRoundRect(rect, CornerRadius), _paint);
 
         if (Width > 4f && Height > 4f)
         {
             float shineHeight = (Height - 4f) / 2f;
             float shineRadius = Math.Max(CornerRadius - 1f, 0f);
-            _paint.Color = SKColors.White.WithAlpha((byte)(55 * Alpha));
+            _paint.Color = SKColors.White.WithAlpha(55);
             canvas.DrawRoundRect(
                 new SKRoundRect(
                     SKRect.Create(left + 2f, top + 2f, Width - 4f, shineHeight),
@@ -76,11 +73,7 @@ internal sealed class Brick : Actor
             using var shader = SKShader.CreateLinearGradient(
                 new SKPoint(sweepX, top),
                 new SKPoint(sweepX + stripeWidth, top),
-                [
-                    SKColors.Transparent,
-                    SKColors.White.WithAlpha((byte)(90 * Alpha)),
-                    SKColors.Transparent,
-                ],
+                [SKColors.Transparent, SKColors.White.WithAlpha(90), SKColors.Transparent],
                 [0f, 0.5f, 1f],
                 SKShaderTileMode.Clamp
             );

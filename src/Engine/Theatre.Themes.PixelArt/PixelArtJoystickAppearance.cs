@@ -31,19 +31,15 @@ public record PixelArtJoystickAppearance : HudAppearance<HudJoystick>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudJoystick joystick)
     {
-        byte alpha = (byte)(255 * Math.Clamp(joystick.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         float baseRadius = joystick.Radius;
         var knobDelta = joystick.Delta;
 
         // Square base
         var baseRect = new SKRect(-baseRadius, -baseRadius, baseRadius, baseRadius);
-        FillPaint.Color = BaseColor.WithAlpha((byte)(BaseColor.Alpha * alpha / 255));
+        FillPaint.Color = BaseColor;
         canvas.DrawRect(baseRect, FillPaint);
 
-        StrokePaint.Color = BaseBorderColor.WithAlpha((byte)(BaseBorderColor.Alpha * alpha / 255));
+        StrokePaint.Color = BaseBorderColor;
         StrokePaint.StrokeWidth = BorderWidth;
         canvas.DrawRect(baseRect, StrokePaint);
 
@@ -55,10 +51,10 @@ public record PixelArtJoystickAppearance : HudAppearance<HudJoystick>
             knobDelta.X + knobSize,
             knobDelta.Y + knobSize
         );
-        FillPaint.Color = KnobColor.WithAlpha((byte)(KnobColor.Alpha * alpha / 255));
+        FillPaint.Color = KnobColor;
         canvas.DrawRect(knobRect, FillPaint);
 
-        StrokePaint.Color = KnobBorderColor.WithAlpha(alpha);
+        StrokePaint.Color = KnobBorderColor;
         canvas.DrawRect(knobRect, StrokePaint);
     }
 }

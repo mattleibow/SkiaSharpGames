@@ -17,9 +17,6 @@ internal sealed class GridEntity : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
         for (int c = 1; c < GridCols; c++)
         {
             float x = c * CellSize;

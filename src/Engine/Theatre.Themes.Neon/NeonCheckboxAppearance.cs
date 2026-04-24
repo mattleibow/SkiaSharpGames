@@ -25,10 +25,6 @@ public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudCheckbox checkbox)
     {
-        byte alpha = (byte)(255 * Math.Clamp(checkbox.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         var rect = checkbox.LocalRect;
         float cr = CornerRadius;
 
@@ -36,7 +32,7 @@ public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = FillColor.WithAlpha(alpha),
+            Color = FillColor,
         };
         canvas.DrawRoundRect(rect, cr, cr, fillPaint);
 
@@ -46,7 +42,7 @@ public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             StrokeWidth = BorderWidth + 2f,
-            Color = BorderColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
+            Color = BorderColor.WithAlpha(GlowAlpha),
             MaskFilter = GlowFilter,
         };
         canvas.DrawRoundRect(rect, cr, cr, glowPaint);
@@ -54,7 +50,7 @@ public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
         // Solid border
         glowPaint.MaskFilter = null;
         glowPaint.StrokeWidth = BorderWidth;
-        glowPaint.Color = BorderColor.WithAlpha(alpha);
+        glowPaint.Color = BorderColor;
         canvas.DrawRoundRect(rect, cr, cr, glowPaint);
 
         if (!checkbox.IsChecked)
@@ -67,7 +63,7 @@ public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
             Style = SKPaintStyle.Stroke,
             StrokeCap = SKStrokeCap.Round,
             StrokeWidth = MathF.Max(2f, rect.Width * 0.12f) + 2f,
-            Color = CheckColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
+            Color = CheckColor.WithAlpha(GlowAlpha),
             MaskFilter = GlowFilter,
         };
 
@@ -84,7 +80,7 @@ public record NeonCheckboxAppearance : HudAppearance<HudCheckbox>
         // Solid check on top
         checkPaint.MaskFilter = null;
         checkPaint.StrokeWidth = MathF.Max(2f, rect.Width * 0.12f);
-        checkPaint.Color = CheckColor.WithAlpha(alpha);
+        checkPaint.Color = CheckColor;
         canvas.DrawLine(x1, y1, x2, y2, checkPaint);
         canvas.DrawLine(x2, y2, x3, y3, checkPaint);
     }

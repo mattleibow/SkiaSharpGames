@@ -30,23 +30,19 @@ public record DefaultCheckboxAppearance : HudAppearance<HudCheckbox>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudCheckbox checkbox)
     {
-        byte alpha = (byte)(255 * Math.Clamp(checkbox.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         var rect = checkbox.LocalRect;
 
-        FillPaint.Color = FillColor.WithAlpha(alpha);
+        FillPaint.Color = FillColor;
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, FillPaint);
 
         StrokePaint.StrokeWidth = BorderWidth;
-        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        StrokePaint.Color = BorderColor;
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, StrokePaint);
 
         if (!checkbox.IsChecked)
             return;
 
-        StrokePaint.Color = CheckColor.WithAlpha(alpha);
+        StrokePaint.Color = CheckColor;
         StrokePaint.StrokeCap = SKStrokeCap.Round;
         StrokePaint.StrokeWidth = MathF.Max(2f, rect.Width * 0.12f);
         canvas.DrawLine(

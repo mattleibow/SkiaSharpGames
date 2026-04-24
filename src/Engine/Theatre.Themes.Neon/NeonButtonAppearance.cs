@@ -31,8 +31,7 @@ public record NeonButtonAppearance : HudAppearance<HudButton>
     {
         var rect = button.LocalRect;
         bool pressed = button.IsPressed;
-        float alpha = button.Alpha;
-        byte a = button.IsEnabled ? (byte)(255 * Math.Clamp(alpha, 0f, 1f)) : DisabledAlpha;
+        byte a = button.IsEnabled ? (byte)255 : DisabledAlpha;
 
         var neon = pressed ? PressedBorderColor : BorderColor;
         var text = pressed ? PressedTextColor : TextColor;
@@ -52,7 +51,7 @@ public record NeonButtonAppearance : HudAppearance<HudButton>
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             StrokeWidth = BorderWidth + 2f,
-            Color = neon.WithAlpha((byte)(GlowAlpha * a / 255)),
+            Color = neon.WithAlpha(GlowAlpha),
             MaskFilter = GlowFilter,
         };
         canvas.DrawRoundRect(rect, cr, cr, glowPaint);

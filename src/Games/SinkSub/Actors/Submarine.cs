@@ -60,12 +60,7 @@ internal sealed class Submarine : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
-        byte a = (byte)(255 * Alpha);
-
-        _paint.Color = new SKColor(0x3F, 0x6B, 0x7A).WithAlpha(a);
+        _paint.Color = new SKColor(0x3F, 0x6B, 0x7A);
         canvas.DrawRoundRect(
             SKRect.Create(0f - SubWidth / 2f, 0f - SubHeight / 2f, SubWidth, SubHeight),
             12f,
@@ -73,10 +68,10 @@ internal sealed class Submarine : Actor
             _paint
         );
 
-        _paint.Color = new SKColor(0x2D, 0x4F, 0x5A).WithAlpha(a);
+        _paint.Color = new SKColor(0x2D, 0x4F, 0x5A);
         canvas.DrawRect(SKRect.Create(0f - 10f, 0f - 18f, 20f, 8f), _paint);
 
-        _paint.Color = SKColors.White.WithAlpha(110).WithAlpha(a);
+        _paint.Color = SKColors.White.WithAlpha(110);
         canvas.DrawRect(SKRect.Create(0f + 24f, 0f - 2f, 14f, 4f), _paint);
     }
 }

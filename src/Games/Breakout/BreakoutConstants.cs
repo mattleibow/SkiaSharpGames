@@ -40,6 +40,7 @@ internal static class BreakoutConstants
     public const float PowerUpH = 18f;
 
     // ── Colours ───────────────────────────────────────────────────────────
+    public static readonly SKColor BallColor = new(0xFF, 0xFF, 0xFF);
     public static readonly SKColor BackgroundColor = new(0x0D, 0x1B, 0x2A);
     public static readonly SKColor PaddleColor = new(0x00, 0xD4, 0xFF);
     public static readonly SKColor AccentColor = new(0x00, 0xD4, 0xFF);

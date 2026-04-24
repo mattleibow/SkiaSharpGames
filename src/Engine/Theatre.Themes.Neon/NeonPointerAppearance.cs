@@ -22,10 +22,6 @@ public record NeonPointerAppearance : HudAppearance<HudPointer>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudPointer pointer)
     {
-        byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         float size = pointer.IsDown ? 7f : 10f;
         float gap = pointer.IsDown ? 2f : 3f;
 
@@ -35,7 +31,7 @@ public record NeonPointerAppearance : HudAppearance<HudPointer>
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             StrokeWidth = StrokeWidth + 2f,
-            Color = NeonColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
+            Color = NeonColor.WithAlpha(GlowAlpha),
             MaskFilter = GlowFilter,
         };
         DrawCrosshair(canvas, size, gap, glowPaint);
@@ -43,7 +39,7 @@ public record NeonPointerAppearance : HudAppearance<HudPointer>
         // Solid pass
         glowPaint.MaskFilter = null;
         glowPaint.StrokeWidth = StrokeWidth;
-        glowPaint.Color = NeonColor.WithAlpha(alpha);
+        glowPaint.Color = NeonColor;
         DrawCrosshair(canvas, size, gap, glowPaint);
 
         // Center dot glow
@@ -51,13 +47,13 @@ public record NeonPointerAppearance : HudAppearance<HudPointer>
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = NeonColor.WithAlpha((byte)(GlowAlpha * alpha / 255)),
+            Color = NeonColor.WithAlpha(GlowAlpha),
             MaskFilter = GlowFilter,
         };
         canvas.DrawCircle(0, 0, 1.5f, dotPaint);
 
         dotPaint.MaskFilter = null;
-        dotPaint.Color = NeonColor.WithAlpha(alpha);
+        dotPaint.Color = NeonColor;
         canvas.DrawCircle(0, 0, 0.8f, dotPaint);
     }
 

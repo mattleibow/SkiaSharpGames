@@ -30,17 +30,13 @@ public record PixelArtPointerAppearance : HudAppearance<HudPointer>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudPointer pointer)
     {
-        byte alpha = (byte)(255 * Math.Clamp(pointer.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         float s = pointer.IsDown ? Size * 0.75f : Size;
 
         ShadowPaint.StrokeWidth = StrokeWidth + 1f;
-        ShadowPaint.Color = ShadowColor.WithAlpha((byte)(ShadowColor.Alpha * alpha / 255));
+        ShadowPaint.Color = ShadowColor;
 
         MainPaint.StrokeWidth = StrokeWidth;
-        MainPaint.Color = Color.WithAlpha(alpha);
+        MainPaint.Color = Color;
 
         // Shadow layer
         canvas.DrawLine(-s, 0, s, 0, ShadowPaint);

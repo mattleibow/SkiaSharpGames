@@ -29,21 +29,18 @@ internal sealed class PlayerBar : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
         float left = -Width / 2f;
         float top = -Height / 2f;
         var rect = SKRect.Create(left, top, Width, Height);
 
-        _paint.Color = Color.WithAlpha((byte)(255 * Alpha));
+        _paint.Color = Color;
         canvas.DrawRoundRect(new SKRoundRect(rect, CornerRadius), _paint);
 
         if (ShowShine && Width > 4f && Height > 4f)
         {
             float shineHeight = (Height - 4f) / 2f;
             float shineRadius = Math.Max(CornerRadius - 1f, 0f);
-            _shinePaint.Color = SKColors.White.WithAlpha((byte)(55 * Alpha));
+            _shinePaint.Color = SKColors.White.WithAlpha(55);
             canvas.DrawRoundRect(
                 new SKRoundRect(
                     SKRect.Create(left + 2f, top + 2f, Width - 4f, shineHeight),

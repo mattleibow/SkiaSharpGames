@@ -77,8 +77,6 @@ internal sealed class Ship : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        byte alpha = (byte)(255 * Math.Clamp(Alpha, 0f, 1f));
-
         // Draw thrust flame behind ship
         if (Thrusting)
         {
@@ -94,7 +92,7 @@ internal sealed class Ship : Actor
         }
 
         // Draw ship hull
-        _strokePaint.Color = ShipColor.WithAlpha(alpha);
+        _strokePaint.Color = ShipColor;
 
         float sr = ShipRadius;
         using var path = new SKPath();

@@ -31,26 +31,22 @@ public record DefaultSwitchAppearance : HudAppearance<HudSwitch>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudSwitch sw)
     {
-        byte alpha = (byte)(255 * Math.Clamp(sw.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         var rect = sw.LocalRect;
 
-        FillPaint.Color = (sw.IsOn ? TrackOnColor : TrackOffColor).WithAlpha(alpha);
+        FillPaint.Color = sw.IsOn ? TrackOnColor : TrackOffColor;
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, FillPaint);
 
         StrokePaint.StrokeWidth = BorderWidth;
-        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        StrokePaint.Color = BorderColor;
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, StrokePaint);
 
         float margin = 4f;
         float knobRadius = MathF.Max(6f, rect.Height * 0.5f - margin);
         float knobX = sw.IsOn ? rect.Right - margin - knobRadius : rect.Left + margin + knobRadius;
 
-        FillPaint.Color = KnobColor.WithAlpha(alpha);
+        FillPaint.Color = KnobColor;
         canvas.DrawCircle(knobX, rect.MidY, knobRadius, FillPaint);
-        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        StrokePaint.Color = BorderColor;
         StrokePaint.StrokeWidth = MathF.Max(1f, BorderWidth * 0.75f);
         canvas.DrawCircle(knobX, rect.MidY, knobRadius, StrokePaint);
     }

@@ -28,11 +28,8 @@ internal sealed class FoodEntity : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
         float size = CellSize - Inset * 2f;
-        _paint.Color = FoodColor.WithAlpha((byte)(255 * Alpha));
+        _paint.Color = FoodColor;
         canvas.DrawRoundRect(
             -size / 2f,
             -size / 2f,

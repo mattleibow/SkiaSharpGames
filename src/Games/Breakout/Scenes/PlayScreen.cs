@@ -252,7 +252,6 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
         _paddle.Color =
             _bigPaddleTimer.Active || _paddle.IsWidthAnimating ? BigPaddleColor : PaddleColor;
         _ball.Color = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
-        _ball.GlowColor = _strongBallTimer.Active ? StrongBallColor : SKColors.White;
 
         // HUD text
         _scoreText.Text = $"Score: {state.Score}";

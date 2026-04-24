@@ -50,10 +50,7 @@ internal sealed class Paddle : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
-        _paint.Color = Color.WithAlpha((byte)(255 * Alpha));
+        _paint.Color = Color;
         canvas.DrawRoundRect(
             new SKRoundRect(
                 SKRect.Create(0 - Width / 2f, 0 - Height / 2f, Width, Height),

@@ -5,10 +5,11 @@ namespace SkiaSharp.Theatre;
 /// </summary>
 public sealed class CircleCollider(float radius) : Collider2D
 {
+    /// <summary>
+    /// Creates a new <see cref="CircleCollider"/> with no radius.
+    /// </summary>
     public CircleCollider()
-        : this(radius: 0f)
-    {
-    }
+        : this(radius: 0f) { }
 
     /// <summary>
     /// Radius of the circle in game-space units.

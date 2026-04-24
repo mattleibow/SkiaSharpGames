@@ -42,8 +42,7 @@ internal sealed class Debris : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        byte alpha = (byte)(255 * Math.Clamp(Alpha, 0f, 1f));
-        _paint.Color = DebrisColor.WithAlpha(alpha);
+        _paint.Color = DebrisColor;
         canvas.DrawLine(-3f, 0f, 3f, 0f, _paint);
     }
 }

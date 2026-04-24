@@ -27,15 +27,14 @@ internal sealed class FlameEntity : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f || Intensity <= 0f)
+        if (Intensity <= 0f)
             return;
 
-        byte alpha = (byte)(220 * Alpha);
         float length = 8f + 10f * Intensity * _flicker;
         float halfWidth = 4f * Intensity * _flicker;
 
         // Outer flame (orange)
-        _outerPaint.Color = FlameColor.WithAlpha(alpha);
+        _outerPaint.Color = FlameColor.WithAlpha(220);
         using var outerPath = new SKPath();
         outerPath.MoveTo(-halfWidth, 0);
         outerPath.LineTo(halfWidth, 0);
@@ -46,7 +45,7 @@ internal sealed class FlameEntity : Actor
         // Inner flame (yellow, smaller)
         float innerHalfW = halfWidth * 0.5f;
         float innerLen = length * 0.6f;
-        _innerPaint.Color = FlameInnerColor.WithAlpha(alpha);
+        _innerPaint.Color = FlameInnerColor.WithAlpha(220);
         using var innerPath = new SKPath();
         innerPath.MoveTo(-innerHalfW, 0);
         innerPath.LineTo(innerHalfW, 0);

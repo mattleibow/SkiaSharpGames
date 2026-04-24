@@ -17,11 +17,11 @@ public record PixelArtLabelAppearance : HudAppearance<HudLabel>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudLabel label)
     {
-        if (label.Alpha <= 0f || string.IsNullOrEmpty(label.Text))
+        if (string.IsNullOrEmpty(label.Text))
             return;
 
         var font = Fonts.GetFont(label.FontSize);
-        TextPaint.Color = label.Color.WithAlpha((byte)(255 * Math.Clamp(label.Alpha, 0f, 1f)));
+        TextPaint.Color = label.Color;
 
         float drawX = label.Align switch
         {

@@ -38,18 +38,13 @@ internal sealed class PongBall : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
-        byte a = (byte)(255 * Alpha);
-
         if (GlowRadius > 0f)
         {
-            _glowPaint.Color = GlowColor.WithAlpha((byte)(a * 0.5f));
+            _glowPaint.Color = GlowColor.WithAlpha(127);
             canvas.DrawCircle(0f, 0f, Radius + GlowRadius, _glowPaint);
         }
 
-        _paint.Color = Color.WithAlpha(a);
+        _paint.Color = Color;
         canvas.DrawCircle(0f, 0f, Radius, _paint);
     }
 }

@@ -22,12 +22,7 @@ internal sealed class Ship : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
-        byte a = (byte)(255 * Alpha);
-
-        _paint.Color = new SKColor(0x4D, 0x5B, 0x6A).WithAlpha(a);
+        _paint.Color = new SKColor(0x4D, 0x5B, 0x6A);
         canvas.DrawRoundRect(
             SKRect.Create(0f - ShipWidth / 2f, 0f - ShipHeight / 2f, ShipWidth, ShipHeight),
             10f,
@@ -35,10 +30,10 @@ internal sealed class Ship : Actor
             _paint
         );
 
-        _paint.Color = new SKColor(0xD7, 0xDB, 0xE0).WithAlpha(a);
+        _paint.Color = new SKColor(0xD7, 0xDB, 0xE0);
         canvas.DrawRoundRect(SKRect.Create(0f - 27f, 0f - 24f, 34f, 16f), 4f, 4f, _paint);
 
-        _paint.Color = SKColors.Black.WithAlpha(a);
+        _paint.Color = SKColors.Black;
         canvas.DrawRect(SKRect.Create(0f + 14f, 0f - 28f, 4f, 18f), _paint);
     }
 }

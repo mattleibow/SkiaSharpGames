@@ -69,15 +69,11 @@ public sealed class HudLabel : HudActor
         }
 
         // Minimal fallback when no theme/appearance is configured
-        if (Alpha <= 0f || string.IsNullOrEmpty(Text))
+        if (string.IsNullOrEmpty(Text))
             return;
 
         var font = (ResolvedHudTheme?.Fonts ?? FontProvider.Default).GetFont(FontSize);
-        using var paint = new SKPaint
-        {
-            IsAntialias = true,
-            Color = Color.WithAlpha((byte)(255 * Math.Clamp(Alpha, 0f, 1f))),
-        };
+        using var paint = new SKPaint { IsAntialias = true, Color = Color };
 
         float drawX = Align switch
         {

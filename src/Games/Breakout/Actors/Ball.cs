@@ -12,36 +12,30 @@ internal sealed class Ball : Actor
 {
     private const float GlowRadius = 4f;
 
-    private readonly SKPaint _paint = new()
-    {
-        IsAntialias = true
-    };
-    
+    private readonly SKPaint _paint = new() { IsAntialias = true };
+
     private readonly SKPaint _glowPaint = new()
     {
         IsAntialias = true,
-        MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, GlowRadius);
+        MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, GlowRadius),
     };
 
     public float Radius { get; set; } = BallRadius;
 
-    public SKColor Color { get; set; } = SKColors.White;
+    public SKColor Color { get; set; } = BallColor;
 
     public Ball()
     {
-        Collider = new CircleCollider { Radius = BallRadius };
+        Collider = new CircleCollider(BallRadius);
         Rigidbody = new Rigidbody2D();
     }
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
-        _glowPaint.Color = Color.WithAlpha((byte)(60 * Alpha));
+        _glowPaint.Color = Color.WithAlpha(60);
         canvas.DrawCircle(0, 0, Radius + GlowRadius / 2f, _glowPaint);
 
-        _paint.Color = Color.WithAlpha((byte)(255 * Alpha));
+        _paint.Color = Color;
         canvas.DrawCircle(0, 0, Radius, _paint);
     }
 }

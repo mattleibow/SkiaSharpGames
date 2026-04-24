@@ -33,10 +33,6 @@ public record PixelArtSliderAppearance : HudAppearance<HudSlider>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudSlider slider)
     {
-        byte alpha = (byte)(255 * Math.Clamp(slider.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         var rect = slider.LocalRect;
         float value = Math.Clamp(slider.Value, 0f, 1f);
 
@@ -47,29 +43,29 @@ public record PixelArtSliderAppearance : HudAppearance<HudSlider>
 
         // Track background
         var trackRect = new SKRect(left, cy - TrackHeight / 2f, right, cy + TrackHeight / 2f);
-        FillPaint.Color = TrackColor.WithAlpha(alpha);
+        FillPaint.Color = TrackColor;
         canvas.DrawRect(trackRect, FillPaint);
 
         // Filled portion
         if (knobX > left)
         {
             var fillRect = new SKRect(left, cy - TrackHeight / 2f, knobX, cy + TrackHeight / 2f);
-            FillPaint.Color = FillColor.WithAlpha(alpha);
+            FillPaint.Color = FillColor;
             canvas.DrawRect(fillRect, FillPaint);
         }
 
         // Track border
         StrokePaint.StrokeWidth = BorderWidth;
-        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        StrokePaint.Color = BorderColor;
         canvas.DrawRect(trackRect, StrokePaint);
 
         // Square knob
         float halfKnob = KnobSize / 2f;
         var knobRect = new SKRect(knobX - halfKnob, cy - halfKnob, knobX + halfKnob, cy + halfKnob);
-        FillPaint.Color = KnobColor.WithAlpha(alpha);
+        FillPaint.Color = KnobColor;
         canvas.DrawRect(knobRect, FillPaint);
 
-        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        StrokePaint.Color = BorderColor;
         canvas.DrawRect(knobRect, StrokePaint);
     }
 }

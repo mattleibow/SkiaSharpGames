@@ -30,26 +30,22 @@ public record PixelArtCheckboxAppearance : HudAppearance<HudCheckbox>
     /// <inheritdoc />
     public override void Draw(SKCanvas canvas, HudCheckbox checkbox)
     {
-        byte alpha = (byte)(255 * Math.Clamp(checkbox.Alpha, 0f, 1f));
-        if (alpha == 0)
-            return;
-
         var rect = checkbox.LocalRect;
 
         // Background fill
-        FillPaint.Color = FillColor.WithAlpha(alpha);
+        FillPaint.Color = FillColor;
         canvas.DrawRect(rect, FillPaint);
 
         // Border
         StrokePaint.StrokeWidth = BorderWidth;
-        StrokePaint.Color = BorderColor.WithAlpha(alpha);
+        StrokePaint.Color = BorderColor;
         canvas.DrawRect(rect, StrokePaint);
 
         if (!checkbox.IsChecked)
             return;
 
         // Blocky X checkmark — two diagonal lines drawn with square stroke caps
-        StrokePaint.Color = CheckColor.WithAlpha(alpha);
+        StrokePaint.Color = CheckColor;
         StrokePaint.StrokeCap = SKStrokeCap.Butt;
         StrokePaint.StrokeWidth = MathF.Max(3f, rect.Width * 0.14f);
 

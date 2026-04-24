@@ -35,17 +35,14 @@ internal sealed class FallingCircle : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        if (Alpha <= 0f)
-            return;
-
         if (GlowRadius > 0f)
         {
             EnsureGlowMask();
-            _glowPaint.Color = GlowColor.WithAlpha((byte)(60 * Alpha));
+            _glowPaint.Color = GlowColor.WithAlpha(60);
             canvas.DrawCircle(0f, 0f, Radius + GlowRadius / 2f, _glowPaint);
         }
 
-        _paint.Color = Color.WithAlpha((byte)(255 * Alpha));
+        _paint.Color = Color;
         canvas.DrawCircle(0f, 0f, Radius, _paint);
     }
 

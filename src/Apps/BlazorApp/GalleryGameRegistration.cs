@@ -155,6 +155,17 @@ public static class GalleryGameRegistration
 
         Register(
             services,
+            "starfall",
+            "Starfall",
+            "🌟",
+            ["Arcade", "Shooter", "Action"],
+            GameDifficulty.Hard,
+            "Top-down space survival shooter. Pilot your ship through 3 sectors of enemies, collect power-ups, choose upgrades, and defeat epic bosses.",
+            Starfall.StarfallGame.Create
+        );
+
+        Register(
+            services,
             "ui-gallery",
             "UI Gallery",
             "🧩",

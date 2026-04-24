@@ -296,6 +296,20 @@
     text-align: center;
 }
 /* /Shared/InspectorPropertyGrid.razor.rz.scp.css */
+.prop-preview[b-vw03umlkyy] {
+    padding: 8px;
+    text-align: center;
+    background: #0a0e17;
+    border-bottom: 1px solid #1e2a3a;
+}
+
+.prop-preview img[b-vw03umlkyy] {
+    max-width: 100%;
+    border: 1px solid #2a3a4a;
+    border-radius: 4px;
+    image-rendering: pixelated;
+}
+
 .prop-grid[b-vw03umlkyy] {
     width: 100%;
     border-collapse: collapse;

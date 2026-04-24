@@ -53,7 +53,6 @@
 
         <div class="sort-box">
             <select @bind="_sortOrder">
-                <option value="default">Default</option>
                 <option value="name-asc">Name A → Z</option>
                 <option value="name-desc">Name Z → A</option>
                 <option value="easy-first">Easiest First</option>
@@ -124,7 +123,7 @@
 
 @code {
     private string _searchText = "";
-    private string _sortOrder = "default";
+    private string _sortOrder = "name-asc";
     private readonly HashSet<string> _selectedTags = new(StringComparer.OrdinalIgnoreCase);
 
     private bool IsAllSelected => _selectedTags.Count == 0;
@@ -161,11 +160,10 @@
 
     private IEnumerable<IGalleryGame> SortedGames => _sortOrder switch
     {
-        "name-asc" => FilteredGames.OrderBy(g => g.Title, StringComparer.OrdinalIgnoreCase),
         "name-desc" => FilteredGames.OrderByDescending(g => g.Title, StringComparer.OrdinalIgnoreCase),
         "easy-first" => FilteredGames.OrderBy(g => (int)g.Difficulty).ThenBy(g => g.Title, StringComparer.OrdinalIgnoreCase),
         "hard-first" => FilteredGames.OrderByDescending(g => (int)g.Difficulty).ThenBy(g => g.Title, StringComparer.OrdinalIgnoreCase),
-        _ => FilteredGames,
+        _ => FilteredGames.OrderBy(g => g.Title, StringComparer.OrdinalIgnoreCase),
     };
 
     private IGalleryGame? GetGameOfTheDay()
@@ -194,5 +192,5 @@
 
     private void ClearFilters() => _selectedTags.Clear();
     private void ClearSearch() => _searchText = "";
-    private void ClearAll() { _searchText = ""; _selectedTags.Clear(); _sortOrder = "default"; }
+    private void ClearAll() { _searchText = ""; _selectedTags.Clear(); _sortOrder = "name-asc"; }
 }

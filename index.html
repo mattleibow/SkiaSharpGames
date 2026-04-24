@@ -6,27 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SkiaSharp Games</title>
     <base href="/SkiaSharpGames/" />
-    <link href="_framework/dotnet.1htbneiblo.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-9bgrkSau0Uwewecxusn6RjwkBpenIYOAECQMM2QGnwk=" />
+    <link href="_framework/dotnet.q2903feytm.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-8gw5n57Cbwk1z4Yv+Ujmhyac5w9e9zsMtE17TikUvT0=" />
+    <script>
+        // GitHub Pages SPA redirect: pick up the route stored by 404.html
+        (function () {
+            var redirect = sessionStorage.getItem('spa-redirect');
+            if (redirect) {
+                sessionStorage.removeItem('spa-redirect');
+                var base = document.querySelector('base').getAttribute('href');
+                var newUrl = base + redirect;
+                history.replaceState(null, '', newUrl);
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="SkiaSharpGames.BlazorApp.styles.css" rel="stylesheet" />
     <script type="importmap">{
   "imports": {
     "./_framework/blazor.webassembly.js": "./_framework/blazor.webassembly.66stpp682q.js",
-    "./_framework/dotnet.js": "./_framework/dotnet.1htbneiblo.js",
-    "./_framework/dotnet.native.js": "./_framework/dotnet.native.wmsltlsbeq.js",
-    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.f4b1oiwlzh.js"
+    "./_framework/dotnet.native.js": "./_framework/dotnet.native.j7b8zus9pf.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.q2903feytm.js",
+    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.2zl32tp6ah.js"
   },
   "scopes": {},
   "integrity": {
     "./_framework/blazor.webassembly.66stpp682q.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
     "./_framework/blazor.webassembly.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
-    "./_framework/dotnet.1htbneiblo.js": "sha256-9bgrkSau0Uwewecxusn6RjwkBpenIYOAECQMM2QGnwk=",
-    "./_framework/dotnet.js": "sha256-9bgrkSau0Uwewecxusn6RjwkBpenIYOAECQMM2QGnwk=",
-    "./_framework/dotnet.native.js": "sha256-yEpxmWj6Ylqrt3RUSzx0J3PwU+9TEuV80OHyBFhXcOk=",
-    "./_framework/dotnet.native.wmsltlsbeq.js": "sha256-yEpxmWj6Ylqrt3RUSzx0J3PwU+9TEuV80OHyBFhXcOk=",
-    "./_framework/dotnet.runtime.f4b1oiwlzh.js": "sha256-j86bNQPKznxC4epcftZFbThfaMXvIRmSeHo8PdvTrdA=",
-    "./_framework/dotnet.runtime.js": "sha256-j86bNQPKznxC4epcftZFbThfaMXvIRmSeHo8PdvTrdA="
+    "./_framework/dotnet.js": "sha256-8gw5n57Cbwk1z4Yv+Ujmhyac5w9e9zsMtE17TikUvT0=",
+    "./_framework/dotnet.native.j7b8zus9pf.js": "sha256-vyVBBcidINkDFjs6bikVeLD+GL7kEBLLgU9wuevh968=",
+    "./_framework/dotnet.native.js": "sha256-vyVBBcidINkDFjs6bikVeLD+GL7kEBLLgU9wuevh968=",
+    "./_framework/dotnet.q2903feytm.js": "sha256-8gw5n57Cbwk1z4Yv+Ujmhyac5w9e9zsMtE17TikUvT0=",
+    "./_framework/dotnet.runtime.2zl32tp6ah.js": "sha256-/ndm/PF1BeBT5mXzYAES79wNK5sIZIQKAGcUqPL9ZP8=",
+    "./_framework/dotnet.runtime.js": "sha256-/ndm/PF1BeBT5mXzYAES79wNK5sIZIQKAGcUqPL9ZP8="
   }
 }</script>
     <style>

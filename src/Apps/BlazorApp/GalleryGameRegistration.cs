@@ -120,6 +120,15 @@ public static class GalleryGameRegistration
 
         Register(
             services,
+            "ghost-light",
+            "Ghost Light",
+            "👻",
+            "A glowing spirit navigates through darkness and fog. Demonstrates cascading alpha, nested transparency, and layered rendering.",
+            GhostLight.GhostLightGame.Create
+        );
+
+        Register(
+            services,
             "ui-gallery",
             "UI Gallery",
             "🧩",

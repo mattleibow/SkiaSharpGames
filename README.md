@@ -8,7 +8,7 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 
 📘 **Engine reference:** [docs/game-engine.md](docs/game-engine.md)
 
-🕹️ **Gameplay docs:** [Breakout](docs/games/breakout.md) · [Castle Attack](docs/games/castle-attack.md) · [Sink Sub](docs/games/sink-sub.md) · [Snake](docs/games/snake.md) · [2048](docs/games/2048.md)
+🕹️ **Gameplay docs:** [Breakout](docs/games/breakout.md) · [Castle Attack](docs/games/castle-attack.md) · [Sink Sub](docs/games/sink-sub.md) · [Snake](docs/games/snake.md) · [2048](docs/games/2048.md) · [Ghost Light](docs/games/ghost-light.md)
 
 ## Games
 
@@ -21,6 +21,7 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 | [2048](src/Games/TwoZeroFourEight/) | `/games/2048` | Slide tiles on a 4×4 grid, merge matching numbers, and reach the 2048 tile. |
 | [Asteroids](src/Games/Asteroids/) | `/games/asteroids` | Pilot your ship through an asteroid field — rotate, thrust, and shoot to survive. |
 | [UI Gallery](src/Games/UIGallery/) | `/games/ui-gallery` | Interactive canvas UI playground with shared themes, overrides, and custom draw hooks. |
+| [Ghost Light](src/Games/GhostLight/) | `/games/ghost-light` | A glowing spirit navigates darkness and fog — cascading alpha, nested transparency, and layered rendering. |
 
 ### Breakout
 
@@ -75,6 +76,15 @@ The goal of this repo is not to build a giant engine. It is to keep a tiny, read
 | ![Desktop - Gameplay](docs/screenshots/ui-gallery/desktop-gameplay.png) | ![Mobile - Gameplay](docs/screenshots/ui-gallery/mobile-gameplay.png) |
 
 **Highlights:** global theme switching (bold/cute, retro, simple), per-control style overrides, and custom canvas drawing for controls.
+
+### Ghost Light
+
+| Desktop | Mobile |
+|---------|--------|
+| ![Desktop - Start screen](docs/screenshots/ghost-light/desktop-loading.png) | ![Mobile - Start screen](docs/screenshots/ghost-light/mobile-loading.png) |
+| ![Desktop - Gameplay](docs/screenshots/ghost-light/desktop-gameplay.png) | ![Mobile - Gameplay](docs/screenshots/ghost-light/mobile-gameplay.png) |
+
+**Highlights:** cascading alpha via SaveLayer compositing, nested fog containers at different opacities, runtime-animated alpha (fog breathing, enemy fade-in), and HUD outside the darkness tree staying fully visible.
 
 ## Project structure
 
@@ -153,6 +163,12 @@ src/
       UIGalleryGame.cs
       UIGalleryState.cs
       PlayScreen.cs
+
+    GhostLight/                   # SkiaSharpGames.GhostLight class library
+      GhostLightGame.cs
+      GhostLightConstants.cs, GhostLightState.cs
+      Actors/Spirit.cs, ShadowBlob.cs, FogLayer.cs, FogParticle.cs
+      Scenes/StartScreen.cs, PlayScreen.cs, GameOverScreen.cs
 
     TwoZeroFourEight/             # SkiaSharpGames.TwoZeroFourEight class library
       TwoZeroFourEightGame.cs

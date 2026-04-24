@@ -51,6 +51,9 @@
   <Folder Name="/src/Games/TwoZeroFourEight/">
     <Project Path="src/Games/TwoZeroFourEight/SkiaSharpGames.TwoZeroFourEight.csproj" />
   </Folder>
+  <Folder Name="/src/Games/GhostLight/">
+    <Project Path="src/Games/GhostLight/SkiaSharpGames.GhostLight.csproj" />
+  </Folder>
   <Folder Name="/src/Games/UIGallery/">
     <Project Path="src/Games/UIGallery/SkiaSharpGames.UIGallery.csproj" />
   </Folder>

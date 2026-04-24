@@ -6,6 +6,7 @@ using SkiaSharpGames.Asteroids;
 using SkiaSharpGames.Breakout;
 using SkiaSharpGames.CastleAttack;
 using SkiaSharpGames.Catch;
+using SkiaSharpGames.GhostLight;
 using SkiaSharpGames.LunarLander;
 using SkiaSharpGames.Pong;
 using SkiaSharpGames.SinkSub;
@@ -81,6 +82,9 @@ public class GameSmokeTests
 
     [Fact]
     public void Catch_MenuThenPlay() => RunMenuThenPlay(CatchGame.Create());
+
+    [Fact]
+    public void GhostLight_MenuThenPlay() => RunMenuThenPlay(GhostLightGame.Create());
 
     [Fact]
     public void LunarLander_MenuThenPlay() => RunMenuThenPlay(LunarLanderGame.Create());

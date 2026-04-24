@@ -28,6 +28,7 @@
     <ProjectReference Include="../../src/Games/Snake/SkiaSharpGames.Snake.csproj" />
     <ProjectReference Include="../../src/Games/SpaceInvaders/SkiaSharpGames.SpaceInvaders.csproj" />
     <ProjectReference Include="../../src/Games/TwoZeroFourEight/SkiaSharpGames.TwoZeroFourEight.csproj" />
+    <ProjectReference Include="../../src/Games/GhostLight/SkiaSharpGames.GhostLight.csproj" />
     <ProjectReference Include="../../src/Games/UIGallery/SkiaSharpGames.UIGallery.csproj" />
   </ItemGroup>
 </Project>

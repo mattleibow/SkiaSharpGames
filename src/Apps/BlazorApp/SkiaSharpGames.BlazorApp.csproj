@@ -32,6 +32,7 @@
     <ProjectReference Include="..\..\Games\LunarLander\SkiaSharpGames.LunarLander.csproj" />
     <ProjectReference Include="..\..\Games\Snake\SkiaSharpGames.Snake.csproj" />
     <ProjectReference Include="..\..\Games\Asteroids\SkiaSharpGames.Asteroids.csproj" />
+    <ProjectReference Include="..\..\Games\GhostLight\SkiaSharpGames.GhostLight.csproj" />
     <ProjectReference Include="..\..\Games\UIGallery\SkiaSharpGames.UIGallery.csproj" />
   </ItemGroup>
 </Project>

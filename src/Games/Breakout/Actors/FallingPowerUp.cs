@@ -13,7 +13,7 @@ internal enum PowerUpType
 
 internal sealed class FallingPowerUp : Actor
 {
-    private readonly SKPaint _paint = new() { IsAntialias = true };
+    private readonly SKPaint _paint = new() { IsAntialias = true, Color = SKColors.White };
 
     private readonly HudLabel _label = new()
     {
@@ -23,32 +23,37 @@ internal sealed class FallingPowerUp : Actor
         Y = 4f,
     };
 
-    public float Width { get; set; } = PowerUpW;
-    public float Height { get; set; } = PowerUpH;
-    public SKColor Color { get; set; } = SKColors.White;
-    public float CornerRadius { get; set; } = 5f;
-
     public FallingPowerUp()
     {
         Rigidbody = new Rigidbody2D { VelocityY = PowerUpSpeed };
-        Collider = new RectCollider { Width = PowerUpW, Height = PowerUpH };
+        Collider = new RectCollider(PowerUpW, PowerUpH);
         Children.Add(_label);
+    }
+
+    public float Width { get; set; } = PowerUpW;
+
+    public float Height { get; set; } = PowerUpH;
+
+    public float CornerRadius { get; set; } = 5f;
+
+    public SKColor Color
+    {
+        get => _paint.Color;
+        set => _paint.Color = value;
     }
 
     public PowerUpType Type
     {
-        get => _type;
+        get;
         set
         {
-            _type = value;
+            field = value;
             _label.Text = value == PowerUpType.StrongBall ? "S" : "B";
         }
     }
-    private PowerUpType _type;
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        _paint.Color = Color;
         canvas.DrawRoundRect(
             new SKRoundRect(
                 SKRect.Create(0 - Width / 2f, 0 - Height / 2f, Width, Height),

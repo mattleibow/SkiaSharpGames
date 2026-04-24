@@ -20,6 +20,9 @@ public interface IGalleryGame
     /// <summary>Emoji shown on the gallery card banner.</summary>
     string Emoji { get; }
 
+    /// <summary>Tags for filtering (e.g. "Arcade", "Classic", "Puzzle").</summary>
+    IReadOnlyList<string> Tags { get; }
+
     /// <summary>Creates a new, ready-to-run Stage instance.</summary>
     Stage CreateStage();
 }

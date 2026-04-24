@@ -8,8 +8,46 @@
     <p>Open-source games built with SkiaSharp and .NET Blazor WebAssembly</p>
 </div>
 
+<div class="gallery-toolbar">
+    <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text"
+               placeholder="Search games..."
+               @bind="_searchText"
+               @bind:event="oninput" />
+        @if (!string.IsNullOrEmpty(_searchText))
+        {
+            <button class="search-clear" @onclick="ClearSearch">✕</button>
+        }
+    </div>
+
+    <div class="tag-filters">
+        <button class="tag-pill @(IsAllSelected ? "active" : "")" @onclick="ClearFilters">All</button>
+        @foreach (var tag in AllTags)
+        {
+            <button class="tag-pill @(_selectedTags.Contains(tag) ? "active" : "")"
+                    @onclick="() => ToggleTag(tag)">@tag</button>
+        }
+    </div>
+
+    <div class="results-count">
+        @{
+            var filtered = FilteredGames.ToList();
+            var total = GalleryGames.Count();
+        }
+        @if (filtered.Count == total)
+        {
+            <span>@total games</span>
+        }
+        else
+        {
+            <span>Showing @filtered.Count of @total</span>
+        }
+    </div>
+</div>
+
 <div class="games-grid">
-    @foreach (var game in GalleryGames)
+    @foreach (var game in FilteredGames)
     {
         <a class="game-card" href="games/@game.Slug">
             <div class="game-card-banner">
@@ -17,9 +55,71 @@
             </div>
             <div class="game-card-info">
                 <h2 class="game-card-title">@game.Title</h2>
+                <div class="game-card-tags">
+                    @foreach (var tag in game.Tags)
+                    {
+                        <span class="game-tag">@tag</span>
+                    }
+                </div>
                 <p class="game-card-desc">@game.Description</p>
                 <span class="game-card-play">▶ Play</span>
             </div>
         </a>
     }
 </div>
+
+@if (!FilteredGames.Any())
+{
+    <div class="no-results">
+        <span class="no-results-emoji">🎮</span>
+        <p>No games match your filters</p>
+        <button class="no-results-reset" @onclick="ClearAll">Reset filters</button>
+    </div>
+}
+
+@code {
+    private string _searchText = "";
+    private readonly HashSet<string> _selectedTags = new(StringComparer.OrdinalIgnoreCase);
+
+    private bool IsAllSelected => _selectedTags.Count == 0;
+
+    private IReadOnlyList<string> AllTags =>
+        GalleryGames
+            .SelectMany(g => g.Tags)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(t => t, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+    private IEnumerable<IGalleryGame> FilteredGames =>
+        GalleryGames.Where(g =>
+        {
+            if (!string.IsNullOrWhiteSpace(_searchText))
+            {
+                var q = _searchText.Trim();
+                if (!g.Title.Contains(q, StringComparison.OrdinalIgnoreCase) &&
+                    !g.Description.Contains(q, StringComparison.OrdinalIgnoreCase) &&
+                    !g.Tags.Any(t => t.Contains(q, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return false;
+                }
+            }
+
+            if (_selectedTags.Count > 0 &&
+                !g.Tags.Any(t => _selectedTags.Contains(t)))
+            {
+                return false;
+            }
+
+            return true;
+        });
+
+    private void ToggleTag(string tag)
+    {
+        if (!_selectedTags.Remove(tag))
+            _selectedTags.Add(tag);
+    }
+
+    private void ClearFilters() => _selectedTags.Clear();
+    private void ClearSearch() => _searchText = "";
+    private void ClearAll() { _searchText = ""; _selectedTags.Clear(); }
+}

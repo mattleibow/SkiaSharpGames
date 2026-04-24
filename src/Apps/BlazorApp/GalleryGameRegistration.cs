@@ -10,6 +10,7 @@ internal sealed class GalleryGame(
     string title,
     string description,
     string emoji,
+    string[] tags,
     Func<Stage> factory
 ) : IGalleryGame
 {
@@ -17,6 +18,7 @@ internal sealed class GalleryGame(
     public string Title => title;
     public string Description => description;
     public string Emoji => emoji;
+    public IReadOnlyList<string> Tags => tags;
 
     public Stage CreateStage() => factory();
 }
@@ -33,6 +35,7 @@ public static class GalleryGameRegistration
             "breakout",
             "Breakout",
             "🧱",
+            ["Arcade", "Classic"],
             "Classic brick-breaker. Move the paddle with mouse or touch to keep the ball in play and clear all the bricks.",
             Breakout.BreakoutGame.Create
         );
@@ -42,6 +45,7 @@ public static class GalleryGameRegistration
             "catch",
             "Catch",
             "🟡",
+            ["Arcade", "Casual"],
             "Catch falling circles with a moving bar. Each catch raises your score and speeds up the next drop.",
             Catch.CatchGame.Create
         );
@@ -51,6 +55,7 @@ public static class GalleryGameRegistration
             "castle-attack",
             "Castle Attack",
             "🏰",
+            ["Action", "Strategy"],
             "Defend the castle walls from waves of enemies using archers, workers, and special weapons while the keep is being built.",
             CastleAttack.CastleAttackGame.Create
         );
@@ -60,6 +65,7 @@ public static class GalleryGameRegistration
             "sink-sub",
             "Sink Sub",
             "🚢",
+            ["Arcade", "Action"],
             "Arcade naval survival. Patrol the surface, drop depth charges, and sink submarines before their floating mines reach your ship.",
             SinkSub.SinkSubGame.Create
         );
@@ -69,6 +75,7 @@ public static class GalleryGameRegistration
             "pong",
             "Pong",
             "🏓",
+            ["Classic", "Multiplayer"],
             "Classic 2-player Pong. Use W/S and arrow keys or touch to control paddles. First to 7 points wins!",
             Pong.PongGame.Create
         );
@@ -78,6 +85,7 @@ public static class GalleryGameRegistration
             "2048",
             "2048",
             "🔢",
+            ["Puzzle"],
             "Slide numbered tiles on a grid. Combine matching tiles to reach 2048!",
             TwoZeroFourEight.TwoZeroFourEightGame.Create
         );
@@ -87,6 +95,7 @@ public static class GalleryGameRegistration
             "space-invaders",
             "Space Invaders",
             "👾",
+            ["Arcade", "Classic"],
             "Classic alien invasion. Move your cannon and fire to destroy waves of descending invaders before they reach the ground.",
             SpaceInvaders.SpaceInvadersGame.Create
         );
@@ -96,6 +105,7 @@ public static class GalleryGameRegistration
             "snake",
             "Snake",
             "🐍",
+            ["Classic", "Puzzle"],
             "Guide the snake to eat food and grow longer. Don't crash into the walls or your own tail!",
             Snake.SnakeGame.Create
         );
@@ -105,6 +115,7 @@ public static class GalleryGameRegistration
             "lunar-lander",
             "Lunar Lander",
             "🚀",
+            ["Arcade", "Simulation"],
             "Guide your lander safely to the pad. Use thrust and rotation to control descent — land gently or crash!",
             LunarLander.LunarLanderGame.Create
         );
@@ -114,6 +125,7 @@ public static class GalleryGameRegistration
             "asteroids",
             "Asteroids",
             "☄️",
+            ["Arcade", "Classic"],
             "Pilot your ship through an asteroid field. Rotate, thrust, and shoot to survive wave after wave of space rocks.",
             Asteroids.AsteroidsGame.Create
         );
@@ -123,6 +135,7 @@ public static class GalleryGameRegistration
             "ghost-light",
             "Ghost Light",
             "👻",
+            ["Action", "Demo"],
             "A glowing spirit navigates through darkness and fog. Demonstrates cascading alpha, nested transparency, and layered rendering.",
             GhostLight.GhostLightGame.Create
         );
@@ -132,6 +145,7 @@ public static class GalleryGameRegistration
             "ui-gallery",
             "UI Gallery",
             "🧩",
+            ["Demo"],
             "Try shared game UI controls with global themes, per-control overrides, and custom canvas drawing hooks.",
             UIGallery.UIGalleryGame.Create
         );
@@ -144,11 +158,12 @@ public static class GalleryGameRegistration
         string slug,
         string title,
         string emoji,
+        string[] tags,
         string description,
         Func<Stage> factory
     )
     {
-        var game = new GalleryGame(slug, title, description, emoji, factory);
+        var game = new GalleryGame(slug, title, description, emoji, tags, factory);
         services.AddSingleton<IGalleryGame>(game);
     }
 }

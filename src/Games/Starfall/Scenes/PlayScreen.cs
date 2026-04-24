@@ -134,6 +134,7 @@ internal sealed class PlayScreen(StarfallGameState state, IDirector director) : 
         _player.Active = true;
         _player.Visible = true;
         _player.InvincibleTimer = PlayerInvincibleDuration;
+        _player.SpeedMultiplier = state.SpeedMultiplier;
 
         SetupStageWaves(state.CurrentStage);
         _currentWaveIndex = 0;
@@ -479,6 +480,16 @@ internal sealed class PlayScreen(StarfallGameState state, IDirector director) : 
             if (child is Charger c) c.SetPlayerPosition(_player.X, _player.Y);
             if (child is BossShip b) b.SetPlayerPosition(_player.X, _player.Y);
         }
+
+        // Update power-ups with player position for magnetism
+        foreach (var child in _powerUps.Children)
+        {
+            if (child is PowerUp pu && pu.Active)
+            {
+                pu.PlayerX = _player.X;
+                pu.PlayerY = _player.Y;
+            }
+        }
     }
 
     // ── Collision ─────────────────────────────────────────────────────────
@@ -599,10 +610,10 @@ internal sealed class PlayScreen(StarfallGameState state, IDirector director) : 
                 $"+{enemy.ScoreValue}", SKColors.White));
         }
 
-        // Power-up drop
+        // Power-up drop (weighted by what player needs)
         if (Random.Shared.NextSingle() < PowerUpDropChance && enemy is not BossShip)
         {
-            var type = (PowerUpType)Random.Shared.Next(5);
+            var type = ChooseSmartPowerUp();
             _powerUps.Children.Add(new PowerUp(enemy.X, enemy.Y, type));
         }
 
@@ -621,6 +632,11 @@ internal sealed class PlayScreen(StarfallGameState state, IDirector director) : 
         _screenShakeTimer = 0.2f;
         _screenShakeIntensity = 5f;
         SpawnHitParticles(_player.X, _player.Y);
+
+        // Reset combo on hit
+        _combo = 0;
+        _comboTimer = 0;
+        _comboLabel.Visible = false;
 
         if (state.HP <= 0)
         {
@@ -680,6 +696,44 @@ internal sealed class PlayScreen(StarfallGameState state, IDirector director) : 
 
     // ── Particles & Effects ──────────────────────────────────────────────
 
+    private PowerUpType ChooseSmartPowerUp()
+    {
+        // Weight power-ups by what the player actually needs
+        var candidates = new List<(PowerUpType type, float weight)>();
+
+        // Health: high weight when low HP, zero at full
+        if (state.HP < state.MaxHP)
+            candidates.Add((PowerUpType.Health, state.HP <= state.MaxHP / 2 ? 4f : 2f));
+
+        // Rapid fire: always useful unless already active
+        candidates.Add((PowerUpType.RapidFire, state.HasRapidFire ? 0.5f : 2f));
+
+        // Spread shot: always useful
+        candidates.Add((PowerUpType.SpreadShot, state.HasSpreadShot ? 0.5f : 2f));
+
+        // Bomb: useful if not at cap
+        if (state.Bombs < state.MaxBombs + 2)
+            candidates.Add((PowerUpType.Bomb, 1.5f));
+
+        // Shield: always useful
+        candidates.Add((PowerUpType.Shield, state.HasShield ? 0.5f : 1.5f));
+
+        // Fallback: if somehow no candidates, return RapidFire
+        if (candidates.Count == 0)
+            return PowerUpType.RapidFire;
+
+        float totalWeight = 0;
+        foreach (var c in candidates) totalWeight += c.weight;
+        float roll = Random.Shared.NextSingle() * totalWeight;
+        float cumulative = 0;
+        foreach (var c in candidates)
+        {
+            cumulative += c.weight;
+            if (roll < cumulative) return c.type;
+        }
+        return candidates[^1].type;
+    }
+
     private void SpawnExplosion(float x, float y, float radius)
     {
         int count = radius > 20f ? ExplosionParticleCount : SmallExplosionParticleCount;
@@ -708,35 +762,39 @@ internal sealed class PlayScreen(StarfallGameState state, IDirector director) : 
     }
 
     // ── Draw ──────────────────────────────────────────────────────────────
+    // Override Draw to control render ordering: gameplay → effects → HUD.
+    // SceneNode.Draw calls OnDraw then children, but we need overlays
+    // (fog, shield, bomb flash) between gameplay actors and HUD labels.
 
-    protected override void OnDraw(SKCanvas canvas)
+    public override void Draw(SKCanvas canvas)
     {
-        // Screen shake
-        if (_screenShakeTimer > 0)
+        if (!Active) return;
+
+        canvas.Clear(BackgroundColor);
+
+        // Screen shake wraps gameplay actors only
+        bool shaking = _screenShakeTimer > 0;
+        if (shaking)
         {
-            float dx = (Random.Shared.NextSingle() - 0.5f) * 2f * _screenShakeIntensity * (_screenShakeTimer / 0.3f);
-            float dy = (Random.Shared.NextSingle() - 0.5f) * 2f * _screenShakeIntensity * (_screenShakeTimer / 0.3f);
+            float shakeFactor = MathF.Min(_screenShakeTimer / 0.3f, 1f);
+            float dx = (Random.Shared.NextSingle() - 0.5f) * 2f * _screenShakeIntensity * shakeFactor;
+            float dy = (Random.Shared.NextSingle() - 0.5f) * 2f * _screenShakeIntensity * shakeFactor;
             canvas.Save();
             canvas.Translate(dx, dy);
         }
 
-        canvas.Clear(BackgroundColor);
+        // Draw gameplay actors in order
+        _starfield.Draw(canvas);
+        _enemies.Draw(canvas);
+        _shockwaves.Draw(canvas);
+        _powerUps.Draw(canvas);
+        _playerBullets.Draw(canvas);
+        _enemyBullets.Draw(canvas);
+        _player.Draw(canvas);
+        _particles.Draw(canvas);
+        _floatingTexts.Draw(canvas);
 
-        // Stage 3: fog overlay (drawn after scene but before HUD)
-        // (handled after children draw)
-
-        // Bomb flash
-        if (_bombFlashTimer > 0)
-        {
-            float alpha = _bombFlashTimer / BombFlashDuration;
-            using var flashPaint = new SKPaint { Color = BombFlashColor.WithAlpha((byte)(200 * alpha)) };
-            canvas.DrawRect(0, 0, GameWidth, GameHeight, flashPaint);
-        }
-
-        if (_screenShakeTimer > 0)
-            canvas.Restore();
-
-        // Shield bubble around player
+        // Shield bubble around player (drawn over player)
         if (state.HasShield && _player.Active)
         {
             float pulse = 0.6f + 0.4f * MathF.Sin(_fogTime * 8f);
@@ -753,14 +811,33 @@ internal sealed class PlayScreen(StarfallGameState state, IDirector director) : 
             canvas.DrawCircle(_player.X, _player.Y, PlayerShipRadius + 8f, shieldPaint);
         }
 
-        // Stage 3 fog overlay
-        if (state.CurrentStage >= 3)
+        // Bomb flash (over gameplay)
+        if (_bombFlashTimer > 0)
         {
-            DrawFogOverlay(canvas);
+            float alpha = _bombFlashTimer / BombFlashDuration;
+            using var flashPaint = new SKPaint { Color = BombFlashColor.WithAlpha((byte)(200 * alpha)) };
+            canvas.DrawRect(0, 0, GameWidth, GameHeight, flashPaint);
         }
 
-        // HUD
+        if (shaking)
+            canvas.Restore();
+
+        // Fog overlay (over gameplay, under HUD)
+        if (state.CurrentStage >= 3)
+            DrawFogOverlay(canvas);
+
+        // HUD (drawn last, outside screen shake)
+        _scoreLabel.Draw(canvas);
+        _stageLabel.Draw(canvas);
+        if (_comboLabel.Visible) _comboLabel.Draw(canvas);
+        if (_waveAnnounce.Visible) _waveAnnounce.Draw(canvas);
+        if (_bossWarning.Visible) _bossWarning.Draw(canvas);
         DrawHUD(canvas);
+    }
+
+    protected override void OnDraw(SKCanvas canvas)
+    {
+        // Intentionally empty — all rendering handled in Draw override
     }
 
     private void DrawFogOverlay(SKCanvas canvas)

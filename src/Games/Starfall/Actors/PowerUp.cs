@@ -33,6 +33,10 @@ internal sealed class PowerUp : Actor
     public PowerUpType Type { get; }
     private float _time;
 
+    /// <summary>Player position for magnetism effect.</summary>
+    public float PlayerX { get; set; }
+    public float PlayerY { get; set; }
+
     public PowerUp(float x, float y, PowerUpType type)
     {
         X = x;
@@ -46,6 +50,17 @@ internal sealed class PowerUp : Actor
     protected override void OnUpdate(float deltaTime)
     {
         _time += deltaTime;
+
+        // Magnetism: drift toward player when within range
+        float dx = PlayerX - X;
+        float dy = PlayerY - Y;
+        float dist = MathF.Sqrt(dx * dx + dy * dy);
+        if (dist < 100f && dist > 1f)
+        {
+            float magnetStrength = (100f - dist) / 100f * 300f;
+            X += dx / dist * magnetStrength * deltaTime;
+            Y += dy / dist * magnetStrength * deltaTime;
+        }
 
         if (Y > GameHeight + PowerUpRadius * 2)
             Active = false;

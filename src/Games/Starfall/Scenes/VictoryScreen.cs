@@ -12,6 +12,7 @@ internal sealed class VictoryScreen(StarfallGameState state, IDirector director)
 {
     private readonly Starfield _starfield = new();
     private float _time;
+    private float _burstTimer = 3f;
 
     // Celebration particles
     private readonly List<(float x, float y, float vx, float vy, SKColor color, float life)> _confetti = [];
@@ -102,8 +103,12 @@ internal sealed class VictoryScreen(StarfallGameState state, IDirector director)
         _restartText.Color = CyanAccent.WithAlpha((byte)(120 + 135 * restartPulse));
 
         // Periodically spawn more confetti
-        if (_time % 3f < deltaTime)
+        _burstTimer -= deltaTime;
+        if (_burstTimer <= 0)
+        {
+            _burstTimer = 3f;
             SpawnConfettiBurst();
+        }
 
         // Update confetti
         for (int i = _confetti.Count - 1; i >= 0; i--)

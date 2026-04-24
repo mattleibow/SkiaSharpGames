@@ -48,8 +48,10 @@ internal sealed class PlayerShip : Actor
     public float TargetY { get; set; }
     public float InvincibleTimer { get; set; }
     public bool IsInvincible => InvincibleTimer > 0f;
+    public float SpeedMultiplier { get; set; } = 1f;
 
     private float _engineFlicker;
+    private float _roll; // visual tilt based on horizontal movement
 
     public PlayerShip()
     {
@@ -63,8 +65,9 @@ internal sealed class PlayerShip : Actor
 
     protected override void OnUpdate(float deltaTime)
     {
-        // Smooth follow toward target
-        float lerp = 1f - MathF.Pow(0.001f, deltaTime * PlayerSpeed);
+        // Smooth follow toward target (speed multiplier affects responsiveness)
+        float lerp = 1f - MathF.Pow(0.001f, deltaTime * PlayerSpeed * SpeedMultiplier);
+        float prevX = X;
         X += (TargetX - X) * lerp;
         Y += (TargetY - Y) * lerp;
 
@@ -76,6 +79,13 @@ internal sealed class PlayerShip : Actor
             InvincibleTimer -= deltaTime;
 
         _engineFlicker += deltaTime * 20f;
+        if (_engineFlicker > MathF.PI * 20f)
+            _engineFlicker -= MathF.PI * 20f;
+
+        // Ship roll: tilt based on horizontal movement
+        float dx = X - prevX;
+        float targetRoll = Math.Clamp(dx * 0.8f, -0.3f, 0.3f);
+        _roll += (targetRoll - _roll) * MathF.Min(1f, deltaTime * 12f);
     }
 
     protected override void OnDraw(SKCanvas canvas)
@@ -83,6 +93,10 @@ internal sealed class PlayerShip : Actor
         // Invincibility blink
         if (IsInvincible && MathF.Sin(InvincibleTimer * 15f) < 0f)
             return;
+
+        // Apply visual roll
+        if (MathF.Abs(_roll) > 0.01f)
+            canvas.RotateRadians(_roll);
 
         // Engine glow
         float flicker = 0.6f + 0.4f * MathF.Sin(_engineFlicker);
@@ -97,8 +111,5 @@ internal sealed class PlayerShip : Actor
         // Ship body
         canvas.DrawPath(_shipPath, _shipPaint);
         canvas.DrawPath(_shipPath, _shipOutline);
-
-        // Shield visual when active
-        // (drawn from PlayScreen for proper layering)
     }
 }

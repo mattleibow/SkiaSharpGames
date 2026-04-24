@@ -95,13 +95,30 @@ internal sealed class Charger : EnemyBase
     protected override void OnDraw(SKCanvas canvas)
     {
         var baseColor = _state == ChargerState.Locking
-            ? SKColors.White // Flash white while locking
+            ? SKColors.White
             : ChargerColor;
         var color = FlashColor(baseColor);
         using var paint = new SKPaint { Color = color, IsAntialias = true };
 
-        // Arrow/chevron shape pointing toward rush direction
         float r = ChargerRadius;
+
+        // Telegraph: draw warning line to player during lock-on
+        if (_state == ChargerState.Locking)
+        {
+            float dx = _playerX - X;
+            float dy = _playerY - Y;
+            float dist = MathF.Sqrt(dx * dx + dy * dy);
+            if (dist > 1f)
+            {
+                float lockProgress = 1f - (_lockTimer / ChargerLockOnTime);
+                paint.Color = RedAccent.WithAlpha((byte)(60 + 120 * lockProgress));
+                paint.Style = SKPaintStyle.Stroke;
+                paint.StrokeWidth = 1f;
+                // Draw in local space: line from (0,0) to relative player position
+                canvas.DrawLine(0, 0, dx, dy, paint);
+                paint.Style = SKPaintStyle.Fill;
+            }
+        }
 
         // Pulsing effect while locking
         if (_state == ChargerState.Locking)

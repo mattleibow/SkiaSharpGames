@@ -46,8 +46,10 @@ internal abstract class EnemyBase : Actor
         if (_hitFlash > 0f)
             _hitFlash -= deltaTime;
 
-        // Remove if off-screen (below game area)
-        if (Y > GameHeight + Radius * 2 + 50f)
+        // Remove if off-screen (any direction, with generous margin)
+        float margin = Radius * 2 + 80f;
+        if (Y > GameHeight + margin || Y < -margin ||
+            X > GameWidth + margin || X < -margin)
             Active = false;
     }
 

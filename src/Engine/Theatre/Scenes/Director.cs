@@ -203,5 +203,12 @@ internal sealed class Director : IDirector, IRenderer
             foreach (var layer in _sceneStack)
                 layer.Draw(canvas);
         }
+
+        // Draw the pointer on top of all scene content
+        var inputScene = ActiveInputScene;
+        if (inputScene.EffectiveShowPointer && inputScene.Pointer is { Visible: true } pointer)
+        {
+            pointer.Draw(canvas);
+        }
     }
 }

@@ -1,6 +1,5 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
-
 using static SkiaSharpGames.Snake.SnakeConstants;
 
 namespace SkiaSharpGames.Snake;
@@ -41,6 +40,8 @@ internal sealed class PlayScreen : Scene
     {
         this.state = state;
         this.director = director;
+
+        ShowPointer = false;
 
         Children.Add(_grid);
         Children.Add(_food);

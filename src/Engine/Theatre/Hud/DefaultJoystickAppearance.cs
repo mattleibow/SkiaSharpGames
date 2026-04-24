@@ -1,7 +1,6 @@
 using SkiaSharp;
-using SkiaSharp.Theatre;
 
-namespace SkiaSharp.Theatre.Themes.Default;
+namespace SkiaSharp.Theatre;
 
 /// <summary>
 /// Appearance for <see cref="HudJoystick"/>. Owns visual properties and draw logic.

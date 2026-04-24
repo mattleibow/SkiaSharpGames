@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-
 using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.Breakout;

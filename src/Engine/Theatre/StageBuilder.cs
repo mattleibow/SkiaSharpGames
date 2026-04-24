@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-
 using SkiaSharp.Theatre.Diagnostics;
 
 namespace SkiaSharp.Theatre;
@@ -189,6 +188,8 @@ public sealed class StageBuilder
 
         var provider = _serviceCollection.BuildServiceProvider();
         var stage = provider.GetRequiredService<Stage>();
+        // Set the default theme so all games have a working pointer and UI out of the box.
+        stage.HudTheme = DefaultTheme.Create();
         // Activate the initial scene immediately at build time (not lazily on first frame).
         provider.GetRequiredService<Director>().Initialize(stage);
         return stage;

@@ -1,6 +1,5 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
-
 using static SkiaSharpGames.SinkSub.SinkSubConstants;
 
 namespace SkiaSharpGames.SinkSub;
@@ -70,6 +69,8 @@ internal sealed class PlayScreen(SinkSubGameState state, IDirector director) : S
 
     public override void OnActivating()
     {
+        ShowPointer = false;
+
         if (ChildCount == 0)
         {
             Children.Add(_ship);

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-
 using SkiaSharp.Theatre;
+using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
 namespace SkiaSharpGames.CastleAttack;
 
@@ -10,7 +10,7 @@ public static class CastleAttackGame
     {
         var builder = StageBuilder.Create();
 
-        builder.SetStageSize(CastleAttackConstants.GameWidth, CastleAttackConstants.GameHeight);
+        builder.SetStageSize(GameWidth, GameHeight);
         builder.Services.AddSingleton<CastleAttackGameState>();
 
         builder

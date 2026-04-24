@@ -1,7 +1,6 @@
 using SkiaSharp;
-using SkiaSharp.Theatre;
 
-namespace SkiaSharp.Theatre.Themes.Default;
+namespace SkiaSharp.Theatre;
 
 /// <summary>
 /// Default sliding switch appearance — track with a sliding knob.

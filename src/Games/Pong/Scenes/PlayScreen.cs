@@ -1,6 +1,5 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
-
 using static SkiaSharpGames.Pong.PongConstants;
 
 namespace SkiaSharpGames.Pong;
@@ -91,6 +90,8 @@ internal sealed class PlayScreen : Scene
     {
         this.state = state;
         this.director = director;
+
+        ShowPointer = false;
 
         Children.Add(_leftPaddle);
         Children.Add(_rightPaddle);

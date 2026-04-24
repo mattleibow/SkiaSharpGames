@@ -14,8 +14,8 @@ namespace SkiaSharp.Theatre;
 /// </remarks>
 public class Actor : SceneNode
 {
-    private float _x,
-        _y;
+    private float _x;
+    private float _y;
     private float _rotation;
     private SKMatrix44 _worldMatrix = SKMatrix44.Identity;
 

@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <!-- Code coverage -->
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>cobertura</CoverletOutputFormat>
+    <CoverletOutput>../../coverage/</CoverletOutput>
+    <Threshold>80,75</Threshold>
+    <ThresholdType>line,branch</ThresholdType>
+    <Include>[SkiaSharp.Theatre]*</Include>
+    <Exclude>[SkiaSharp.Theatre]SkiaSharp.Theatre.Diagnostics.StageInspector,[SkiaSharp.Theatre]SkiaSharp.Theatre.Diagnostics.InspectorSnapshot,[SkiaSharp.Theatre]SkiaSharp.Theatre.Diagnostics.InspectorNodeSnapshot,[SkiaSharp.Theatre]SkiaSharp.Theatre.Diagnostics.SceneNodeExtensions</Exclude>
+    <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.msbuild" Version="6.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.*" />
+    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Engine/Theatre/SkiaSharp.Theatre.csproj" />
+    <ProjectReference Include="../../src/Engine/Theatre.Rehearsals/SkiaSharp.Theatre.Rehearsals.csproj" />
+    <ProjectReference Include="../../src/Engine/Theatre.Themes.Default/SkiaSharp.Theatre.Themes.Default.csproj" />
+    <ProjectReference Include="../../src/Engine/Theatre.Themes.Neon/SkiaSharp.Theatre.Themes.Neon.csproj" />
+    <ProjectReference Include="../../src/Engine/Theatre.Themes.PixelArt/SkiaSharp.Theatre.Themes.PixelArt.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,49 @@
+@page "/games/{Slug}"
+@layout GameLayout
+@inject IEnumerable<IGalleryGame> GalleryGames
+
+@if (_stage is not null)
+{
+    <PageTitle>@_entry!.Title – SkiaSharp Games</PageTitle>
+    <div class="game-page @(_inspectorOpen ? "inspector-open" : "")">
+        <div class="game-viewport">
+            <GameView Stage="_stage" />
+        </div>
+        @if (_inspectorOpen)
+        {
+            <div class="inspector-panel">
+                <InspectorPanel Stage="_stage" />
+            </div>
+        }
+        <button class="inspector-toggle" @onclick="ToggleInspector" title="Toggle Inspector">🔍</button>
+    </div>
+}
+else
+{
+    <PageTitle>Game Not Found – SkiaSharp Games</PageTitle>
+    <p>Game "@Slug" not found.</p>
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = "";
+
+    private IGalleryGame? _entry;
+    private Stage? _stage;
+    private bool _inspectorOpen;
+
+    protected override void OnParametersSet()
+    {
+        _entry = GalleryGames.FirstOrDefault(g =>
+            string.Equals(g.Slug, Slug, StringComparison.OrdinalIgnoreCase));
+        _stage = _entry?.CreateStage();
+    }
+
+    private void ToggleInspector()
+    {
+        _inspectorOpen = !_inspectorOpen;
+
+        var inspector = _stage?.Services.GetService<IStageInspector>();
+        if (inspector is not null)
+            inspector.IsEnabled = _inspectorOpen;
+    }
+}

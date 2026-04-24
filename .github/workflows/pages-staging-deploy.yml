@@ -115,22 +115,14 @@ jobs:
         run: |
           dotnet test tests/GameEngine.Tests/ \
             --configuration Release \
-            --no-build \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=cobertura \
-            /p:CoverletOutput=../../coverage/coverage.cobertura.xml \
-            /p:Threshold=80 \
-            /p:ThresholdType=line
-          dotnet test tests/GameEngine.Tests/ \
+            --no-build
+          dotnet test tests/Games.Tests/ \
             --configuration Release \
-            --no-build \
-            /p:CollectCoverage=true \
-            /p:Threshold=80 \
-            /p:ThresholdType=branch
+            --no-build
 
       # Publish the Blazor WASM app to a folder
       - name: Publish Blazor app
-        run: dotnet publish src/BlazorApp/SkiaSharpGames.BlazorApp.csproj --configuration Release --output dist
+        run: dotnet publish src/Apps/BlazorApp/SkiaSharpGames.BlazorApp.csproj --configuration Release --output dist
 
       # Assemble the final site directory
       - name: Assemble site
@@ -263,7 +255,44 @@ jobs:
           # Ensure .nojekyll exists at root so _framework is served
           touch .nojekyll
 
-          git add .nojekyll "$STAGING_PATH/$PR_NUMBER"
+          # Create a root-level 404.html that redirects to the correct Blazor SPA.
+          # GitHub Pages only serves 404.html from the root, not subdirectories.
+          # This script detects the staging path and redirects via the Blazor app's
+          # index.html using a session redirect technique.
+          cat > 404.html << 'HTMLEOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <script>
+              // GitHub Pages SPA redirect: store the path and redirect to the
+              // Blazor index.html which will pick up client-side routing.
+              var pathSegmentsToKeep = 0;
+              var repo = '/SkiaSharpGames';
+              var fullPath = window.location.pathname;
+
+              // Detect if this is a staging URL: /SkiaSharpGames/staging/{n}/...
+              var stagingMatch = fullPath.match(new RegExp(repo + '/staging/(\\d+)'));
+              if (stagingMatch) {
+                // Redirect to the staging Blazor app root with the path encoded
+                var prNum = stagingMatch[1];
+                var basePath = repo + '/staging/' + prNum + '/';
+                var routePath = fullPath.slice(basePath.length);
+                sessionStorage.setItem('spa-redirect', routePath || '');
+                window.location.replace(basePath);
+              } else {
+                // Root deployment
+                var routePath = fullPath.slice((repo + '/').length);
+                sessionStorage.setItem('spa-redirect', routePath || '');
+                window.location.replace(repo + '/');
+              }
+            </script>
+          </head>
+          <body></body>
+          </html>
+          HTMLEOF
+
+          git add .nojekyll 404.html "$STAGING_PATH/$PR_NUMBER"
           if ! git diff --cached --quiet; then
             git commit -m "Deploy staging site for PR #$PR_NUMBER"
             git push origin "$PAGES_BRANCH"

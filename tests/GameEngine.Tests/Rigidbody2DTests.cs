@@ -1,7 +1,8 @@
-using SkiaSharpGames.GameEngine;
+using SkiaSharp.Theatre;
+
 using Xunit;
 
-namespace SkiaSharpGames.GameEngine.Tests;
+namespace SkiaSharp.Theatre.Tests;
 
 /// <summary>Tests for <see cref="Rigidbody2D"/> and <see cref="CollisionHit"/>.</summary>
 public class Rigidbody2DTests

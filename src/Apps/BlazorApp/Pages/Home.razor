@@ -1,0 +1,196 @@
+@page "/"
+@inject IEnumerable<IGalleryGame> GalleryGames
+
+<PageTitle>SkiaSharp Games</PageTitle>
+
+<div class="gallery-hero">
+    <h1>SkiaSharp Games</h1>
+    <p>Open-source games built with SkiaSharp and .NET Blazor WebAssembly</p>
+</div>
+
+@* ── Game of the Day ── *@
+@{
+    var gameOfTheDay = GetGameOfTheDay();
+}
+@if (gameOfTheDay is not null)
+{
+    <div class="hero-card-section">
+        <span class="hero-label">Game of the Day</span>
+        <a class="hero-card" href="games/@gameOfTheDay.Slug">
+            <div class="hero-card-left">
+                <span class="hero-card-emoji">@gameOfTheDay.Emoji</span>
+            </div>
+            <div class="hero-card-right">
+                <h2 class="hero-card-title">@gameOfTheDay.Title</h2>
+                <div class="hero-card-meta">
+                    <span class="difficulty-badge diff-@gameOfTheDay.Difficulty.ToString().ToLowerInvariant()">@DifficultyLabel(gameOfTheDay.Difficulty)</span>
+                    @foreach (var tag in gameOfTheDay.Tags)
+                    {
+                        <span class="game-tag">@tag</span>
+                    }
+                </div>
+                <p class="hero-card-desc">@gameOfTheDay.Description</p>
+                <span class="game-card-play">▶ Play Now</span>
+            </div>
+        </a>
+    </div>
+}
+
+@* ── Toolbar ── *@
+<div class="gallery-toolbar">
+    <div class="toolbar-row">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text"
+                   placeholder="Search games..."
+                   @bind="_searchText"
+                   @bind:event="oninput" />
+            @if (!string.IsNullOrEmpty(_searchText))
+            {
+                <button class="search-clear" @onclick="ClearSearch">✕</button>
+            }
+        </div>
+
+        <div class="sort-box">
+            <select @bind="_sortOrder">
+                <option value="name-asc">Name A → Z</option>
+                <option value="name-desc">Name Z → A</option>
+                <option value="easy-first">Easiest First</option>
+                <option value="hard-first">Hardest First</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="tag-filters">
+        <button class="tag-pill @(IsAllSelected ? "active" : "")" @onclick="ClearFilters">All</button>
+        @foreach (var tag in AllTags)
+        {
+            <button class="tag-pill @(_selectedTags.Contains(tag) ? "active" : "")"
+                    @onclick="() => ToggleTag(tag)">@tag</button>
+        }
+    </div>
+
+    <div class="results-count">
+        @{
+            var filtered = SortedGames.ToList();
+            var total = GalleryGames.Count();
+        }
+        @if (filtered.Count == total)
+        {
+            <span>@total games</span>
+        }
+        else
+        {
+            <span>Showing @filtered.Count of @total</span>
+        }
+    </div>
+</div>
+
+@* ── Grid ── *@
+<div class="games-grid">
+    @foreach (var game in SortedGames)
+    {
+        <a class="game-card" href="games/@game.Slug">
+            <div class="game-card-banner">
+                <span class="game-card-emoji">@game.Emoji</span>
+            </div>
+            <div class="game-card-info">
+                <div class="game-card-header">
+                    <h2 class="game-card-title">@game.Title</h2>
+                    <span class="difficulty-badge diff-@game.Difficulty.ToString().ToLowerInvariant()">@DifficultyLabel(game.Difficulty)</span>
+                </div>
+                <div class="game-card-tags">
+                    @foreach (var tag in game.Tags)
+                    {
+                        <span class="game-tag">@tag</span>
+                    }
+                </div>
+                <p class="game-card-desc">@game.Description</p>
+                <span class="game-card-play">▶ Play</span>
+            </div>
+        </a>
+    }
+</div>
+
+@if (!SortedGames.Any())
+{
+    <div class="no-results">
+        <span class="no-results-emoji">🎮</span>
+        <p>No games match your filters</p>
+        <button class="no-results-reset" @onclick="ClearAll">Reset filters</button>
+    </div>
+}
+
+@code {
+    private string _searchText = "";
+    private string _sortOrder = "name-asc";
+    private readonly HashSet<string> _selectedTags = new(StringComparer.OrdinalIgnoreCase);
+
+    private bool IsAllSelected => _selectedTags.Count == 0;
+
+    private IReadOnlyList<string> AllTags =>
+        GalleryGames
+            .SelectMany(g => g.Tags)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(t => t, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+    private IEnumerable<IGalleryGame> FilteredGames =>
+        GalleryGames.Where(g =>
+        {
+            if (!string.IsNullOrWhiteSpace(_searchText))
+            {
+                var q = _searchText.Trim();
+                if (!g.Title.Contains(q, StringComparison.OrdinalIgnoreCase) &&
+                    !g.Description.Contains(q, StringComparison.OrdinalIgnoreCase) &&
+                    !g.Tags.Any(t => t.Contains(q, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return false;
+                }
+            }
+
+            if (_selectedTags.Count > 0 &&
+                !g.Tags.Any(t => _selectedTags.Contains(t)))
+            {
+                return false;
+            }
+
+            return true;
+        });
+
+    private IEnumerable<IGalleryGame> SortedGames => _sortOrder switch
+    {
+        "name-desc" => FilteredGames.OrderByDescending(g => g.Title, StringComparer.OrdinalIgnoreCase),
+        "easy-first" => FilteredGames.OrderBy(g => (int)g.Difficulty).ThenBy(g => g.Title, StringComparer.OrdinalIgnoreCase),
+        "hard-first" => FilteredGames.OrderByDescending(g => (int)g.Difficulty).ThenBy(g => g.Title, StringComparer.OrdinalIgnoreCase),
+        _ => FilteredGames.OrderBy(g => g.Title, StringComparer.OrdinalIgnoreCase),
+    };
+
+    private IGalleryGame? GetGameOfTheDay()
+    {
+        var games = GalleryGames.ToList();
+        if (games.Count == 0) return null;
+        var today = DateTime.UtcNow.Date;
+        var seed = today.Year * 1000 + today.DayOfYear;
+        var index = new Random(seed).Next(games.Count);
+        return games[index];
+    }
+
+    private static string DifficultyLabel(GameDifficulty d) => d switch
+    {
+        GameDifficulty.Easy => "☘ Easy",
+        GameDifficulty.Medium => "⚡ Medium",
+        GameDifficulty.Hard => "🔥 Hard",
+        _ => d.ToString(),
+    };
+
+    private void ToggleTag(string tag)
+    {
+        if (!_selectedTags.Remove(tag))
+            _selectedTags.Add(tag);
+    }
+
+    private void ClearFilters() => _selectedTags.Clear();
+    private void ClearSearch() => _searchText = "";
+    private void ClearAll() { _searchText = ""; _selectedTags.Clear(); _sortOrder = "name-asc"; }
+}

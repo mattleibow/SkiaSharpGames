@@ -1,0 +1,145 @@
+@namespace SkiaSharpGames.BlazorApp.Shared
+@inject IJSRuntime JS
+
+<div @ref="_container"
+     class="game-view"
+     tabindex="0"
+     @onmousemove="OnMouseMove"
+     @onmousedown="OnMouseDown"
+     @onmouseup="OnMouseUp"
+     @ontouchmove="OnTouchMove"
+     @ontouchstart="OnTouchStart"
+     @ontouchend="OnTouchEnd"
+     @ontouchmove:preventDefault
+     @ontouchstart:preventDefault
+     @ontouchend:preventDefault
+     @onkeydown="OnKeyDown"
+     @onkeyup="OnKeyUp"
+     @onkeydown:preventDefault>
+    <SKGLView @ref="_glView"
+              OnPaintSurface="OnPaintSurface"
+              EnableRenderLoop="true"
+              style="width:100%;height:100%;" />
+</div>
+
+@code {
+    /// <summary>The game to render and receive input.</summary>
+    [Parameter, EditorRequired] public SkiaSharp.Theatre.Stage? Stage { get; set; }
+
+    private SKGLView? _glView;
+    private ElementReference _container;
+    private DateTime _lastTime = DateTime.UtcNow;
+
+    // CSS pixel dimensions and position of the container element.
+    // Used to map pointer events (which are in CSS pixels) to game-space.
+    private float _cssWidth;
+    private float _cssHeight;
+    private float _containerLeft;
+    private float _containerTop;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await UpdateLayoutAsync();
+            await JS.InvokeVoidAsync("focusGameView");
+        }
+    }
+
+    private async Task UpdateLayoutAsync()
+    {
+        var rect = await JS.InvokeAsync<ElementRect>("getElementRect", _container);
+        _cssWidth      = rect.Width;
+        _cssHeight     = rect.Height;
+        _containerLeft = rect.Left;
+        _containerTop  = rect.Top;
+    }
+
+    private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
+    {
+        if (Stage is null)
+            return;
+
+        var now = DateTime.UtcNow;
+        var deltaTime = Math.Min((float)(now - _lastTime).TotalSeconds, 0.05f);
+        _lastTime = now;
+
+        Stage.Update(deltaTime);
+        Stage.Draw(e.Surface.Canvas, e.BackendRenderTarget.Width, e.BackendRenderTarget.Height);
+    }
+
+    // Converts CSS-pixel coordinates (relative to the container) into game-space units.
+    private (float gx, float gy) ToGameCoords(float cssX, float cssY)
+    {
+        if (Stage is null || _cssWidth <= 0 || _cssHeight <= 0)
+            return (cssX, cssY);
+
+        var gw = Stage.StageSize.Width;
+        var gh = Stage.StageSize.Height;
+        float scale   = MathF.Min(_cssWidth / gw, _cssHeight / gh);
+        float offsetX = (_cssWidth  - gw * scale) / 2f;
+        float offsetY = (_cssHeight - gh * scale) / 2f;
+        return ((cssX - offsetX) / scale, (cssY - offsetY) / scale);
+    }
+
+    // Mouse – OffsetX/Y are already relative to the element.
+    private void OnMouseMove(MouseEventArgs e)
+    {
+        if (Stage is null) return;
+        var (gx, gy) = ToGameCoords((float)e.OffsetX, (float)e.OffsetY);
+        Stage.OnPointerMove(gx, gy);
+    }
+
+    private void OnMouseDown(MouseEventArgs e)
+    {
+        if (Stage is null) return;
+        var (gx, gy) = ToGameCoords((float)e.OffsetX, (float)e.OffsetY);
+        Stage.OnPointerDown(gx, gy);
+    }
+
+    private void OnMouseUp(MouseEventArgs e)
+    {
+        if (Stage is null) return;
+        var (gx, gy) = ToGameCoords((float)e.OffsetX, (float)e.OffsetY);
+        Stage.OnPointerUp(gx, gy);
+    }
+
+    // Touch – ClientX/Y are viewport-relative; subtract container offset.
+    private void OnTouchMove(TouchEventArgs e)
+    {
+        if (Stage is null || e.Touches.Length == 0) return;
+        var t = e.Touches[0];
+        var (gx, gy) = ToGameCoords((float)(t.ClientX - _containerLeft), (float)(t.ClientY - _containerTop));
+        Stage.OnPointerMove(gx, gy);
+    }
+
+    private void OnTouchStart(TouchEventArgs e)
+    {
+        if (Stage is null || e.Touches.Length == 0) return;
+        var t = e.Touches[0];
+        var (gx, gy) = ToGameCoords((float)(t.ClientX - _containerLeft), (float)(t.ClientY - _containerTop));
+        Stage.OnPointerDown(gx, gy);
+    }
+
+    private void OnTouchEnd(TouchEventArgs e)
+    {
+        if (Stage is null || e.ChangedTouches.Length == 0) return;
+        var t = e.ChangedTouches[0];
+        var (gx, gy) = ToGameCoords((float)(t.ClientX - _containerLeft), (float)(t.ClientY - _containerTop));
+        Stage.OnPointerUp(gx, gy);
+    }
+
+    private record ElementRect(float Left, float Top, float Width, float Height);
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (Stage is null) return;
+        Stage.OnKeyDown(e.Key);
+    }
+
+    private void OnKeyUp(KeyboardEventArgs e)
+    {
+        if (Stage is null) return;
+        Stage.OnKeyUp(e.Key);
+    }
+}

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>SkiaSharpGames.UIGallery</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.*" />
+    <PackageReference Include="SkiaSharp" Version="3.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Engine\Theatre\SkiaSharp.Theatre.csproj" />
+    <ProjectReference Include="..\..\Engine\Theatre.Themes.Default\SkiaSharp.Theatre.Themes.Default.csproj" />
+    <ProjectReference Include="..\..\Engine\Theatre.Themes.Neon\SkiaSharp.Theatre.Themes.Neon.csproj" />
+    <ProjectReference Include="..\..\Engine\Theatre.Themes.PixelArt\SkiaSharp.Theatre.Themes.PixelArt.csproj" />
+  </ItemGroup>
+</Project>

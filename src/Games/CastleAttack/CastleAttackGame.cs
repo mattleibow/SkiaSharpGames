@@ -1,8 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-
-using SkiaSharp;
 using SkiaSharp.Theatre;
-
 using static SkiaSharpGames.CastleAttack.CastleAttackConstants;
 
 namespace SkiaSharpGames.CastleAttack;
@@ -24,14 +21,6 @@ public static class CastleAttackGame
 
         builder.SetOpeningScene<StartScreen>();
 
-        var stage = builder.Open();
-        stage.HudTheme = new HudTheme
-        {
-            Pointer = new CrosshairPointerAppearance
-            {
-                AccentColor = ColAccent,
-            },
-        };
-        return stage;
+        return builder.Open();
     }
 }

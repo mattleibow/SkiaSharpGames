@@ -1,6 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-
-using SkiaSharp;
 using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.Pong;
@@ -18,14 +16,6 @@ public static class PongGame
 
         builder.SetOpeningScene<StartScreen>();
 
-        var stage = builder.Open();
-        stage.HudTheme = new HudTheme
-        {
-            Pointer = new CrosshairPointerAppearance
-            {
-                AccentColor = PongConstants.AccentColor,
-            },
-        };
-        return stage;
+        return builder.Open();
     }
 }

@@ -1,6 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-
-using SkiaSharp;
 using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.TwoZeroFourEight;
@@ -21,15 +19,6 @@ public static class TwoZeroFourEightGame
 
         builder.SetOpeningScene<StartScreen>();
 
-        var stage = builder.Open();
-        stage.HudTheme = new HudTheme
-        {
-            Pointer = new CrosshairPointerAppearance
-            {
-                AccentColor = TwoZeroFourEightConstants.HeaderColor,
-                ShadowColor = new SKColor(0xFF, 0xFF, 0xFF, 180),
-            },
-        };
-        return stage;
+        return builder.Open();
     }
 }

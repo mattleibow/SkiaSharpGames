@@ -1,7 +1,6 @@
 using SkiaSharp;
-using SkiaSharp.Theatre;
 
-namespace SkiaSharp.Theatre.Themes.Default;
+namespace SkiaSharp.Theatre;
 
 /// <summary>
 /// Crosshair pointer appearance — two thin lines with a gap in the center.
@@ -111,13 +110,4 @@ public record DefaultRingAppearance : HudAppearance<HudPointer>
         StrokeLight.Color = SKColors.White;
         canvas.DrawCircle(0, 0, r, StrokeLight);
     }
-}
-
-/// <summary>
-/// Provides <c>DefaultPointerAppearance.Default</c> as an alias for <see cref="DefaultCrosshairAppearance"/>.
-/// </summary>
-public static class DefaultPointerAppearance
-{
-    /// <summary>The default pointer appearance (crosshair).</summary>
-    public static HudAppearance<HudPointer> Default { get; } = DefaultCrosshairAppearance.Default;
 }

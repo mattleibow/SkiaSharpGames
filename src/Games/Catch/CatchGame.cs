@@ -1,6 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-
-using SkiaSharp;
 using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.Catch;
@@ -18,14 +16,6 @@ public static class CatchGame
 
         builder.SetOpeningScene<StartScreen>();
 
-        var stage = builder.Open();
-        stage.HudTheme = new HudTheme
-        {
-            Pointer = new CrosshairPointerAppearance
-            {
-                AccentColor = CatchConstants.AccentColor,
-            },
-        };
-        return stage;
+        return builder.Open();
     }
 }

@@ -57,11 +57,7 @@ public static class RetroTheme
                 KnobBorderColor = new SKColor(0x11, 0x18, 0x10),
                 BorderWidth = 2f,
             },
-            Pointer = new CrosshairPointerAppearance
-            {
-                AccentColor = new SKColor(0xD4, 0xB0, 0x65),
-                ShadowColor = new SKColor(0x11, 0x18, 0x10, 180),
-            },
+            Pointer = DefaultCrosshairAppearance.Default,
             Label = DefaultLabelAppearance.Default,
         };
 }

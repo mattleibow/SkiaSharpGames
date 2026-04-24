@@ -1,6 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-
-using SkiaSharp;
 using SkiaSharp.Theatre;
 
 namespace SkiaSharpGames.Snake;
@@ -18,14 +16,6 @@ public static class SnakeGame
 
         builder.SetOpeningScene<StartScreen>();
 
-        var stage = builder.Open();
-        stage.HudTheme = new HudTheme
-        {
-            Pointer = new CrosshairPointerAppearance
-            {
-                AccentColor = SnakeConstants.AccentColor,
-            },
-        };
-        return stage;
+        return builder.Open();
     }
 }

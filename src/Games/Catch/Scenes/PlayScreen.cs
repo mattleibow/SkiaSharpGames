@@ -1,6 +1,5 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
-
 using static SkiaSharpGames.Catch.CatchConstants;
 
 namespace SkiaSharpGames.Catch;

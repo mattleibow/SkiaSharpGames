@@ -144,9 +144,14 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
             {
                 float cx = BricksStartX + c * (BrickWidth + BrickGap) + BrickWidth / 2f;
                 float cy = BricksStartY + r * (BrickHeight + BrickGap) + BrickHeight / 2f;
-                var brick = new Brick(r, c, cx, cy);
-                brick.Color = BrickColors[r];
-                brick.Shimmer.Start(Random.Shared.NextSingle() * brick.Shimmer.Period);
+                var brick = new Brick
+                {
+                    X = cx,
+                    Y = cy,
+                    Color = BrickColors[r],
+                    ScoreValue = 10 * (BrickRows - r),
+                };
+                brick.StartShimmer(Random.Shared.NextSingle() * 8f);
                 _bricks.Children.Add(brick);
             }
         }
@@ -308,7 +313,7 @@ internal sealed class PlayScreen(BreakoutGameState state, IDirector director) : 
                 break;
 
             brick.Active = false;
-            state.Score += 10 * (BrickRows - brick.Row);
+            state.Score += brick.ScoreValue;
             TrySpawnPowerUp(brick.X, brick.Y);
 
             if (!piercing)

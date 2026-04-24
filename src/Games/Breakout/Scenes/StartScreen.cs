@@ -57,10 +57,14 @@ internal sealed class StartScreen(IDirector director) : Scene
             {
                 float cx = BricksStartX + c * (BrickWidth + BrickGap) + BrickWidth / 2f;
                 float cy = BricksStartY + r * (BrickHeight + BrickGap) + BrickHeight / 2f;
-                var brick = new Brick(r, c, cx, cy);
-                brick.Color = BrickColors[r];
-                brick.Alpha = 0.3f;
-                brick.Shimmer.Start(Random.Shared.NextSingle() * brick.Shimmer.Period);
+                var brick = new Brick
+                {
+                    X = cx,
+                    Y = cy,
+                    Color = BrickColors[r],
+                    Alpha = 0.3f,
+                };
+                brick.StartShimmer(Random.Shared.NextSingle() * 8f);
                 _brickContainer.Children.Add(brick);
             }
         }

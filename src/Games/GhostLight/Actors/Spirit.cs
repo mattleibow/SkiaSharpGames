@@ -11,10 +11,6 @@ internal sealed class Spirit : Actor
     private readonly SKPaint _corePaint = new() { IsAntialias = true };
     private readonly SKPaint _glowPaint = new() { IsAntialias = true };
 
-    public SKColor CoreColor { get; set; } = new SKColor(0xCC, 0xEE, 0xFF);
-    public SKColor GlowColor { get; set; } = new SKColor(0x66, 0xBB, 0xFF);
-    public float GlowRadius { get; set; } = PlayerGlowRadius;
-
     public Spirit()
     {
         Name = "spirit";
@@ -23,19 +19,20 @@ internal sealed class Spirit : Actor
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        // Outer glow (radial gradient)
+        // Glow: radial gradient
         using var shader = SKShader.CreateRadialGradient(
             new SKPoint(0, 0),
-            GlowRadius,
-            [GlowColor.WithAlpha(120), GlowColor.WithAlpha(0)],
+            PlayerGlowRadius,
+            new[] { PlayerCoreColor.WithAlpha((byte)(0.9f * 255)), PlayerCoreColor.WithAlpha(0) },
+            new float[] { 0f, 1f },
             SKShaderTileMode.Clamp
         );
         _glowPaint.Shader = shader;
-        canvas.DrawCircle(0, 0, GlowRadius, _glowPaint);
+        canvas.DrawCircle(0, 0, PlayerGlowRadius, _glowPaint);
         _glowPaint.Shader = null;
 
-        // Core bright circle
-        _corePaint.Color = CoreColor;
+        // Core circle
+        _corePaint.Color = PlayerCoreColor;
         canvas.DrawCircle(0, 0, PlayerRadius, _corePaint);
 
         // Inner bright spot

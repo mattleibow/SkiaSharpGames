@@ -8,7 +8,7 @@ namespace SkiaSharpGames.GhostLight;
 /// <summary>Game over overlay showing final survival time. Click to restart.</summary>
 internal sealed class GameOverScreen(GhostLightState state, IDirector director) : Scene
 {
-    private static readonly SKPaint OverlayPaint = new() { Color = SKColors.Black.WithAlpha(186) };
+    private readonly SKPaint _overlayPaint = new() { Color = SKColors.Black.WithAlpha(180) };
 
     private readonly HudLabel _title = new()
     {
@@ -39,7 +39,8 @@ internal sealed class GameOverScreen(GhostLightState state, IDirector director) 
 
     public override void OnActivating()
     {
-        _scoreText.Text = $"Survived: {state.TimeSurvived:F1}s";
+        _scoreText.Text =
+            $"Score: {(int)(state.TimeSurvived * 10)}  •  Survived: {state.TimeSurvived:F1}s";
         if (ChildCount == 0)
         {
             Children.Add(_title);
@@ -50,7 +51,8 @@ internal sealed class GameOverScreen(GhostLightState state, IDirector director) 
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        canvas.DrawRect(0, 0, GameWidth, GameHeight, OverlayPaint);
+        // Semi-transparent black overlay
+        canvas.DrawRect(0, 0, GameWidth, GameHeight, _overlayPaint);
     }
 
     public override void OnPointerDown(float x, float y) =>

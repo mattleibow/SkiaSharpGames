@@ -45,9 +45,9 @@ internal sealed class StartScreen(IDirector director) : Scene
         Y = 430f,
     };
 
-    // Decorative fog layers for atmosphere
+    // Decorative fog and darkness for atmosphere
     private readonly Actor _darkness = new() { Name = "darkness", Alpha = 0.5f };
-    private readonly FogLayer _fog = new(0.3f) { Name = "titleFog" };
+    private readonly FogLayer _fog = new();
 
     // Decorative spirit preview
     private readonly Spirit _previewSpirit = new()
@@ -61,8 +61,8 @@ internal sealed class StartScreen(IDirector director) : Scene
     {
         if (ChildCount == 0)
         {
-            _fog.Children.Add(_previewSpirit);
             _darkness.Children.Add(_fog);
+            _darkness.Children.Add(_previewSpirit);
             Children.Add(_darkness);
             Children.Add(_title);
             Children.Add(_subtitle);

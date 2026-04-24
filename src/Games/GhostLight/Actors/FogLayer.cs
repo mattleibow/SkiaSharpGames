@@ -1,37 +1,42 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
 
-using static SkiaSharpGames.GhostLight.GhostLightConstants;
-
 namespace SkiaSharpGames.GhostLight;
 
-/// <summary>A fog container with animated alpha that breathes over time.</summary>
+/// <summary>Draws 4 large white fog circles with breathing alpha animation.</summary>
 internal sealed class FogLayer : Actor
 {
     private readonly SKPaint _paint = new() { IsAntialias = true };
-    private float _breathTimer;
-    private readonly float _breathPhase;
+    private float _time;
 
-    public float BaseAlpha { get; set; }
-    public SKColor FogColor { get; set; } = new SKColor(0x15, 0x10, 0x25);
+    private static readonly (
+        float x,
+        float y,
+        float radius,
+        float baseAlpha,
+        float offset
+    )[] Circles =
+    [
+        (200f, 150f, 180f, 0.10f, 0f),
+        (500f, 300f, 200f, 0.08f, 1.2f),
+        (650f, 120f, 150f, 0.12f, 2.5f),
+        (300f, 450f, 220f, 0.09f, 3.8f),
+    ];
 
-    public FogLayer(float baseAlpha, float breathPhase = 0f)
+    public FogLayer()
     {
-        BaseAlpha = baseAlpha;
-        _breathPhase = breathPhase;
-        Alpha = baseAlpha;
+        Name = "fog";
     }
 
-    protected override void OnUpdate(float deltaTime)
-    {
-        _breathTimer += deltaTime;
-        float breath = MathF.Sin((_breathTimer + _breathPhase) * MathF.PI * 2f / FogBreathPeriod);
-        Alpha = Math.Clamp(BaseAlpha + breath * FogBreathAmount, 0.05f, 0.95f);
-    }
+    protected override void OnUpdate(float deltaTime) => _time += deltaTime;
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        _paint.Color = FogColor;
-        canvas.DrawRect(0, 0, GameWidth, GameHeight, _paint);
+        foreach (var (x, y, radius, baseAlpha, offset) in Circles)
+        {
+            float alpha = baseAlpha + 0.02f * MathF.Sin(_time + offset);
+            _paint.Color = SKColors.White.WithAlpha((byte)(alpha * 255));
+            canvas.DrawCircle(x, y, radius, _paint);
+        }
     }
 }

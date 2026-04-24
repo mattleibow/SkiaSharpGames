@@ -5,49 +5,43 @@ using static SkiaSharpGames.GhostLight.GhostLightConstants;
 
 namespace SkiaSharpGames.GhostLight;
 
-/// <summary>An enemy shadow that drifts through the fog and fades in over time.</summary>
+/// <summary>An enemy shadow that chases the player with proximity-based alpha.</summary>
 internal sealed class ShadowBlob : Actor
 {
     private readonly SKPaint _paint = new() { IsAntialias = true };
 
     public float Radius { get; set; }
-    public SKColor Color { get; set; } = new SKColor(0x20, 0x10, 0x30);
+    public Actor? Target { get; set; }
 
-    public ShadowBlob(float radius, float vx, float vy)
+    public ShadowBlob(float radius)
     {
         Radius = radius;
         Collider = new CircleCollider { Radius = radius * 0.7f };
-        Rigidbody = new Rigidbody2D { VelocityX = vx, VelocityY = vy };
-        Alpha = 0f;
     }
 
     protected override void OnUpdate(float deltaTime)
     {
-        // Fade in
-        if (Alpha < 0.85f)
-            Alpha = Math.Min(Alpha + deltaTime * 0.5f, 0.85f);
+        if (Target is not null)
+        {
+            float dx = Target.X - X;
+            float dy = Target.Y - Y;
+            float dist = MathF.Sqrt(dx * dx + dy * dy);
+            if (dist > 1f)
+            {
+                X += dx / dist * EnemySpeed * deltaTime;
+                Y += dy / dist * EnemySpeed * deltaTime;
+            }
 
-        // Screen wrapping
-        if (X < -Radius * 2)
-            X = GameWidth + Radius;
-        if (X > GameWidth + Radius * 2)
-            X = -Radius;
-        if (Y < -Radius * 2)
-            Y = GameHeight + Radius;
-        if (Y > GameHeight + Radius * 2)
-            Y = -Radius;
+            // Alpha based on proximity: closer = more visible
+            float maxDist = 300f;
+            float proximity = 1f - Math.Clamp(dist / maxDist, 0f, 1f);
+            Alpha = 0.3f + 0.4f * proximity;
+        }
     }
 
     protected override void OnDraw(SKCanvas canvas)
     {
-        using var shader = SKShader.CreateRadialGradient(
-            new SKPoint(0, 0),
-            Radius,
-            [Color, Color.WithAlpha(0)],
-            SKShaderTileMode.Clamp
-        );
-        _paint.Shader = shader;
+        _paint.Color = SKColors.Black;
         canvas.DrawCircle(0, 0, Radius, _paint);
-        _paint.Shader = null;
     }
 }

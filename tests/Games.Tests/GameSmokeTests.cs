@@ -1,7 +1,6 @@
 using SkiaSharp;
 using SkiaSharp.Theatre;
 using SkiaSharp.Theatre.Rehearsals;
-
 using SkiaSharpGames.Asteroids;
 using SkiaSharpGames.Breakout;
 using SkiaSharpGames.CastleAttack;
@@ -14,7 +13,6 @@ using SkiaSharpGames.Snake;
 using SkiaSharpGames.SpaceInvaders;
 using SkiaSharpGames.TwoZeroFourEight;
 using SkiaSharpGames.UIGallery;
-
 using Xunit;
 
 namespace SkiaSharp.Theatre.Games.Tests;

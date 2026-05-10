@@ -1,8 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-
 using SkiaSharp;
 using SkiaSharp.Theatre;
-
 using Xunit;
 
 namespace SkiaSharp.Theatre.Tests;

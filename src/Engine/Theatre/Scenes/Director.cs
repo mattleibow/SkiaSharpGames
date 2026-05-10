@@ -17,6 +17,11 @@ internal sealed class Director : IDirector, IRenderer
     private readonly List<Scene> _sceneStack = [];
     private ActiveCurtain? _activeCurtain;
 
+    // ── Pointer idle tracking ───────────────────────────────────────
+    private float _pointerIdleTimer;
+    private float _lastPointerX = float.NaN;
+    private float _lastPointerY = float.NaN;
+
     private sealed class ActiveCurtain(Scene outgoing, Scene incoming, ICurtain curtain)
     {
         public Scene Outgoing { get; } = outgoing;
@@ -145,12 +150,29 @@ internal sealed class Director : IDirector, IRenderer
         }
     }
 
+    /// <summary>
+    /// Called by <see cref="Stage"/> when a pointer event occurs. Resets the idle
+    /// timer if the pointer has actually moved (not just repeated the same position).
+    /// </summary>
+    internal void NotifyPointerMoved(float x, float y)
+    {
+        if (x != _lastPointerX || y != _lastPointerY)
+        {
+            _lastPointerX = x;
+            _lastPointerY = y;
+            _pointerIdleTimer = 0f;
+        }
+    }
+
     // ── IRenderer ───────────────────────────────────────────────────
 
     /// <inheritdoc/>
     public void Update(float deltaTime)
     {
         EnsureInitialized();
+
+        // Advance pointer idle timer (always ticks, even during transitions)
+        _pointerIdleTimer += deltaTime;
 
         if (_activeCurtain is not null)
         {
@@ -202,6 +224,35 @@ internal sealed class Director : IDirector, IRenderer
             _current!.Draw(canvas);
             foreach (var layer in _sceneStack)
                 layer.Draw(canvas);
+        }
+
+        // Draw the pointer on top of all scene content
+        var inputScene = ActiveInputScene;
+        var pointer = inputScene.Pointer;
+        if (pointer.Visible)
+        {
+            bool stagePaused = _stage?.IsStagePaused == true;
+            float targetAlpha = stagePaused
+                ? 1f
+                : inputScene.PointerPolicy switch
+                {
+                    PointerPolicy.AlwaysVisible => 1f,
+                    PointerPolicy.AlwaysHidden => 0f,
+                    PointerPolicy.HideWhenIdle => _pointerIdleTimer < inputScene.PointerIdleTimeout
+                        ? 1f
+                        : 1f
+                            - Math.Clamp(
+                                (_pointerIdleTimer - inputScene.PointerIdleTimeout)
+                                    / MathF.Max(inputScene.PointerFadeDuration, 0.001f),
+                                0f,
+                                1f
+                            ),
+                    _ => 1f,
+                };
+
+            pointer.Alpha = targetAlpha;
+            if (targetAlpha > 0f)
+                pointer.Draw(canvas);
         }
     }
 }

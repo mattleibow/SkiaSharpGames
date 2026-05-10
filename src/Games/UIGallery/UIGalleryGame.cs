@@ -1,7 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-
 using SkiaSharp.Theatre;
-using SkiaSharp.Theatre.Themes.Default;
 
 namespace SkiaSharpGames.UIGallery;
 
@@ -17,8 +15,6 @@ public static class UIGalleryGame
         builder.Scenes.Add<PlayScreen>();
         builder.SetOpeningScene<PlayScreen>();
 
-        var stage = builder.Open();
-        stage.HudTheme = DefaultTheme.Create();
-        return stage;
+        return builder.Open();
     }
 }

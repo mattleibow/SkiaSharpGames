@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-
 using SkiaSharp;
 
 namespace SkiaSharp.Theatre.Rehearsals;

@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-
 using SkiaSharp.Theatre.Diagnostics;
 
 namespace SkiaSharp.Theatre;
@@ -69,8 +68,34 @@ public sealed class Stage
     /// </summary>
     public HudTheme? HudTheme { get; set; }
 
+    /// <summary>
+    /// Whether the game is currently paused. When paused, the pointer is forced visible
+    /// regardless of the active scene's <see cref="PointerPolicy"/>, and
+    /// <see cref="Update"/> is a no-op.
+    /// </summary>
+    public bool IsStagePaused { get; private set; }
+
+    /// <summary>
+    /// Pauses the game. While paused, <see cref="Update"/> is skipped and the pointer
+    /// is forced visible so the user can interact with menus or overlays.
+    /// Games should bind this to a key (e.g., Escape) or a pause button.
+    /// </summary>
+    public void Pause() => IsStagePaused = true;
+
+    /// <summary>
+    /// Resumes the game after a <see cref="Pause"/>. Restores the active scene's
+    /// <see cref="PointerPolicy"/> behaviour.
+    /// </summary>
+    public void Resume() => IsStagePaused = false;
+
     /// <summary>Advances the game by <paramref name="deltaTime"/> seconds.</summary>
-    public void Update(float deltaTime) => _renderer.Update(deltaTime);
+    /// <remarks>When <see cref="IsStagePaused"/> is <c>true</c>, this is a no-op.</remarks>
+    public void Update(float deltaTime)
+    {
+        if (IsStagePaused)
+            return;
+        _renderer.Update(deltaTime);
+    }
 
     /// <summary>Draws the current frame to <paramref name="canvas"/>.</summary>
     /// <remarks>
@@ -108,12 +133,11 @@ public sealed class Stage
     public void OnPointerMove(float x, float y)
     {
         var scene = _director.ActiveInputScene;
-        if (scene.Pointer is { } p)
-        {
-            p.X = x;
-            p.Y = y;
-            p.Visible = true;
-        }
+        var p = scene.Pointer;
+        p.X = x;
+        p.Y = y;
+        p.Visible = true;
+        (_director as Director)?.NotifyPointerMoved(x, y);
         scene.OnPointerMove(x, y);
     }
 
@@ -121,13 +145,12 @@ public sealed class Stage
     public void OnPointerDown(float x, float y)
     {
         var scene = _director.ActiveInputScene;
-        if (scene.Pointer is { } p)
-        {
-            p.IsDown = true;
-            p.X = x;
-            p.Y = y;
-            p.Visible = true;
-        }
+        var p = scene.Pointer;
+        p.IsDown = true;
+        p.X = x;
+        p.Y = y;
+        p.Visible = true;
+        (_director as Director)?.NotifyPointerMoved(x, y);
         scene.OnPointerDown(x, y);
     }
 
@@ -135,12 +158,10 @@ public sealed class Stage
     public void OnPointerUp(float x, float y)
     {
         var scene = _director.ActiveInputScene;
-        if (scene.Pointer is { } p)
-        {
-            p.X = x;
-            p.Y = y;
-            p.IsDown = false;
-        }
+        var p = scene.Pointer;
+        p.X = x;
+        p.Y = y;
+        p.IsDown = false;
         scene.OnPointerUp(x, y);
     }
 

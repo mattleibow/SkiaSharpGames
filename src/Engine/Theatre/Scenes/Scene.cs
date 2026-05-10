@@ -11,6 +11,19 @@ namespace SkiaSharp.Theatre;
 public abstract class Scene : SceneNode
 {
     /// <summary>
+    /// Creates a new scene with an auto-created <see cref="Pointer"/>.
+    /// The pointer's <see cref="SceneNode.Parent"/> is set to this scene for theme resolution
+    /// but it is not added to <see cref="SceneNode.Children"/> — the engine draws it
+    /// on top of all scene content via the <see cref="Director"/>.
+    /// </summary>
+    protected Scene()
+    {
+        var pointer = new HudPointer();
+        pointer.Parent = this;
+        Pointer = pointer;
+    }
+
+    /// <summary>
     /// Reference to the <see cref="Theatre.Stage"/> hosting this scene. Set by the
     /// <see cref="Director"/> when the scene is activated.
     /// </summary>
@@ -30,10 +43,27 @@ public abstract class Scene : SceneNode
     public bool IsPaused { get; internal set; }
 
     /// <summary>
-    /// Optional visible pointer/cursor. When set, the engine automatically updates its
-    /// position from pointer events. Draw it at the end of <see cref="Draw"/> to keep it on top.
+    /// Visible pointer/cursor. Auto-created for every scene. The engine automatically
+    /// updates its position from pointer events and draws it on top of all scene content.
+    /// Use <see cref="PointerPolicy"/> to control cursor visibility behaviour.
     /// </summary>
-    public HudPointer? Pointer { get; protected set; }
+    public HudPointer Pointer { get; protected set; }
+
+    /// <summary>
+    /// Controls how the pointer is displayed for this scene.
+    /// Defaults to <see cref="Theatre.PointerPolicy.AlwaysVisible"/>.
+    /// </summary>
+    public PointerPolicy PointerPolicy { get; set; } = PointerPolicy.AlwaysVisible;
+
+    /// <summary>
+    /// Seconds of pointer inactivity before the cursor fades out.
+    /// Only used when <see cref="PointerPolicy"/> is
+    /// <see cref="Theatre.PointerPolicy.HideWhenIdle"/>. Default is 2 seconds.
+    /// </summary>
+    public float PointerIdleTimeout { get; set; } = 2f;
+
+    /// <summary>Duration in seconds for the pointer fade-out animation.</summary>
+    public float PointerFadeDuration { get; set; } = 0.3f;
 
     // ── Input ─────────────────────────────────────────────────────────────
 

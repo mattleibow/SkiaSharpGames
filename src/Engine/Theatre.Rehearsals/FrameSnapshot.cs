@@ -44,9 +44,9 @@ public sealed class FrameSnapshot : IDisposable
         int bottom = Math.Min(Height, region.Bottom);
 
         for (int y = top; y < bottom; y++)
-            for (int x = left; x < right; x++)
-                if (_bitmap.GetPixel(x, y) != background)
-                    return true;
+        for (int x = left; x < right; x++)
+            if (_bitmap.GetPixel(x, y) != background)
+                return true;
         return false;
     }
 
@@ -61,9 +61,9 @@ public sealed class FrameSnapshot : IDisposable
         int bottom = Math.Min(Height, region.Bottom);
 
         for (int y = top; y < bottom; y++)
-            for (int x = left; x < right; x++)
-                if (_bitmap.GetPixel(x, y) != color)
-                    return false;
+        for (int x = left; x < right; x++)
+            if (_bitmap.GetPixel(x, y) != color)
+                return false;
         return true;
     }
 
@@ -116,9 +116,9 @@ public sealed class FrameSnapshot : IDisposable
         int diffCount = 0;
         int total = Width * Height;
         for (int y = 0; y < Height; y++)
-            for (int x = 0; x < Width; x++)
-                if (_bitmap.GetPixel(x, y) != other._bitmap.GetPixel(x, y))
-                    diffCount++;
+        for (int x = 0; x < Width; x++)
+            if (_bitmap.GetPixel(x, y) != other._bitmap.GetPixel(x, y))
+                diffCount++;
 
         return total == 0 ? 0f : (float)diffCount / total;
     }

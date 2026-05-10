@@ -114,11 +114,8 @@ internal sealed class PlayScreen : Scene
 
         ConfigureOverrides();
 
-        Pointer = new HudPointer();
-
         Children.Add(_themeButtons);
         Children.Add(_controls);
-        Children.Add(Pointer);
     }
 
     public override void OnActivated()
@@ -135,7 +132,7 @@ internal sealed class PlayScreen : Scene
     {
         // Pointer position is already set by the engine
 
-        if (Pointer!.FindHit(_themeButtons) is HudButton themeButton)
+        if (Pointer.FindHit(_themeButtons) is HudButton themeButton)
         {
             int idx = Array.IndexOf(_themeButtonList, themeButton);
             if (idx >= 0)
@@ -148,7 +145,7 @@ internal sealed class PlayScreen : Scene
         _primaryButton.IsPressed = false;
         _overrideButton.IsPressed = false;
 
-        var hit = Pointer!.FindHit(_controls);
+        var hit = Pointer.FindHit(_controls);
 
         switch (hit)
         {

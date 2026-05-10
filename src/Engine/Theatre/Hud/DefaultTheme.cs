@@ -1,7 +1,6 @@
 using SkiaSharp;
-using SkiaSharp.Theatre;
 
-namespace SkiaSharp.Theatre.Themes.Default;
+namespace SkiaSharp.Theatre;
 
 /// <summary>
 /// Factory for the default UI theme. All appearances use their built-in defaults.
@@ -19,7 +18,7 @@ public static class DefaultTheme
             Switch = DefaultSwitchAppearance.Default,
             Slider = DefaultSliderAppearance.Default,
             Joystick = DefaultJoystickAppearance.Default,
-            Pointer = DefaultPointerAppearance.Default,
+            Pointer = DefaultCrosshairAppearance.Default,
             Label = DefaultLabelAppearance.Default,
         };
 }

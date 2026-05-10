@@ -1,7 +1,6 @@
 using SkiaSharp;
-using SkiaSharp.Theatre;
 
-namespace SkiaSharp.Theatre.Themes.Default;
+namespace SkiaSharp.Theatre;
 
 /// <summary>
 /// Toggle button appearance for <see cref="HudButton"/> — renders as a

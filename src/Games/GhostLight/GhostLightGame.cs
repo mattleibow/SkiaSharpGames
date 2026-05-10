@@ -1,8 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-
 using SkiaSharp.Theatre;
-using SkiaSharp.Theatre.Themes.Default;
-
 using static SkiaSharpGames.GhostLight.GhostLightConstants;
 
 namespace SkiaSharpGames.GhostLight;
@@ -20,8 +17,6 @@ public static class GhostLightGame
 
         builder.SetOpeningScene<StartScreen>();
 
-        var stage = builder.Open();
-        stage.HudTheme = DefaultTheme.Create();
-        return stage;
+        return builder.Open();
     }
 }

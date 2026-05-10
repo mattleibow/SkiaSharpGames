@@ -45,23 +45,25 @@ public abstract class Scene : SceneNode
     /// <summary>
     /// Visible pointer/cursor. Auto-created for every scene. The engine automatically
     /// updates its position from pointer events and draws it on top of all scene content.
-    /// Use <see cref="ShowPointer"/> to hide the pointer for scenes that don't need it.
+    /// Use <see cref="PointerPolicy"/> to control cursor visibility behaviour.
     /// </summary>
     public HudPointer Pointer { get; protected set; }
 
     /// <summary>
-    /// Controls whether the pointer is drawn for this scene.
-    /// <c>null</c> (default) inherits from <see cref="Stage.ShowPointer"/>.
-    /// Set to <c>false</c> on play screens where the cursor is not needed
-    /// (e.g., paddle-follow or keyboard-only games).
+    /// Controls how the pointer is displayed for this scene.
+    /// Defaults to <see cref="Theatre.PointerPolicy.AlwaysVisible"/>.
     /// </summary>
-    public bool? ShowPointer { get; set; }
+    public PointerPolicy PointerPolicy { get; set; } = PointerPolicy.AlwaysVisible;
 
     /// <summary>
-    /// Resolves the effective pointer visibility for this scene:
-    /// <see cref="ShowPointer"/> if set, otherwise <see cref="Stage.ShowPointer"/>, else true.
+    /// Seconds of pointer inactivity before the cursor fades out.
+    /// Only used when <see cref="PointerPolicy"/> is
+    /// <see cref="Theatre.PointerPolicy.HideWhenIdle"/>. Default is 2 seconds.
     /// </summary>
-    internal bool EffectiveShowPointer => ShowPointer ?? Stage?.ShowPointer ?? true;
+    public float PointerIdleTimeout { get; set; } = 2f;
+
+    /// <summary>Duration in seconds for the pointer fade-out animation.</summary>
+    public float PointerFadeDuration { get; set; } = 0.3f;
 
     // ── Input ─────────────────────────────────────────────────────────────
 

@@ -41,7 +41,7 @@ internal sealed class PlayScreen : Scene
         this.state = state;
         this.director = director;
 
-        ShowPointer = false;
+        PointerPolicy = PointerPolicy.AlwaysHidden;
 
         Children.Add(_grid);
         Children.Add(_food);

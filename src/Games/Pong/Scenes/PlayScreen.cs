@@ -91,7 +91,7 @@ internal sealed class PlayScreen : Scene
         this.state = state;
         this.director = director;
 
-        ShowPointer = false;
+        PointerPolicy = PointerPolicy.AlwaysHidden;
 
         Children.Add(_leftPaddle);
         Children.Add(_rightPaddle);

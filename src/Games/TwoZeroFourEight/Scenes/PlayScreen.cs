@@ -76,7 +76,7 @@ internal sealed class PlayScreen(TwoZeroFourEightGameState state, IDirector dire
 
     public override void OnActivating()
     {
-        ShowPointer = false;
+        PointerPolicy = PointerPolicy.AlwaysHidden;
 
         if (ChildCount == 0)
         {
